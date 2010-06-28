@@ -9,7 +9,8 @@ Now you are ready to bootstrap the system:
 
     $ python bootstrap.py
 
-Finally, run the buildout, to get all dependencies:
+Finally, run the buildout, to get all dependencies (this will take a
+long time):
 
     $ ./bin/buildout -v
 
