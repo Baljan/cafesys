@@ -11,7 +11,7 @@ Now you are ready to bootstrap the system:
 
 Finally, run the buildout, to get all dependencies:
 
-    $ buildout -v
+    $ ./bin/buildout -v
 
 Now you have all the dependencies needed to run the system. The 
 `source bin/activate` command is important, and must be ran in order to
