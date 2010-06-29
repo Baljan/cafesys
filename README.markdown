@@ -14,8 +14,8 @@ long time):
 
     $ ./bin/buildout -v
 
-Now you have all the dependencies needed to run the system. The 
-`source bin/activate` command is important, and must be ran in order to
+Now you have all the dependencies needed to run the system. The `source
+env/bin/activate` command is important, and must be ran in order to
 tell the shell not to use the system-wide packages, but the packages
 contained within this repository.
 
