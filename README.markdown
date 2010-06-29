@@ -2,8 +2,8 @@
 Be sure to run the following commands after cloning for the first time,
 to cut all ties with the system-wide Python:
 
-    $ virtualenv --no-site-packages .
-    $ source bin/activate
+    $ virtualenv --no-site-packages env
+    $ source env/bin/activate
 
 Now you are ready to bootstrap the system:
 
