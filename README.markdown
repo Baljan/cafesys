@@ -1,20 +1,12 @@
 # After Cloning
-Be sure to run the following commands after cloning for the first time,
-to cut all ties with the system-wide Python:
+Run (you are recommended to do this inside a virtualenv):
 
-    $ virtualenv --no-site-packages env
-    $ source env/bin/activate
+    $ pip install -r requirements.txt
+    $ cd cafesys
+    $ python manage.py syncdb
 
-Now you are ready to bootstrap the system:
+# Running a development server
+Run:
 
-    $ python bootstrap.py
-
-Finally, run the buildout, to get all dependencies (this will take a
-long time):
-
-    $ ./bin/buildout -v
-
-Now you have all the dependencies needed to run the system. The `source
-env/bin/activate` command is important, and must be ran in order to
-tell the shell not to use the system-wide packages, but the packages
-contained within the virtualenv.
+    $ cd cafesys
+    $ python manage.py runserver 0.0.0.0:8000
