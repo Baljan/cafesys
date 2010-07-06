@@ -1,5 +1,5 @@
-Pinax
 gunicorn
 ipython
 PIL
 -e git+http://github.com/jtauber/web-graphics.git#egg=web_graphics
+--requirement=cafesys/requirements/project.txt
