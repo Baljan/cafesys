@@ -12,13 +12,14 @@ Run:
     $ python manage.py runserver 0.0.0.0:8000
 
 # Virtualenv Crash Course
-Here is a crash course how to get started with virtualenv and virtualenvwrapper
-in Fedora:
+Here is a crash course on how to get started with virtualenv and
+virtualenvwrapper in Fedora:
 
     $ sudo yum -y install python-pip
     $ sudo pip install virtualenv
     $ sudo pip install virtualenvwrapper
     $ cd ~
+    $ mkdir -p envs
     $ echo 'export WORKON_HOME=$HOME/envs' >> .bashrc
     $ echo 'source /usr/bin/virtualenvwrapper.sh' >> .bashrc
     $ source .bashrc
