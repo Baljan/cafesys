@@ -1,11 +1,7 @@
-*.pyc
-*.pyo
-.installed.cfg
 bin
-develop-eggs
-dist
-downloads
-eggs
-parts
-env
-src/*.egg-info
+build
+include
+lib
+lib64
+share
+src
