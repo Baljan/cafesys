@@ -5,8 +5,26 @@ Run (you are recommended to do this inside a virtualenv):
     $ cd cafesys
     $ python manage.py syncdb
 
-# Running a development server
+# Running a Development Server
 Run:
 
     $ cd cafesys
     $ python manage.py runserver 0.0.0.0:8000
+
+# Virtualenv Crash Course
+Here is a crash course how to get started with virtualenv and virtualenvwrapper
+in Fedora:
+
+    $ sudo yum -y install python-pip
+    $ sudo pip install virtualenv
+    $ sudo pip install virtualenvwrapper
+    $ cd ~
+    $ echo 'export WORKON_HOME=$HOME/envs' >> .bashrc
+    $ echo 'source /usr/bin/virtualenvwrapper.sh' >> .bashrc
+    $ source .bashrc
+    $ cd envs
+    $ git clone git@github.com:pilt/cafesys.git
+    $ mkvirtualenv --no-site-packages cafesys
+    $ cd cafesys
+    $ pip install -r requirements.txt
+
