@@ -4,17 +4,7 @@ $(document).ready(function() {
             loadingAnimation: false,
         }
 
-        var itemInfo = {
-            'item-0': {
-                'costPer': 4,
-                'countInit': 1,
-            },
-            'item-1': {
-                'costPer': 3,
-                'countInit': 0,
-            },
-        }
-        
+        var itemInfo = {}
         var lastBalance = 0;
         var orderCount = 0;
 
@@ -29,7 +19,6 @@ $(document).ready(function() {
                 $.data(this, 'costPer', costPer);
             });
         }
-        resetOrder();
 
         var totalCost = function() {
             var costTotal = 0;
@@ -54,7 +43,17 @@ $(document).ready(function() {
             $('.last-balance .value').html(lastBalance + ' SEK');
         }
 
-        guiRefresh();
+        $.getJSON('item-info', function(items) {
+            for (var i in items) {
+                itemInfo['item-'+items[i].pk] = {
+                    'costPer': items[i].fields.cost,
+                    'countInit': items[i].fields.initial_count
+                }
+            }
+            resetOrder();
+            guiRefresh();
+        });
+
 
         $('.item .mod').click(function() {
             var value = $(this).siblings('.value')[0];

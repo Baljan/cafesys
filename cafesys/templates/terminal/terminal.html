@@ -15,10 +15,11 @@
         </div>
         <div class="order-container">
             <div class="menu">
-                <div class="item" id="item-0">
-                    <img src="{{ STATIC_URL }}img/coffee.jpg" alt="coffee or tea" />
+            {% for item in items %}
+                <div class="item" id="item-{{item.id}}">
+                    <img src="{{ STATIC_URL }}img/coffee.jpg" alt="product image" />
                     <div class="meta">
-                        <h3>Kaffe/Te</h3><p class="desc">pappersmugg</p>
+                        <h3>{{item.title}}</h3><p class="desc">{{item.description}}</p>
                         <div class="number">
                             <h4>Antal:</h4>
                             <span class="value"></span><br>
@@ -26,17 +27,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="item" id="item-1">
-                    <img src="{{ STATIC_URL }}img/tea.jpg" alt="tea" />
-                    <div class="meta">
-                        <h3>Kaffe/Te</h3><p class="desc">egen mugg</p>
-                        <div class="number">
-                            <h4>Antal:</h4>
-                            <span class="value"></small></span><br>
-                            <span class="mod remove">-</span><span class="mod add">+</span>
-                        </div>
-                    </div>
-                </div>
+            {% endfor %}
             </div>
             <div class="cost-total" id="cost-total">
                 <div class="overlay"></div>
