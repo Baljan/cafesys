@@ -130,8 +130,8 @@ $(document).ready(function() {
         $(document).oneTime(pollOrderCountInterval, 'pollOrderCount', pollOrderCount);
 
         $('#trig-order').click(function() {
+            resetOrder();
             fxOrderPut(function() {
-                resetOrder();
                 guiRefresh();
             })
         });
