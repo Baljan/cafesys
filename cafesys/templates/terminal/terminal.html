@@ -17,7 +17,7 @@
             <div class="menu">
             {% for item in items %}
                 <div class="item" id="item-{{item.id}}">
-                    <img src="{{ STATIC_URL }}img/items/{{item.img_path}}" alt="product image" />
+                    <img src="{{ MEDIA_URL }}{{item.img}}" alt="product image" />
                     <div class="meta">
                         <h3>{{item.title}}</h3><p class="desc">{{item.description}}</p>
                         <div class="number">

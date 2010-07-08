@@ -14,6 +14,9 @@ PINAX_THEME = "default"
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+# Terminal settings.
+TERMINAL_FIREWALL = not DEBUG
+
 # tells Pinax to serve media through the staticfiles app.
 SERVE_MEDIA = DEBUG
 
@@ -104,6 +107,7 @@ MIDDLEWARE_CLASSES = [
     "pagination.middleware.PaginationMiddleware",
     "pinax.middleware.security.HideSensistiveFieldsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "terminal.middleware.RestrictAccessMiddleware",
 ]
 
 ROOT_URLCONF = "cafesys.urls"

@@ -6,7 +6,7 @@ class Item(models.Model):
     description = models.CharField(max_length=100)
     cost = models.IntegerField()
     initial_count = models.IntegerField(default=0)
-    img_path = models.CharField(max_length=200)
+    img = models.ImageField(upload_to='img/items')
 
     def __str__(self):
         return "%s - %s (%g SEK)" % (self.title, self.description, self.cost)
