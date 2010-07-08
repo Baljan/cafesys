@@ -89,23 +89,23 @@ $(document).ready(function() {
         var fxOrderPut = function(callback) {
             "The callback will be called when no info is shown on-screen."
             var orderContainer = $('.order-container');
-            $(orderContainer).animate({ opacity: 0.0, }, 500);
-            $(document).oneTime(500, callback);
-            $(document).oneTime(500, function() {
+            $(orderContainer).animate({ opacity: 0.0, }, 200);
+            $(document).oneTime(200, callback);
+            $(document).oneTime(200, function() {
                 var balance = $('.last-balance');
                 $(balance).animate({opacity: 0.0}, 0);
                 $(balance).css('display', 'block');
-                $(balance).animate({opacity: 1.0}, 500);
+                $(balance).animate({opacity: 1.0}, 200);
                 $(document).oneTime(2000, function() {
-                    $(balance).animate({opacity: 0.0}, 500)
+                    $(balance).animate({opacity: 0.0}, 200)
                 });
-                $(document).oneTime(2000+500, function() {
+                $(document).oneTime(2000+200, function() {
                     $(balance).css('display', 'none');
                 });
             });
-            $(document).oneTime(500+500+2000, function() {
+            $(document).oneTime(200+200+2000, function() {
                 $(orderContainer).css('margin-top', '-2000px');
-                $(orderContainer).animate({ marginTop: '0px', opacity: 1.0, }, 1000);
+                $(orderContainer).animate({ marginTop: '0px', opacity: 1.0, }, 500);
             });
         }
         
