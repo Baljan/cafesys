@@ -162,6 +162,7 @@ INSTALLED_APPS = [
     # project
     "about",
     "terminal",
+    "liu",
 ]
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
