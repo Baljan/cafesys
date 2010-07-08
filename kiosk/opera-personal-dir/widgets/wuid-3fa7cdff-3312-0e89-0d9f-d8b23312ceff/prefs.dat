@@ -5,6 +5,6 @@
     <value id="serviceName" xml:space="preserve">_root</value>
   </section>
   <section id="wuid-3fa7cdff-3312-0e89-0d9f-d8b23312ceff">
-    <value id="network_access" xml:space="preserve">16</value>
+    <value id="network_access" xml:space="preserve">1</value>
   </section>
 </preferences>

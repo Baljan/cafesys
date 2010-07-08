@@ -21,12 +21,14 @@ stack position=0
 active=0
 locked=0
 type=0
+integrated devtools window=0
+integrated devtools window only=0
 
 [2]
 x=0
 y=0
 w=1680
-h=1050
+h=906
 state=2
 restore to state=0
 id=128
@@ -38,8 +40,8 @@ active=1
 locked=0
 type=1
 window id=1
-max history=2
-current history=2
+max history=3
+current history=3
 has speeddial in history=0
 lists=history url,history document type,history title,history scrollpos list
 encoding=
@@ -56,21 +58,25 @@ show scrollbars=1
 search engine=7A8CADE6677811DDBA4B5E9D55D89593
 
 [2history url]
-count=2
+count=3
 0=http://localhost:8000/terminal/
 1=http://localhost:8000/terminal/
+2=http://localhost:8000/terminal/
 
 [2history document type]
-count=2
+count=3
 0=6
 1=6
+2=6
 
 [2history title]
-count=2
+count=3
 0=cafesys terminal
 1=cafesys terminal
+2=cafesys terminal
 
 [2history scrollpos list]
-count=2
+count=3
 0=0
 1=0
+2=0

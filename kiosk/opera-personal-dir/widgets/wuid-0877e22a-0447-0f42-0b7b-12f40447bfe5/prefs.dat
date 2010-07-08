@@ -4,6 +4,6 @@
     <value id="name" xml:space="preserve">Web Server</value>
   </section>
   <section id="wuid-0877e22a-0447-0f42-0b7b-12f40447bfe5">
-    <value id="network_access" xml:space="preserve">16</value>
+    <value id="network_access" xml:space="preserve">1</value>
   </section>
 </preferences>

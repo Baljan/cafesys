@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <preferences>
   <section id="Wand">
-    <value id="Enabled" xml:space="preserve">1</value>
     <value id="EnteredWandInformation" xml:space="preserve">0</value>
     <value id="NumberOfLogins" xml:space="preserve">0</value>
     <value id="NumberOfPages" xml:space="preserve">0</value>
+    <value id="Enabled" xml:space="preserve">0</value>
   </section>
   <section id="Skin">
     <value id="SkinType" xml:space="preserve">3</value>
@@ -62,10 +62,10 @@
     <value id="PageIcons" xml:space="preserve">1</value>
   </section>
   <section id="PreferencesNotifications">
-    <value id="EnableProgramSounds" xml:space="preserve">1</value>
-    <value id="ShowNotificationNewMessages" xml:space="preserve">1</value>
-    <value id="ShowNotificationBlockedPopups" xml:space="preserve">1</value>
-    <value id="ShowNotificationFinishedTransfers" xml:space="preserve">1</value>
+    <value id="EnableProgramSounds" xml:space="preserve">0</value>
+    <value id="ShowNotificationNewMessages" xml:space="preserve">0</value>
+    <value id="ShowNotificationBlockedPopups" xml:space="preserve">0</value>
+    <value id="ShowNotificationFinishedTransfers" xml:space="preserve">0</value>
   </section>
   <section id="PreferencesContent">
     <value id="JavaEnabled" xml:space="preserve">1</value>
@@ -123,7 +123,7 @@
     <value id="ImageExpiry" xml:space="preserve">18000</value>
   </section>
   <section id="SpellCheck">
-    <value id="SpellcheckEnabled" xml:space="preserve">1</value>
+    <value id="SpellcheckEnabled" xml:space="preserve">0</value>
   </section>
   <section id="UserJS">
     <value id="Enabled" xml:space="preserve">0</value>
@@ -146,10 +146,10 @@
     <value id="DesktopEnvIsXFCE" xml:space="preserve">0</value>
     <value id="DesktopEnvIsGNOME" xml:space="preserve">1</value>
     <value id="DesktopEnvIsKDE" xml:space="preserve">0</value>
-    <value id="BrowsingTime" xml:space="preserve">21</value>
-    <value id="NumberOfDocumentWindows" xml:space="preserve">2</value>
-    <value id="NumberOfDocumentWindowsShowImages" xml:space="preserve">2</value>
-    <value id="NumberOfVisitedPages" xml:space="preserve">4</value>
+    <value id="BrowsingTime" xml:space="preserve">169</value>
+    <value id="NumberOfDocumentWindows" xml:space="preserve">4</value>
+    <value id="NumberOfDocumentWindowsShowImages" xml:space="preserve">4</value>
+    <value id="NumberOfVisitedPages" xml:space="preserve">6</value>
   </section>
   <section id="Voice">
     <value id="NumberOfSpeaks" xml:space="preserve">0</value>
@@ -172,7 +172,7 @@
   <section id="Bookmarks">
     <value id="NumberOfBookmarks" xml:space="preserve">11</value>
     <value id="NumberOfFolders" xml:space="preserve">1</value>
-    <value id="LastCreatedBookmark" xml:space="preserve">1278615223</value>
+    <value id="LastCreatedBookmark" xml:space="preserve">1278617000</value>
   </section>
   <section id="Contacts">
     <value id="NumberOfContacts" xml:space="preserve">0</value>
@@ -200,9 +200,9 @@
     <value id="VersionNumberMinor" xml:space="preserve">60</value>
     <value id="BuildNumber" xml:space="preserve">6386</value>
     <value id="ComputerID" xml:space="preserve">F8BA3BC08AC111DF906AE71F8635DA0A</value>
-    <value id="TimeSinceLastUpdateCheck" xml:space="preserve">0</value>
-    <value id="TimeSinceLastReport" xml:space="preserve">89</value>
     <value id="NumberOfSavedSessions" xml:space="preserve">1</value>
+    <value id="TimeSinceLastUpdateCheck" xml:space="preserve">1906</value>
+    <value id="TimeSinceLastReport" xml:space="preserve">1995</value>
   </section>
   <section id="SpeedDial">
     <value id="NumberOfSpeedDials" xml:space="preserve">5</value>
@@ -253,6 +253,6 @@
   <section id="Turbo">
     <value id="UseWebTurbo" xml:space="preserve">0</value>
     <value id="WebTurboPagesViewed" xml:space="preserve">0</value>
-    <value id="AverageNetworkSpeed" xml:space="preserve">1496676</value>
+    <value id="AverageNetworkSpeed" xml:space="preserve">3316972</value>
   </section>
 </preferences>

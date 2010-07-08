@@ -4,6 +4,6 @@
     <value id="name" xml:space="preserve">Messenger</value>
   </section>
   <section id="wuid-1bf3acc0-cfca-0d5f-0b21-d9d8cfcaed86">
-    <value id="network_access" xml:space="preserve">16</value>
+    <value id="network_access" xml:space="preserve">1</value>
   </section>
 </preferences>

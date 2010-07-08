@@ -4,6 +4,6 @@
     <value id="name" xml:space="preserve">Media Player</value>
   </section>
   <section id="wuid-0adf05a0-a3df-08ca-08a4-2b4ca3dfd85f">
-    <value id="network_access" xml:space="preserve">16</value>
+    <value id="network_access" xml:space="preserve">1</value>
   </section>
 </preferences>
