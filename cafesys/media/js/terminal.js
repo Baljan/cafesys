@@ -7,8 +7,10 @@ $(document).ready(function() {
         var itemInfo = {}
         var lastBalance = 0;
         var orderCount = 0;
-
-        $('body').unselectable();
+        
+        // Disable dragging images, marking text, and so on.
+        $('body').unselectable(); // does not work in Opera
+        $('body').mousedown(function() { return false; });
         
         var resetOrder = function() {
             $('.item .value').each(function() {
