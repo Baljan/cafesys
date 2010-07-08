@@ -29,3 +29,6 @@ virtualenvwrapper in Fedora:
     $ cd cafesys
     $ pip install -r requirements.txt
 
+# External Dependencies
+## Kiosk Mode
+ * Opera browser
