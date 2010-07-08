@@ -3,11 +3,9 @@
 __author__ = 'Simon Pantzare'
 
 from subprocess import Popen
-from Xlib.display import Display
-from Xlib import X, Xatom
-from Xlib.protocol import event
+import os
 
-url='http://localhost:8000/terminal'
+url='http://localhost:8000/terminal' # FIXME: adapt to settings
 
 class Kiosk(object):
     def start(self):
@@ -21,7 +19,7 @@ class OperaKiosk(Kiosk):
         self._p = Popen([
             'opera', 
             '--personaldir', 
-            'opera-personal-dir',
+            os.path.join(os.path.dirname(__file__), 'opera-personal-dir'),
             '-kioskmode',
             url,
             ])
@@ -31,6 +29,9 @@ class OperaKiosk(Kiosk):
 
 
 def _find_chrome_window():
+    from Xlib.display import Display
+    from Xlib import X, Xatom
+    from Xlib.protocol import event
     display = Display()
     name = display.get_atom('WM_NAME', 1)
     root = display.screen().root
@@ -44,7 +45,7 @@ def _find_chrome_window():
         for child in children:
             prop = child.get_property(name, Xatom.STRING, 0, 1024)
             if prop and 0 < len(prop.value):
-                if prop.value == 'cafesys terminal':
+                if prop.value == 'cafesys terminal': # FIXME: make dynamic
                     raise FoundItException('found', child)
             searcher(child)
     try:
@@ -62,7 +63,7 @@ class ChromeKiosk(Kiosk): # TODO: Not working.
     def start(self):
         self._p = Popen([
             'google-chrome', 
-            '--user-data-dir=%s' % self.user_dir,
+            '--user-data-dir=%s' % os.path.join(os.path.dirname(__file__), self.user_dir),
             '--app=%s' % url,
             '--name=cafesys-kiosk',
             ])
