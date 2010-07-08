@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<preferences>
+  <section id="Wand">
+    <value id="Enabled" xml:space="preserve">1</value>
+    <value id="EnteredWandInformation" xml:space="preserve">0</value>
+    <value id="NumberOfLogins" xml:space="preserve">0</value>
+    <value id="NumberOfPages" xml:space="preserve">0</value>
+  </section>
+  <section id="Skin">
+    <value id="SkinType" xml:space="preserve">3</value>
+  </section>
+  <section id="Mail">
+    <value id="NumberOfSearches" xml:space="preserve">0</value>
+    <value id="NumberOfFilters" xml:space="preserve">0</value>
+    <value id="NumberOfMessagesTotal" xml:space="preserve">0</value>
+    <value id="NumberOfMessagesUnread" xml:space="preserve">0</value>
+    <value id="NumberOfAccounts" xml:space="preserve">0</value>
+    <value id="NumberOfAccountsSecureConnectionIn" xml:space="preserve">0</value>
+    <value id="NumberOfAccountsSecureConnectionOut" xml:space="preserve">0</value>
+    <value id="NumberOfAccountsPreferHTMLCompose" xml:space="preserve">0</value>
+    <value id="NumberOfAccountsChangedOutgoingAuthenticationType"
+           xml:space="preserve">0</value>
+  </section>
+  <section id="Feeds">
+    <value id="NumberOfFeeds" xml:space="preserve">0</value>
+  </section>
+  <section id="History">
+    <value id="PagesVisitedLastWeek" xml:space="preserve">2</value>
+  </section>
+  <section id="PreferencesGeneral">
+    <value id="Startup" xml:space="preserve">3</value>
+    <value id="Popups" xml:space="preserve">2</value>
+    <value id="ChangedHomepage" xml:space="preserve">0</value>
+  </section>
+  <section id="PreferencesWebPages">
+    <value id="BackgroundColor" xml:space="preserve">2147483647</value>
+    <value id="NormalLinkColor" xml:space="preserve">2144075776</value>
+    <value id="VisitedLinkColor" xml:space="preserve">2139095168</value>
+    <value id="PageZoom" xml:space="preserve">100</value>
+    <value id="ShowImageState" xml:space="preserve">3</value>
+    <value id="FitToWidth" xml:space="preserve">0</value>
+    <value id="NormalLinkHasUnderline" xml:space="preserve">1</value>
+    <value id="VisitedLinkHasUnderline" xml:space="preserve">1</value>
+  </section>
+  <section id="PreferencesTabs">
+    <value id="AllowWindowWithNoTabs" xml:space="preserve">0</value>
+    <value id="ClickTabToMinimize" xml:space="preserve">0</value>
+    <value id="ShowCloseButtons" xml:space="preserve">1</value>
+    <value id="OpenWindowsInsteadOfTabs" xml:space="preserve">0</value>
+    <value id="WindowCycleType" xml:space="preserve">0</value>
+    <value id="NewTabsPolicy" xml:space="preserve">1</value>
+    <value id="ReuseCurrentTab" xml:space="preserve">1</value>
+    <value id="OpenNewTabNextToActive" xml:space="preserve">0</value>
+  </section>
+  <section id="PreferencesBrowsing">
+    <value id="ShowScrollBars" xml:space="preserve">1</value>
+    <value id="SmoothScrolling" xml:space="preserve">1</value>
+    <value id="ShowWebPageDimensions" xml:space="preserve">0</value>
+    <value id="ShowWindowMenu" xml:space="preserve">0</value>
+    <value id="ConfirmExit" xml:space="preserve">0</value>
+    <value id="FirstUpdateDelay" xml:space="preserve">1000</value>
+    <value id="PageIcons" xml:space="preserve">1</value>
+  </section>
+  <section id="PreferencesNotifications">
+    <value id="EnableProgramSounds" xml:space="preserve">1</value>
+    <value id="ShowNotificationNewMessages" xml:space="preserve">1</value>
+    <value id="ShowNotificationBlockedPopups" xml:space="preserve">1</value>
+    <value id="ShowNotificationFinishedTransfers" xml:space="preserve">1</value>
+  </section>
+  <section id="PreferencesContent">
+    <value id="JavaEnabled" xml:space="preserve">1</value>
+    <value id="AnimationEnabled" xml:space="preserve">1</value>
+    <value id="SoundEnabled" xml:space="preserve">1</value>
+    <value id="JavascriptEnabled" xml:space="preserve">1</value>
+    <value id="PluginsEnabled" xml:space="preserve">1</value>
+    <value id="NumberOfOverriddenHosts" xml:space="preserve">0</value>
+    <value id="NumberOfBlockedSites" xml:space="preserve">0</value>
+    <value id="ChangedUserStyleFile" xml:space="preserve">0</value>
+  </section>
+  <section id="PreferencesSecurity">
+    <value id="HasMasterPassword" xml:space="preserve">0</value>
+    <value id="UseMailPassword" xml:space="preserve">0</value>
+    <value id="PasswordAging" xml:space="preserve">1</value>
+    <value id="PasswordLifeTime" xml:space="preserve">5</value>
+    <value id="EnableTrustRating" xml:space="preserve">1</value>
+    <value id="NumberOfPersonalCertificates" xml:space="preserve">0</value>
+    <value id="AutoUpdateLevel" xml:space="preserve">2</value>
+  </section>
+  <section id="PreferencesNetwork">
+    <value id="HttpProxy" xml:space="preserve">0</value>
+    <value id="HttpsProxy" xml:space="preserve">0</value>
+    <value id="AutomaticProxy" xml:space="preserve">0</value>
+    <value id="LocalhostProxy" xml:space="preserve">0</value>
+    <value id="UseUTF8Urls" xml:space="preserve">1</value>
+    <value id="ReferrerEnabled" xml:space="preserve">1</value>
+    <value id="EnableClientPull" xml:space="preserve">1</value>
+    <value id="MaxConnectionsServer" xml:space="preserve">16</value>
+    <value id="MaxConnectionsTotal" xml:space="preserve">64</value>
+  </section>
+  <section id="PreferencesCookies">
+    <value id="CookiesEnabled" xml:space="preserve">3</value>
+    <value id="AcceptCookiesSessionOnly" xml:space="preserve">0</value>
+    <value id="DisplayReceivedCookies" xml:space="preserve">0</value>
+  </section>
+  <section id="PreferencesToolbars">
+    <value id="UsingStandardToolbar" xml:space="preserve">1</value>
+    <value id="UsingStandardMenu" xml:space="preserve">1</value>
+  </section>
+  <section id="PreferencesShortcuts">
+    <value id="UsingStandardKeyboard" xml:space="preserve">1</value>
+    <value id="UsingStandardMouse" xml:space="preserve">1</value>
+    <value id="EnableMouseGestures" xml:space="preserve">1</value>
+    <value id="ReverseButtonFlipping" xml:space="preserve">0</value>
+  </section>
+  <section id="PreferencesHistory">
+    <value id="MaxDirectHistory" xml:space="preserve">200</value>
+    <value id="MaxGlobalHistory" xml:space="preserve">1000</value>
+    <value id="MemoryCache" xml:space="preserve">2000</value>
+    <value id="AutomaticMemoryCache" xml:space="preserve">1</value>
+    <value id="DiskCache" xml:space="preserve">20000</value>
+    <value id="EmptyCacheOnExit" xml:space="preserve">0</value>
+    <value id="DocumentExpiry" xml:space="preserve">300</value>
+    <value id="ImageExpiry" xml:space="preserve">18000</value>
+  </section>
+  <section id="SpellCheck">
+    <value id="SpellcheckEnabled" xml:space="preserve">1</value>
+  </section>
+  <section id="UserJS">
+    <value id="Enabled" xml:space="preserve">0</value>
+    <value id="HasFiles" xml:space="preserve">0</value>
+    <value id="AlwaysLoad" xml:space="preserve">0</value>
+    <value id="EnabledHTTPS" xml:space="preserve">0</value>
+  </section>
+  <section id="Workspace">
+    <value id="MinNumberOfTabs" xml:space="preserve">1</value>
+    <value id="MaxNumberOfTabs" xml:space="preserve">1</value>
+    <value id="NumberOfTabsLastTime" xml:space="preserve">1</value>
+    <value id="MinNumberOfWindows" xml:space="preserve">1</value>
+    <value id="MaxNumberOfWindows" xml:space="preserve">1</value>
+    <value id="AverageNumberOfTabs" xml:space="preserve">1</value>
+    <value id="NumberOfDocumentWindowsFitToWidth" xml:space="preserve">0</value>
+    <value id="NumberOfDocumentWindowsCachedImages" xml:space="preserve">0</value>
+    <value id="NumberOfDocumentWindowsNoImages" xml:space="preserve">0</value>
+    <value id="MenuBarEnabled" xml:space="preserve">0</value>
+    <value id="NumberOfWindowsWithTabThumbnails" xml:space="preserve">0</value>
+    <value id="DesktopEnvIsXFCE" xml:space="preserve">0</value>
+    <value id="DesktopEnvIsGNOME" xml:space="preserve">1</value>
+    <value id="DesktopEnvIsKDE" xml:space="preserve">0</value>
+    <value id="BrowsingTime" xml:space="preserve">21</value>
+    <value id="NumberOfDocumentWindows" xml:space="preserve">2</value>
+    <value id="NumberOfDocumentWindowsShowImages" xml:space="preserve">2</value>
+    <value id="NumberOfVisitedPages" xml:space="preserve">4</value>
+  </section>
+  <section id="Voice">
+    <value id="NumberOfSpeaks" xml:space="preserve">0</value>
+    <value id="NumberOfListens" xml:space="preserve">0</value>
+  </section>
+  <section id="Bittorrent">
+    <value id="NumberOfDownloads" xml:space="preserve">0</value>
+  </section>
+  <section id="Appearance">
+    <value id="PagebarAlignment" xml:space="preserve">2</value>
+    <value id="StatusbarAlignment" xml:space="preserve">4</value>
+    <value id="BrowserbarAlignment" xml:space="preserve">2</value>
+    <value id="PersonalbarAlignment" xml:space="preserve">0</value>
+    <value id="SiteNavigationBarAlignment" xml:space="preserve">0</value>
+    <value id="DocumentBarAlignment" xml:space="preserve">2</value>
+    <value id="AddressSearchDropDownWeightedWidth" xml:space="preserve">24</value>
+    <value id="DocumentViewBarAlignment" xml:space="preserve">-1</value>
+    <value id="AddressSearchDropDownVisible" xml:space="preserve">1</value>
+  </section>
+  <section id="Bookmarks">
+    <value id="NumberOfBookmarks" xml:space="preserve">11</value>
+    <value id="NumberOfFolders" xml:space="preserve">1</value>
+    <value id="LastCreatedBookmark" xml:space="preserve">1278615223</value>
+  </section>
+  <section id="Contacts">
+    <value id="NumberOfContacts" xml:space="preserve">0</value>
+    <value id="NumberOfFolders" xml:space="preserve">0</value>
+    <value id="LastCreatedContact" xml:space="preserve">0</value>
+  </section>
+  <section id="Widgets">
+    <value id="NumberOfOpenWidgets" xml:space="preserve">0</value>
+  </section>
+  <section id="Notes">
+    <value id="NumberOfNotes" xml:space="preserve">0</value>
+    <value id="NumberOfFolders" xml:space="preserve">0</value>
+    <value id="LastCreatedNote" xml:space="preserve">0</value>
+  </section>
+  <section id="News">
+    <value id="NumberOfAccounts" xml:space="preserve">0</value>
+  </section>
+  <section id="Chat">
+    <value id="NumberOfAccounts" xml:space="preserve">0</value>
+  </section>
+  <section id="General">
+    <value id="ScreenWidth" xml:space="preserve">1680</value>
+    <value id="ScreenHeight" xml:space="preserve">1050</value>
+    <value id="VersionNumberMajor" xml:space="preserve">10</value>
+    <value id="VersionNumberMinor" xml:space="preserve">60</value>
+    <value id="BuildNumber" xml:space="preserve">6386</value>
+    <value id="ComputerID" xml:space="preserve">F8BA3BC08AC111DF906AE71F8635DA0A</value>
+    <value id="TimeSinceLastUpdateCheck" xml:space="preserve">0</value>
+    <value id="TimeSinceLastReport" xml:space="preserve">89</value>
+    <value id="NumberOfSavedSessions" xml:space="preserve">1</value>
+  </section>
+  <section id="SpeedDial">
+    <value id="NumberOfSpeedDials" xml:space="preserve">5</value>
+    <value id="NumberOfColumns" xml:space="preserve">3</value>
+    <value id="NumberOfRows" xml:space="preserve">3</value>
+    <value id="HasBackground" xml:space="preserve">0</value>
+    <value id="SpeedDialState" xml:space="preserve">1</value>
+    <value id="http:redir.opera.comspeeddialsportal" xml:space="preserve">1</value>
+    <value id="http:redir.opera.comspeeddialskayak" xml:space="preserve">1</value>
+    <value id="http:redir.opera.comspeeddialsamazon" xml:space="preserve">1</value>
+    <value id="http:redir.opera.comspeeddialsmyopera" xml:space="preserve">1</value>
+    <value id="http:redir.opera.comspeeddialsfacebook" xml:space="preserve">1</value>
+  </section>
+  <section id="Upgrade">
+    <value id="UpgradeCount" xml:space="preserve">0</value>
+    <value id="UpgradeFromVersion" xml:space="preserve"></value>
+  </section>
+  <section id="FileError">
+    <value id="Refused" xml:space="preserve">0</value>
+    <value id="NotFound" xml:space="preserve">0</value>
+  </section>
+  <section id="HTTPError">
+    <value id="RequestUriTooLong" xml:space="preserve">0</value>
+    <value id="BadRequest" xml:space="preserve">0</value>
+    <value id="NotFound" xml:space="preserve">0</value>
+    <value id="InternalServerError" xml:space="preserve">0</value>
+    <value id="NoContent" xml:space="preserve">0</value>
+    <value id="ResetContent" xml:space="preserve">0</value>
+    <value id="Forbidden" xml:space="preserve">0</value>
+    <value id="MethodNotAllowed" xml:space="preserve">0</value>
+    <value id="NotAcceptable" xml:space="preserve">0</value>
+    <value id="RequestTimeout" xml:space="preserve">0</value>
+    <value id="Conflict" xml:space="preserve">0</value>
+    <value id="Gone" xml:space="preserve">0</value>
+    <value id="LengthRequired" xml:space="preserve">0</value>
+    <value id="PreconditionFailed" xml:space="preserve">0</value>
+    <value id="RequestEntityTooLarge" xml:space="preserve">0</value>
+    <value id="UnsupportedMediaType" xml:space="preserve">0</value>
+    <value id="NotImplemented" xml:space="preserve">0</value>
+    <value id="BadGateway" xml:space="preserve">0</value>
+    <value id="GatewayTimeout" xml:space="preserve">0</value>
+    <value id="HttpVersionNotSupported" xml:space="preserve">0</value>
+    <value id="ServiceUnavailable" xml:space="preserve">0</value>
+  </section>
+  <section id="NetworkError">
+    <value id="Connection" xml:space="preserve">0</value>
+  </section>
+  <section id="Turbo">
+    <value id="UseWebTurbo" xml:space="preserve">0</value>
+    <value id="WebTurboPagesViewed" xml:space="preserve">0</value>
+    <value id="AverageNetworkSpeed" xml:space="preserve">1496676</value>
+  </section>
+</preferences>

@@ -1,0 +1,1931 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" xml:lang="en" lang="en"> 
+    <head> 
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/> 
+        <title>cafesys terminal</title> 
+        <link rel="stylesheet" href="/site_media/static/css/terminal.css" /> 
+        <script type="text/javascript" src="/site_media/static/js/jquery-1.4.2.min.js"></script> 
+        <script type="text/javascript" src="/site_media/static/js/jquery.plugins.js"></script> 
+        <script type="text/javascript" src="/site_media/static/js/terminal.js"></script> 
+    </head> 
+    
+    <body class="terminal"> 
+        <div class="last-balance">
+            <strong>Kontobalans:</strong><br><span class="value">250 SEK</span>
+        </div>
+        <div class="order-container">
+            <div class="menu">
+            
+                <div class="item" id="item-1">
+                    <img src="/site_media/media/img/items/msn_owl.jpg" alt="product image" />
+                    <div class="meta">
+                        <h3>Kaffe/Te</h3><p class="desc">pappersmugg</p>
+                        <div class="number">
+                            <h4>Antal:</h4>
+                            <span class="value"></span><br>
+                            <span class="mod remove">-</span><span class="mod add">+</span>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="item" id="item-2">
+                    <img src="/site_media/media/img/items/msn_owl_1.jpg" alt="product image" />
+                    <div class="meta">
+                        <h3>Kaffe/Te</h3><p class="desc">egen mugg</p>
+                        <div class="number">
+                            <h4>Antal:</h4>
+                            <span class="value"></span><br>
+                            <span class="mod remove">-</span><span class="mod add">+</span>
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+            <div class="cost-total" id="cost-total">
+                <div class="overlay"></div>
+                <div class="non-overlay">
+                    <h3>Kostnad:</h3><span class="value"></span><br>
+                    <span class="help">visa kortet för att genomföra beställningen</span>
+                </div>
+            </div>
+        </div>
+        <div id="trig-order">Trigga beställning!</div>
+    
+<script type="text/javascript" charset="utf-8">
+// <![CDATA[
+var DEBUG_TOOLBAR_MEDIA_URL = "/__debug__/m/";
+// ]]>
+</script>
+<script type="text/javascript" src="/__debug__/m/js/toolbar.min.js"></script>
+<div id="djDebug">
+	<div style="display:none;" id="djDebugToolbar">
+		<ul id="djDebugPanelList">
+			
+			<li><a id="djHideToolBarButton" href="#" title="Hide Toolbar">Hide &raquo;</a></li>
+			
+			
+				<li>
+					
+						<a href="#" title="Versions" class="djDebugVersionPanel">
+					
+					Versions
+					
+						<br /><small>Django 1.2</small>
+					
+					
+						</a>
+					
+				</li>
+			
+				<li>
+					
+						<a href="#" title="Resource Usage" class="djDebugTimerPanel">
+					
+					Time
+					
+						<br /><small>CPU: 11.00ms (10.98ms)</small>
+					
+					
+						</a>
+					
+				</li>
+			
+				<li>
+					
+						<a href="#" title="Settings from &lt;code&gt;cafesys.settings&lt;/code&gt;" class="djDebugSettingsVarsPanel">
+					
+					Settings
+					
+						
+					
+					
+						</a>
+					
+				</li>
+			
+				<li>
+					
+						<a href="#" title="HTTP Headers" class="djDebugHeaderPanel">
+					
+					HTTP Headers
+					
+						
+					
+					
+						</a>
+					
+				</li>
+			
+				<li>
+					
+						<a href="#" title="Request Vars" class="djDebugRequestVarsPanel">
+					
+					Request Vars
+					
+						
+					
+					
+						</a>
+					
+				</li>
+			
+				<li>
+					
+						<a href="#" title="SQL Queries" class="djDebugSQLPanel">
+					
+					SQL
+					
+						<br /><small>1 query in 1.38ms</small>
+					
+					
+						</a>
+					
+				</li>
+			
+				<li>
+					
+						<a href="#" title="Templates (1 rendered)" class="djDebugTemplatePanel">
+					
+					Templates
+					
+						
+					
+					
+						</a>
+					
+				</li>
+			
+				<li>
+					
+						<a href="#" title="Signals" class="djDebugSignalsPanel">
+					
+					Signals
+					
+						
+					
+					
+						</a>
+					
+				</li>
+			
+				<li>
+					
+						<a href="#" title="Log Messages" class="djDebugLoggingPanel">
+					
+					Logging
+					
+						<br /><small>0 messages</small>
+					
+					
+						</a>
+					
+				</li>
+			
+		</ul>
+	</div>
+	<div style="display:none;" id="djDebugToolbarHandle">
+		<a title="Show Toolbar" id="djShowToolBarButton" href="#">&laquo;</a>
+	</div>
+	
+		
+			<div id="djDebugVersionPanel" class="panelContent">
+				<div class="djDebugPanelTitle">
+					<a href="" class="djDebugClose">Close</a>
+					<h3>Versions</h3>
+				</div>
+				<div class="djDebugPanelContent">
+				    <div class="scroll">
+				        
+
+<table>
+	<thead>
+		<tr>
+			<th>Package</th>
+			<th>Version</th>
+		</tr>
+	</thead>
+	<tbody>
+		
+			<tr class="djDebugOdd">
+				<td>Mailer</td>
+				<td>0.1.0</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>Debug toolbar</td>
+				<td>0.8.3</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>Notification</td>
+				<td>0.1.4</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>Django</td>
+				<td>1.2</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>Timezones</td>
+				<td>0.2.dev1</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>Announcements</td>
+				<td>0.1.2</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>Uni form</td>
+				<td>0.7.0</td>
+			</tr>
+		
+	</tbody>
+</table>
+
+				    </div>
+				</div>
+			</div>
+		
+	
+		
+			<div id="djDebugTimerPanel" class="panelContent">
+				<div class="djDebugPanelTitle">
+					<a href="" class="djDebugClose">Close</a>
+					<h3>Resource Usage</h3>
+				</div>
+				<div class="djDebugPanelContent">
+				    <div class="scroll">
+				        
+<table>
+	<colgroup>
+		<col style="width:20%"/>
+		<col/>
+	</colgroup>
+	<thead>
+		<tr>
+			<th>Resource</th>
+			<th>Value</th>
+		</tr>
+	</thead>
+	<tbody>
+		
+			<tr class="djDebugOdd">
+				<td>User CPU time</td>
+				<td>10.999 msec</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>System CPU time</td>
+				<td>0.000 msec</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>Total CPU time</td>
+				<td>10.999 msec</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>Elapsed time</td>
+				<td>10.980 msec</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>Context switches</td>
+				<td>0 voluntary, 3 involuntary</td>
+			</tr>
+		
+	</tbody>
+</table>
+
+				    </div>
+				</div>
+			</div>
+		
+	
+		
+			<div id="djDebugSettingsVarsPanel" class="panelContent">
+				<div class="djDebugPanelTitle">
+					<a href="" class="djDebugClose">Close</a>
+					<h3>Settings from <code>cafesys.settings</code></h3>
+				</div>
+				<div class="djDebugPanelContent">
+				    <div class="scroll">
+				        
+<table>
+	<thead>
+		<tr>
+			<th>Setting</th>
+			<th>Value</th>
+		</tr>
+	</thead>
+	<tbody>
+		
+			<tr class="djDebugOdd">
+				<td>ABSOLUTE_URL_OVERRIDES</td>
+				<td><code>{&#39;auth.user&#39;: &lt;function &lt;lambda&gt; at 0xeb29b0&gt;}</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>ACCOUNT_EMAIL_AUTHENTICATION</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>ACCOUNT_EMAIL_VERIFICATION</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>ACCOUNT_OPEN_SIGNUP</td>
+				<td><code>True</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>ACCOUNT_REQUIRED_EMAIL</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>ACCOUNT_UNIQUE_EMAIL</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>ADMINS</td>
+				<td><code>[]</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>ADMIN_FOR</td>
+				<td><code>()</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>ADMIN_MEDIA_PREFIX</td>
+				<td><code>&#39;/site_media/static/admin/&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>ALLOWED_INCLUDE_ROOTS</td>
+				<td><code>()</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>APPEND_SLASH</td>
+				<td><code>True</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>AUTHENTICATION_BACKENDS</td>
+				<td><code>[&#39;django.contrib.auth.backends.ModelBackend&#39;]</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>AUTH_PROFILE_MODULE</td>
+				<td><code>&#39;basic_profiles.Profile&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>BANNED_IPS</td>
+				<td><code>()</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>CACHE_BACKEND</td>
+				<td><code>&#39;locmem://&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>CACHE_MIDDLEWARE_KEY_PREFIX</td>
+				<td><code>&#39;&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>CACHE_MIDDLEWARE_SECONDS</td>
+				<td><code>600</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>COMMENTS_ALLOW_PROFANITIES</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>COMMENTS_BANNED_USERS_GROUP</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>COMMENTS_FIRST_FEW</td>
+				<td><code>0</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>COMMENTS_MODERATORS_GROUP</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>COMMENTS_SKETCHY_USERS_GROUP</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>CONTACT_EMAIL</td>
+				<td><code>&#39;feedback@example.com&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>CSRF_COOKIE_DOMAIN</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>CSRF_COOKIE_NAME</td>
+				<td><code>&#39;csrftoken&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>CSRF_FAILURE_VIEW</td>
+				<td><code>&#39;django.views.csrf.csrf_failure&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DATABASES</td>
+				<td><code>{&#39;default&#39;: {&#39;ENGINE&#39;: &#39;django.db.backends.sqlite3&#39;,
+             &#39;HOST&#39;: &#39;&#39;,
+             &#39;NAME&#39;: &#39;dev.db&#39;,
+             &#39;OPTIONS&#39;: {},
+             &#39;PASSWORD&#39;: &#39;********************&#39;,
+             &#39;PORT&#39;: &#39;&#39;,
+             &#39;TEST_CHARSET&#39;: None,
+             &#39;TEST_COLLATION&#39;: None,
+             &#39;TEST_MIRROR&#39;: None,
+             &#39;TEST_NAME&#39;: None,
+             &#39;TIME_ZONE&#39;: &#39;US/Eastern&#39;,
+             &#39;USER&#39;: &#39;&#39;}}</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DATABASE_ENGINE</td>
+				<td><code>&#39;&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DATABASE_HOST</td>
+				<td><code>&#39;&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DATABASE_NAME</td>
+				<td><code>&#39;&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DATABASE_OPTIONS</td>
+				<td><code>{}</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DATABASE_PASSWORD</td>
+				<td><code>&#39;********************&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DATABASE_PORT</td>
+				<td><code>&#39;&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DATABASE_ROUTERS</td>
+				<td><code>[]</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DATABASE_USER</td>
+				<td><code>&#39;&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DATETIME_FORMAT</td>
+				<td><code>&#39;N j, Y, P&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DATETIME_INPUT_FORMATS</td>
+				<td><code>(&#39;%Y-%m-%d %H:%M:%S&#39;,
+ &#39;%Y-%m-%d %H:%M&#39;,
+ &#39;%Y-%m-%d&#39;,
+ &#39;%m/%d/%Y %H:%M:%S&#39;,
+ &#39;%m/%d/%Y %H:%M&#39;,
+ &#39;%m/%d/%Y&#39;,
+ &#39;%m/%d/%y %H:%M:%S&#39;,
+ &#39;%m/%d/%y %H:%M&#39;,
+ &#39;%m/%d/%y&#39;)</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DATE_FORMAT</td>
+				<td><code>&#39;N j, Y&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DATE_INPUT_FORMATS</td>
+				<td><code>(&#39;%Y-%m-%d&#39;,
+ &#39;%m/%d/%Y&#39;,
+ &#39;%m/%d/%y&#39;,
+ &#39;%b %d %Y&#39;,
+ &#39;%b %d, %Y&#39;,
+ &#39;%d %b %Y&#39;,
+ &#39;%d %b, %Y&#39;,
+ &#39;%B %d %Y&#39;,
+ &#39;%B %d, %Y&#39;,
+ &#39;%d %B %Y&#39;,
+ &#39;%d %B, %Y&#39;)</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DEBUG</td>
+				<td><code>True</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DEBUG_PROPAGATE_EXCEPTIONS</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DEBUG_TOOLBAR_CONFIG</td>
+				<td><code>{&#39;INTERCEPT_REDIRECTS&#39;: False}</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DECIMAL_SEPARATOR</td>
+				<td><code>&#39;.&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DEFAULT_CHARSET</td>
+				<td><code>&#39;utf-8&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DEFAULT_CONTENT_TYPE</td>
+				<td><code>&#39;text/html&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DEFAULT_FILE_STORAGE</td>
+				<td><code>&#39;django.core.files.storage.FileSystemStorage&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DEFAULT_FROM_EMAIL</td>
+				<td><code>&#39;webmaster@localhost&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DEFAULT_INDEX_TABLESPACE</td>
+				<td><code>&#39;&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>DEFAULT_TABLESPACE</td>
+				<td><code>&#39;&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>DISALLOWED_USER_AGENTS</td>
+				<td><code>()</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>EMAIL_BACKEND</td>
+				<td><code>&#39;django.core.mail.backends.smtp.EmailBackend&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>EMAIL_CONFIRMATION_DAYS</td>
+				<td><code>2</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>EMAIL_CONFIRMATION_UNIQUE_EMAIL</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>EMAIL_DEBUG</td>
+				<td><code>True</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>EMAIL_HOST</td>
+				<td><code>&#39;localhost&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>EMAIL_HOST_PASSWORD</td>
+				<td><code>&#39;********************&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>EMAIL_HOST_USER</td>
+				<td><code>&#39;&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>EMAIL_PORT</td>
+				<td><code>25</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>EMAIL_SUBJECT_PREFIX</td>
+				<td><code>&#39;[Django] &#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>EMAIL_USE_TLS</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>FILE_CHARSET</td>
+				<td><code>&#39;utf-8&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>FILE_UPLOAD_HANDLERS</td>
+				<td><code>(&#39;django.core.files.uploadhandler.MemoryFileUploadHandler&#39;,
+ &#39;django.core.files.uploadhandler.TemporaryFileUploadHandler&#39;)</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>FILE_UPLOAD_MAX_MEMORY_SIZE</td>
+				<td><code>2621440</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>FILE_UPLOAD_PERMISSIONS</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>FILE_UPLOAD_TEMP_DIR</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>FIRST_DAY_OF_WEEK</td>
+				<td><code>0</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>FIXTURE_DIRS</td>
+				<td><code>()</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>FORCE_SCRIPT_NAME</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>FORMAT_MODULE_PATH</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>IGNORABLE_404_ENDS</td>
+				<td><code>(&#39;mail.pl&#39;, &#39;mailform.pl&#39;, &#39;mail.cgi&#39;, &#39;mailform.cgi&#39;, &#39;favicon.ico&#39;, &#39;.php&#39;)</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>IGNORABLE_404_STARTS</td>
+				<td><code>(&#39;/cgi-bin/&#39;, &#39;/_vti_bin&#39;, &#39;/_vti_inf&#39;)</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>INSTALLED_APPS</td>
+				<td><code>[&#39;django.contrib.admin&#39;,
+ &#39;django.contrib.auth&#39;,
+ &#39;django.contrib.contenttypes&#39;,
+ &#39;django.contrib.sessions&#39;,
+ &#39;django.contrib.sites&#39;,
+ &#39;django.contrib.messages&#39;,
+ &#39;django.contrib.humanize&#39;,
+ &#39;pinax.templatetags&#39;,
+ &#39;notification&#39;,
+ &#39;django_openid&#39;,
+ &#39;emailconfirmation&#39;,
+ &#39;mailer&#39;,
+ &#39;announcements&#39;,
+ &#39;pagination&#39;,
+ &#39;timezones&#39;,
+ &#39;ajax_validation&#39;,
+ &#39;uni_form&#39;,
+ &#39;staticfiles&#39;,
+ &#39;debug_toolbar&#39;,
+ &#39;pinax.apps.analytics&#39;,
+ &#39;pinax.apps.basic_profiles&#39;,
+ &#39;pinax.apps.account&#39;,
+ &#39;pinax.apps.signup_codes&#39;,
+ &#39;about&#39;,
+ &#39;terminal&#39;]</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>INTERNAL_IPS</td>
+				<td><code>[&#39;127.0.0.1&#39;]</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>LANGUAGES</td>
+				<td><code>((&#39;ar&#39;, &#39;Arabic&#39;),
+ (&#39;bg&#39;, &#39;Bulgarian&#39;),
+ (&#39;bn&#39;, &#39;Bengali&#39;),
+ (&#39;bs&#39;, &#39;Bosnian&#39;),
+ (&#39;ca&#39;, &#39;Catalan&#39;),
+ (&#39;cs&#39;, &#39;Czech&#39;),
+ (&#39;cy&#39;, &#39;Welsh&#39;),
+ (&#39;da&#39;, &#39;Danish&#39;),
+ (&#39;de&#39;, &#39;German&#39;),
+ (&#39;el&#39;, &#39;Greek&#39;),
+ (&#39;en&#39;, &#39;English&#39;),
+ (&#39;en-gb&#39;, &#39;British English&#39;),
+ (&#39;es&#39;, &#39;Spanish&#39;),
+ (&#39;es-ar&#39;, &#39;Argentinean Spanish&#39;),
+ (&#39;et&#39;, &#39;Estonian&#39;),
+ (&#39;eu&#39;, &#39;Basque&#39;),
+ (&#39;fa&#39;, &#39;Persian&#39;),
+ (&#39;fi&#39;, &#39;Finnish&#39;),
+ (&#39;fr&#39;, &#39;French&#39;),
+ (&#39;fy-nl&#39;, &#39;Frisian&#39;),
+ (&#39;ga&#39;, &#39;Irish&#39;),
+ (&#39;gl&#39;, &#39;Galician&#39;),
+ (&#39;he&#39;, &#39;Hebrew&#39;),
+ (&#39;hi&#39;, &#39;Hindi&#39;),
+ (&#39;hr&#39;, &#39;Croatian&#39;),
+ (&#39;hu&#39;, &#39;Hungarian&#39;),
+ (&#39;id&#39;, &#39;Indonesian&#39;),
+ (&#39;is&#39;, &#39;Icelandic&#39;),
+ (&#39;it&#39;, &#39;Italian&#39;),
+ (&#39;ja&#39;, &#39;Japanese&#39;),
+ (&#39;ka&#39;, &#39;Georgian&#39;),
+ (&#39;km&#39;, &#39;Khmer&#39;),
+ (&#39;kn&#39;, &#39;Kannada&#39;),
+ (&#39;ko&#39;, &#39;Korean&#39;),
+ (&#39;lt&#39;, &#39;Lithuanian&#39;),
+ (&#39;lv&#39;, &#39;Latvian&#39;),
+ (&#39;mk&#39;, &#39;Macedonian&#39;),
+ (&#39;mn&#39;, &#39;Mongolian&#39;),
+ (&#39;nl&#39;, &#39;Dutch&#39;),
+ (&#39;no&#39;, &#39;Norwegian&#39;),
+ (&#39;nb&#39;, &#39;Norwegian Bokmal&#39;),
+ (&#39;nn&#39;, &#39;Norwegian Nynorsk&#39;),
+ (&#39;pl&#39;, &#39;Polish&#39;),
+ (&#39;pt&#39;, &#39;Portuguese&#39;),
+ (&#39;pt-br&#39;, &#39;Brazilian Portuguese&#39;),
+ (&#39;ro&#39;, &#39;Romanian&#39;),
+ (&#39;ru&#39;, &#39;Russian&#39;),
+ (&#39;sk&#39;, &#39;Slovak&#39;),
+ (&#39;sl&#39;, &#39;Slovenian&#39;),
+ (&#39;sq&#39;, &#39;Albanian&#39;),
+ (&#39;sr&#39;, &#39;Serbian&#39;),
+ (&#39;sr-latn&#39;, &#39;Serbian Latin&#39;),
+ (&#39;sv&#39;, &#39;Swedish&#39;),
+ (&#39;ta&#39;, &#39;Tamil&#39;),
+ (&#39;te&#39;, &#39;Telugu&#39;),
+ (&#39;th&#39;, &#39;Thai&#39;),
+ (&#39;tr&#39;, &#39;Turkish&#39;),
+ (&#39;uk&#39;, &#39;Ukrainian&#39;),
+ (&#39;vi&#39;, &#39;Vietnamese&#39;),
+ (&#39;zh-cn&#39;, &#39;Simplified Chinese&#39;),
+ (&#39;zh-tw&#39;, &#39;Traditional Chinese&#39;))</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>LANGUAGES_BIDI</td>
+				<td><code>(&#39;he&#39;, &#39;ar&#39;, &#39;fa&#39;)</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>LANGUAGE_CODE</td>
+				<td><code>&#39;en&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>LANGUAGE_COOKIE_NAME</td>
+				<td><code>&#39;django_language&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>LOCALE_PATHS</td>
+				<td><code>()</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>LOGIN_REDIRECT_URL</td>
+				<td><code>&#39;/accounts/profile/&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>LOGIN_REDIRECT_URLNAME</td>
+				<td><code>&#39;what_next&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>LOGIN_URL</td>
+				<td><code>&#39;/account/login/&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>LOGOUT_URL</td>
+				<td><code>&#39;/accounts/logout/&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>MANAGERS</td>
+				<td><code>[]</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>MARKUP_CHOICES</td>
+				<td><code>[(&#39;restructuredtext&#39;, u&#39;reStructuredText&#39;),
+ (&#39;textile&#39;, u&#39;Textile&#39;),
+ (&#39;markdown&#39;, u&#39;Markdown&#39;),
+ (&#39;creole&#39;, u&#39;Creole&#39;)]</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>MARKUP_FILTER_FALLBACK</td>
+				<td><code>&#39;none&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>MEDIA_ROOT</td>
+				<td><code>&#39;/home/pilt/envs/cafesys/cafesys/site_media/media&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>MEDIA_URL</td>
+				<td><code>&#39;/site_media/media/&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>MESSAGE_STORAGE</td>
+				<td><code>&#39;django.contrib.messages.storage.session.SessionStorage&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>MIDDLEWARE_CLASSES</td>
+				<td><code>[&#39;django.middleware.common.CommonMiddleware&#39;,
+ &#39;django.contrib.sessions.middleware.SessionMiddleware&#39;,
+ &#39;django.middleware.csrf.CsrfViewMiddleware&#39;,
+ &#39;django.contrib.auth.middleware.AuthenticationMiddleware&#39;,
+ &#39;django_openid.consumer.SessionConsumer&#39;,
+ &#39;django.contrib.messages.middleware.MessageMiddleware&#39;,
+ &#39;pinax.apps.account.middleware.LocaleMiddleware&#39;,
+ &#39;django.middleware.doc.XViewMiddleware&#39;,
+ &#39;pagination.middleware.PaginationMiddleware&#39;,
+ &#39;pinax.middleware.security.HideSensistiveFieldsMiddleware&#39;,
+ &#39;debug_toolbar.middleware.DebugToolbarMiddleware&#39;]</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>MONTH_DAY_FORMAT</td>
+				<td><code>&#39;F j&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>NOTIFICATION_LANGUAGE_MODULE</td>
+				<td><code>&#39;account.Account&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>NUMBER_GROUPING</td>
+				<td><code>0</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>PASSWORD_RESET_TIMEOUT_DAYS</td>
+				<td><code>&#39;********************&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>PINAX_ROOT</td>
+				<td><code>&#39;/home/pilt/envs/cafesys/lib/python2.6/site-packages/pinax&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>PINAX_THEME</td>
+				<td><code>&#39;default&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>PREPEND_WWW</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>PROFANITIES_LIST</td>
+				<td><code>&#39;********************&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>PROJECT_ROOT</td>
+				<td><code>&#39;/home/pilt/envs/cafesys/cafesys&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>ROOT_URLCONF</td>
+				<td><code>&#39;cafesys.urls&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SECRET_KEY</td>
+				<td><code>&#39;********************&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>SEND_BROKEN_LINK_EMAILS</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SERVER_EMAIL</td>
+				<td><code>&#39;root@localhost&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>SERVE_MEDIA</td>
+				<td><code>True</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SESSION_COOKIE_AGE</td>
+				<td><code>1209600</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>SESSION_COOKIE_DOMAIN</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SESSION_COOKIE_NAME</td>
+				<td><code>&#39;sessionid&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>SESSION_COOKIE_PATH</td>
+				<td><code>&#39;/&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SESSION_COOKIE_SECURE</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>SESSION_ENGINE</td>
+				<td><code>&#39;django.contrib.sessions.backends.db&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SESSION_EXPIRE_AT_BROWSER_CLOSE</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>SESSION_FILE_PATH</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SESSION_SAVE_EVERY_REQUEST</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>SETTINGS_MODULE</td>
+				<td><code>&#39;cafesys.settings&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SHORT_DATETIME_FORMAT</td>
+				<td><code>&#39;m/d/Y P&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>SHORT_DATE_FORMAT</td>
+				<td><code>&#39;m/d/Y&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SITE_ID</td>
+				<td><code>1</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>SITE_NAME</td>
+				<td><code>&#39;Pinax&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>STATICFILES_DIRS</td>
+				<td><code>[&#39;/home/pilt/envs/cafesys/cafesys/media&#39;,
+ &#39;/home/pilt/envs/cafesys/lib/python2.6/site-packages/pinax/media/default&#39;]</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>STATIC_ROOT</td>
+				<td><code>&#39;/home/pilt/envs/cafesys/cafesys/site_media/static&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>STATIC_URL</td>
+				<td><code>&#39;/site_media/static/&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>TEMPLATE_CONTEXT_PROCESSORS</td>
+				<td><code>[&#39;django.core.context_processors.auth&#39;,
+ &#39;django.core.context_processors.debug&#39;,
+ &#39;django.core.context_processors.i18n&#39;,
+ &#39;django.core.context_processors.media&#39;,
+ &#39;django.core.context_processors.request&#39;,
+ &#39;django.contrib.messages.context_processors.messages&#39;,
+ &#39;pinax.core.context_processors.pinax_settings&#39;,
+ &#39;notification.context_processors.notification&#39;,
+ &#39;announcements.context_processors.site_wide_announcements&#39;,
+ &#39;pinax.apps.account.context_processors.account&#39;]</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>TEMPLATE_DEBUG</td>
+				<td><code>True</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>TEMPLATE_DIRS</td>
+				<td><code>[&#39;/home/pilt/envs/cafesys/cafesys/templates&#39;,
+ &#39;/home/pilt/envs/cafesys/lib/python2.6/site-packages/pinax/templates/default&#39;]</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>TEMPLATE_LOADERS</td>
+				<td><code>[&#39;django.template.loaders.filesystem.load_template_source&#39;,
+ &#39;django.template.loaders.app_directories.load_template_source&#39;]</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>TEMPLATE_STRING_IF_INVALID</td>
+				<td><code>&#39;&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>TEST_DATABASE_CHARSET</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>TEST_DATABASE_COLLATION</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>TEST_DATABASE_NAME</td>
+				<td><code>None</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>TEST_RUNNER</td>
+				<td><code>&#39;django.test.simple.DjangoTestSuiteRunner&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>THOUSAND_SEPARATOR</td>
+				<td><code>&#39;,&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>TIME_FORMAT</td>
+				<td><code>&#39;P&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>TIME_INPUT_FORMATS</td>
+				<td><code>(&#39;%H:%M:%S&#39;, &#39;%H:%M&#39;)</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>TIME_ZONE</td>
+				<td><code>&#39;US/Eastern&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>TRANSACTIONS_MANAGED</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>URL_VALIDATOR_USER_AGENT</td>
+				<td><code>&#39;Django/1.2 (http://www.djangoproject.com)&#39;</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>USE_ETAGS</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>USE_I18N</td>
+				<td><code>True</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>USE_L10N</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>USE_THOUSAND_SEPARATOR</td>
+				<td><code>False</code></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>WIKI_MARKUP_CHOICES</td>
+				<td><code>[(&#39;restructuredtext&#39;, u&#39;reStructuredText&#39;),
+ (&#39;textile&#39;, u&#39;Textile&#39;),
+ (&#39;markdown&#39;, u&#39;Markdown&#39;),
+ (&#39;creole&#39;, u&#39;Creole&#39;)]</code></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>YEAR_MONTH_FORMAT</td>
+				<td><code>&#39;F Y&#39;</code></td>
+			</tr>
+		
+	</tbody>
+</table>
+
+				    </div>
+				</div>
+			</div>
+		
+	
+		
+			<div id="djDebugHeaderPanel" class="panelContent">
+				<div class="djDebugPanelTitle">
+					<a href="" class="djDebugClose">Close</a>
+					<h3>HTTP Headers</h3>
+				</div>
+				<div class="djDebugPanelContent">
+				    <div class="scroll">
+				        
+<table>
+	<thead>
+		<tr>
+			<th>Key</th>
+			<th>Value</th>
+		</tr>
+	</thead>
+	<tbody>
+		
+			<tr class="djDebugOdd">
+				<td>HTTP_ACCEPT</td>
+				<td>application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>HTTP_ACCEPT_CHARSET</td>
+				<td>ISO-8859-1,utf-8;q=0.7,*;q=0.3</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>HTTP_USER_AGENT</td>
+				<td>Mozilla/5.0 (X11; U; Linux x86_64; en-US) AppleWebKit/533.4 (KHTML, like Gecko) Chrome/5.0.375.86 Safari/533.4</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>HTTP_CONNECTION</td>
+				<td>keep-alive</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>SERVER_PORT</td>
+				<td>8000</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SERVER_NAME</td>
+				<td>localhost.localdomain</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>REMOTE_ADDR</td>
+				<td>127.0.0.1</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SERVER_SOFTWARE</td>
+				<td>WSGIServer/0.1 Python/2.6.4</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>HTTP_ACCEPT_LANGUAGE</td>
+				<td>en-US,en;q=0.8</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SCRIPT_NAME</td>
+				<td></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>REQUEST_METHOD</td>
+				<td>GET</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>HTTP_HOST</td>
+				<td>localhost:8000</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>CONTENT_TYPE</td>
+				<td>text/plain</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>SERVER_PROTOCOL</td>
+				<td>HTTP/1.1</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>QUERY_STRING</td>
+				<td></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>REMOTE_HOST</td>
+				<td></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>HTTP_ACCEPT_ENCODING</td>
+				<td>gzip,deflate,sdch</td>
+			</tr>
+		
+	</tbody>
+</table>
+
+				    </div>
+				</div>
+			</div>
+		
+	
+		
+			<div id="djDebugRequestVarsPanel" class="panelContent">
+				<div class="djDebugPanelTitle">
+					<a href="" class="djDebugClose">Close</a>
+					<h3>Request Vars</h3>
+				</div>
+				<div class="djDebugPanelContent">
+				    <div class="scroll">
+				        
+
+<h4>View information</h4>
+<table>
+	<thead>
+		<tr>
+			<th>View Function</th>
+			<th>args</th>
+			<th>kwargs</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>terminal.views.kiosk_view</td>
+			<td>None</td>
+			<td>
+			
+				None
+			
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<h4>COOKIES Variables</h4>
+
+	<table>
+		<colgroup>
+			<col style="width:20%"/>
+			<col/>
+		</colgroup>
+		<thead>
+			<tr>
+				<th>Variable</th>
+				<th>Value</th>
+			</tr>
+		</thead>
+		<tbody>
+			
+				<tr class="djDebugOdd">
+					<td>djdt</td>
+					<td>hide</td>
+				</tr>
+			
+		</tbody>
+	</table>
+
+
+<h4>SESSION Variables</h4>
+
+	<p>No SESSION data</p>
+
+
+<h4>GET Variables</h4>
+
+	<p>No GET data</p>
+
+
+<h4>POST Variables</h4>
+
+	<p>No POST data</p>
+
+
+				    </div>
+				</div>
+			</div>
+		
+	
+		
+			<div id="djDebugSQLPanel" class="panelContent">
+				<div class="djDebugPanelTitle">
+					<a href="" class="djDebugClose">Close</a>
+					<h3>SQL Queries</h3>
+				</div>
+				<div class="djDebugPanelContent">
+				    <div class="scroll">
+				        
+<table>
+	<thead>
+		<tr>
+			<th>Time&nbsp;(ms)</th>
+			<th>Action</th>
+			<th>Stacktrace</th>
+			<th>Query</th>
+		</tr>
+	</thead>
+	<tbody>
+		
+			<tr class="djDebugOdd">
+				<td>1.38</td>
+				<td>
+				
+					
+						<a class="remoteCall" href="/__debug__/sql_select/?sql=SELECT%20%22terminal_item%22.%22id%22%2C%20%22terminal_item%22.%22title%22%2C%20%22terminal_item%22.%22description%22%2C%20%22terminal_item%22.%22cost%22%2C%20%22terminal_item%22.%22initial_count%22%2C%20%22terminal_item%22.%22img%22%20FROM%20%22terminal_item%22&amp;params=%5B%5D&amp;duration=1.38&amp;hash=ecede69d80c5bf5f892c045f4edcd72c3b08fb85">SELECT</a><br />
+						<a class="remoteCall" href="/__debug__/sql_explain/?sql=SELECT%20%22terminal_item%22.%22id%22%2C%20%22terminal_item%22.%22title%22%2C%20%22terminal_item%22.%22description%22%2C%20%22terminal_item%22.%22cost%22%2C%20%22terminal_item%22.%22initial_count%22%2C%20%22terminal_item%22.%22img%22%20FROM%20%22terminal_item%22&amp;params=%5B%5D&amp;duration=1.38&amp;hash=ecede69d80c5bf5f892c045f4edcd72c3b08fb85">EXPLAIN</a><br />
+						
+					
+				
+				</td>
+				<td>
+					
+					<div class="djSQLShowStacktraceDiv"><a class="djSQLShowStacktrace" href="#">Toggle Stacktrace</a></div>
+					
+				</td>
+				<td class="syntax">
+					<div class="djDebugSqlWrap">
+						<div class="djDebugSql"><strong>SELECT</strong> &quot;terminal_item&quot;.&quot;id&quot;, &quot;terminal_item&quot;.&quot;title&quot;, &quot;terminal_item&quot;.&quot;description&quot;, &quot;terminal_item&quot;.&quot;cost&quot;, &quot;terminal_item&quot;.&quot;initial_count&quot;, &quot;terminal_item&quot;.&quot;img&quot; <strong>FROM</strong> &quot;terminal_item&quot;</div>
+						
+						<div class="djSQLHideStacktraceDiv" style="display:none;">
+							<table>
+								<tr>
+									<th>Line</th>
+									<th>Method</th>
+									<th>File</th>
+								</tr>
+								
+									<tr>
+										<td>14</td>
+										<td><code>kiosk_view</code></td>
+										<td><code>/home/pilt/envs/cafesys/cafesys/terminal/views.py</code></td>
+									</tr>
+								
+							</table>
+							
+							<table>
+								
+								<tr>
+									<td>15</td>
+									<td><code style="font-family: monospace;">        &lt;/div&gt;
+</code></td>
+								</tr>
+								
+								<tr>
+									<td>16</td>
+									<td><code style="font-family: monospace;">        &lt;div class=&quot;order-container&quot;&gt;
+</code></td>
+								</tr>
+								
+								<tr>
+									<td>17</td>
+									<td><code style="font-family: monospace;">            &lt;div class=&quot;menu&quot;&gt;
+</code></td>
+								</tr>
+								
+								<tr>
+									<td>18</td>
+									<td><code style="font-family: monospace;background-color: lightgrey">            {% for item in items %}
+</code></td>
+								</tr>
+								
+								<tr>
+									<td>19</td>
+									<td><code style="font-family: monospace;">                &lt;div class=&quot;item&quot; id=&quot;item-{{item.id}}&quot;&gt;
+</code></td>
+								</tr>
+								
+								<tr>
+									<td>20</td>
+									<td><code style="font-family: monospace;">                    &lt;img src=&quot;{{ MEDIA_URL }}{{item.img}}&quot; alt=&quot;product image&quot; /&gt;
+</code></td>
+								</tr>
+								
+								<tr>
+									<td>21</td>
+									<td><code style="font-family: monospace;">                    &lt;div class=&quot;meta&quot;&gt;
+</code></td>
+								</tr>
+								
+							</table>
+							<p><strong>/home/pilt/envs/cafesys/cafesys/templates/terminal/terminal.html</strong></p>
+							
+						</div>
+						
+            <span class="djDebugLineChart" style="width:100.0%; left:0%;"></span>
+					</div>
+				</td>
+			</tr>
+		
+	</tbody>
+</table>
+
+				    </div>
+				</div>
+			</div>
+		
+	
+		
+			<div id="djDebugTemplatePanel" class="panelContent">
+				<div class="djDebugPanelTitle">
+					<a href="" class="djDebugClose">Close</a>
+					<h3>Templates (1 rendered)</h3>
+				</div>
+				<div class="djDebugPanelContent">
+				    <div class="scroll">
+				        
+<h4>Template paths</h4>
+
+	<ol>
+	
+		<li>/home/pilt/envs/cafesys/cafesys/templates</li>
+	
+		<li>/home/pilt/envs/cafesys/lib/python2.6/site-packages/pinax/templates/default</li>
+	
+	</ol>
+
+
+<h4>Template</h4>
+
+<dl>
+
+	<dt><strong><a class="remoteCall toggleTemplate" href="/__debug__/template_source/?template=terminal/terminal.html">terminal/terminal.html</a></strong></dt>
+	<dd><samp>/home/pilt/envs/cafesys/cafesys/templates/terminal/terminal.html</samp></dd>
+	
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{}
+{&#39;csrf_token&#39;: &lt;django.utils.functional.__proxy__ object at 0x7f3a756fc150&gt;}
+{&#39;messages&#39;: &lt;django.contrib.messages.storage.session.SessionStorage object at 0x7f3a756fce50&gt;,
+ &#39;perms&#39;: &lt;django.utils.functional.__proxy__ object at 0x7f3a75711ed0&gt;,
+ &#39;user&#39;: &lt;django.utils.functional.SimpleLazyObject object at 0x7f3a756fc8d0&gt;}
+{&#39;debug&#39;: True, &#39;sql_queries&#39;: &#39;&lt;&lt;sql_queries&gt;&gt;&#39;}
+{&#39;LANGUAGES&#39;: &#39;&lt;&lt;languages&gt;&gt;&#39;, &#39;LANGUAGE_BIDI&#39;: False, &#39;LANGUAGE_CODE&#39;: &#39;en&#39;}
+{&#39;MEDIA_URL&#39;: &#39;/site_media/media/&#39;}
+{&#39;request&#39;: &#39;&lt;&lt;request&gt;&gt;&#39;}
+{&#39;messages&#39;: &lt;django.contrib.messages.storage.session.SessionStorage object at 0x7f3a756fce50&gt;}
+{&#39;CONTACT_EMAIL&#39;: &#39;feedback@example.com&#39;,
+ &#39;SITE_NAME&#39;: &#39;Pinax&#39;,
+ &#39;STATIC_URL&#39;: &#39;/site_media/static/&#39;}
+{}
+{&#39;site_wide_announcements&#39;: []}
+{&#39;account&#39;: &lt;pinax.apps.account.models.AnonymousAccount object at 0x7f3a75711990&gt;}
+{&#39;items&#39;: [&lt;Item: Kaffe/Te - pappersmugg (4 SEK)&gt;, &lt;Item: Kaffe/Te - egen mugg (3 SEK)&gt;]}</code></div>
+	</dd>
+	
+
+</dl>
+
+
+<h4>Context processors</h4>
+
+<dl>
+
+	<dt><strong>notification.context_processors.notification</strong></dt>
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{}</code></div>
+	</dd>
+
+	<dt><strong>django.core.context_processors.i18n</strong></dt>
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{&#39;LANGUAGES&#39;: ((&#39;ar&#39;, &#39;Arabic&#39;),
+               (&#39;bg&#39;, &#39;Bulgarian&#39;),
+               (&#39;bn&#39;, &#39;Bengali&#39;),
+               (&#39;bs&#39;, &#39;Bosnian&#39;),
+               (&#39;ca&#39;, &#39;Catalan&#39;),
+               (&#39;cs&#39;, &#39;Czech&#39;),
+               (&#39;cy&#39;, &#39;Welsh&#39;),
+               (&#39;da&#39;, &#39;Danish&#39;),
+               (&#39;de&#39;, &#39;German&#39;),
+               (&#39;el&#39;, &#39;Greek&#39;),
+               (&#39;en&#39;, &#39;English&#39;),
+               (&#39;en-gb&#39;, &#39;British English&#39;),
+               (&#39;es&#39;, &#39;Spanish&#39;),
+               (&#39;es-ar&#39;, &#39;Argentinean Spanish&#39;),
+               (&#39;et&#39;, &#39;Estonian&#39;),
+               (&#39;eu&#39;, &#39;Basque&#39;),
+               (&#39;fa&#39;, &#39;Persian&#39;),
+               (&#39;fi&#39;, &#39;Finnish&#39;),
+               (&#39;fr&#39;, &#39;French&#39;),
+               (&#39;fy-nl&#39;, &#39;Frisian&#39;),
+               (&#39;ga&#39;, &#39;Irish&#39;),
+               (&#39;gl&#39;, &#39;Galician&#39;),
+               (&#39;he&#39;, &#39;Hebrew&#39;),
+               (&#39;hi&#39;, &#39;Hindi&#39;),
+               (&#39;hr&#39;, &#39;Croatian&#39;),
+               (&#39;hu&#39;, &#39;Hungarian&#39;),
+               (&#39;id&#39;, &#39;Indonesian&#39;),
+               (&#39;is&#39;, &#39;Icelandic&#39;),
+               (&#39;it&#39;, &#39;Italian&#39;),
+               (&#39;ja&#39;, &#39;Japanese&#39;),
+               (&#39;ka&#39;, &#39;Georgian&#39;),
+               (&#39;km&#39;, &#39;Khmer&#39;),
+               (&#39;kn&#39;, &#39;Kannada&#39;),
+               (&#39;ko&#39;, &#39;Korean&#39;),
+               (&#39;lt&#39;, &#39;Lithuanian&#39;),
+               (&#39;lv&#39;, &#39;Latvian&#39;),
+               (&#39;mk&#39;, &#39;Macedonian&#39;),
+               (&#39;mn&#39;, &#39;Mongolian&#39;),
+               (&#39;nl&#39;, &#39;Dutch&#39;),
+               (&#39;no&#39;, &#39;Norwegian&#39;),
+               (&#39;nb&#39;, &#39;Norwegian Bokmal&#39;),
+               (&#39;nn&#39;, &#39;Norwegian Nynorsk&#39;),
+               (&#39;pl&#39;, &#39;Polish&#39;),
+               (&#39;pt&#39;, &#39;Portuguese&#39;),
+               (&#39;pt-br&#39;, &#39;Brazilian Portuguese&#39;),
+               (&#39;ro&#39;, &#39;Romanian&#39;),
+               (&#39;ru&#39;, &#39;Russian&#39;),
+               (&#39;sk&#39;, &#39;Slovak&#39;),
+               (&#39;sl&#39;, &#39;Slovenian&#39;),
+               (&#39;sq&#39;, &#39;Albanian&#39;),
+               (&#39;sr&#39;, &#39;Serbian&#39;),
+               (&#39;sr-latn&#39;, &#39;Serbian Latin&#39;),
+               (&#39;sv&#39;, &#39;Swedish&#39;),
+               (&#39;ta&#39;, &#39;Tamil&#39;),
+               (&#39;te&#39;, &#39;Telugu&#39;),
+               (&#39;th&#39;, &#39;Thai&#39;),
+               (&#39;tr&#39;, &#39;Turkish&#39;),
+               (&#39;uk&#39;, &#39;Ukrainian&#39;),
+               (&#39;vi&#39;, &#39;Vietnamese&#39;),
+               (&#39;zh-cn&#39;, &#39;Simplified Chinese&#39;),
+               (&#39;zh-tw&#39;, &#39;Traditional Chinese&#39;)),
+ &#39;LANGUAGE_BIDI&#39;: False,
+ &#39;LANGUAGE_CODE&#39;: &#39;en&#39;}</code></div>
+	</dd>
+
+	<dt><strong>django.core.context_processors.media</strong></dt>
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{&#39;MEDIA_URL&#39;: &#39;/site_media/media/&#39;}</code></div>
+	</dd>
+
+	<dt><strong>django.contrib.messages.context_processors.messages</strong></dt>
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{&#39;messages&#39;: &lt;django.contrib.messages.storage.session.SessionStorage object at 0x7f3a756fce50&gt;}</code></div>
+	</dd>
+
+	<dt><strong>django.core.context_processors.request</strong></dt>
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{&#39;request&#39;: &lt;WSGIRequest
+GET:&lt;QueryDict: {}&gt;,
+POST:&lt;QueryDict: {}&gt;,
+COOKIES:{&#39;djdt&#39;: &#39;hide&#39;},
+META:{&#39;COLORFGBG&#39;: &#39;0;default&#39;,
+ &#39;COLORTERM&#39;: &#39;rxvt-xpm&#39;,
+ &#39;CONTENT_LENGTH&#39;: &#39;&#39;,
+ &#39;CONTENT_TYPE&#39;: &#39;text/plain&#39;,
+ &#39;CSRF_COOKIE&#39;: &#39;4665674745a1b19d09438153b40e517f&#39;,
+ &#39;CVSROOT&#39;: &#39;:ext:pilt@pilt-ws:/home/pilt/jobb/esdg/esdg-cvs&#39;,
+ &#39;CVS_RHS&#39;: &#39;/usr/bin/ssh&#39;,
+ &#39;CVS_RSH&#39;: &#39;ssh&#39;,
+ &#39;DBUS_SESSION_BUS_ADDRESS&#39;: &#39;unix:abstract=/tmp/dbus-S7XxuLqFqn,guid=475cb33d841393a45357e9f600000045&#39;,
+ &#39;DESKTOP_SESSION&#39;: &#39;gnome&#39;,
+ &#39;DISPLAY&#39;: &#39;:0.0&#39;,
+ &#39;DJANGO_SETTINGS_MODULE&#39;: &#39;cafesys.settings&#39;,
+ &#39;EDIT&#39;: &#39;vim&#39;,
+ &#39;EDITOR&#39;: &#39;vim&#39;,
+ &#39;GATEWAY_INTERFACE&#39;: &#39;CGI/1.1&#39;,
+ &#39;GDMSESSION&#39;: &#39;gnome&#39;,
+ &#39;GDM_KEYBOARD_LAYOUT&#39;: &#39;us&#39;,
+ &#39;GDM_LANG&#39;: &#39;en_US.utf8&#39;,
+ &#39;GNOME_DESKTOP_SESSION_ID&#39;: &#39;this-is-deprecated&#39;,
+ &#39;GNOME_KEYRING_CONTROL&#39;: &#39;/tmp/keyring-NDYBmT&#39;,
+ &#39;GNOME_KEYRING_PID&#39;: &#39;2228&#39;,
+ &#39;GOARCH&#39;: &#39;amd64&#39;,
+ &#39;GOOS&#39;: &#39;linux&#39;,
+ &#39;GOROOT&#39;: &#39;/home/pilt/go&#39;,
+ &#39;GTK_RC_FILES&#39;: &#39;/etc/gtk/gtkrc:/home/pilt/.gtkrc-1.2-gnome2&#39;,
+ &#39;G_BROKEN_FILENAMES&#39;: &#39;1&#39;,
+ &#39;HISTSIZE&#39;: &#39;1000&#39;,
+ &#39;HOME&#39;: &#39;/home/pilt&#39;,
+ &#39;HOSTNAME&#39;: &#39;pilt-ws&#39;,
+ &#39;HTTP_ACCEPT&#39;: &#39;application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5&#39;,
+ &#39;HTTP_ACCEPT_CHARSET&#39;: &#39;ISO-8859-1,utf-8;q=0.7,*;q=0.3&#39;,
+ &#39;HTTP_ACCEPT_ENCODING&#39;: &#39;gzip,deflate,sdch&#39;,
+ &#39;HTTP_ACCEPT_LANGUAGE&#39;: &#39;en-US,en;q=0.8&#39;,
+ &#39;HTTP_CONNECTION&#39;: &#39;keep-alive&#39;,
+ &#39;HTTP_COOKIE&#39;: &#39;djdt=hide&#39;,
+ &#39;HTTP_HOST&#39;: &#39;localhost:8000&#39;,
+ &#39;HTTP_USER_AGENT&#39;: &#39;Mozilla/5.0 (X11; U; Linux x86_64; en-US) AppleWebKit/533.4 (KHTML, like Gecko) Chrome/5.0.375.86 Safari/533.4&#39;,
+ &#39;KDEDIRS&#39;: &#39;/usr&#39;,
+ &#39;KDE_IS_PRELINKED&#39;: &#39;1&#39;,
+ &#39;LANG&#39;: &#39;en_US.utf8&#39;,
+ &#39;LESSOPEN&#39;: &#39;|/usr/bin/lesspipe.sh %s&#39;,
+ &#39;LOGNAME&#39;: &#39;pilt&#39;,
+ &#39;LS_COLORS&#39;: &#39;rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=01;05;37;41:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lz=01;31:*.xz=01;31:*.bz2=01;31:*.tbz=01;31:*.tbz2=01;31:*.bz=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=01;36:*.au=01;36:*.flac=01;36:*.mid=01;36:*.midi=01;36:*.mka=01;36:*.mp3=01;36:*.mpc=01;36:*.ogg=01;36:*.ra=01;36:*.wav=01;36:*.axa=01;36:*.oga=01;36:*.spx=01;36:*.xspf=01;36:&#39;,
+ &#39;MAIL&#39;: &#39;/var/spool/mail/pilt&#39;,
+ &#39;OLDPWD&#39;: &#39;/home/pilt/envs/cafesys&#39;,
+ &#39;ORBIT_SOCKETDIR&#39;: &#39;/tmp/orbit-pilt&#39;,
+ &#39;PAGER&#39;: &#39;most&#39;,
+ &#39;PATH&#39;: &#39;/home/pilt/envs/cafesys/bin:/usr/lib64/qt-3.3/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/usr/lib64/ccache:/usr/local/bin:/usr/bin:/bin:/home/pilt/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/real/RealPlayer:/opt/real/RealPlayer&#39;,
+ &#39;PATH_INFO&#39;: u&#39;/terminal/&#39;,
+ &#39;PS1&#39;: &#39;(cafesys)[%n@%m]%~%# &#39;,
+ &#39;PWD&#39;: &#39;/home/pilt/envs/cafesys/cafesys&#39;,
+ &#39;QTDIR&#39;: &#39;/usr/lib64/qt-3.3&#39;,
+ &#39;QTINC&#39;: &#39;/usr/lib64/qt-3.3/include&#39;,
+ &#39;QTLIB&#39;: &#39;/usr/lib64/qt-3.3/lib&#39;,
+ &#39;QUERY_STRING&#39;: &#39;&#39;,
+ &#39;REMOTE_ADDR&#39;: &#39;127.0.0.1&#39;,
+ &#39;REMOTE_HOST&#39;: &#39;&#39;,
+ &#39;REQUEST_METHOD&#39;: &#39;GET&#39;,
+ &#39;RUN_MAIN&#39;: &#39;true&#39;,
+ &#39;SCRIPT_NAME&#39;: u&#39;&#39;,
+ &#39;SDL_AUDIODRIVER&#39;: &#39;pulse&#39;,
+ &#39;SERVER_NAME&#39;: &#39;localhost.localdomain&#39;,
+ &#39;SERVER_PORT&#39;: &#39;8000&#39;,
+ &#39;SERVER_PROTOCOL&#39;: &#39;HTTP/1.1&#39;,
+ &#39;SERVER_SOFTWARE&#39;: &#39;WSGIServer/0.1 Python/2.6.4&#39;,
+ &#39;SESSION_MANAGER&#39;: &#39;local/unix:@/tmp/.ICE-unix/2235,unix/unix:/tmp/.ICE-unix/2235&#39;,
+ &#39;SHELL&#39;: &#39;/bin/zsh&#39;,
+ &#39;SHLVL&#39;: &#39;1&#39;,
+ &#39;SSH_ASKPASS&#39;: &#39;/usr/libexec/openssh/gnome-ssh-askpass&#39;,
+ &#39;SSH_AUTH_SOCK&#39;: &#39;/tmp/keyring-NDYBmT/ssh&#39;,
+ &#39;TERM&#39;: &#39;rxvt-unicode&#39;,
+ &#39;TZ&#39;: &#39;US/Eastern&#39;,
+ &#39;USER&#39;: &#39;pilt&#39;,
+ &#39;USERNAME&#39;: &#39;pilt&#39;,
+ &#39;VIRTUAL_ENV&#39;: &#39;/home/pilt/envs/cafesys&#39;,
+ &#39;WINDOWID&#39;: &#39;88343233&#39;,
+ &#39;WINDOWPATH&#39;: &#39;1&#39;,
+ &#39;WORKON_HOME&#39;: &#39;/home/pilt/envs&#39;,
+ &#39;XAUTHORITY&#39;: &#39;/var/run/gdm/auth-for-pilt-UdmoOU/database&#39;,
+ &#39;XDG_SESSION_COOKIE&#39;: &#39;eedf538df591dbba8db35ccd48b83eb1-1277840783.776552-962436328&#39;,
+ &#39;_&#39;: &#39;/home/pilt/envs/cafesys/bin/python&#39;,
+ &#39;wsgi.errors&#39;: &lt;open file &#39;&lt;stderr&gt;&#39;, mode &#39;w&#39; at 0x7f3a82e7b1c8&gt;,
+ &#39;wsgi.file_wrapper&#39;: &lt;class &#39;django.core.servers.basehttp.FileWrapper&#39;&gt;,
+ &#39;wsgi.input&#39;: &lt;socket._fileobject object at 0x7f3a7570e0d0&gt;,
+ &#39;wsgi.multiprocess&#39;: False,
+ &#39;wsgi.multithread&#39;: True,
+ &#39;wsgi.run_once&#39;: False,
+ &#39;wsgi.url_scheme&#39;: &#39;http&#39;,
+ &#39;wsgi.version&#39;: (1, 0)}&gt;}</code></div>
+	</dd>
+
+	<dt><strong>django.core.context_processors.csrf</strong></dt>
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{&#39;csrf_token&#39;: &lt;django.utils.functional.__proxy__ object at 0x7f3a75411c50&gt;}</code></div>
+	</dd>
+
+	<dt><strong>template_utils.context_processors._processor</strong></dt>
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{&#39;CONTACT_EMAIL&#39;: &#39;feedback@example.com&#39;,
+ &#39;SITE_NAME&#39;: &#39;Pinax&#39;,
+ &#39;STATIC_URL&#39;: &#39;/site_media/static/&#39;}</code></div>
+	</dd>
+
+	<dt><strong>django.core.context_processors.debug</strong></dt>
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{&#39;debug&#39;: True,
+ &#39;sql_queries&#39;: [{&#39;duration&#39;: 1.3819999999999999,
+                  &#39;hash&#39;: &#39;ecede69d80c5bf5f892c045f4edcd72c3b08fb85&#39;,
+                  &#39;is_select&#39;: True,
+                  &#39;is_slow&#39;: False,
+                  &#39;params&#39;: &#39;[]&#39;,
+                  &#39;raw_sql&#39;: &#39;SELECT &quot;terminal_item&quot;.&quot;id&quot;, &quot;terminal_item&quot;.&quot;title&quot;, &quot;terminal_item&quot;.&quot;description&quot;, &quot;terminal_item&quot;.&quot;cost&quot;, &quot;terminal_item&quot;.&quot;initial_count&quot;, &quot;terminal_item&quot;.&quot;img&quot; FROM &quot;terminal_item&quot;&#39;,
+                  &#39;sql&#39;: u&#39;&lt;strong&gt;SELECT&lt;/strong&gt; &amp;quot;terminal_item&amp;quot;.&amp;quot;id&amp;quot;, &amp;quot;terminal_item&amp;quot;.&amp;quot;title&amp;quot;, &amp;quot;terminal_item&amp;quot;.&amp;quot;description&amp;quot;, &amp;quot;terminal_item&amp;quot;.&amp;quot;cost&amp;quot;, &amp;quot;terminal_item&amp;quot;.&amp;quot;initial_count&amp;quot;, &amp;quot;terminal_item&amp;quot;.&amp;quot;img&amp;quot; &lt;strong&gt;FROM&lt;/strong&gt; &amp;quot;terminal_item&amp;quot;&#39;,
+                  &#39;stacktrace&#39;: [(&#39;/home/pilt/envs/cafesys/cafesys/terminal/views.py&#39;,
+                                  14,
+                                  &#39;kiosk_view&#39;,
+                                  &#39;}, context_instance=RequestContext(request))&#39;)],
+                  &#39;start_offset&#39;: 0,
+                  &#39;start_time&#39;: datetime.datetime(2010, 7, 8, 14, 31, 48, 352964),
+                  &#39;stop_time&#39;: datetime.datetime(2010, 7, 8, 14, 31, 48, 354346),
+                  &#39;template_info&#39;: {&#39;context&#39;: [{&#39;content&#39;: u&#39;        &lt;/div&gt;\n&#39;,
+                                                 &#39;highlight&#39;: False,
+                                                 &#39;num&#39;: 15},
+                                                {&#39;content&#39;: u&#39;        &lt;div class=&quot;order-container&quot;&gt;\n&#39;,
+                                                 &#39;highlight&#39;: False,
+                                                 &#39;num&#39;: 16},
+                                                {&#39;content&#39;: u&#39;            &lt;div class=&quot;menu&quot;&gt;\n&#39;,
+                                                 &#39;highlight&#39;: False,
+                                                 &#39;num&#39;: 17},
+                                                {&#39;content&#39;: u&#39;            {% for item in items %}\n&#39;,
+                                                 &#39;highlight&#39;: True,
+                                                 &#39;num&#39;: 18},
+                                                {&#39;content&#39;: u&#39;                &lt;div class=&quot;item&quot; id=&quot;item-{{item.id}}&quot;&gt;\n&#39;,
+                                                 &#39;highlight&#39;: False,
+                                                 &#39;num&#39;: 19},
+                                                {&#39;content&#39;: u&#39;                    &lt;img src=&quot;{{ MEDIA_URL }}{{item.img}}&quot; alt=&quot;product image&quot; /&gt;\n&#39;,
+                                                 &#39;highlight&#39;: False,
+                                                 &#39;num&#39;: 20},
+                                                {&#39;content&#39;: u&#39;                    &lt;div class=&quot;meta&quot;&gt;\n&#39;,
+                                                 &#39;highlight&#39;: False,
+                                                 &#39;num&#39;: 21}],
+                                    &#39;name&#39;: u&#39;/home/pilt/envs/cafesys/cafesys/templates/terminal/terminal.html&#39;},
+                  &#39;width_ratio&#39;: 100.0}]}</code></div>
+	</dd>
+
+	<dt><strong>django.core.context_processors.auth</strong></dt>
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{&#39;messages&#39;: &lt;django.contrib.messages.storage.session.SessionStorage object at 0x7f3a756fce50&gt;,
+ &#39;perms&#39;: &lt;django.utils.functional.__proxy__ object at 0x7f3a75403990&gt;,
+ &#39;user&#39;: &lt;django.utils.functional.SimpleLazyObject object at 0x7f3a75411c50&gt;}</code></div>
+	</dd>
+
+	<dt><strong>pinax.apps.account.context_processors.account</strong></dt>
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{&#39;account&#39;: &lt;pinax.apps.account.models.AnonymousAccount object at 0x7f3a75411c50&gt;}</code></div>
+	</dd>
+
+	<dt><strong>announcements.context_processors.site_wide_announcements</strong></dt>
+	<dd>
+		<div class="djTemplateShowContextDiv"><a class="djTemplateShowContext"><span class="toggleArrow">&#x25B6;</span> Toggle Context</a></div>
+		<div class="djTemplateHideContextDiv" style="display:none;"><code>{&#39;site_wide_announcements&#39;: []}</code></div>
+	</dd>
+
+</dl>
+
+
+				    </div>
+				</div>
+			</div>
+		
+	
+		
+			<div id="djDebugSignalsPanel" class="panelContent">
+				<div class="djDebugPanelTitle">
+					<a href="" class="djDebugClose">Close</a>
+					<h3>Signals</h3>
+				</div>
+				<div class="djDebugPanelContent">
+				    <div class="scroll">
+				        
+<table>
+	<thead>
+		<tr>
+			<th>Signal</th>
+			<th>Providing Args</th>
+			<th>Receivers</th>
+		</tr>
+	</thead>
+	<tbody>
+		
+			<tr class="djDebugOdd">
+				<td>class_prepared</td>
+				<td>class</td>
+				<td>function setup_join_cache, function ensure_default_manager, function do_pending_lookups, function prep_localized_datetime</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>connection_created</td>
+				<td></td>
+				<td></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>got_request_exception</td>
+				<td>request</td>
+				<td>function _rollback_on_exception</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>post_delete</td>
+				<td>instance</td>
+				<td>method delete_file on ImageField object</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>post_init</td>
+				<td>instance</td>
+				<td>method update_dimension_fields on ImageField object</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>post_save</td>
+				<td>instance, created, raw</td>
+				<td>function create_profile, function create_account, function superuser_email_address, function signup_code_result_save</td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>post_syncdb</td>
+				<td>app, verbosity, interactive, class, created_models</td>
+				<td></td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>pre_delete</td>
+				<td>instance</td>
+				<td></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>pre_init</td>
+				<td>instance, args, kwargs</td>
+				<td>method instance_pre_init on GenericForeignKey object</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>pre_save</td>
+				<td>instance, raw</td>
+				<td></td>
+			</tr>
+		
+			<tr class="djDebugOdd">
+				<td>request_finished</td>
+				<td></td>
+				<td>function close_connection</td>
+			</tr>
+		
+			<tr class="djDebugEven">
+				<td>request_started</td>
+				<td></td>
+				<td>function reset_queries</td>
+			</tr>
+		
+	</tbody>
+</table>
+
+				    </div>
+				</div>
+			</div>
+		
+	
+		
+			<div id="djDebugLoggingPanel" class="panelContent">
+				<div class="djDebugPanelTitle">
+					<a href="" class="djDebugClose">Close</a>
+					<h3>Log Messages</h3>
+				</div>
+				<div class="djDebugPanelContent">
+				    <div class="scroll">
+				        
+
+	<p>No messages logged.</p>
+
+
+
+				    </div>
+				</div>
+			</div>
+		
+	
+	<div id="djDebugWindow" class="panelContent"></div>
+</div>
+</body>
+</html>

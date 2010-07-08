@@ -1,0 +1,62 @@
+{
+   "": "",
+   "StartupDNSPrefetchList": [ "clients2.google.com", "crl.geotrust.com", "localhost", "ocsp.thawte.com", "www.google.com", "www.gstatic.com" ],
+   "browser": {
+      "last_known_google_url": "http://www.google.se/",
+      "window_placement": {
+         "bottom": 981,
+         "left": 50,
+         "maximized": false,
+         "right": 875,
+         "top": 25,
+         "work_area_bottom": 1001,
+         "work_area_left": 0,
+         "work_area_right": 1680,
+         "work_area_top": 25
+      },
+      "window_placement_localhost_/terminal": {
+         "bottom": 975,
+         "left": 50,
+         "maximized": false,
+         "right": 873,
+         "top": 25,
+         "work_area_bottom": 1001,
+         "work_area_left": 0,
+         "work_area_right": 1680,
+         "work_area_top": 25
+      }
+   },
+   "options_window": {
+      "last_tab_index": 2
+   },
+   "shutdown": {
+      "num_processes": 1,
+      "num_processes_slow": 0,
+      "type": 1
+   },
+   "uninstall_metrics": {
+      "installation_date2": "1278608493",
+      "launch_count": "47"
+   },
+   "user_experience_metrics": {
+      "session_id": 46,
+      "stability": {
+         "breakpad_registration_fail": 47,
+         "breakpad_registration_ok": 0,
+         "crash_count": 0,
+         "debugger_not_present": 47,
+         "debugger_present": 0,
+         "exited_cleanly": true,
+         "incomplete_session_end_count": 0,
+         "last_timestamp_sec": "1278613914",
+         "launch_count": 47,
+         "launch_time_sec": "1278613908",
+         "page_load_count": 0,
+         "renderer_crash_count": 0,
+         "renderer_hang_count": 0,
+         "session_end_completed": true,
+         "stats_buildtime": "1276695309",
+         "stats_version": "5.0.375.86-64"
+      }
+   }
+}

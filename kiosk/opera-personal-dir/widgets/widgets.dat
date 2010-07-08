@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<preferences>
+  <section id="widgets">
+    <value id="version" xml:space="preserve">1</value>
+  </section>
+  <section id="wuid-3fa7cdff-3312-0e89-0d9f-d8b23312ceff">
+    <value id="path to widget data" xml:space="preserve">$OPERA_DIR/unite/home.ua</value>
+    <value id="download_URL" null="yes"/>
+    <value id="class state" xml:space="preserve">enabled</value>
+    <value id="network_access" xml:space="preserve">1</value>
+  </section>
+  <section id="wuid-0adf05a0-a3df-08ca-08a4-2b4ca3dfd85f">
+    <value id="path to widget data" xml:space="preserve">$OPERA_DIR/unite/mediaPlayer.ua</value>
+    <value id="download_URL" xml:space="preserve">http://unite.opera.com/bundled/mediaplayer/</value>
+    <value id="class state" xml:space="preserve">enabled</value>
+    <value id="network_access" xml:space="preserve">1</value>
+  </section>
+  <section id="wuid-0877e22a-0447-0f42-0b7b-12f40447bfe5">
+    <value id="path to widget data" xml:space="preserve">$OPERA_DIR/unite/webserver.ua</value>
+    <value id="download_URL" xml:space="preserve">http://unite.opera.com/bundled/webserver/</value>
+    <value id="class state" xml:space="preserve">enabled</value>
+    <value id="network_access" xml:space="preserve">1</value>
+  </section>
+  <section id="wuid-6a58a781-4d0e-0375-0b4a-226e4d0e73bf">
+    <value id="path to widget data" xml:space="preserve">$OPERA_DIR/unite/fileSharing.ua</value>
+    <value id="download_URL" xml:space="preserve">http://unite.opera.com/bundled/fileSharing/</value>
+    <value id="class state" xml:space="preserve">enabled</value>
+    <value id="network_access" xml:space="preserve">1</value>
+  </section>
+  <section id="wuid-1bf3acc0-cfca-0d5f-0b21-d9d8cfcaed86">
+    <value id="path to widget data" xml:space="preserve">$OPERA_DIR/unite/messenger.ua</value>
+    <value id="download_URL" xml:space="preserve">http://unite.opera.com/bundled/messenger/</value>
+    <value id="class state" xml:space="preserve">enabled</value>
+    <value id="network_access" xml:space="preserve">1</value>
+  </section>
+  <section id="wuid-4d691493-66e4-0fd9-0bd7-76af66e4cf35">
+    <value id="path to widget data" xml:space="preserve">$OPERA_DIR/unite/photoSharing.ua</value>
+    <value id="download_URL" xml:space="preserve">http://unite.opera.com/widget/download/82/</value>
+    <value id="class state" xml:space="preserve">enabled</value>
+    <value id="network_access" xml:space="preserve">1</value>
+  </section>
+  <section id="wuid-3549f1ee-6652-06ec-0d2c-1dc76652a614">
+    <value id="path to widget data" xml:space="preserve">$OPERA_DIR/unite/fridge.ua</value>
+    <value id="download_URL" xml:space="preserve">http://unite.opera.com/bundled//fridge/</value>
+    <value id="class state" xml:space="preserve">enabled</value>
+    <value id="network_access" xml:space="preserve">1</value>
+  </section>
+</preferences>
