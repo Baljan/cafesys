@@ -1,1 +1,3 @@
 cache/*
+application_cache/*
+opcache/*
