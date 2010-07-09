@@ -135,10 +135,11 @@ $(document).ready(function() {
         }
         $(document).oneTime(pollOrderCountInterval, 'pollOrderCount', pollOrderCount);
 
+        var trigOrderFrom = function(liuId) {
+            $.getJSON('trig-tag-shown/'+liuId);
+        }
+
         $('#trig-order').click(function() {
-            resetOrder();
-            fxOrderPut(function() {
-                guiRefresh();
-            })
+            trigOrderFrom($(this).children('span').html());
         });
 });
