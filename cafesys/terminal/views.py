@@ -18,9 +18,6 @@ def item_info(request):
     items = serialize('json', Item.objects.all())
     return HttpResponse(items, mimetype='text/plain')
 
-def to_withdraw(request):
-    return HttpResponse('foo', mimetype='text/plain')
-
 @csrf_exempt
 def handle_pending(request):
     """Handle a pending order. This function will throw assertion errors if
