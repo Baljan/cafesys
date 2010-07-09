@@ -21,6 +21,13 @@ class OperaKiosk(Kiosk):
             '--personaldir', 
             os.path.join(os.path.dirname(__file__), 'opera-personal-dir'),
             '-kioskmode',
+            '-nokeys',
+            '-nomenu',
+            '-noprint',
+            '-nosplash',
+            '-nocontextmenu',
+            '-nosave',
+            '-resetonexit',
             url,
             ])
 
