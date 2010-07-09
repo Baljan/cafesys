@@ -23,6 +23,13 @@ def to_withdraw(request):
 
 @csrf_exempt
 def handle_pending(request):
+    """Handle a pending order. This function will throw assertion errors if
+    there are more than one pending order, or if there is no pending order at
+    all.
+
+    "Pending order" actually means that a student has shown their card to the
+    RFID reader.
+    """
     pending = TagShown.objects.filter(pending=True)
     assert len(pending) == 1
     pending = pending[0]
