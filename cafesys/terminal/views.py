@@ -56,6 +56,13 @@ def handle_pending(request):
     return HttpResponse(json.dumps(resp), mimetype='text/plain')
 
 def poll_pending_orders(request):
+    """Return a JSON object with a "is_pending" property. If it is true, it
+    means that a student has shown his card to the RFID reader and that his
+    order is to be handled based on the order in the kiosk terminal.
+
+    This function does not handle the order. The appropriate request will be
+    made by the kiosk browser if "is_pending" is true.
+    """
     is_pending = len(TagShown.objects.filter(pending=True)) != 0
     info = { 'is_pending': is_pending, }
     return HttpResponse(json.dumps(info), mimetype='text/plain')
