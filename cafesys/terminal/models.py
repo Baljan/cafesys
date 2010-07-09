@@ -59,6 +59,12 @@ class OrderItem(models.Model):
         return "%d x %s" % (self.count, self.item.title)
 
 class TagShown(models.Model):
+    """Objects of this type are inserted when students flash their cards for the
+    RFID reader. A pending object is an unhandled order.
+
+    The table of this module can safely be cleared when the system is down for
+    maintenance, is there be a need.
+    """
     student = models.ForeignKey('liu.Student')
     when = models.DateTimeField(auto_now_add=True)
     pending = models.BooleanField(default=True)
