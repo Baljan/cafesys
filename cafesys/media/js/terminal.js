@@ -6,7 +6,6 @@ $(document).ready(function() {
 
         var itemInfo = {}
         var lastBalance = 0;
-        var orderCount = 0;
 
         $('body').unselectable();
         
@@ -112,19 +111,26 @@ $(document).ready(function() {
         var pollOrderCountInterval = 1000;
         var pollOrderCount = function() {
             $(document).stopTime('pollOrderCount');
-            $.getJSON('order-info', function(info) {
-                var newCount = info.orderCount;
-                lastBalance = info.lastBalance;
-                if (orderCount == newCount) {
-                    /*
-                    fxOrderPut(function() {
-                        resetOrder();
-                        guiRefresh();
+            $.getJSON('poll-pending-orders', function(info) {
+                if (info.is_pending) {
+                    var items = {};
+                    $('.item .value').each(function() {
+                        var itemId = $(this).parents('.item').attr('id');
+                        var count = $.data(this, 'count');
+                        items[itemId] = count;
                     });
-                    return;
-                    */
+                    $.post('handle-pending', items, function(info) {
+                        lastBalance = info.balance;
+                        resetOrder();
+                        fxOrderPut(function() {
+                            guiRefresh();
+                            $(document).oneTime(pollOrderCountInterval, 'pollOrderCount', pollOrderCount);
+                        })
+                    }, 'json');
                 }
-                $(document).oneTime(pollOrderCountInterval, 'pollOrderCount', pollOrderCount);
+                else {
+                    $(document).oneTime(pollOrderCountInterval, 'pollOrderCount', pollOrderCount);
+                }
             });
         }
         $(document).oneTime(pollOrderCountInterval, 'pollOrderCount', pollOrderCount);
