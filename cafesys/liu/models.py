@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.encoding import smart_str
 
 class Role(models.Model):
     """Board member, worker, regular, and so on."""
@@ -6,7 +7,7 @@ class Role(models.Model):
     description = models.CharField(max_length=100)
 
     def __str__(self):
-        return "%s: %s" % (self.title, self.description)
+        return smart_str("%s: %s" % (self.title, self.description))
 
 class Student(models.Model):
     liu_id = models.CharField(max_length=8, unique=True)
@@ -14,4 +15,4 @@ class Student(models.Model):
     role = models.ForeignKey(Role)
 
     def __str__(self):
-        return "%s (%s)" % (self.liu_id, self.role.title)
+        return smart_str("%s (%s)" % (self.liu_id, self.role.title))
