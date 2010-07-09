@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.encoding import smart_str
 
 # FIXME: Is there a way to get rid of this import and reach the Student model
 # in some other way?
@@ -12,7 +13,7 @@ class Item(models.Model):
     img = models.ImageField(upload_to='img/items')
 
     def __str__(self):
-        return "%s - %s (%g SEK)" % (self.title, self.description, self.cost)
+        return smart_str("%s - %s (%g SEK)" % (self.title, self.description, self.cost))
 
 class OrderManager(models.Manager):
     pass
@@ -48,7 +49,7 @@ class Order(models.Model):
 
     def __str__(self):
         order_items = self.orderitem_set.all()
-        return '%s: %s' % (self.student.liu_id, ', '.join([str(x) for x in order_items]))
+        return smart_str('%s: %s' % (self.student.liu_id, ', '.join([str(x) for x in order_items])))
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order)
@@ -56,7 +57,7 @@ class OrderItem(models.Model):
     count = models.IntegerField(default=0)
 
     def __str__(self):
-        return "%d x %s" % (self.count, self.item.title)
+        return smart_str("%d x %s" % (self.count, self.item.title))
 
 class TagShown(models.Model):
     """Objects of this type are inserted when students flash their cards for the
@@ -84,4 +85,4 @@ class TagShown(models.Model):
                 self.student.liu_id, self.when.strftime('%Y-%m-%d %H:%M'))
         if self.pending:
             fmt = "%s (pending)" % fmt
-        return fmt
+        return smart_str(fmt)
