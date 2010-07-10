@@ -34,6 +34,8 @@ def handle_pending(request):
     
     order = Order(student=student)
     order.save()
+
+    total_cost = 0
     for html_id, count in request.POST.items():
         assert html_id.startswith('item-')
         item_id = int(html_id.split('-')[1])
@@ -42,10 +44,14 @@ def handle_pending(request):
             item = Item.objects.get(pk=item_id)
             order_item = OrderItem(order=order, item=item, count=count)
             order_item.save()
+            total_cost += count * item.cost
 
-            student.balance -= count * item.cost
+    if total_cost == 0:
+        order.delete()
 
+    student.balance -= total_cost
     student.save()
+
     pending.pending = False
     pending.save()
 
