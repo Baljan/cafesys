@@ -11,9 +11,14 @@
 
 {% block body %}
     <h1>{% trans "Calendar" %}</h1>
-    {% for year, month, weeks in months %}
-        {{year}}
-        {{month}}
-        {{weeks}}
+    {% for ymd in calendar %}
+        {{ymd.0}}<br/>
+        {{ymd.1}}
+        {% for week in ymd.2 %}
+            {% for day in week %}
+                {{day.day}}, {{day.morning}}, {{day.afternoon}}|<br/>
+            {% endfor %}
+            ==<br/>
+        {% endfor %}
     {% endfor %}
 {% endblock %}
