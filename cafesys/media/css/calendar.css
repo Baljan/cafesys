@@ -13,12 +13,13 @@
     font-size: 2em;
     padding: .5em 0;
     border: 1px solid #ccc;
+    width: 13%;
 }
 .cal-month .other-month {
     border: none;
 }
 .cal-month tbody .week {
-    width: 3em;
+    width: 9%;
     font-style: italic;
     background: #eee;
 }

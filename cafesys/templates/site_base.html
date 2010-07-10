@@ -6,6 +6,8 @@
 {% load ifsetting_tag %}
 {% load analytics %}
 
+{% load dajaxice_templatetags %}
+
 {% block extra_head_base %}
     <link rel="stylesheet" href="{{ STATIC_URL }}css/site_tabs.css" />
     {% block extra_head %}{% endblock %}
@@ -42,4 +44,9 @@
 {% endblock %}
 {% block extra_body_base %}
     {% ga %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.4.2.min.js"></script> 
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.plugins.js"></script> 
+    {% dajaxice_js_import %}
+    {% block extra_body %}
+    {% endblock %}
 {% endblock %}

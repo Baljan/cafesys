@@ -17,6 +17,11 @@ TEMPLATE_DEBUG = DEBUG
 # Terminal settings.
 TERMINAL_FIREWALL = not DEBUG
 
+DAJAXICE_MEDIA_PREFIX="dajaxice"
+DAJAXICE_FUNCTIONS = (
+        'cal.ajax.foo',
+        )
+
 # tells Pinax to serve media through the staticfiles app.
 SERVE_MEDIA = DEBUG
 
@@ -93,6 +98,7 @@ SECRET_KEY = "55qj2y&$zh_1rsxs5(ibkg8y)t=ewo(ln5d)%l(u_^xp$*=^f+"
 TEMPLATE_LOADERS = [
     "django.template.loaders.filesystem.load_template_source",
     "django.template.loaders.app_directories.load_template_source",
+    'django.template.loaders.eggs.load_template_source',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -156,6 +162,9 @@ INSTALLED_APPS = [
     "uni_form",
     "staticfiles",
     "debug_toolbar",
+
+    "dajaxice",
+    "dajax",
     
     # Pinax
     "pinax.apps.analytics",

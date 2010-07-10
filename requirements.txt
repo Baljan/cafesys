@@ -1,6 +1,16 @@
 gunicorn
 ipython
 PIL
-http://downloads.sourceforge.net/project/python-xlib/python-xlib/0.14/python-xlib-0.14.tar.gz?use_mirror=kent&44133608#egg=python-xlib
 -e git+http://github.com/jtauber/web-graphics.git#egg=web_graphics
 --requirement=cafesys/requirements/project.txt
+
+django-dajax
+django-dajaxice
+
+# For Chrome kiosk:
+#http://downloads.sourceforge.net/project/python-xlib/python-xlib/0.14/python-xlib-0.14.tar.gz?use_mirror=kent&44133608#egg=python-xlib
+
+# For RFIDIOt:
+#pycrypto
+#http://downloads.sourceforge.net/project/pyscard/pyscard/pyscard%201.6.10/pyscard-1.6.10.tar.gz?use_mirror=heanet&ts=1278761137#egg=pyscard
+#pyserial

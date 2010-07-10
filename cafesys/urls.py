@@ -7,6 +7,8 @@ admin.autodiscover()
 
 from pinax.apps.account.openid_consumer import PinaxConsumer
 
+from dajaxice.core import dajaxice_autodiscover
+dajaxice_autodiscover()
 
 
 handler500 = "pinax.views.server_error"
@@ -32,6 +34,8 @@ urlpatterns = patterns("",
     (r"^profiles/", include("pinax.apps.basic_profiles.urls")),
     (r"^notices/", include("notification.urls")),
     (r"^announcements/", include("announcements.urls")),
+
+    (r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('dajaxice.urls')),
 
     (r"^terminal/", include("terminal.urls")),
     (r"^calendar/", include("cal.urls")),
