@@ -57,9 +57,9 @@ class AfternoonShiftAdmin(ShiftAdmin):
 
 for cls in [
         (MorningShift, MorningShiftAdmin), 
-        #ScheduledMorning, 
+        ScheduledMorning, 
         (AfternoonShift, AfternoonShiftAdmin), 
-        #ScheduledAfternoon,
+        ScheduledAfternoon,
         ]:
     if isinstance(cls, tuple):
         admin.site.register(*cls)
