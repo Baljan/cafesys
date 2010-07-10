@@ -1,4 +1,27 @@
 
-#the-calendar {
+.cal-month {
     width: 100%;
+    text-align: center;
+}
+.cal-month thead th {
+    font-size: 1.5em;
+    background: #000;
+    color: #fff;
+    border: 1px solid #000;
+}
+.cal-month tbody td {
+    font-size: 2em;
+    padding: .5em 0;
+    border: 1px solid #ccc;
+}
+.cal-month .other-month {
+    border: none;
+}
+.cal-month tbody .week {
+    width: 3em;
+    font-style: italic;
+    background: #eee;
+}
+.cal-month tbody .weekend {
+    background: #fee;
 }

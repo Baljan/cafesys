@@ -28,36 +28,51 @@ def worker_calendar(request, year=None, month=None):
 
     months = []
     if year_view:
-        first_week = int(datetime(year, 1, 1).strftime('%W'))
         for m in range(1, 12+1):
-            months.append((year, m, calendar.monthcalendar(year, m)))
+            months.append((datetime(year, m, 1), calendar.monthcalendar(year, m)))
     else:
-        first_week = int(datetime(year, month, 1).strftime('%W'))
-        months.append((year, month, calendar.monthcalendar(year, month)))
+        months.append((datetime(year, month, 1), calendar.monthcalendar(year, month)))
     
-    for mid, (y, m, week_data) in enumerate(months):
+    for mid, (first_day, week_data) in enumerate(months):
+        first_week = int(first_day.strftime('%W'))
+
         ms = ScheduledMorning.objects.filter(
-                shift__day__year=y, 
-                shift__day__month=m,
+                shift__day__year=first_day.year, 
+                shift__day__month=first_day.month,
                 )
         afs = ScheduledAfternoon.objects.filter(
-                shift__day__year=y, 
-                shift__day__month=m,
+                shift__day__year=first_day.year, 
+                shift__day__month=first_day.month,
                 )
+
         for wid, w in enumerate(week_data):
             week_info = {
                     'number': first_week + wid,
-                    'days': months[mid][2][wid],
+                    'days': months[mid][1][wid],
                     }
             for did, day in enumerate(w):
-                to = {'dayno': did, 'day': day, 'morning': [], 'afternoon': []}
+                to = {
+                        'dayno': did, 
+                        'day': day, 
+                        'morning': [], 
+                        'afternoon': [],
+                        'weekend': False,
+                        'out': False,
+                        }
+
+                if did in [5, 6]:
+                    to['weekend'] = True
+
+                if day == 0:
+                    to['out'] = True
+
                 if day != 0:
                     to.update({
                         'morning': list([x.student.liu_id for x in ms if x.shift.day.day==day]), 
                         'afternoon': list([x.student.liu_id for x in afs if x.shift.day.day==day]), 
                         })
                 week_info['days'][did] = to
-            months[mid][2][wid] = week_info
+            months[mid][1][wid] = week_info
 
     return render_to_response('calendar/calendar.html', {
         'calendar': months,
