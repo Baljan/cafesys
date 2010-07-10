@@ -34,7 +34,8 @@ urlpatterns = patterns("",
     (r"^announcements/", include("announcements.urls")),
 
     (r"^terminal/", include("terminal.urls")),
-    
+    (r"^calendar/", include("cal.urls")),
+
     (r"^admin/", include(admin.site.urls)),
 )
 

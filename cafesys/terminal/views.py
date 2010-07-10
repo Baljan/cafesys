@@ -31,7 +31,7 @@ def handle_pending(request):
     assert len(pending) == 1
     pending = pending[0]
     student = pending.student
-    
+
     order = Order(student=student)
     order.save()
 
