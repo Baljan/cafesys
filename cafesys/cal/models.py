@@ -13,15 +13,17 @@ class Shift(models.Model):
         abstract = True
 
     def __str__(self):
-        fmt = self.day.strftime('%Y-%m-%d')
+        fmt = "%s %s" % (self._stype , self.day.strftime('%Y-%m-%d'))
         if len(self.comment.strip()) != 0:
             fmt = "%s (%s)" % (fmt, self.comment)
         return smart_str(fmt)
 
 class MorningShift(Shift):
+    _stype = 'morning'
     pass
 
 class AfternoonShift(Shift):
+    _stype = 'afternoon'
     pass
 
 class Scheduled(models.Model):
@@ -29,6 +31,9 @@ class Scheduled(models.Model):
 
     class Meta:
         abstract = True
+
+    def __str__(self):
+        return smart_str("%s %s" % (self.student.liu_id, self.shift))
 
 class ScheduledMorning(Scheduled):
     shift = models.ForeignKey(MorningShift)
