@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $('.cal-month').unselectable();
+    $('.calendars').unselectable();
     $('#calendar-tasks').unselectable();
     $('.calendars').selectable({
         filter: 'td.in-month.shiftable',
@@ -7,7 +7,7 @@ $(document).ready(function () {
             if ($('.ui-selected').size() == 0) {
                 $('#calendar-tasks').hide();
                 $('#calendar-tasks li').removeClass('selected');
-                $('#calendar-tasks .confirmation').hide();
+                $('#calendar-tasks .confirmation').css('visibility', 'hidden');
             }
             else {
                 $('#calendar-tasks').show();
@@ -20,10 +20,10 @@ $(document).ready(function () {
         $(this).toggleClass('selected');
 
         if ($(this).parent().children().hasClass('selected')) {
-            $('#calendar-tasks .confirmation').show();
+            $('#calendar-tasks .confirmation').css('visibility', 'visible');
         }
         else {
-            $('#calendar-tasks .confirmation').hide();
+            $('#calendar-tasks .confirmation').css('visibility', 'hidden');
         }
     });
 

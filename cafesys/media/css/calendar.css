@@ -66,6 +66,9 @@
 .morning-box, .afternoon-box {
     height: 1.5em;
 }
+.cal-month .ui-selected {
+    border: 1px solid rgba(100, 120, 175, 0.9);
+}
 .cal-month .ui-selected .day-of-month {
     background: rgba(100, 120, 175, 0.3);
 }
@@ -103,7 +106,7 @@
     text-decoration: underline;
 }
 #calendar-tasks .confirmation {
-    display: none;
+    visibility: hidden;
     text-align: right;
 }
 #calendar-tasks .confirmation span {

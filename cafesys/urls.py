@@ -37,6 +37,7 @@ urlpatterns = patterns("",
 
     (r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('dajaxice.urls')),
 
+    (r'^rosetta/', include('rosetta.urls')),
     (r"^terminal/", include("terminal.urls")),
     (r"^calendar/", include("cal.urls")),
 

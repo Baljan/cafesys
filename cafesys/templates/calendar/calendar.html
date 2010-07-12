@@ -5,6 +5,8 @@
     <link rel="stylesheet" href="{{ STATIC_URL }}css/calendar.css" />
 {% endblock %}
 
+{% block body_class %}calendar{% endblock %}
+
 {% block extra_body %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/calendar.js"></script> 
 {% endblock %}
@@ -67,13 +69,13 @@
                                         {% else %}
                                             <p>
                                                 {% if day.morning|length != 0 %}
-                                                    <strong>{% trans "Morning workers:" %}</strong><br/>
+                                                    <strong>{% trans "Morning workers" %}:</strong><br/>
                                                     {{day.morning|join:", "}}
                                                 {% endif %}
                                             </p>
                                             <p>
                                                 {% if day.afternoon|length != 0 %}
-                                                    <strong>{% trans "Afternoon workers:" %}</strong><br/>
+                                                    <strong>{% trans "Afternoon workers" %}:</strong><br/>
                                                     {{day.afternoon|join:", "}}
                                                 {% endif %}
                                             </p>
