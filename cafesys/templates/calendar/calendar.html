@@ -35,7 +35,19 @@
             <span class="confirm">&#x2611; {% trans "confirm" %}</span>
         </p>
     </div>
-    <div class="calendars">
+    {% if not year_view %}
+        {% spaceless %}
+        <p class="calendar-nav">
+            <a class="prev" href="{% url cal.views.worker_calendar prev_link_year prev_link_month %}">
+                &larr; {% trans "previous" %}
+            </a>
+            <a class="next" href="{% url cal.views.worker_calendar next_link_year next_link_month %}">
+                {% trans "next" %} &rarr;
+            </a>
+        </p>
+        {% endspaceless %}
+    {% endif %}
+    <div class="calendars {% if year_view %}year{% endif %}">
         {% for first_day, week_data in calendar %}
             <h2>{{ first_day|date:"F, Y" }}</h2>
             {% spaceless %}

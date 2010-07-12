@@ -19,12 +19,28 @@ def worker_calendar(request, year=None, month=None):
     else:
         year = int(year)
 
-    if month is None:
+    if month == '':
         year_view = True
         month = now.month
+        prev_link_month = next_link_month = None
+        prev_link_year = next_link_year = None
     else:
         year_view = False
-        month = int(month)
+
+        if month is None:
+            month = now.month
+        else:
+            month = int(month)
+
+        prev_link_month = month - 1
+        next_link_month = month + 1
+        prev_link_year = next_link_year = year
+        if month == 1:
+            prev_link_month = 12
+            prev_link_year = year - 1
+        elif month == 12:
+            next_link_year = year + 1
+            next_link_month = 1
 
     months = []
     if year_view:
@@ -129,4 +145,8 @@ def worker_calendar(request, year=None, month=None):
     return render_to_response('calendar/calendar.html', {
         'calendar': months,
         'year_view': year_view,
+        'prev_link_year': prev_link_year,
+        'prev_link_month': prev_link_month,
+        'next_link_year': next_link_year,
+        'next_link_month': next_link_month,
         }, context_instance=RequestContext(request))
