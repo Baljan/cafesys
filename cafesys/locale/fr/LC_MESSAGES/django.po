@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-02 19:34+0100\n"
+"POT-Creation-Date: 2010-07-12 15:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -78,64 +78,69 @@ msgstr ""
 "Vous pouvez <a href=\"%(login_url)s\">vous authentifier</a> pour essayer le "
 "site."
 
-#: templates/site_base.html:16
+#: templates/site_base.html:20
 msgid "Account"
 msgstr "Compte"
 
-#: templates/site_base.html:16
+#: templates/site_base.html:20
 msgid "Admin"
 msgstr "Admin"
 
-#: templates/site_base.html:16
+#: templates/site_base.html:20
 msgid "Logout"
 msgstr "Déconnection"
 
-#: templates/site_base.html:18
+#: templates/site_base.html:22
 msgid "Login"
 msgstr "Authentification"
 
-#: templates/site_base.html:18
+#: templates/site_base.html:22
 msgid "or"
 msgstr "ou"
 
-#: templates/site_base.html:18
+#: templates/site_base.html:22
 msgid "Sign up"
 msgstr "Inscription"
 
-#: templates/site_base.html:27
+#: templates/site_base.html:31
+msgid "Worker's calendar"
+msgstr ""
+
+#: templates/site_base.html:32
 msgid "Profile"
 msgstr "Profil"
 
-#: templates/site_base.html:28
+#: templates/site_base.html:33
 msgid "Notices"
 msgstr "Notifications"
 
-#: templates/site_base.html:35
+#: templates/site_base.html:40
 msgid "&copy; 2010 &lt;your company here&gt;"
 msgstr "&copy; 2010 &lt;votre raison sociale ici&gt;"
 
-#: templates/site_base.html:36
+#: templates/site_base.html:41
 msgid "About"
 msgstr "A propos"
 
-#: templates/site_base.html:37
+#: templates/site_base.html:42
 #, fuzzy
 msgid "Terms of Service"
 msgstr "Termes de service"
 
-#: templates/site_base.html:38
+#: templates/site_base.html:43
 msgid "Privacy Policy"
 msgstr "Politique de confidentialité"
 
-#: templates/site_base.html:39
+#: templates/site_base.html:44
 msgid "DMCA Notice"
 msgstr ""
 
 #: templates/about/what_next.html:6 templates/about/what_next.html.py:9
+#: templates/terminal/what_next.html:6 templates/terminal/what_next.html:9
 msgid "What Next?"
 msgstr "Que faire maintenant?"
 
-#: templates/about/what_next.html:35
+#: templates/about/what_next.html:35 templates/terminal/what_next.html:35
 #, python-format
 msgid ""
 "Start by <a href=\"%(signup_url)s\">signing up</a> and <a href=\"%(login_url)"
@@ -144,7 +149,7 @@ msgstr ""
 "Commencez par <a href=\"%(signup_url)s\">vous inscrire</a> et <a href=\"%"
 "(login_url)s\">vous authentifier</a>"
 
-#: templates/about/what_next.html:37
+#: templates/about/what_next.html:37 templates/terminal/what_next.html:37
 #, python-format
 msgid "Start by <a href=\"%(login_url)s\">logging in</a>."
 msgstr "Commencez par <a href=\"%(login_url)s\">vous authentifier</a>"
@@ -176,3 +181,84 @@ msgstr "Langage"
 #: templates/account/base.html:21
 msgid "Timezone"
 msgstr "Fuseau horairre"
+
+#: templates/calendar/calendar.html:14 templates/calendar/calendar.html:17
+msgid "Calendar"
+msgstr ""
+
+#: templates/calendar/calendar.html:19
+msgid "With selection"
+msgstr ""
+
+#: templates/calendar/calendar.html:21
+msgid "add shifts"
+msgstr ""
+
+#: templates/calendar/calendar.html:22
+msgid "remove shifts"
+msgstr ""
+
+#: templates/calendar/calendar.html:25
+msgid "Hint"
+msgstr ""
+
+#: templates/calendar/calendar.html:26
+msgid "Hold the <code>Ctrl</code> key for multi-select mode."
+msgstr ""
+
+#: templates/calendar/calendar.html:29
+#, fuzzy
+msgid "Note"
+msgstr "Notifications"
+
+#: templates/calendar/calendar.html:30
+msgid "Shifts will be removed even if workers have signed up for them."
+msgstr ""
+
+#: templates/calendar/calendar.html:33
+msgid "confirm"
+msgstr ""
+
+#: templates/calendar/calendar.html:43
+msgid "week"
+msgstr ""
+
+#: templates/calendar/calendar.html:44
+msgid "Mon"
+msgstr ""
+
+#: templates/calendar/calendar.html:45
+msgid "Tue"
+msgstr ""
+
+#: templates/calendar/calendar.html:46
+msgid "Wed"
+msgstr ""
+
+#: templates/calendar/calendar.html:47
+msgid "Thu"
+msgstr ""
+
+#: templates/calendar/calendar.html:48
+msgid "Fri"
+msgstr ""
+
+#: templates/calendar/calendar.html:49
+msgid "Sat"
+msgstr ""
+
+#: templates/calendar/calendar.html:50
+msgid "Sun"
+msgstr ""
+
+#: templates/calendar/calendar.html:65
+msgid "No workers have signed up for this day!"
+msgstr ""
+
+#: templates/calendar/calendar.html:70
+msgid "Morning workers:"
+msgstr ""
+
+#: templates/calendar/calendar.html:76
+msgid "Afternoon workers:"
+msgstr ""
