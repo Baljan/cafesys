@@ -36,14 +36,19 @@ def worker_calendar(request, year=None, month=None):
     for mid, (first_day, week_data) in enumerate(months):
         first_week = int(first_day.strftime('%W'))
 
-        ms = ScheduledMorning.objects.filter(
-                shift__day__year=first_day.year, 
-                shift__day__month=first_day.month,
-                )
-        afs = ScheduledAfternoon.objects.filter(
-                shift__day__year=first_day.year, 
-                shift__day__month=first_day.month,
-                )
+        sched_filter_args = {
+                'shift__day__year': first_day.year,
+                'shift__day__month': first_day.month,
+                }
+        sms = ScheduledMorning.objects.filter(**sched_filter_args)
+        safs = ScheduledAfternoon.objects.filter(**sched_filter_args)
+
+        shift_filter_args = {
+                'day__year': first_day.year,
+                'day__month': first_day.month,
+                }
+        ms = MorningShift.objects.filter(**shift_filter_args)
+        afs = MorningShift.objects.filter(**shift_filter_args)
 
         for wid, w in enumerate(week_data):
             week_info = {
@@ -56,21 +61,68 @@ def worker_calendar(request, year=None, month=None):
                         'day': day, 
                         'morning': [], 
                         'afternoon': [],
+                        'workers': [],
                         'weekend': False,
-                        'out': False,
+                        'same_month': True,
+                        'has_morning_shift': False,
+                        'has_afternoon_shift': False,
+                        'has_shift': False,
+                        'classes': [],
+                        'is_history': False,
+                        'today': False,
                         }
 
                 if did in [5, 6]:
                     to['weekend'] = True
+                    to['classes'].append('weekend')
+                else:
+                    to['classes'].append('work-day')
 
                 if day == 0:
-                    to['out'] = True
+                    to['same_month'] = False
+                    to['classes'].append('other-month')
+                else:
+                    to['classes'].append('in-month')
+                    day_date = datetime(first_day.year, first_day.month, day)
+                    to['classes'].append('date-%s' % day_date.strftime('%Y-%m-%d'))
+                    if day_date.timetuple()[0:3] < now.timetuple()[0:3]:
+                        to['is_history'] = True
+                        to['classes'].append('history')
+                    elif day_date.timetuple()[0:3] == now.timetuple()[0:3]:
+                        to['is_today'] = True
+                        to['classes'].append('today')
+                        to['classes'].append('shiftable')
+                    else:
+                        to['classes'].append('shiftable')
 
                 if day != 0:
                     to.update({
-                        'morning': list([x.student.liu_id for x in ms if x.shift.day.day==day]), 
-                        'afternoon': list([x.student.liu_id for x in afs if x.shift.day.day==day]), 
+                        'morning': list([x.student.liu_id for x in sms if x.shift.day.day==day]), 
+                        'afternoon': list([x.student.liu_id for x in safs if x.shift.day.day==day]), 
                         })
+
+                    to.update({
+                        'workers': to['morning'] + to['afternoon'],
+                        })
+
+                    to.update({
+                        'has_morning_shift': len([x for x in ms if x.day.day==day]) != 0, 
+                        'has_afternoon_shift': len([x for x in afs if x.day.day==day]) != 0, 
+                        })
+                    
+                    workers = 0
+                    for sh in ['morning', 'afternoon']:
+                        this_workers = len(to[sh])
+                        workers += this_workers
+                        to['classes'].append('%s-worker-count-%d' % (sh, this_workers))
+                        if to['has_%s_shift' % sh]:
+                            to['has_shift'] = True
+                            to['classes'].append('has-%s-shift' % sh)
+                    if to['has_shift']:
+                        to['classes'].append('has-shift')
+                    to['classes'].append('worker-count-%d' % workers)
+
+                to['classes'] = ' '.join(to['classes'])
                 week_info['days'][did] = to
             months[mid][1][wid] = week_info
 

@@ -15,39 +15,77 @@
 
 {% block body %}
     <h1>{% trans "Calendar" %}</h1>
-    {% for first_day, week_data in calendar %}
-        <h2>{{ first_day|date:"F, Y" }}</h2>
-        <table class="cal-month">
-            <thead>
-                <tr>
-                    <th class="week">{% trans "week" %}</th>
-                    <th>{% trans "Mon" %}</th>
-                    <th>{% trans "Tue" %}</th>
-                    <th>{% trans "Wed" %}</th>
-                    <th>{% trans "Thu" %}</th>
-                    <th>{% trans "Fri" %}</th>
-                    <th class="weekend">{% trans "Sat" %}</th>
-                    <th class="weekend">{% trans "Sun" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for week in week_data %}
-                <tr>
-                    <td class="week">{% if week.number != 0 %}{{week.number}}{% endif%}</td>
-                    {% for day in week.days %}
-                        {% if day.out %}
-                            <td class="other-month"></td>
-                        {% else %}
-                            {% if day.weekend %}
-                                <td class="weekend">{{day.day}}</td>
-                            {% else %}
-                                <td>{{day.day}}</td>
-                            {% endif %}
-                        {% endif %}
+    <div id="calendar-tasks">
+        <strong>{% trans "With selection" %}&hellip;</strong>
+        <ul>
+            <li class="add-shifts">{% trans "add shifts" %}</li>
+            <li class="remove-shifts">{% trans "remove shifts" %}</li>
+        </ul>
+        <p class="help">
+            <strong>{% trans "Hint" %}:</strong>
+            {% trans "Hold the <code>Ctrl</code> key for multi-select mode." %}
+        </p>
+        <p class="help">
+            <strong>{% trans "Note" %}:</strong>
+            {% trans "Shifts will be removed even if workers have signed up for them." %}
+        </p>
+        <p class="confirmation">
+            <span class="confirm">&#x2611; {% trans "confirm" %}</span>
+        </p>
+    </div>
+    <div class="calendars">
+        {% for first_day, week_data in calendar %}
+            <h2>{{ first_day|date:"F, Y" }}</h2>
+            {% spaceless %}
+                <table class="cal-month">
+                    <thead>
+                        <tr>
+                            <th class="week">{% trans "week" %}</th>
+                            <th>{% trans "Mon" %}</th>
+                            <th>{% trans "Tue" %}</th>
+                            <th>{% trans "Wed" %}</th>
+                            <th>{% trans "Thu" %}</th>
+                            <th>{% trans "Fri" %}</th>
+                            <th class="weekend">{% trans "Sat" %}</th>
+                            <th class="weekend">{% trans "Sun" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for week in week_data %}
+                        <tr>
+                            <td class="week">{% if week.number != 0 %}{{week.number}}{% endif%}</td>
+                            {% for day in week.days %}
+                                <td class="day {{day.classes}}">
+                                    <div class="morning-box"></div>
+                                    <div class="afternoon-box"></div>
+                                    <div class="day-of-month">{% if day.same_month %}{{day.day}}{% endif %}</div>
+                                    <div class="tooltip">
+                                        {% if day.workers|length == 0 %}
+                                            <p>
+                                                <strong>{% trans "No workers have signed up for this day!" %}</strong>
+                                            </p>
+                                        {% else %}
+                                            <p>
+                                                {% if day.morning|length != 0 %}
+                                                    <strong>{% trans "Morning workers:" %}</strong><br/>
+                                                    {{day.morning|join:", "}}
+                                                {% endif %}
+                                            </p>
+                                            <p>
+                                                {% if day.afternoon|length != 0 %}
+                                                    <strong>{% trans "Afternoon workers:" %}</strong><br/>
+                                                    {{day.afternoon|join:", "}}
+                                                {% endif %}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            {% endfor %}
+                        </tr>
                     {% endfor %}
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% endfor %}
+                    </tbody>
+                </table>
+            {% endspaceless %}
+        {% endfor %}
+    </div>
 {% endblock %}

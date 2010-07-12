@@ -1,0 +1,15 @@
+.tooltip {
+    display:none;
+    background:url(../img/tt/black.png);
+    height:99px;
+    width:199px;
+    padding: 5px;
+    font-size:11px;
+    color:#fff;
+}
+
+.tooltip a {
+    color:#ad4;
+    font-size:11px;
+    font-weight:bold;
+}

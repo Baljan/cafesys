@@ -9,7 +9,9 @@
 {% load dajaxice_templatetags %}
 
 {% block extra_head_base %}
+    <link type="text/css" href="{{ STATIC_URL}}css/flick/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ STATIC_URL }}css/site_tabs.css" />
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/site_base.css" />
     {% block extra_head %}{% endblock %}
 {% endblock %}
 
@@ -44,8 +46,9 @@
 {% endblock %}
 {% block extra_body_base %}
     {% ga %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.4.2.min.js"></script> 
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.tools.min.js"></script> 
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.plugins.js"></script> 
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.2.custom.min.js"></script>
     {% dajaxice_js_import %}
     {% block extra_body %}
     {% endblock %}
