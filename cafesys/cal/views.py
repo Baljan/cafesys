@@ -8,9 +8,14 @@ from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import calendar
 
 from models import ScheduledMorning, ScheduledAfternoon, MorningShift, AfternoonShift
+
+def sibling_months_for(day):
+    one_month = relativedelta(months=1)
+    return (day - one_month, day + one_month)
 
 def worker_calendar(request, year=None, month=None):
     now = datetime.now()
@@ -22,8 +27,7 @@ def worker_calendar(request, year=None, month=None):
     if month == '':
         year_view = True
         month = now.month
-        prev_link_month = next_link_month = None
-        prev_link_year = next_link_year = None
+        prev_month = next_month = None
     else:
         year_view = False
 
@@ -32,15 +36,7 @@ def worker_calendar(request, year=None, month=None):
         else:
             month = int(month)
 
-        prev_link_month = month - 1
-        next_link_month = month + 1
-        prev_link_year = next_link_year = year
-        if month == 1:
-            prev_link_month = 12
-            prev_link_year = year - 1
-        elif month == 12:
-            next_link_year = year + 1
-            next_link_month = 1
+        prev_month, next_month = sibling_months_for(datetime(year, month, 1))
 
     months = []
     if year_view:
@@ -86,6 +82,7 @@ def worker_calendar(request, year=None, month=None):
                         'classes': [],
                         'is_history': False,
                         'today': False,
+                        'id': None,
                         }
 
                 if did in [5, 6]:
@@ -100,7 +97,9 @@ def worker_calendar(request, year=None, month=None):
                 else:
                     to['classes'].append('in-month')
                     day_date = datetime(first_day.year, first_day.month, day)
-                    to['classes'].append('date-%s' % day_date.strftime('%Y-%m-%d'))
+
+                    to['id'] = 'date-%s' % day_date.strftime('%Y-%m-%d')
+
                     if day_date.timetuple()[0:3] < now.timetuple()[0:3]:
                         to['is_history'] = True
                         to['classes'].append('history')
@@ -145,8 +144,6 @@ def worker_calendar(request, year=None, month=None):
     return render_to_response('calendar/calendar.html', {
         'calendar': months,
         'year_view': year_view,
-        'prev_link_year': prev_link_year,
-        'prev_link_month': prev_link_month,
-        'next_link_year': next_link_year,
-        'next_link_month': next_link_month,
+        'prev_month': prev_month,
+        'next_month': next_month,
         }, context_instance=RequestContext(request))

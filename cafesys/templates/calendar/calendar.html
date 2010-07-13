@@ -20,8 +20,8 @@
     <div id="calendar-tasks">
         <strong>{% trans "With selection" %}&hellip;</strong>
         <ul>
-            <li class="add-shifts">{% trans "add shifts" %}</li>
-            <li class="remove-shifts">{% trans "remove shifts" %}</li>
+            <li id="add-shifts">{% trans "add shifts" %}</li>
+            <li id="remove-shifts">{% trans "remove shifts" %}</li>
         </ul>
         <p class="help">
             <strong>{% trans "Hint" %}:</strong>
@@ -38,18 +38,18 @@
     {% if not year_view %}
         {% spaceless %}
         <p class="calendar-nav">
-            <a class="prev" href="{% url cal.views.worker_calendar prev_link_year prev_link_month %}">
-                &larr; {% trans "previous" %}
+            <a class="prev" href="{% url cal.views.worker_calendar prev_month.year prev_month.month %}">
+                &larr; {{ prev_month|date:"F Y" }}
             </a>
-            <a class="next" href="{% url cal.views.worker_calendar next_link_year next_link_month %}">
-                {% trans "next" %} &rarr;
+            <a class="next" href="{% url cal.views.worker_calendar next_month.year next_month.month %}">
+                {{ next_month|date:"F Y" }} &rarr;
             </a>
         </p>
         {% endspaceless %}
     {% endif %}
     <div class="calendars {% if year_view %}year{% endif %}">
         {% for first_day, week_data in calendar %}
-            <h2>{{ first_day|date:"F, Y" }}</h2>
+            <h2>{{ first_day|date:"F Y" }}</h2>
             {% spaceless %}
                 <table class="cal-month">
                     <thead>
@@ -69,7 +69,7 @@
                         <tr>
                             <td class="week">{% if week.number != 0 %}{{week.number}}{% endif%}</td>
                             {% for day in week.days %}
-                                <td class="day {{day.classes}}">
+                                <td {% if day.id %}id="{{day.id}}"{% endif %} class="day {{day.classes}}">
                                     <div class="morning-box"></div>
                                     <div class="afternoon-box"></div>
                                     <div class="day-of-month">{% if day.same_month %}{{day.day}}{% endif %}</div>

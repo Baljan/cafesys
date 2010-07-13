@@ -11,6 +11,20 @@ class Shift(models.Model):
 
     class Meta:
         abstract = True
+    
+    @staticmethod
+    def add_to(date):
+        for cls in [MorningShift, AfternoonShift]:
+            shifts = cls.objects.filter(day=date)
+            if len(shifts) == 0:
+                bel = cls(day=date)
+                bel.save()
+
+    @staticmethod
+    def remove_from(date):
+        for cls in [MorningShift, AfternoonShift]:
+            shifts = cls.objects.filter(day=date)
+            shifts.delete()
 
     def __str__(self):
         fmt = "%s %s" % (self._stype , self.day.strftime('%Y-%m-%d'))

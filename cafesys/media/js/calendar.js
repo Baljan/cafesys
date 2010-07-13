@@ -15,6 +15,14 @@ $(document).ready(function () {
         },
     });
 
+    $('#calendar-tasks .confirmation').click(function() {
+        Dajaxice.cal.with_days('Dajax.process', {
+            'url': document.location.pathname,
+            'task': $('#calendar-tasks li.selected').attr('id'),
+            'days': $.map($('.calendars .ui-selected'), function(x) { return x.id; }),
+        });
+    });
+
     $('#calendar-tasks li').click(function() {
         $(this).siblings().removeClass('selected');
         $(this).toggleClass('selected');

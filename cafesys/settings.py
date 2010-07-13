@@ -18,9 +18,6 @@ TEMPLATE_DEBUG = DEBUG
 TERMINAL_FIREWALL = not DEBUG
 
 DAJAXICE_MEDIA_PREFIX="dajaxice"
-DAJAXICE_FUNCTIONS = (
-        'cal.ajax.foo',
-        )
 
 # tells Pinax to serve media through the staticfiles app.
 SERVE_MEDIA = DEBUG
