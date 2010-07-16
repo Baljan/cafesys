@@ -1,6 +1,6 @@
 $(document).ready(function () {
     $('.calendars table', '.calendars h2').unselectable();
-    $('#calendar-tasks').unselectable();
+    $('#calendar-tasks', '#calendar-modes').unselectable();
 
     $('.calendars').selectable({
         filter: 'td.in-month.shiftable',

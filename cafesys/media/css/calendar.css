@@ -96,7 +96,7 @@
     width: 11em;
     border-radius: .3em;
     -moz-border-radius: .3em;
-    background: rgb(175, 120, 100);
+    background: rgba(175, 120, 100, 0.8);
 }
 #calendar-modes .selected {
     font-weight: bold;
