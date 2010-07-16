@@ -5,6 +5,15 @@
     <link rel="stylesheet" href="{{ STATIC_URL }}css/calendar.css" />
 {% endblock %}
 
+{% block subnav %}
+    <ul>
+    {% if user.is_staff %}
+        <li><span class="link mode add-remove-shifts">{% trans "Add or remove shifts" %}</span></li>
+        <li><span class="link mode worker">{% trans "Worker mode" %}</span></li>
+    {% endif %}
+    </ul>
+{% endblock %}
+
 {% block body_class %}calendar{% endblock %}
 
 {% block extra_body %}
@@ -35,8 +44,15 @@
             <span class="confirm">&#x2611; {% trans "confirm" %}</span>
         </p>
     </div>
-    {% if not year_view %}
+    {% if year_view %}
+        <p class="cal-views"> 
+            <a href="{% url cal.views.worker_calendar %}">{% trans "month view" %}</a>
+        </p>
+    {% else %}
         {% spaceless %}
+        <p class="cal-views"> 
+            <a href="{% url cal.views.worker_calendar year None %}">{% trans "year view" %}</a>
+        </p>
         <p class="calendar-nav">
             <a class="prev" href="{% url cal.views.worker_calendar prev_month.year prev_month.month %}">
                 &larr; {{ prev_month|date:"F Y" }}

@@ -1,8 +1,10 @@
 $(document).ready(function () {
-    $('.calendars').unselectable();
+    $('.calendars table', '.calendars h2').unselectable();
     $('#calendar-tasks').unselectable();
+
     $('.calendars').selectable({
         filter: 'td.in-month.shiftable',
+        disabled: true,
         stop: function(ev, ui) {
             if ($('.ui-selected').size() == 0) {
                 $('#calendar-tasks').hide();
@@ -15,7 +17,25 @@ $(document).ready(function () {
         },
     });
 
+    $('#subnav .mode').click(function() {
+        $('#calendar-tasks').hide();
+        $('.calendars .ui-selected').removeClass('ui-selected');
+    });
+
+    $('#subnav .add-remove-shifts').click(function() {
+        $(this).toggleClass('selected');
+
+        if ($(this).hasClass('selected')) {
+            $('.calendars').selectable("enable");
+        }
+        else {
+            $('.calendars').selectable("disable");
+            $('.calendars').removeClass("ui-state-disabled");
+        }
+    });
+
     $('#calendar-tasks .confirmation').click(function() {
+        $('body').css('cursor', 'wait');
         Dajaxice.cal.with_days('Dajax.process', {
             'url': document.location.pathname,
             'task': $('#calendar-tasks li.selected').attr('id'),

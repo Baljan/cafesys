@@ -136,3 +136,20 @@
 #calendar-tasks .confirmation span:hover {
     background: #fff;
 }
+.cal-views {
+    text-align: right;
+}
+
+/* FIXME: Put in base.css instead of duplicating here. */
+#subnav ul span.link {
+    color:#444444;
+    float:left;
+    font-weight:bold;
+    padding:4px 20px;
+    text-decoration:none;
+    cursor: pointer;
+}
+#subnav ul span.link:hover, #subnav ul span.selected {
+    background: #9bc;
+    color: #fff;
+}

@@ -146,4 +146,5 @@ def worker_calendar(request, year=None, month=None):
         'year_view': year_view,
         'prev_month': prev_month,
         'next_month': next_month,
+        'year': year,
         }, context_instance=RequestContext(request))
