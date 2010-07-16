@@ -17,12 +17,12 @@ $(document).ready(function () {
         },
     });
 
-    $('#subnav .mode').click(function() {
+    $('#calendar-modes li').click(function() {
         $('#calendar-tasks').hide();
         $('.calendars .ui-selected').removeClass('ui-selected');
     });
 
-    $('#subnav .add-remove-shifts').click(function() {
+    $('#manage-shifts-mode').click(function() {
         $(this).toggleClass('selected');
 
         if ($(this).hasClass('selected')) {

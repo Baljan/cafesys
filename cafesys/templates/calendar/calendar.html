@@ -6,12 +6,6 @@
 {% endblock %}
 
 {% block subnav %}
-    <ul>
-    {% if user.is_staff %}
-        <li><span class="link mode add-remove-shifts">{% trans "Add or remove shifts" %}</span></li>
-        <li><span class="link mode worker">{% trans "Worker mode" %}</span></li>
-    {% endif %}
-    </ul>
 {% endblock %}
 
 {% block body_class %}calendar{% endblock %}
@@ -26,6 +20,14 @@
 
 {% block body %}
     <h1>{% trans "Calendar" %}</h1>
+    {% if user.is_staff %}
+        <div id="calendar-modes">
+            <ul>
+                <li id="manage-shifts-mode">{% trans "add or remove shifts" %}</li>
+                <li id="worker-mode">{% trans "worker mode" %}</li>
+            </ul>
+        </div>
+    {% endif %}
     <div id="calendar-tasks">
         <strong>{% trans "With selection" %}&hellip;</strong>
         <ul>

@@ -87,9 +87,35 @@
     background: rgba(100, 120, 175, 0.3);
 }
 
+#calendar-modes {
+    color: #fff;
+    padding: .8em;
+    position: fixed;
+    bottom: .4em;
+    right: .4em;
+    width: 11em;
+    border-radius: .3em;
+    -moz-border-radius: .3em;
+    background: rgb(175, 120, 100);
+}
+#calendar-modes .selected {
+    font-weight: bold;
+}
+#calendar-modes ul {
+    list-style-type: none;
+    margin: 0;
+    margin-left: .3em;
+    padding: 0;
+}
+#calendar-modes ul li {
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+}
+
 #calendar-tasks {
     display: none;
-    background: rgb(100, 120, 175);
+    background: rgba(100, 120, 175, 0.8);
     color: #fff;
     padding: .8em;
     position: fixed;
@@ -138,18 +164,4 @@
 }
 .cal-views {
     text-align: right;
-}
-
-/* FIXME: Put in base.css instead of duplicating here. */
-#subnav ul span.link {
-    color:#444444;
-    float:left;
-    font-weight:bold;
-    padding:4px 20px;
-    text-decoration:none;
-    cursor: pointer;
-}
-#subnav ul span.link:hover, #subnav ul span.selected {
-    background: #9bc;
-    color: #fff;
 }
