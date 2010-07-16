@@ -32,3 +32,6 @@ virtualenvwrapper in Fedora:
 # External Dependencies
 ## Kiosk Mode
  * Opera browser
+
+## RFID IO tools
+ * pcsc-lite (in yum)
