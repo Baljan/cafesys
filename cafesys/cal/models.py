@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.utils.encoding import smart_str
+from datetime import date
 
 # FIXME: Is there a way to get rid of this import and reach the Student model
 # in some other way?
@@ -47,6 +48,16 @@ class AfternoonShift(Shift):
 class Scheduled(models.Model):
     student = models.ForeignKey(Student)
     swappable = models.BooleanField(default=False)
+    
+    @staticmethod
+    def swappables():
+        scheds = []
+        for cls in (ScheduledMorning, ScheduledAfternoon):
+            scheds += cls.objects.filter(swappable=True)
+        scheds.sort(key=lambda s: s.shift.day)
+        # FIXME: Not too close in the future.
+        scheds = [s for s in scheds if s.shift.day >= date.today()]
+        return scheds
 
     class Meta:
         abstract = True
