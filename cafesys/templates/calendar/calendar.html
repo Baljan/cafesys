@@ -52,6 +52,7 @@
             <table class="student-shifts">
                 <thead>
                     <tr>
+                        <th>{% trans "Date" %}</th>
                         <th>{% trans "When" %}</th>
                         <th>{% trans "Swappable" %}</th>
                     </tr>
@@ -59,7 +60,8 @@
                 <tbody>
                     {% for shift in student_shifts %}
                     <tr>
-                        <td><a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar shift.shift.day.year shift.shift.day.month %}">{% trans shift.shift.name %} {{ shift.shift.day|date:"Y-m-d" }}</a></td>
+                        <td><a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar shift.shift.day.year shift.shift.day.month %}">{{ shift.shift.day|date:"Y-m-d" }}</a></td>
+                        <td>{% trans shift.shift.name %}</td>
                         <td>--</td>
                     </tr>
                     {% endfor %}

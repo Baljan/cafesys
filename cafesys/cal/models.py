@@ -48,6 +48,7 @@ class Scheduled(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['shift__day']
 
     @staticmethod
     def for_student(student):
