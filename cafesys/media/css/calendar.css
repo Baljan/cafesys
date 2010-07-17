@@ -195,3 +195,13 @@
 .student-shifts .toggle-swappable {
     cursor: pointer;
 }
+
+.swappables {
+    margin-top: 2em;
+}
+.swappables thead {
+    text-align: left;
+}
+.swappables td, .swappables th {
+    padding-right: 2em;
+}
