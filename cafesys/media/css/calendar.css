@@ -175,3 +175,17 @@
     padding-top: 0;
     padding-bottom: 0;
 }
+
+.student-shifts {
+    width: 100%;
+    border: 1px solid #eee;
+    border-radius: .5em;
+    -moz-border-radius: .5em;
+}
+.student-shifts thead th {
+    text-align: left;
+    padding: 0 .5em;
+}
+.student-shifts td {
+    padding: 0 .5em;
+}
