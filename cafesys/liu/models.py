@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from datetime import date
 
 class Role(models.Model):
     """Board member, worker, regular, and so on."""
@@ -28,6 +29,7 @@ class Student(models.Model):
     def scheduled_for(self):
         scheds = list(self.scheduledmorning_set.all()) + list(self.scheduledafternoon_set.all())
         scheds.sort(key=lambda s: s.shift.day)
+        scheds = [s for s in scheds if s.shift.day >= date.today()]
         return scheds
 
 def create_profile(sender, instance=None, **kwargs):
