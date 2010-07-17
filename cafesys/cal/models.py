@@ -26,6 +26,9 @@ class Shift(models.Model):
             shifts = cls.objects.filter(day=date)
             shifts.delete()
 
+    def name(self):
+        return smart_str(self._stype)
+
     def __str__(self):
         fmt = "%s %s" % (self._stype , self.day.strftime('%Y-%m-%d'))
         if len(self.comment.strip()) != 0:
@@ -45,6 +48,13 @@ class Scheduled(models.Model):
 
     class Meta:
         abstract = True
+
+    @staticmethod
+    def for_student(student):
+        shifts = []
+        for cls in [ScheduledMorning, ScheduledAfternoon]:
+            shifts += list(cls.objects.filter(student=student))
+        return shifts
 
     def __str__(self):
         return smart_str("%s %s" % (self.student.liu_id, self.shift))

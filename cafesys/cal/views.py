@@ -11,7 +11,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import calendar
 
-from models import ScheduledMorning, ScheduledAfternoon, MorningShift, AfternoonShift
+from models import Scheduled, ScheduledMorning, ScheduledAfternoon, MorningShift, AfternoonShift
 
 def sibling_months_for(day):
     one_month = relativedelta(months=1)
@@ -23,6 +23,12 @@ def worker_calendar(request, year=None, month=None):
         year = now.year
     else:
         year = int(year)
+    
+    student = None
+    shifts = None
+    if request.user.is_authenticated():
+        student = request.user.get_profile()
+        shifts = Scheduled.for_student(student)
 
     if month == '':
         year_view = True
@@ -147,4 +153,6 @@ def worker_calendar(request, year=None, month=None):
         'prev_month': prev_month,
         'next_month': next_month,
         'year': year,
+        'student': student,
+        'student_shifts': shifts,
         }, context_instance=RequestContext(request))
