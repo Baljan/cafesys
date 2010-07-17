@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # Django settings for basic pinax project.
 
 import os.path
@@ -174,7 +175,7 @@ INSTALLED_APPS = [
     "pinax.apps.signup_codes",
     
     # project
-    "rosetta",
+    #"rosetta",
     "about",
     "terminal",
     "liu",

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import random
 from dajax.core import Dajax
 from dajaxice.core import dajaxice_functions

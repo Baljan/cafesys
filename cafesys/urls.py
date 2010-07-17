@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.conf import settings
 from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
@@ -37,7 +38,7 @@ urlpatterns = patterns("",
 
     (r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('dajaxice.urls')),
 
-    (r'^rosetta/', include('rosetta.urls')),
+    #(r'^rosetta/', include('rosetta.urls')),
     (r"^terminal/", include("terminal.urls")),
     (r"^calendar/", include("cal.urls")),
 

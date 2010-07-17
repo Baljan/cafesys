@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 __about__ = """
 This project comes with the bare minimum set of applications and templates
