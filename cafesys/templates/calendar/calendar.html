@@ -6,6 +6,10 @@
 {% endblock %}
 
 {% block subnav %}
+<ul>
+    <li><a href="{% url cal.views.worker_calendar %}">{% trans "Calendar" %}</a></li>
+    <li><a href="{% url cal.views.swappable %}">{% trans "Swappable" %}</a></li>
+</ul>
 {% endblock %}
 
 {% block body_class %}calendar{% endblock %}
