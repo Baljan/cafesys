@@ -20,17 +20,23 @@ $(document).ready(function () {
     $('#calendar-modes li').click(function() {
         $('#calendar-tasks').hide();
         $('.calendars .ui-selected').removeClass('ui-selected');
-    });
 
-    $('#manage-shifts-mode').click(function() {
+        $(this).siblings().removeClass('selected');
         $(this).toggleClass('selected');
 
+        $('.calendars').selectable("disable");
+        $('.calendars').removeClass("ui-state-disabled");
+        $('.calendars td.has-shift:not(.worker-count-4)').removeClass('clickable').unbind('click');
+
         if ($(this).hasClass('selected')) {
-            $('.calendars').selectable("enable");
-        }
-        else {
-            $('.calendars').selectable("disable");
-            $('.calendars').removeClass("ui-state-disabled");
+            if ($(this).hasClass('manage-shifts-mode')) {
+                $('.calendars').selectable("enable");
+            }
+            else if ($(this).hasClass('worker-mode')) {
+                $('.calendars td.has-shift:not(.worker-count-4)').addClass('clickable').click(function() {
+                    alert('foo');
+                });
+            }
         }
     });
 

@@ -17,9 +17,6 @@
     margin-left: auto;
     margin-right: auto;
 }
-.cal-month, .cal-month * {
-    cursor: default;
-}
 .cal-month thead th {
     font-size: 1.1em;
     background: #000;
@@ -164,4 +161,7 @@
 }
 .cal-views {
     text-align: right;
+}
+.clickable {
+    cursor: pointer;
 }
