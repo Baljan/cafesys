@@ -46,6 +46,7 @@ class AfternoonShift(Shift):
 
 class Scheduled(models.Model):
     student = models.ForeignKey(Student)
+    swappable = models.BooleanField(default=False)
 
     class Meta:
         abstract = True

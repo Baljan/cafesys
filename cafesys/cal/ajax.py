@@ -4,7 +4,7 @@ from dajax.core import Dajax
 from dajaxice.core import dajaxice_functions
 from django.core.urlresolvers import reverse
 import logging
-from models import Shift, ScheduledMorning, ScheduledAfternoon, MorningShift, AfternoonShift
+from models import Shift, Scheduled, ScheduledMorning, ScheduledAfternoon, MorningShift, AfternoonShift
 from datetime import datetime
 from django.utils.translation import ugettext as _ 
 
@@ -114,3 +114,49 @@ def sign_up(request, id, redir_url, day, shift):
     return dajax.json()
 
 dajaxice_functions.register(sign_up)
+
+def _scheduled_from_id(scheduled_id):
+    type = scheduled_id.split('-')[1]
+    pk = int(scheduled_id.split('-')[2])
+    obj = None
+    if type == 'morning':
+        obj = ScheduledMorning.objects.get(pk=pk)
+    elif type == 'afternoon':
+        obj = ScheduledAfternoon.objects.get(pk=pk)
+    return obj
+
+def toggle_swappable(request, scheduled_id, redir_url=None):
+    assert request.user.is_authenticated()
+
+    student = request.user.get_profile()
+    obj = _scheduled_from_id(scheduled_id)
+    assert obj is not None
+    assert obj.student == student
+    obj.swappable = not obj.swappable
+    obj.save()
+
+    dajax = Dajax()
+    if redir_url is not None:
+        dajax.redirect(redir_url)
+    return dajax.json()
+
+dajaxice_functions.register(toggle_swappable)
+
+
+def remove_from_scheduled(request, scheduled_id, redir_url=None):
+    # FIXME: It should be impossible to remove oneself from a shift if it is too
+    # near in the future.
+    assert request.user.is_authenticated()
+
+    student = request.user.get_profile()
+    obj = _scheduled_from_id(scheduled_id)
+    assert obj is not None
+    assert obj.student == student
+    obj.delete()
+
+    dajax = Dajax()
+    if redir_url is not None:
+        dajax.redirect(redir_url)
+    return dajax.json()
+
+dajaxice_functions.register(remove_from_scheduled)

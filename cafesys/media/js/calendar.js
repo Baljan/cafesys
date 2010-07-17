@@ -116,4 +116,18 @@ $(document).ready(function () {
         }
     });
 
+    $('.student-shifts .toggle-swappable').click(function() {
+        var schedId = $(this).attr('class').split(' ').slice(-1)[0];
+        Dajaxice.cal.toggle_swappable('Dajax.process', { 
+            scheduled_id: schedId,
+            redir_url: document.location.pathname,
+        });
+    });
+    $('.student-shifts .remove-scheduled').click(function() {
+        var schedId = $(this).attr('class').split(' ').slice(-1)[0];
+        Dajaxice.cal.remove_from_scheduled('Dajax.process', { 
+            scheduled_id: schedId,
+            redir_url: document.location.pathname,
+        });
+    });
 });

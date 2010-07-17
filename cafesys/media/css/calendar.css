@@ -189,3 +189,9 @@
 .student-shifts td {
     padding: 0 .5em;
 }
+.student-shifts .tasks {
+    width: 50%;
+}
+.student-shifts .toggle-swappable {
+    cursor: pointer;
+}
