@@ -29,7 +29,7 @@ def worker_calendar(request, year=None, month=None):
     shifts = None
     if request.user.is_authenticated():
         student = request.user.get_profile()
-        shifts = Scheduled.for_student(student)
+        shifts = student.scheduled_for()
 
     if month == '':
         year_view = True

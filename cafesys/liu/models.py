@@ -25,6 +25,11 @@ class Student(models.Model):
             fmt = "%s (%s)" % (fmt, self.role.title)
         return smart_str(fmt)
 
+    def scheduled_for(self):
+        scheds = list(self.scheduledmorning_set.all()) + list(self.scheduledafternoon_set.all())
+        scheds.sort(key=lambda s: s.shift.day)
+        return scheds
+
 def create_profile(sender, instance=None, **kwargs):
     if instance is None:
         return

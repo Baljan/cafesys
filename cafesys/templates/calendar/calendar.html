@@ -61,7 +61,9 @@
                 <tbody>
                     {% for shift in student_shifts %}
                     <tr>
-                        <td class="date"><a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar shift.shift.day.year shift.shift.day.month %}">{{ shift.shift.day|date:"Y-m-d" }}</a></td>
+                        <td class="date">
+                            <a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar shift.shift.day.year shift.shift.day.month %}">{{ shift.shift.day|date:"Y-m-d" }}</a>
+                        </td>
                         <td class="when">{% trans shift.shift.name %}</td>
                         <td class="swappable">
                             {# The schedule id must be the last class. #}

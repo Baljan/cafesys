@@ -52,13 +52,6 @@ class Scheduled(models.Model):
         abstract = True
         ordering = ['shift__day']
 
-    @staticmethod
-    def for_student(student):
-        shifts = []
-        for cls in [ScheduledMorning, ScheduledAfternoon]:
-            shifts += list(cls.objects.filter(student=student))
-        return shifts
-
     def __str__(self):
         return smart_str("%s %s" % (self.student.liu_id, self.shift))
 
