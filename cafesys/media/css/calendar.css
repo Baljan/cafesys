@@ -166,4 +166,12 @@
     cursor: pointer;
 }
 
-
+#worker-day-dialog div.body {
+    margin-bottom: 1em;
+}
+#worker-day-dialog ul, #worker-day-dialog li {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}

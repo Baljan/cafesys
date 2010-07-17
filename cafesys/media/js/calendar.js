@@ -26,7 +26,12 @@ function processWorkerDialog(data) {
         if ($(this).hasClass('morning')) shift = 'morning';
         else if ($(this).hasClass('afternoon')) shift = 'afternoon';
         var day = $(this).attr('class').split(' ').slice(-1)[0];
-        Dajaxice.cal.sign_up('Dajax.process', { day: day, shift: shift });
+        Dajaxice.cal.sign_up('Dajax.process', { 
+            id:'#worker-day-dialog', 
+            redir_url: document.location.pathname,
+            day: day, 
+            shift: shift,
+        });
     });
 }
 
@@ -73,10 +78,11 @@ $(document).ready(function () {
                     var day = $(this).attr('id');
                     $('body').append([
                         '<div style="display:none" id="worker-day-dialog" title="',day,'">',
-                        '<strong class="morning-title"></strong><br/>',
-                        '<p class="morning-body"></p>',
-                        '<strong class="afternoon-title"></strong><br/>',
-                        '<p class="afternoon-body"></p>',
+                        '<strong class="morning-title"></strong>',
+                        '<div class="body morning-body"></div>',
+                        '<strong class="afternoon-title"></strong>',
+                        '<div class="body afternoon-body"></div>',
+                        '<div class="extra"></div>',
                         '</div>',
                     ].join(''));
                     Dajaxice.cal.worker_day_dialog('processWorkerDialog', {
