@@ -2,8 +2,8 @@
     display:none;
     background:url(../img/tt/black.png);
     height:99px;
-    width:199px;
-    padding: 5px;
+    width:189px;
+    padding: 5px 10px;
     font-size:11px;
     color:#fff;
 }
@@ -18,3 +18,4 @@
     text-decoration: underline;
     cursor: pointer;
 }
+
