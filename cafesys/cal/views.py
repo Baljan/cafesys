@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 from django.http import HttpResponse
 from random import randint
 from django.utils import simplejson as json
@@ -156,4 +155,11 @@ def worker_calendar(request, year=None, month=None):
         'year': year,
         'student': student,
         'student_shifts': shifts,
+        }, context_instance=RequestContext(request))
+
+
+def swappable(request):
+    swappables = Scheduled.swappables()
+    return render_to_response('calendar/swappable.html', {
+        'swappables': swappables,
         }, context_instance=RequestContext(request))
