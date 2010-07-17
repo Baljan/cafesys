@@ -1,6 +1,40 @@
+/**
+ * Tooltips
+ */
+var enableCalendarTooltips = function() {
+    $(".day.has-shift .day-of-month").tooltip({
+        position: "top center",
+        effect: 'slide',
+    }).dynamic({});
+}
+var disableCalendarTooltips = function() {
+    // FIXME: This is not working. The tooltips can be annoying when in add or
+    // remove shifts mode.
+    $(".day.has-shift .tooltip").hide();
+}
+
+/**
+ * Dajaxice callbacks.
+ */
+function processWorkerDialog(data) {
+    Dajax.process(data);
+    $('#worker-day-dialog').dialog({
+        modal: true,
+    });
+    $('#worker-day-dialog .sign-up').click(function() {
+        var shift = '';
+        if ($(this).hasClass('morning')) shift = 'morning';
+        else if ($(this).hasClass('afternoon')) shift = 'afternoon';
+        var day = $(this).attr('class').split(' ').slice(-1)[0];
+        Dajaxice.cal.sign_up('Dajax.process', { day: day, shift: shift });
+    });
+}
+
 $(document).ready(function () {
     $('.calendars table', '.calendars h2').unselectable();
     $('#calendar-tasks', '#calendar-modes').unselectable();
+
+    enableCalendarTooltips();
 
     $('.calendars').selectable({
         filter: 'td.in-month.shiftable',
@@ -27,6 +61,7 @@ $(document).ready(function () {
         $('.calendars').selectable("disable");
         $('.calendars').removeClass("ui-state-disabled");
         $('.calendars td.has-shift:not(.worker-count-4)').removeClass('clickable').unbind('click');
+        $('#worker-day-dialog').remove();
 
         if ($(this).hasClass('selected')) {
             if ($(this).hasClass('manage-shifts-mode')) {
@@ -34,7 +69,21 @@ $(document).ready(function () {
             }
             else if ($(this).hasClass('worker-mode')) {
                 $('.calendars td.has-shift:not(.worker-count-4)').addClass('clickable').click(function() {
-                    alert('foo');
+                    $('#worker-day-dialog').remove();
+                    var day = $(this).attr('id');
+                    $('body').append([
+                        '<div style="display:none" id="worker-day-dialog" title="',day,'">',
+                        '<strong class="morning-title"></strong><br/>',
+                        '<p class="morning-body"></p>',
+                        '<strong class="afternoon-title"></strong><br/>',
+                        '<p class="afternoon-body"></p>',
+                        '</div>',
+                    ].join(''));
+                    Dajaxice.cal.worker_day_dialog('processWorkerDialog', {
+                        'id': '#worker-day-dialog',
+                        'day': day,
+                    });
+
                 });
             }
         }
@@ -61,9 +110,4 @@ $(document).ready(function () {
         }
     });
 
-    $(".day.has-shift .day-of-month").tooltip({
-        position: "top center",
-        effect: 'slide',
-    }).dynamic({
-    });
 });
