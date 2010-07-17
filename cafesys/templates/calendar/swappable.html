@@ -1,0 +1,39 @@
+{% extends "calendar/calendar.html" %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Swappable" %}{% endblock %}
+
+{% block body %}
+<h2>{% trans "Swappable Shifts" %}</h2>
+<div class="ui-widget">
+    <div class="ui-state-highlight ui-corner-all">
+        <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span> 
+        {% blocktrans %}
+        Workers on these shifts would like to swap. You may send swap requests
+        to them if you would rather work on one of these shifts.
+        {% endblocktrans %}
+        </p>
+    </div>
+</div>
+<table class="swappables">
+    <thead>
+        <tr>
+            <th>{% trans "date" %}</th>
+            <th>{% trans "when" %}</th>
+            <th colspan="2">{% trans "who" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for swap in swappables %}
+        <tr>
+            <td>
+                <a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar swap.shift.day.year swap.shift.day.month %}">{{ swap.shift.day|date:"Y-m-d" }}</a>
+            </td>
+            <td>{% trans swap.shift.name %}</td>
+            <td>{{ swap.student.liu_id }}</td>
+            <td><span class="link request-swap scheduled-{{ swap.shift.name }}-{{ swap.shift.pk }}">{% trans "send request" %}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
