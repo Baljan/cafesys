@@ -22,3 +22,8 @@
 li.selected {
     font-weight: bold;
 }
+
+#tabhead .logo img {
+    width: 500px;
+    height: 100px;
+}
