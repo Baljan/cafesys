@@ -275,9 +275,17 @@ def respond_received_request(request, swap_id, offer_id, redir_url=None):
     requested_shift.save()
     swap.delete()
 
-    # TODO: IMPORTANT!!! More cleanup is needed. The workers involved may have
-    # other pending swap requests, sent or received, that should be removed
-    # after the swap.
+    # TODO: Make sure that this really is the correct thing to do.
+    for cls in (SwapRequest, SwapPossibility):
+        for shift in (requested_shift, taken_shift):
+            cls.objects.filter(morning=shift).delete()
+            cls.objects.filter(afternoon=shift).delete()
+    
+    # FIXME: There must be a faster way to do this.
+    for swapr in SwapRequest.objects.all():
+        if len(swapr.swappossibility_set.all()) == 0:
+            swapr.delete()
+
 
     if redir_url is not None:
         dajax.redirect(redir_url)
