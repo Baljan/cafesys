@@ -70,3 +70,15 @@ class ScheduledMorning(Scheduled):
 
 class ScheduledAfternoon(Scheduled):
     shift = models.ForeignKey(AfternoonShift)
+
+class SwapRequest(models.Model):
+    student = models.ForeignKey(Student)
+    made_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField(null=True)
+    denied_at = models.DateTimeField(null=True)
+
+    # Exactly one of these must be set.
+    morning = models.ForeignKey(ScheduledMorning, null=True)
+    afternoon = models.ForeignKey(ScheduledAfternoon, null=True)
+
+
