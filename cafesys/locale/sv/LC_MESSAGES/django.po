@@ -325,42 +325,40 @@ msgid "Swappable"
 msgstr "Bytbar"
 
 #: templates/calendar/swappable.html:10
-#, fuzzy
 msgid "Sent Requests"
-msgstr "skicka förfrågan"
+msgstr "Mottagna förfrågningar"
 
 #: templates/calendar/swappable.html:14
 msgid "you want"
-msgstr ""
+msgstr "du vill ha"
 
 #: templates/calendar/swappable.html:16
 msgid "from"
-msgstr ""
+msgstr "från"
 
 #: templates/calendar/swappable.html:22
 msgid "You have no pending requests "
-msgstr ""
+msgstr "Du har inga förfrågningar som väntar."
 
 #: templates/calendar/swappable.html:26
-#, fuzzy
 msgid "Received Requests"
-msgstr "skicka förfrågan"
+msgstr "Skickade förfrågningar"
 
 #: templates/calendar/swappable.html:30
 msgid "wants"
-msgstr ""
+msgstr "vill ha"
 
 #: templates/calendar/swappable.html:32
 msgid "from you"
-msgstr ""
+msgstr "från dig"
 
 #: templates/calendar/swappable.html:34
 msgid "respond"
-msgstr ""
+msgstr "svara"
 
 #: templates/calendar/swappable.html:39
 msgid "You have no pending requests"
-msgstr ""
+msgstr "Du har inga förfrågningar som väntar."
 
 #: templates/calendar/swappable.html:46
 msgid "Swappable Shifts"
