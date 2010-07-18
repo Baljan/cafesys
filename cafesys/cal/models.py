@@ -55,7 +55,6 @@ class Scheduled(models.Model):
         for cls in (ScheduledMorning, ScheduledAfternoon):
             scheds += cls.objects.filter(swappable=True)
         scheds.sort(key=lambda s: s.shift.day)
-        # FIXME: Not too close in the future.
         scheds = [s for s in scheds if s.shift.day >= date.today()]
         return scheds
 
