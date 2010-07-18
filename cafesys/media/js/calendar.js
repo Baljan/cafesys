@@ -6,11 +6,21 @@ var enableCalendarTooltips = function() {
         position: "top center",
         effect: 'slide',
     }).dynamic({});
-}
+};
 var disableCalendarTooltips = function() {
     // FIXME: This is not working. The tooltips can be annoying when in add or
     // remove shifts mode.
     $(".day.has-shift .tooltip").hide();
+};
+
+/**
+ * Utils.
+ */
+function getSchedId(obj) {
+    return $(obj).attr('class').split(' ').slice(-1)[0];
+}
+function getLastClass(obj) {
+    return $(obj).attr('class').split(' ').slice(-1)[0];
 }
 
 /**
@@ -34,6 +44,52 @@ function processWorkerDialog(data) {
         });
     });
 }
+
+function processSendSwapRequestDialog(data) {
+    Dajax.process(data);
+    var send = function() {
+        Dajaxice.cal.send_swap_request('Dajax.process', { 
+            scheduled_id: getSchedId('#send-swap-request-dialog .sched-id'),
+            offers: $.map($('#send-swap-request-dialog .selected span'), function(x) { return getSchedId(x); }),
+            redir_url: document.location.pathname,
+        });
+    }
+    $('#send-swap-request-dialog').dialog({
+        modal: true,
+        buttons: {
+            // FIXME: Fetch a proper translation. "OK" just happens to work everywhere.
+            'OK': send,
+        },
+    });
+    $('#send-swap-request-dialog').unselectable();
+    $('#send-swap-request-dialog ul li').click(function() {
+        $(this).toggleClass('selected');
+    });
+}
+
+function processRespondReceivedRequestDialog(data) {
+    Dajax.process(data);
+    var send = function() {
+        Dajaxice.cal.respond_received_request('Dajax.process', { 
+            swap_id: getSchedId('#respond-received-request-dialog .swap-id'),
+            offer_id: getLastClass($('#respond-received-request-dialog .selected span')),
+            redir_url: document.location.pathname,
+        });
+    }
+    $('#respond-received-request-dialog').dialog({
+        modal: true,
+        buttons: {
+            // FIXME: Fetch a proper translation. "OK" just happens to work everywhere.
+            'OK': send,
+        },
+    });
+    $('#respond-received-request-dialog').unselectable();
+    $('#respond-received-request-dialog ul li').click(function() {
+        $(this).siblings().removeClass('selected');
+        $(this).toggleClass('selected');
+    });
+}
+
 
 $(document).ready(function () {
     $('.calendars table', '.calendars h2').unselectable();
@@ -116,18 +172,53 @@ $(document).ready(function () {
         }
     });
 
+
     $('.student-shifts .toggle-swappable').click(function() {
-        var schedId = $(this).attr('class').split(' ').slice(-1)[0];
         Dajaxice.cal.toggle_swappable('Dajax.process', { 
-            scheduled_id: schedId,
+            scheduled_id: getSchedId(this),
             redir_url: document.location.pathname,
         });
     });
     $('.student-shifts .remove-scheduled').click(function() {
-        var schedId = $(this).attr('class').split(' ').slice(-1)[0];
         Dajaxice.cal.remove_from_scheduled('Dajax.process', { 
-            scheduled_id: schedId,
+            scheduled_id: getSchedId(this),
             redir_url: document.location.pathname,
+        });
+    });
+
+    $('.swappables .request-swap').click(function() {
+        $('#send-swap-request-dialog').remove();
+        $('body').append([
+            '<div style="display:none" class="',getSchedId(this),'" id="send-swap-request-dialog">',
+                '<strong class="offers-title"></strong>',
+                '<div class="offers-body"></div>',
+                '<div class="extra"></div>',
+            '</div>',
+        ].join(''));
+        Dajaxice.cal.send_swap_request_dialog('processSendSwapRequestDialog', {
+            'id': '#send-swap-request-dialog',
+            'scheduled_id': getSchedId(this),
+        });
+    });
+
+    $('.swap-requests .remove-sent-request').click(function() {
+        Dajaxice.cal.remove_swap_request('Dajax.process', {
+            swap_id: getLastClass(this),
+            redir_url: document.location.pathname,
+        });
+    });
+
+    $('.swap-requests .respond-received-request').click(function() {
+        $('#respond-received-request-dialog').remove();
+        $('body').append([
+            '<div style="display:none" class="',getLastClass(this),'" id="respond-received-request-dialog">',
+                '<div class="body"></div>',
+                '<div class="extra"></div>',
+            '</div>',
+        ].join(''));
+        Dajaxice.cal.respond_received_request_dialog('processRespondReceivedRequestDialog', {
+            id: '#respond-received-request-dialog',
+            swap_id: getLastClass(this),
         });
     });
 });

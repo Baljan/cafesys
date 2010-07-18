@@ -176,11 +176,13 @@
     padding-bottom: 0;
 }
 
-.student-shifts {
+#send-swap-request-dialog li, #respond-received-request-dialog li {
+    cursor: pointer;
+}
+
+.student-shifts, .swap-requests, .swappables {
     width: 100%;
     border: 1px solid #eee;
-    border-radius: .5em;
-    -moz-border-radius: .5em;
 }
 .student-shifts thead th {
     text-align: left;
@@ -205,3 +207,13 @@
 .swappables td, .swappables th {
     padding-right: 2em;
 }
+
+.swap-requests, .swappables {
+    padding: 0 .5em;
+}
+
+.swappables table {
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+

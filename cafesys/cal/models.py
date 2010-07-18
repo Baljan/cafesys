@@ -63,7 +63,7 @@ class Scheduled(models.Model):
         ordering = ['shift__day']
 
     def __str__(self):
-        return smart_str("%s %s" % (self.student.liu_id, self.shift))
+        return smart_str("%s" % self.shift)
 
 class ScheduledMorning(Scheduled):
     shift = models.ForeignKey(MorningShift)
@@ -71,7 +71,24 @@ class ScheduledMorning(Scheduled):
 class ScheduledAfternoon(Scheduled):
     shift = models.ForeignKey(AfternoonShift)
 
-class SwapRequest(models.Model):
+class SwapMixin(object):
+
+    def set_scheduled(self, scheduled):
+        if scheduled.shift.name() == 'morning':
+            self.morning = scheduled
+        elif scheduled.shift.name() == 'afternoon':
+            self.afternoon = scheduled
+        else:
+            raise ValueError('bad name')
+        return self
+
+    def get_scheduled(self):
+        for obj in (self.morning, self.afternoon):
+            if obj:
+                return obj
+
+
+class SwapRequest(models.Model, SwapMixin):
     student = models.ForeignKey(Student)
     made_at = models.DateTimeField(auto_now_add=True)
     confirmed_at = models.DateTimeField(null=True)
@@ -81,4 +98,26 @@ class SwapRequest(models.Model):
     morning = models.ForeignKey(ScheduledMorning, null=True)
     afternoon = models.ForeignKey(ScheduledAfternoon, null=True)
 
+    @staticmethod
+    def from_student_with_possibilities(requested, student, possibilities):
+        swap = SwapRequest(student=student)
+        swap.set_scheduled(requested)
+        swap.save()
+        for pos in possibilities:
+            spos = SwapPossibility(swap=swap)
+            spos.set_scheduled(pos)
+            spos.save()
+        return swap
 
+    def __str__(self):
+        wanted = self.get_scheduled()
+        fmt = "%s wants %s from %s" % (self.student.liu_id, wanted, wanted.student.liu_id)
+        return smart_str(fmt)
+
+
+class SwapPossibility(models.Model, SwapMixin):
+    swap = models.ForeignKey(SwapRequest)
+
+    # Exactly one of these must be set.
+    morning = models.ForeignKey(ScheduledMorning, null=True)
+    afternoon = models.ForeignKey(ScheduledAfternoon, null=True)

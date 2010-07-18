@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from models import Shift, MorningShift, ScheduledMorning, AfternoonShift, ScheduledAfternoon
+from models import SwapRequest, SwapPossibility
 from django.utils.encoding import smart_str
 
 def shift_day(obj):
@@ -61,6 +62,8 @@ for cls in [
         ScheduledMorning, 
         (AfternoonShift, AfternoonShiftAdmin), 
         ScheduledAfternoon,
+        SwapRequest,
+        SwapPossibility,
         ]:
     if isinstance(cls, tuple):
         admin.site.register(*cls)

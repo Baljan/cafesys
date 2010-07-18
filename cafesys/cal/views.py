@@ -12,6 +12,7 @@ from dateutil.relativedelta import relativedelta
 import calendar
 
 from models import Scheduled, ScheduledMorning, ScheduledAfternoon, MorningShift, AfternoonShift
+from models import SwapRequest
 
 def sibling_months_for(day):
     one_month = relativedelta(months=1)
@@ -160,6 +161,17 @@ def worker_calendar(request, year=None, month=None):
 
 def swappable(request):
     swappables = Scheduled.swappables()
+    sent_requests = None
+    recd_requests = None
+    student = None
+    if request.user.is_authenticated():
+        student = request.user.get_profile()
+        sent_requests = SwapRequest.objects.filter(student=student)
+        recd_requests = SwapRequest.objects.filter(morning__student=student) | SwapRequest.objects.filter(afternoon__student=student)
+
     return render_to_response('calendar/swappable.html', {
         'swappables': swappables,
+        'student': student,
+        'sent_requests': sent_requests,
+        'received_requests': recd_requests,
         }, context_instance=RequestContext(request))
