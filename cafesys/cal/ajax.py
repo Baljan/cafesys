@@ -275,6 +275,10 @@ def respond_received_request(request, swap_id, offer_id, redir_url=None):
     requested_shift.save()
     swap.delete()
 
+    # TODO: IMPORTANT!!! More cleanup is needed. The workers involved may have
+    # other pending swap requests, sent or received, that should be removed
+    # after the swap.
+
     if redir_url is not None:
         dajax.redirect(redir_url)
     return dajax.json()
