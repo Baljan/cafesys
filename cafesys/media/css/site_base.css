@@ -23,7 +23,20 @@ li.selected {
     font-weight: bold;
 }
 
+#tabhead .logo {
+    height: 82px;
+}
 #tabhead .logo img {
     width: 500px;
     height: 100px;
+}
+
+#tabhead {
+    background:url("../img/terminal-top.png") repeat-x scroll left top #bcf;
+    border-bottom:1px solid #000000;
+    position:relative;
+}
+
+#subnav {
+    background: #bcf;
 }

@@ -12,7 +12,7 @@ body.calendar #tab_calendar
 {
     margin: 0; /* to compensate for border */
     padding: 5px 0 5px;
-    background-color: #DEF; /* selected tab colour */
+    background-color: #bcf; /* selected tab colour */
     border-left: 1px solid #000; /* tab border */
     border-top: 1px solid #000; /* tab border */
     border-right: 1px solid #000; /* tab border */
