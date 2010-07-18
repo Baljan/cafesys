@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-18 16:50+0200\n"
+"POT-Creation-Date: 2010-07-18 22:45+0200\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,22 +18,34 @@ msgstr ""
 "X-Translated-Using: django-rosetta 0.5.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: cal/ajax.py:64
+#: cal/ajax.py:63
 msgid "Morning"
 msgstr "Morgon"
 
-#: cal/ajax.py:65
+#: cal/ajax.py:64
 msgid "Afternoon"
 msgstr "Eftermiddag"
 
-#: cal/ajax.py:81
+#: cal/ajax.py:80
 #, python-format
 msgid "Sign up for this %s!"
 msgstr "Anmäl dig till denna %s!"
 
-#: cal/ajax.py:114
+#: cal/ajax.py:111
 msgid "Shift has enough workers already."
 msgstr "Skiftet har redan tillräckligt många jobbare."
+
+#: cal/ajax.py:195
+msgid "Offers"
+msgstr "Erbjudanden"
+
+#: cal/ajax.py:203
+msgid "Click on the shifts you would like to offer in the swap request."
+msgstr "Klicka på de skift du vill erbjuda i bytet."
+
+#: cal/ajax.py:242
+msgid "Click on the shift you would like to have instead."
+msgstr "Klicka på det skift som du vill byta till."
 
 #: templates/homepage.html:6
 msgid "Welcome"
@@ -64,7 +76,7 @@ msgstr ""
 
 #: templates/homepage.html:31
 msgid "About this project"
-msgstr ""
+msgstr "Om det här projektet"
 
 #: templates/homepage.html:34
 msgid ""
@@ -95,27 +107,27 @@ msgstr ""
 
 #: templates/site_base.html:20
 msgid "Account"
-msgstr ""
+msgstr "Konto"
 
 #: templates/site_base.html:20
 msgid "Admin"
-msgstr ""
+msgstr "Administration"
 
 #: templates/site_base.html:20
 msgid "Logout"
-msgstr ""
+msgstr "Logga ut"
 
 #: templates/site_base.html:22
 msgid "Login"
-msgstr ""
+msgstr "Logga in"
 
 #: templates/site_base.html:22
 msgid "or"
-msgstr ""
+msgstr "eller"
 
 #: templates/site_base.html:22
 msgid "Sign up"
-msgstr ""
+msgstr "Registrera dig"
 
 #: templates/site_base.html:31 templates/calendar/calendar.html:11
 #: templates/calendar/calendar.html:24 templates/calendar/calendar.html:27
@@ -124,30 +136,14 @@ msgstr "Kalender"
 
 #: templates/site_base.html:32
 msgid "Profile"
-msgstr ""
+msgstr "Profil"
 
 #: templates/site_base.html:33
 msgid "Notices"
-msgstr ""
+msgstr "Meddelanden"
 
 #: templates/site_base.html:40
-msgid "&copy; 2010 &lt;your company here&gt;"
-msgstr ""
-
-#: templates/site_base.html:41
-msgid "About"
-msgstr ""
-
-#: templates/site_base.html:42
-msgid "Terms of Service"
-msgstr ""
-
-#: templates/site_base.html:43
-msgid "Privacy Policy"
-msgstr ""
-
-#: templates/site_base.html:44
-msgid "DMCA Notice"
+msgid "&copy; 2010 Sektionscafé Baljan "
 msgstr ""
 
 #: templates/about/what_next.html:6 templates/about/what_next.html.py:9
@@ -169,31 +165,31 @@ msgstr ""
 
 #: templates/account/base.html:10
 msgid "E-Mail Addresses"
-msgstr ""
+msgstr "Epostadresser"
 
 #: templates/account/base.html:11
 msgid "OpenID Associations"
-msgstr ""
+msgstr "OpenID-associationer"
 
 #: templates/account/base.html:13
 msgid "Change Password"
-msgstr ""
+msgstr "Byt lösenord"
 
 #: templates/account/base.html:15
 msgid "Set Password"
-msgstr ""
+msgstr "Sätt lösenord"
 
 #: templates/account/base.html:18
 msgid "Delete Password"
-msgstr ""
+msgstr "Ta bort lösenord"
 
 #: templates/account/base.html:20
 msgid "Language"
-msgstr ""
+msgstr "Språk"
 
 #: templates/account/base.html:21
 msgid "Timezone"
-msgstr ""
+msgstr "Tidszon"
 
 #: templates/calendar/calendar.html:12 templates/calendar/swappable.html:7
 msgid "Shift Swaps"
@@ -243,11 +239,11 @@ msgstr "bekräfta"
 msgid "My Shifts"
 msgstr "Mina skift"
 
-#: templates/calendar/calendar.html:60 templates/calendar/swappable.html:52
+#: templates/calendar/calendar.html:60 templates/calendar/swappable.html:61
 msgid "date"
 msgstr "datum"
 
-#: templates/calendar/calendar.html:61 templates/calendar/swappable.html:53
+#: templates/calendar/calendar.html:61 templates/calendar/swappable.html:62
 msgid "when"
 msgstr "när"
 
@@ -260,7 +256,7 @@ msgid "tasks"
 msgstr "åtgärder"
 
 #: templates/calendar/calendar.html:70 templates/calendar/swappable.html:15
-#: templates/calendar/swappable.html:27 templates/calendar/swappable.html:61
+#: templates/calendar/swappable.html:31 templates/calendar/swappable.html:70
 msgid "go to this month"
 msgstr "gå till den här månaden"
 
@@ -342,27 +338,35 @@ msgid "from"
 msgstr ""
 
 #: templates/calendar/swappable.html:22
+msgid "You have no pending requests "
+msgstr ""
+
+#: templates/calendar/swappable.html:26
 #, fuzzy
 msgid "Received Requests"
 msgstr "skicka förfrågan"
 
-#: templates/calendar/swappable.html:26
+#: templates/calendar/swappable.html:30
 msgid "wants"
 msgstr ""
 
-#: templates/calendar/swappable.html:28
+#: templates/calendar/swappable.html:32
 msgid "from you"
 msgstr ""
 
-#: templates/calendar/swappable.html:30
+#: templates/calendar/swappable.html:34
 msgid "respond"
 msgstr ""
 
-#: templates/calendar/swappable.html:38
+#: templates/calendar/swappable.html:39
+msgid "You have no pending requests"
+msgstr ""
+
+#: templates/calendar/swappable.html:46
 msgid "Swappable Shifts"
 msgstr "Bytbara skift"
 
-#: templates/calendar/swappable.html:42
+#: templates/calendar/swappable.html:51
 #, fuzzy
 msgid ""
 "\n"
@@ -372,19 +376,23 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"Arbetare på de här skiften vill gärna byta. Du kan skicka bytesförfrågningar "
-"till dem om du hellre skulle vilja arbeta på något av de här skiften."
+"Jobbare på de här skiften vill gärna byta. Du kan skicka bytesförfrågningar "
+"till dem om du hellre skulle vilja jobba på något av de här skiften."
 
-#: templates/calendar/swappable.html:54
+#: templates/calendar/swappable.html:63
 msgid "who"
 msgstr "vem"
 
-#: templates/calendar/swappable.html:65
+#: templates/calendar/swappable.html:74
 msgid "send request"
 msgstr "skicka förfrågan"
 
-#~ msgid "morning"
-#~ msgstr "morgon"
+#: templates/calendar/swappable.html:81
+msgid "Currently, no workers want to swap shifts."
+msgstr "För tillfället vill inga jobbare byta skift."
 
-#~ msgid "afternoon"
-#~ msgstr "eftermiddag"
+msgid "morning"
+msgstr "morgon"
+
+msgid "afternoon"
+msgstr "eftermiddag"
