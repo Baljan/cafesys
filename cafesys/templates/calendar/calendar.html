@@ -16,6 +16,23 @@
 {% block body_class %}calendar{% endblock %}
 
 {% block extra_body %}
+    <script type="text/javascript">
+        {% if is_regular %}
+            IS_REGULAR=true;
+        {% else %}
+            IS_REGULAR=false;
+        {% endif %}
+        {% if is_worker %}
+            IS_WORKER=true;
+        {% else %}
+            IS_WORKER=false;
+        {% endif %}
+        {% if is_board_member %}
+            IS_BOARD_MEMBER=true;
+        {% else %}
+            IS_BOARD_MEMBER=false;
+        {% endif %}
+    </script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/calendar.js"></script> 
 {% endblock %}
 
@@ -25,7 +42,7 @@
 
 {% block body %}
     <h1>{% trans "Calendar" %}</h1>
-    {% if user.is_staff %}
+    {% if is_board_member %}
         <div id="calendar-modes">
             <ul>
                 <li class="manage-shifts-mode">{% trans "add or remove shifts" %}</li>
