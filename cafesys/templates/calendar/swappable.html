@@ -75,7 +75,8 @@
                     <td>{{ swap.student.liu_id }}</td>
                     <td>
                         {% if not swap.student == student %}
-                        <span class="link request-swap scheduled-{{ swap.shift.name }}-{{ swap.pk }}">{% trans "send request" %}</span>
+                            {# TODO: Make it impossible to send multiple requests to the same shift. #}
+                            <span class="link request-swap scheduled-{{ swap.shift.name }}-{{ swap.pk }}">{% trans "send request" %}</span>
                         {% endif %}
                     </td>
                 </tr>
