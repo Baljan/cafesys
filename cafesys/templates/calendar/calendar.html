@@ -9,7 +9,9 @@
 {% block subnav %}
 <ul>
     <li><a href="{% url cal.views.worker_calendar %}">{% trans "Calendar" %}</a></li>
+    {% if is_worker %}
     <li><a href="{% url cal.views.swappable %}">{% trans "Shift Swaps" %}</a></li>
+    {% endif %}
 </ul>
 {% endblock %}
 
