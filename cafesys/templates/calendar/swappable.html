@@ -73,7 +73,11 @@
                     </td>
                     <td class="when">{% trans swap.shift.name %}</td>
                     <td>{{ swap.student.liu_id }}</td>
-                    <td><span class="link request-swap scheduled-{{ swap.shift.name }}-{{ swap.pk }}">{% trans "send request" %}</span></td>
+                    <td>
+                        {% if not swap.student == student %}
+                        <span class="link request-swap scheduled-{{ swap.shift.name }}-{{ swap.pk }}">{% trans "send request" %}</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
