@@ -217,3 +217,7 @@
     margin-bottom: .5em;
 }
 
+.user-is-worker .day-of-month {
+    color: #12a;
+    background-color: rgba(30, 50, 200, 0.25);
+}
