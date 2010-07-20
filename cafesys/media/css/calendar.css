@@ -90,10 +90,9 @@
     position: fixed;
     bottom: .4em;
     right: .4em;
-    width: 11em;
     border-radius: .3em;
     -moz-border-radius: .3em;
-    background: rgba(175, 120, 100, 0.8);
+    background: rgba(100, 120, 175, 0.8);
 }
 #calendar-modes .selected {
     font-weight: bold;
