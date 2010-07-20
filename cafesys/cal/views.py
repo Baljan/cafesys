@@ -140,6 +140,8 @@ def worker_calendar(request, year=None, month=None):
                         this_workers = len(to[sh])
                         workers += this_workers
                         to['classes'].append('%s-worker-count-%d' % (sh, this_workers))
+                        if this_workers != 0:
+                            to['classes'].append('has-workers')
                         if to['has_%s_shift' % sh]:
                             to['has_shift'] = True
                             to['classes'].append('has-%s-shift' % sh)
