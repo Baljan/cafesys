@@ -154,12 +154,8 @@
                                     <div class="morning-box"></div>
                                     <div class="afternoon-box"></div>
                                     <div class="day-of-month">{% if day.same_month %}{{day.day}}{% endif %}</div>
-                                    <div class="tooltip">
-                                        {% if day.workers|length == 0 %}
-                                            <p>
-                                                <strong>{% trans "No workers have signed up for this day!" %}</strong>
-                                            </p>
-                                        {% else %}
+                                    {% if day.workers|length != 0 %}
+                                        <div class="tooltip">
                                             <p>
                                                 {% if day.morning|length != 0 %}
                                                     <strong>{% trans "Morning workers" %}:</strong><br/>
@@ -172,8 +168,8 @@
                                                     {{day.afternoon|join:", "}}
                                                 {% endif %}
                                             </p>
-                                        {% endif %}
-                                    </div>
+                                        </div>
+                                    {% endif %}
                                 </td>
                             {% endfor %}
                         </tr>

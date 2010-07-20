@@ -2,7 +2,7 @@
  * Tooltips
  */
 var enableCalendarTooltips = function() {
-    $(".day.has-shift .day-of-month").tooltip({
+    $(".day.has-shift.has-workers .day-of-month").tooltip({
         position: "top center",
         effect: 'slide',
     }).dynamic({});
