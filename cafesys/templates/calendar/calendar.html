@@ -117,9 +117,11 @@
         </p>
     {% else %}
         {% spaceless %}
-        <p class="cal-views"> 
-            <a href="{% url cal.views.worker_calendar year None %}">{% trans "year view" %}</a>
-        </p>
+        {% if is_board_member or is_worker %}
+            <p class="cal-views"> 
+                <a href="{% url cal.views.worker_calendar year None %}">{% trans "year view" %}</a>
+            </p>
+        {% endif %}
         <p class="calendar-nav">
             <a class="prev" href="{% url cal.views.worker_calendar prev_month.year prev_month.month %}">
                 &larr; {{ prev_month|date:"F Y" }}
