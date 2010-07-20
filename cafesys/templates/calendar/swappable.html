@@ -1,5 +1,6 @@
 {% extends "calendar/calendar.html" %}
 {% load i18n %}
+{% load humanize %}
 
 {% block head_title %}{% trans "Swappable" %}{% endblock %}
 
@@ -13,7 +14,7 @@
             {% for sent in sent_requests %}
             <li>
                 {% trans "you want" %}
-                <a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar sent.get_scheduled.shift.day.year sent.get_scheduled.shift.day.month %}">{% trans sent.get_scheduled.shift.name %} {{ sent.get_scheduled.shift.day|date:"Y-m-d" }}</a>
+                <a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar sent.get_scheduled.shift.day.year sent.get_scheduled.shift.day.month %}">{% trans sent.get_scheduled.shift.name %} {{ sent.get_scheduled.shift.day|naturalday:"Y-m-d" }}</a>
                 {% trans "from" %}
                 {{ sent.get_scheduled.student.liu_id }}
                 ( <span class="link remove-sent-request request-{{sent.pk}}">{% trans "remove" %}</span> )
@@ -29,7 +30,7 @@
             {% for received in received_requests %}
             <li>
                 {{ received.student.liu_id }} {% trans "wants" %}
-                <a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar received.get_scheduled.shift.day.year received.get_scheduled.shift.day.month %}">{% trans received.get_scheduled.shift.name %} {{ received.get_scheduled.shift.day|date:"Y-m-d" }}</a>
+                <a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar received.get_scheduled.shift.day.year received.get_scheduled.shift.day.month %}">{% trans received.get_scheduled.shift.name %} {{ received.get_scheduled.shift.day|naturalday:"Y-m-d" }}</a>
                 {% trans "from you" %}
                 (
                 <span class="link respond-received-request request-{{received.pk}}">{% trans "respond" %}</span>
@@ -68,7 +69,7 @@
                 {% for swap in swappables %}
                 <tr>
                     <td class="day">
-                        <a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar swap.shift.day.year swap.shift.day.month %}">{{ swap.shift.day|date:"Y-m-d" }}</a>
+                        <a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar swap.shift.day.year swap.shift.day.month %}">{{ swap.shift.day|naturalday:"Y-m-d" }}</a>
                     </td>
                     <td class="when">{% trans swap.shift.name %}</td>
                     <td>{{ swap.student.liu_id }}</td>
