@@ -130,6 +130,9 @@ def worker_calendar(request, year=None, month=None):
                         'workers': to['morning'] + to['afternoon'],
                         })
 
+                    if student and student.liu_id in to['workers']:
+                        to['classes'].append('user-is-worker')
+
                     to.update({
                         'has_morning_shift': len([x for x in ms if x.day.day==day]) != 0, 
                         'has_afternoon_shift': len([x for x in afs if x.day.day==day]) != 0, 
