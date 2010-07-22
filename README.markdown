@@ -30,8 +30,15 @@ virtualenvwrapper in Fedora:
     $ pip install -r requirements.txt
 
 ## On Windows
+### Using VirtualBox (recommended)
+Install the [latest Fedora release](http://fedoraproject.org/get-fedora) on a
+[VirtualBox](http://www.virtualbox.org/) instance. If you want to work on the
+Windows host, configure shared folders.
+
+### Using Cygwin
 Install [cygwin](http://www.cygwin.com/) and be sure to include the Python and
-SQLite packages.
+SQLite packages. This has not been tried to work; if you do it successfully,
+please let someone know so that we can update this readme.
 
 # External Dependencies
 ## Kiosk Mode
