@@ -157,7 +157,6 @@ $(document).ready(function () {
         });
 
         $('#calendar-tasks .confirmation').click(function() {
-            $('body').css('cursor', 'wait');
             Dajaxice.cal.with_days('Dajax.process', {
                 'url': document.location.pathname,
                 'task': $('#calendar-tasks li.selected').attr('id'),
