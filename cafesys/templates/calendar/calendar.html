@@ -73,7 +73,11 @@
     {% if is_regular %}
     <div class="become-worker-request">
         <ul>
+            {% if student.wants_to_be_a_worker %}
+            <li><a href="{% url liu.views.remove_worker_request %}">{% trans "Remove request to become a worker" %}</a></li>
+            {% else %}
             <li><a href="{% url liu.views.request_become_worker %}">{% trans "Request to become a worker" %}</a></li>
+            {% endif %}
         </ul>
     </div>
     {% endif %}

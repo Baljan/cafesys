@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.utils.encoding import smart_str
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from datetime import date
 
@@ -33,6 +33,13 @@ class Student(models.Model):
         scheds = [s for s in scheds if s.shift.day >= date.today()]
         return scheds
 
+    def group_requests(self):
+        return self.joingrouprequest_set.all()
+
+    def wants_to_be_a_worker(self):
+        return len(self.joingrouprequest_set.filter(group__name='workers')) != 0
+
+
 def create_profile(sender, instance=None, **kwargs):
     if instance is None:
         return
@@ -43,3 +50,15 @@ def create_profile(sender, instance=None, **kwargs):
 
 post_save.connect(create_profile, sender=User)
 
+class JoinGroupRequest(models.Model):
+    student = models.ForeignKey(Student)
+    group = models.ForeignKey(Group)
+
+    @staticmethod
+    def from_group_name(student, group_name):
+        group = Group.objects.get(name=group_name)
+        return JoinGroupRequest(student=student, group=group)
+
+    def __str__(self):
+        fmt = "%s wants to be in %s" % (self.student.liu_id, self.group.name)
+        return smart_str(fmt)

@@ -21,6 +21,9 @@ def _is(request, what):
     info = keys(request)
     return info[what]
 
+def is_regular(request):
+    return _is(request, 'is_regular')
+
 def is_worker(request):
     return _is(request, 'is_worker')
 
