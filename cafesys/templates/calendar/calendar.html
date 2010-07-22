@@ -51,25 +51,32 @@
                 <li class="worker-mode">{% trans "worker mode" %}</li>
             </ul>
         </div>
+        <div id="calendar-tasks">
+            <strong>{% trans "With selection" %}&hellip;</strong>
+            <ul>
+                <li id="add-shifts">{% trans "add shifts" %}</li>
+                <li id="remove-shifts">{% trans "remove shifts" %}</li>
+            </ul>
+            <p class="help">
+                <strong>{% trans "Hint" %}:</strong>
+                {% trans "Hold the <code>Ctrl</code> key for multi-select mode." %}
+            </p>
+            <p class="help">
+                <strong>{% trans "Note" %}:</strong>
+                {% trans "Shifts will be removed even if workers have signed up for them." %}
+            </p>
+            <p class="confirmation">
+                <span class="confirm">&#x2611; {% trans "confirm" %}</span>
+            </p>
+        </div>
     {% endif %}
-    <div id="calendar-tasks">
-        <strong>{% trans "With selection" %}&hellip;</strong>
+    {% if is_regular %}
+    <div class="become-worker-request">
         <ul>
-            <li id="add-shifts">{% trans "add shifts" %}</li>
-            <li id="remove-shifts">{% trans "remove shifts" %}</li>
+            <li><a href="{% url liu.views.request_become_worker %}">{% trans "Request to become a worker" %}</a></li>
         </ul>
-        <p class="help">
-            <strong>{% trans "Hint" %}:</strong>
-            {% trans "Hold the <code>Ctrl</code> key for multi-select mode." %}
-        </p>
-        <p class="help">
-            <strong>{% trans "Note" %}:</strong>
-            {% trans "Shifts will be removed even if workers have signed up for them." %}
-        </p>
-        <p class="confirmation">
-            <span class="confirm">&#x2611; {% trans "confirm" %}</span>
-        </p>
     </div>
+    {% endif %}
     {% if student_shifts %}
         <div>
             <h3>{% trans "My Shifts" %}</h3>

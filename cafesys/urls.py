@@ -42,6 +42,8 @@ urlpatterns = patterns("",
     (r"^terminal/", include("terminal.urls")),
     (r"^calendar/", include("cal.urls")),
 
+    (r"^liu/", include("liu.urls")),
+
     (r"^admin/", include(admin.site.urls)),
 )
 
