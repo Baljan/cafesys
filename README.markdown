@@ -29,6 +29,10 @@ virtualenvwrapper in Fedora:
     $ cd cafesys
     $ pip install -r requirements.txt
 
+## On Windows
+Install [cygwin](http://www.cygwin.com/) and be sure to include the Python and
+SQLite packages.
+
 # External Dependencies
 ## Kiosk Mode
  * Opera browser
