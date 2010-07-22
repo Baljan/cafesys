@@ -113,7 +113,7 @@ $(document).ready(function () {
     });
 
     var enableWorkerMode = function() {
-        $('.calendars td.has-shift:not(.worker-count-4)').addClass('clickable').click(function() {
+        $('.calendars td.has-shift:not(.worker-count-4):not(.history)').addClass('clickable').click(function() {
             $('#worker-day-dialog').remove();
             var day = $(this).attr('id');
             $('body').append([
