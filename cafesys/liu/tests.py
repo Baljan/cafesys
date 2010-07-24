@@ -8,8 +8,17 @@ Replace these with more appropriate tests for your application.
 
 from django.test import TestCase
 from django.test.client import Client
+from models import Student
 
-class SimpleTest(TestCase):
+class LiuTestMixin(object):
+    def _logged_in_client(self, username_and_password,
+            is_worker=False, is_board_member=False):
+        c = Client()
+        c.login(username=username_and_password, password=username_and_password)
+        return c
+
+
+class SimpleTest(TestCase, LiuTestMixin):
     def test_basic_addition(self):
         """
         Tests that 1 + 1 always equals 2.
@@ -33,6 +42,22 @@ class SimpleTest(TestCase):
 
     def test_login_as_board(self):
         self._login_test_with_params('board', is_worker=True, is_board_member=True)
+
+    def test_request_to_become_worker(self):
+        user = 'regular'
+        student = Student(liu_id=user)
+
+        c = self._logged_in_client(user)
+        r = c.get('/liu/request-become-worker/remove', follow=True)
+        self.failUnlessEqual(student.wants_to_be_a_worker(), False)
+
+        c = self._logged_in_client(user)
+        r = c.get('/liu/request-become-worker/add', follow=True)
+        self.failUnlessEqual(student.wants_to_be_a_worker(), True)
+
+        c = self._logged_in_client(user)
+        r = c.get('/liu/request-become-worker/remove', follow=True)
+        self.failUnlessEqual(student.wants_to_be_a_worker(), False)
 
 
 __test__ = {"doctest": """
