@@ -45,18 +45,16 @@ class SimpleTest(TestCase, LiuTestMixin):
 
     def test_request_to_become_worker(self):
         user = 'regular'
-        student = Student(liu_id=user)
-
+        student = Student.objects.get(liu_id=user)
         c = self._logged_in_client(user)
-        r = c.get('/liu/request-become-worker/remove', follow=True)
+
+        r = c.post('/liu/request-become-worker/remove', follow=True)
         self.failUnlessEqual(student.wants_to_be_a_worker(), False)
 
-        c = self._logged_in_client(user)
-        r = c.get('/liu/request-become-worker/add', follow=True)
+        r = c.post('/liu/request-become-worker/add', follow=True)
         self.failUnlessEqual(student.wants_to_be_a_worker(), True)
 
-        c = self._logged_in_client(user)
-        r = c.get('/liu/request-become-worker/remove', follow=True)
+        r = c.post('/liu/request-become-worker/remove', follow=True)
         self.failUnlessEqual(student.wants_to_be_a_worker(), False)
 
 
