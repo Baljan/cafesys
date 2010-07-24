@@ -87,6 +87,7 @@ class BalanceCode(models.Model):
     amount = models.PositiveIntegerField(default=BALANCE_CODE_DEFAULT_AMOUNT)
     valid = models.BooleanField(default=True)
     used_by = models.ForeignKey(Student, null=True, blank=True)
+    used_at = models.DateField(blank=True, default=None)
 
     def __str__(self):
         fmt = "%d SEK" % self.amount
