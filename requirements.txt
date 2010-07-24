@@ -7,6 +7,7 @@ PIL
 django-dajax
 django-dajaxice
 psycopg2
+mock
 
 # For Chrome kiosk:
 #http://downloads.sourceforge.net/project/python-xlib/python-xlib/0.14/python-xlib-0.14.tar.gz?use_mirror=kent&44133608#egg=python-xlib
