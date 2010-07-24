@@ -176,6 +176,7 @@ INSTALLED_APPS = [
     
     # project
     #"rosetta",
+    "fixtures",
     "about",
     "terminal",
     "liu",
@@ -200,7 +201,7 @@ WIKI_MARKUP_CHOICES = MARKUP_CHOICES
 AUTH_PROFILE_MODULE = "liu.Student"
 NOTIFICATION_LANGUAGE_MODULE = "account.Account"
 
-ACCOUNT_OPEN_SIGNUP = True
+ACCOUNT_OPEN_SIGNUP = False
 ACCOUNT_REQUIRED_EMAIL = False
 ACCOUNT_EMAIL_VERIFICATION = False
 ACCOUNT_EMAIL_AUTHENTICATION = False

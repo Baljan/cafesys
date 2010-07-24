@@ -9,13 +9,32 @@
 {% block subnav %}
 <ul>
     <li><a href="{% url cal.views.worker_calendar %}">{% trans "Calendar" %}</a></li>
+    {% if is_worker %}
     <li><a href="{% url cal.views.swappable %}">{% trans "Shift Swaps" %}</a></li>
+    {% endif %}
 </ul>
 {% endblock %}
 
 {% block body_class %}calendar{% endblock %}
 
 {% block extra_body %}
+    <script type="text/javascript">
+        {% if is_regular %}
+            IS_REGULAR=true;
+        {% else %}
+            IS_REGULAR=false;
+        {% endif %}
+        {% if is_worker %}
+            IS_WORKER=true;
+        {% else %}
+            IS_WORKER=false;
+        {% endif %}
+        {% if is_board_member %}
+            IS_BOARD_MEMBER=true;
+        {% else %}
+            IS_BOARD_MEMBER=false;
+        {% endif %}
+    </script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/calendar.js"></script> 
 {% endblock %}
 
@@ -25,32 +44,43 @@
 
 {% block body %}
     <h1>{% trans "Calendar" %}</h1>
-    {% if user.is_staff %}
+    {% if is_board_member %}
         <div id="calendar-modes">
             <ul>
                 <li class="manage-shifts-mode">{% trans "add or remove shifts" %}</li>
                 <li class="worker-mode">{% trans "worker mode" %}</li>
             </ul>
         </div>
+        <div id="calendar-tasks">
+            <strong>{% trans "With selection" %}&hellip;</strong>
+            <ul>
+                <li id="add-shifts">{% trans "add shifts" %}</li>
+                <li id="remove-shifts">{% trans "remove shifts" %}</li>
+            </ul>
+            <p class="help">
+                <strong>{% trans "Hint" %}:</strong>
+                {% trans "Hold the <code>Ctrl</code> key for multi-select mode." %}
+            </p>
+            <p class="help">
+                <strong>{% trans "Note" %}:</strong>
+                {% trans "Shifts will be removed even if workers have signed up for them." %}
+            </p>
+            <p class="confirmation">
+                <span class="confirm">&#x2611; {% trans "confirm" %}</span>
+            </p>
+        </div>
     {% endif %}
-    <div id="calendar-tasks">
-        <strong>{% trans "With selection" %}&hellip;</strong>
+    {% if is_regular %}
+    <div class="become-worker-request">
         <ul>
-            <li id="add-shifts">{% trans "add shifts" %}</li>
-            <li id="remove-shifts">{% trans "remove shifts" %}</li>
+            {% if student.wants_to_be_a_worker %}
+            <li><a href="{% url liu.views.remove_worker_request %}">{% trans "Remove request to become a worker" %}</a></li>
+            {% else %}
+            <li><a href="{% url liu.views.request_become_worker %}">{% trans "Request to become a worker" %}</a></li>
+            {% endif %}
         </ul>
-        <p class="help">
-            <strong>{% trans "Hint" %}:</strong>
-            {% trans "Hold the <code>Ctrl</code> key for multi-select mode." %}
-        </p>
-        <p class="help">
-            <strong>{% trans "Note" %}:</strong>
-            {% trans "Shifts will be removed even if workers have signed up for them." %}
-        </p>
-        <p class="confirmation">
-            <span class="confirm">&#x2611; {% trans "confirm" %}</span>
-        </p>
     </div>
+    {% endif %}
     {% if student_shifts %}
         <div>
             <h3>{% trans "My Shifts" %}</h3>
@@ -98,9 +128,11 @@
         </p>
     {% else %}
         {% spaceless %}
-        <p class="cal-views"> 
-            <a href="{% url cal.views.worker_calendar year None %}">{% trans "year view" %}</a>
-        </p>
+        {% if is_board_member or is_worker %}
+            <p class="cal-views"> 
+                <a href="{% url cal.views.worker_calendar year None %}">{% trans "year view" %}</a>
+            </p>
+        {% endif %}
         <p class="calendar-nav">
             <a class="prev" href="{% url cal.views.worker_calendar prev_month.year prev_month.month %}">
                 &larr; {{ prev_month|date:"F Y" }}
@@ -137,12 +169,8 @@
                                     <div class="morning-box"></div>
                                     <div class="afternoon-box"></div>
                                     <div class="day-of-month">{% if day.same_month %}{{day.day}}{% endif %}</div>
-                                    <div class="tooltip">
-                                        {% if day.workers|length == 0 %}
-                                            <p>
-                                                <strong>{% trans "No workers have signed up for this day!" %}</strong>
-                                            </p>
-                                        {% else %}
+                                    {% if day.workers|length != 0 %}
+                                        <div class="tooltip">
                                             <p>
                                                 {% if day.morning|length != 0 %}
                                                     <strong>{% trans "Morning workers" %}:</strong><br/>
@@ -155,8 +183,8 @@
                                                     {{day.afternoon|join:", "}}
                                                 {% endif %}
                                             </p>
-                                        {% endif %}
-                                    </div>
+                                        </div>
+                                    {% endif %}
                                 </td>
                             {% endfor %}
                         </tr>

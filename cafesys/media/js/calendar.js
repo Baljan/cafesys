@@ -2,7 +2,7 @@
  * Tooltips
  */
 var enableCalendarTooltips = function() {
-    $(".day.has-shift .day-of-month").tooltip({
+    $(".day.has-shift.has-workers .day-of-month").tooltip({
         position: "top center",
         effect: 'slide',
     }).dynamic({});
@@ -112,65 +112,73 @@ $(document).ready(function () {
         },
     });
 
-    $('#calendar-modes li').click(function() {
-        $('#calendar-tasks').hide();
-        $('.calendars .ui-selected').removeClass('ui-selected');
+    var enableWorkerMode = function() {
+        $('.calendars td.has-shift:not(.worker-count-4):not(.history)').addClass('clickable').click(function() {
+            $('#worker-day-dialog').remove();
+            var day = $(this).attr('id');
+            $('body').append([
+                '<div style="display:none" id="worker-day-dialog" title="',day,'">',
+                '<strong class="morning-title"></strong>',
+                '<div class="body morning-body"></div>',
+                '<strong class="afternoon-title"></strong>',
+                '<div class="body afternoon-body"></div>',
+                '<div class="extra"></div>',
+                '</div>',
+            ].join(''));
+            Dajaxice.cal.worker_day_dialog('processWorkerDialog', {
+                'id': '#worker-day-dialog',
+                'day': day,
+            });
 
-        $(this).siblings().removeClass('selected');
-        $(this).toggleClass('selected');
-
-        $('.calendars').selectable("disable");
-        $('.calendars').removeClass("ui-state-disabled");
-        $('.calendars td.has-shift:not(.worker-count-4)').removeClass('clickable').unbind('click');
-        $('#worker-day-dialog').remove();
-
-        if ($(this).hasClass('selected')) {
-            if ($(this).hasClass('manage-shifts-mode')) {
-                $('.calendars').selectable("enable");
-            }
-            else if ($(this).hasClass('worker-mode')) {
-                $('.calendars td.has-shift:not(.worker-count-4)').addClass('clickable').click(function() {
-                    $('#worker-day-dialog').remove();
-                    var day = $(this).attr('id');
-                    $('body').append([
-                        '<div style="display:none" id="worker-day-dialog" title="',day,'">',
-                        '<strong class="morning-title"></strong>',
-                        '<div class="body morning-body"></div>',
-                        '<strong class="afternoon-title"></strong>',
-                        '<div class="body afternoon-body"></div>',
-                        '<div class="extra"></div>',
-                        '</div>',
-                    ].join(''));
-                    Dajaxice.cal.worker_day_dialog('processWorkerDialog', {
-                        'id': '#worker-day-dialog',
-                        'day': day,
-                    });
-
-                });
-            }
-        }
-    });
-
-    $('#calendar-tasks .confirmation').click(function() {
-        $('body').css('cursor', 'wait');
-        Dajaxice.cal.with_days('Dajax.process', {
-            'url': document.location.pathname,
-            'task': $('#calendar-tasks li.selected').attr('id'),
-            'days': $.map($('.calendars .ui-selected'), function(x) { return x.id; }),
         });
-    });
+    }
 
-    $('#calendar-tasks li').click(function() {
-        $(this).siblings().removeClass('selected');
-        $(this).toggleClass('selected');
+    if (IS_BOARD_MEMBER) {
+        $('#calendar-modes li').click(function() {
+            $('#calendar-tasks').hide();
+            $('.calendars .ui-selected').removeClass('ui-selected');
 
-        if ($(this).parent().children().hasClass('selected')) {
-            $('#calendar-tasks .confirmation').css('visibility', 'visible');
-        }
-        else {
-            $('#calendar-tasks .confirmation').css('visibility', 'hidden');
-        }
-    });
+            $(this).siblings().removeClass('selected');
+            $(this).toggleClass('selected');
+
+            $('.calendars').selectable("disable");
+            $('.calendars').removeClass("ui-state-disabled");
+            $('.calendars td.has-shift:not(.worker-count-4)').removeClass('clickable').unbind('click');
+            $('#worker-day-dialog').remove();
+
+            if ($(this).hasClass('selected')) {
+                if ($(this).hasClass('manage-shifts-mode')) {
+                    $('.calendars').selectable("enable");
+                }
+                else if ($(this).hasClass('worker-mode')) {
+                    enableWorkerMode();
+                }
+            }
+        });
+
+        $('#calendar-tasks .confirmation').click(function() {
+            Dajaxice.cal.with_days('Dajax.process', {
+                'url': document.location.pathname,
+                'task': $('#calendar-tasks li.selected').attr('id'),
+                'days': $.map($('.calendars .ui-selected'), function(x) { return x.id; }),
+            });
+        });
+
+        $('#calendar-tasks li').click(function() {
+            $(this).siblings().removeClass('selected');
+            $(this).toggleClass('selected');
+
+            if ($(this).parent().children().hasClass('selected')) {
+                $('#calendar-tasks .confirmation').css('visibility', 'visible');
+            }
+            else {
+                $('#calendar-tasks .confirmation').css('visibility', 'hidden');
+            }
+        });
+    }
+    else if (IS_WORKER) {
+        enableWorkerMode();
+    }
 
 
     $('.student-shifts .toggle-swappable').click(function() {

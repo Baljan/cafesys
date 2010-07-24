@@ -54,7 +54,7 @@
     background: #fcc;
 }
 .has-morning-shift.morning-worker-count-2 .morning-box {
-    background: #fcc;
+    background: #cfc;
 }
 .has-afternoon-shift.afternoon-worker-count-2 .afternoon-box {
     background: #cfc;
@@ -90,10 +90,9 @@
     position: fixed;
     bottom: .4em;
     right: .4em;
-    width: 11em;
     border-radius: .3em;
     -moz-border-radius: .3em;
-    background: rgba(175, 120, 100, 0.8);
+    background: rgba(100, 120, 175, 0.8);
 }
 #calendar-modes .selected {
     font-weight: bold;
@@ -217,3 +216,7 @@
     margin-bottom: .5em;
 }
 
+.user-is-worker .day-of-month {
+    color: #440;
+    background-color: rgba(255, 255, 0, 0.25);
+}

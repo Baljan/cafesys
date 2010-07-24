@@ -4,7 +4,7 @@ from django.utils.encoding import smart_str
 
 # FIXME: Is there a way to get rid of this import and reach the Student model
 # in some other way?
-from liu.models import Student, Role
+from liu.models import Student
 
 class Item(models.Model):
     title = models.CharField(max_length=50)
@@ -22,8 +22,8 @@ class OrderManager(models.Manager):
 def _maybe_new_student_from_liu_id(liu_id):
     students = Student.objects.filter(liu_id=liu_id)
     if len(students) == 0:
-        regular = Role.objects.filter(title='regular')[0]
-        student = Student(liu_id=liu_id, role=regular)
+        # FIXME: Should be contrib.auth User
+        student = Student(liu_id=liu_id)
     elif len(students) == 1:
         student = students[0]
     else:

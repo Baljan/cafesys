@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
+import liu
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -30,6 +31,8 @@ def worker_calendar(request, year=None, month=None):
     if request.user.is_authenticated():
         student = request.user.get_profile()
         shifts = student.scheduled_for()
+
+    retdict = liu.keys(request)
 
     if month == '':
         year_view = True
@@ -127,6 +130,9 @@ def worker_calendar(request, year=None, month=None):
                         'workers': to['morning'] + to['afternoon'],
                         })
 
+                    if student and student.liu_id in to['workers']:
+                        to['classes'].append('user-is-worker')
+
                     to.update({
                         'has_morning_shift': len([x for x in ms if x.day.day==day]) != 0, 
                         'has_afternoon_shift': len([x for x in afs if x.day.day==day]) != 0, 
@@ -137,6 +143,8 @@ def worker_calendar(request, year=None, month=None):
                         this_workers = len(to[sh])
                         workers += this_workers
                         to['classes'].append('%s-worker-count-%d' % (sh, this_workers))
+                        if this_workers != 0:
+                            to['classes'].append('has-workers')
                         if to['has_%s_shift' % sh]:
                             to['has_shift'] = True
                             to['classes'].append('has-%s-shift' % sh)
@@ -148,15 +156,15 @@ def worker_calendar(request, year=None, month=None):
                 week_info['days'][did] = to
             months[mid][1][wid] = week_info
 
-    return render_to_response('calendar/calendar.html', {
+    retdict.update({
         'calendar': months,
         'year_view': year_view,
         'prev_month': prev_month,
         'next_month': next_month,
         'year': year,
-        'student': student,
-        'student_shifts': shifts,
-        }, context_instance=RequestContext(request))
+        })
+
+    return render_to_response('calendar/calendar.html', retdict, context_instance=RequestContext(request))
 
 
 def swappable(request):
@@ -169,9 +177,11 @@ def swappable(request):
         sent_requests = SwapRequest.objects.filter(student=student)
         recd_requests = SwapRequest.objects.filter(morning__student=student) | SwapRequest.objects.filter(afternoon__student=student)
 
-    return render_to_response('calendar/swappable.html', {
+    retdict = liu.keys(request)
+    retdict.update({
         'swappables': swappables,
-        'student': student,
         'sent_requests': sent_requests,
         'received_requests': recd_requests,
-        }, context_instance=RequestContext(request))
+        })
+
+    return render_to_response('calendar/swappable.html', retdict, context_instance=RequestContext(request))
