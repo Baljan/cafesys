@@ -85,22 +85,20 @@ class BalanceCode(models.Model):
     created_at = models.DateField(auto_now_add=True)
     code = models.CharField(max_length=CODE_LENGTH, unique=True, default=generate_balance_code)
     amount = models.PositiveIntegerField(default=BALANCE_CODE_DEFAULT_AMOUNT)
-    valid = models.BooleanField(default=True)
     used_by = models.ForeignKey(Student, null=True, blank=True)
-    used_at = models.DateField(blank=True, default=None)
+    used_at = models.DateField(blank=True, null=True)
 
     def __str__(self):
         fmt = "%d SEK" % self.amount
         datepart = self.created_at.strftime('%Y-%m-%d')
-        if self.valid:
-            validpart = "valid"
-        else:
-            validpart = "invalid"
 
         if self.used_by:
-            usedpart = 'used by %s' % self.used_by.liu_id
+            try:
+                usedpart = 'used by %s %s' % (self.used_by.liu_id, self.used_at.strftime('%Y-%m-%d'))
+            except:
+                usedpart = 'used by %s' % self.used_by.liu_id
         else:
             usedpart = 'unused'
 
-        fmt = "%s (%s, %s, created at %s)" % (fmt, validpart, usedpart, datepart)
+        fmt = "%s (%s, created at %s)" % (fmt, usedpart, datepart)
         return smart_str(fmt)
