@@ -34,4 +34,7 @@ virtualenvwrapper in Fedora:
  * Opera browser
 
 ## RFID IO tools
- * pcsc-lite (in yum)
+ * `pcsc-lite` (in yum)
+
+## LDAP
+ * The `python-ldap` module needs (in yum): `openldap openldap-devel`
