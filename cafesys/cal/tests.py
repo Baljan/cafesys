@@ -29,8 +29,8 @@ class SimpleTest(TestCase, LiuTestMixin):
     def _get_dates(self):
         return [date(self.year, self.month, d) for d in range(1,self.days+1)]
 
-    def test_add_working_days(self):
-        user = Student.objects.get(liu_id='board').user
+    def _test_add_working_days_as(self, username):
+        user = Student.objects.get(liu_id=username).user
         request = Mock()
         request.user = user
         days = self._get_dates()
@@ -44,13 +44,13 @@ class SimpleTest(TestCase, LiuTestMixin):
             no_shift = cls.objects.filter(day=date(2020, 1, self.days+1))
             self.failUnlessEqual(len(no_shift), 0)
 
-    def test_remove_working_days(self):
-        user = Student.objects.get(liu_id='board').user
+    def _test_remove_working_days_as(self, username):
+        user = Student.objects.get(liu_id=username).user
         request = Mock()
         request.user = user
         days = self._get_dates()
 
-        self.test_add_working_days()
+        self._test_add_working_days_as(username)
         ret = ajax.with_days(request, '/', 'remove-shifts', 
                 [d.strftime('date-%Y-%m-%d') for d in days])
 
@@ -58,6 +58,23 @@ class SimpleTest(TestCase, LiuTestMixin):
             for d in days:
                 shifts = cls.objects.filter(day=d)
                 self.failUnlessEqual(len(shifts), 0)
+
+    def test_add_working_days_ok(self):
+        self._test_add_working_days_as('board')
+
+    def test_remove_working_days_ok(self):
+        self._test_remove_working_days_as('board')
+
+    def _test_bad_add_remove(self, method):
+        usernames = ['worker', 'regular']
+        for username in usernames:
+            self.assertRaises(AssertionError, lambda: method(username))
+
+    def test_add_working_days_bad(self):
+        self._test_bad_add_remove(self._test_add_working_days_as)
+
+    def test_remove_working_days_bad(self):
+        self._test_bad_add_remove(self._test_remove_working_days_as)
 
 
 __test__ = {"doctest": """
