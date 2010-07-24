@@ -9,7 +9,6 @@ from liu.models import Student
 
 class Shift(models.Model):
     day = models.DateField()
-    comment = models.CharField(max_length=200, blank=True, default="")
 
     class Meta:
         abstract = True
@@ -33,8 +32,6 @@ class Shift(models.Model):
 
     def __str__(self):
         fmt = "%s %s" % (self._stype , self.day.strftime('%Y-%m-%d'))
-        if len(self.comment.strip()) != 0:
-            fmt = "%s (%s)" % (fmt, self.comment)
         return smart_str(fmt)
 
 class MorningShift(Shift):
