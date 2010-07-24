@@ -116,6 +116,7 @@ MIDDLEWARE_CLASSES = [
     "pinax.middleware.security.HideSensistiveFieldsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "terminal.middleware.RestrictAccessMiddleware",
+    'django.middleware.transaction.TransactionMiddleware',
 ]
 
 ROOT_URLCONF = "cafesys.urls"
