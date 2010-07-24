@@ -4,6 +4,8 @@ from django.utils.encoding import smart_str
 from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from datetime import date
+import random
+import string
 
 class Student(models.Model):
     user = models.ForeignKey(User, unique=True)
@@ -50,6 +52,7 @@ def create_profile(sender, instance=None, **kwargs):
 
 post_save.connect(create_profile, sender=User)
 
+
 class JoinGroupRequest(models.Model):
     student = models.ForeignKey(Student)
     group = models.ForeignKey(Group)
@@ -61,4 +64,35 @@ class JoinGroupRequest(models.Model):
 
     def __str__(self):
         fmt = "%s wants to be in %s" % (self.student.liu_id, self.group.name)
+        return smart_str(fmt)
+
+
+CODE_LENGTH = 8
+BALANCE_CODE_DEFAULT_AMOUNT = 250 # SEK
+
+def generate_balance_code():
+    pool = string.letters + string.digits
+    def get_code():
+        return ''.join(random.choice(pool) for _ in range(CODE_LENGTH))
+
+    code = get_code()
+    while len(BalanceCode.objects.filter(code=code)) != 0:
+        code = get_code()
+    return code
+
+
+class BalanceCode(models.Model):
+    created_at = models.DateField(auto_now_add=True)
+    code = models.CharField(max_length=CODE_LENGTH, unique=True, default=generate_balance_code)
+    amount = models.PositiveIntegerField(default=BALANCE_CODE_DEFAULT_AMOUNT)
+    valid = models.BooleanField(default=True)
+
+    def __str__(self):
+        fmt = "%d SEK" % self.amount
+        datepart = self.created_at.strftime('%Y-%m-%d')
+        if self.valid:
+            validpart = "valid"
+        else:
+            validpart = "invalid"
+        fmt = "%s (%s, created at %s)" % (fmt, validpart, datepart)
         return smart_str(fmt)
