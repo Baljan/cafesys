@@ -10,6 +10,9 @@ def _request_worker(request, remove):
     assert liu.is_regular(request)
     student = request.user.get_profile()
 
+    # FIXME: The request should have to be of type POST because side-effects
+    # might occur.
+
     if remove:
         join_requests = student.joingrouprequest_set.filter(group__name='workers')
         join_requests.delete()
