@@ -326,7 +326,7 @@ msgstr "Bytbar"
 
 #: templates/calendar/swappable.html:10
 msgid "Sent Requests"
-msgstr "Mottagna förfrågningar"
+msgstr "Skickade förfrågningar"
 
 #: templates/calendar/swappable.html:14
 msgid "you want"
@@ -342,7 +342,7 @@ msgstr "Du har inga förfrågningar som väntar."
 
 #: templates/calendar/swappable.html:26
 msgid "Received Requests"
-msgstr "Skickade förfrågningar"
+msgstr "Mottagna förfrågningar"
 
 #: templates/calendar/swappable.html:30
 msgid "wants"
