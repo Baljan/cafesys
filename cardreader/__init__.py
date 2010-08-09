@@ -4,15 +4,15 @@ from urllib2 import urlopen, HTTPError
 
 class CardReader(object):
     def __init__(self, 
-            card_translator=None,
+            translator=None,
             reader=None,
             ):
         self.keep_running = True
-        self.card_translator = card_translator
+        self.translator = translator
         self.reader = reader
 
     def got_card(self, card_no):
-        user_id = self.card_translator(card_no)
+        user_id = self.translator(card_no)
         print "Got card: ", card_no, user_id
 
         if user_id is None:
@@ -43,7 +43,7 @@ class CardReader(object):
 if __name__ == '__main__':
     import stimuli
     try:
-        cr = CardReader(card_translator=stimuli.id_for, 
+        cr = CardReader(translator=stimuli.id_for, 
                 reader=stimuli.card_reader_runner)
         cr.run()
     except KeyboardInterrupt:
