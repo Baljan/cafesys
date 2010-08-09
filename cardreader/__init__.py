@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from urllib2 import urlopen, HTTPError
+
 class CardReader(object):
     def __init__(self, 
             card_translator=None,
@@ -19,6 +21,20 @@ class CardReader(object):
 
         # TODO: HTTP GET to the terminal server, to bind the current order to
         # the user.
+        base_url = 'http://localhost:8000'
+        url = base_url + '/terminal/trig-tag-shown/' + user_id
+
+        try:
+            f = urlopen(url)
+            response = f.read()
+            print "Got response", response
+            if response == 'OK':
+                pass
+            elif response == 'PENDING':
+                pass
+        except HTTPError:
+            # TODO: Log error.
+            pass
     
     def run(self):
         self.reader(self)
