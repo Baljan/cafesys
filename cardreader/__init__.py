@@ -12,6 +12,13 @@ class CardReader(object):
     def got_card(self, card_no):
         user_id = self.card_translator(card_no)
         print "Got card: ", card_no, user_id
+
+        if user_id is None:
+            # TODO: Log that an invalid card was shown.
+            return 
+
+        # TODO: HTTP GET to the terminal server, to bind the current order to
+        # the user.
     
     def run(self):
         self.reader(self)
