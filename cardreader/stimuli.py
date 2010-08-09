@@ -7,7 +7,7 @@ Simulation.
 import random
 from time import sleep
 
-IDS = ('simpa395', 'abcde123', )
+IDS = ('worker', 'regular', 'board', )
 READER_SLEEP_LIMITS = (100, 500) # ms
 VALID_CARD_PROB = 0.95
 INVALID_CARDS = 1000
