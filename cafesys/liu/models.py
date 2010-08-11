@@ -6,6 +6,7 @@ from django.db.models.signals import post_save
 from datetime import date
 import random
 import string
+from dateutil.relativedelta import relativedelta
 
 class Student(models.Model):
     user = models.ForeignKey(User, unique=True)
@@ -68,7 +69,16 @@ class JoinGroupRequest(models.Model):
 
 
 CODE_LENGTH = 8
-BALANCE_CODE_DEFAULT_AMOUNT = 250 # SEK
+BALANCE_CODE_DEFAULT_VALUE = 100 # SEK
+RELATIVE_SERIES_LEAST_VALIDITY = relativedelta(years=1)
+SERIES_DEFAULT_VALUE = 1000 # SEK
+SERIES_CODE_COUNT = SERIES_DEFAULT_VALUE // BALANCE_CODE_DEFAULT_VALUE
+
+def default_issued():
+    return date.today()
+
+def default_least_valid_until():
+    return default_issued() + RELATIVE_SERIES_LEAST_VALIDITY
 
 def generate_balance_code():
     pool = string.letters + string.digits
@@ -81,16 +91,48 @@ def generate_balance_code():
     return code
 
 
+class RefillSeries(models.Model):
+    issued = models.DateField(default=default_issued)
+    least_valid_until = models.DateField(default=default_least_valid_until)
+
+    class Meta:
+        verbose_name = 'refill series'
+        verbose_name_plural = 'refill series'
+
+    def codes(self):
+        return BalanceCode.objects.filter(refill_series=self)
+
+    def used(self):
+        codes = self.codes()
+        used_codes = [c for c in codes if c.used_by]
+        return used_codes
+
+    def unused(self):
+        codes = self.codes()
+        unused_codes = [c for c in codes if not c.used_by]
+        return unused_codes
+
+    def __str__(self):
+        used = len(self.used())
+        codes = len(self.codes())
+        pc = 100.0*float(used)/codes
+        fmt = "%s. issued %s, %d of %d used (%.1f%%)" \
+                % (self.pk, self.issued.strftime('%Y-%m-%d'), used, codes, pc)
+        return smart_str(fmt)
+
+code_help = "To create a bulk of codes, <a href='../../refillseries/add'>create a new refill series</a> instead."
+
 class BalanceCode(models.Model):
     created_at = models.DateField(auto_now_add=True)
-    code = models.CharField(max_length=CODE_LENGTH, unique=True, default=generate_balance_code)
-    amount = models.PositiveIntegerField(default=BALANCE_CODE_DEFAULT_AMOUNT)
+    code = models.CharField(max_length=CODE_LENGTH, unique=True, 
+            default=generate_balance_code, help_text=code_help)
+    value = models.PositiveIntegerField(default=BALANCE_CODE_DEFAULT_VALUE)
+    refill_series = models.ForeignKey(RefillSeries)
     used_by = models.ForeignKey(Student, null=True, blank=True)
     used_at = models.DateField(blank=True, null=True)
 
     def __str__(self):
-        fmt = "%d SEK" % self.amount
-        datepart = self.created_at.strftime('%Y-%m-%d')
+        fmt = "%d SEK" % self.value
 
         if self.used_by:
             try:
@@ -100,5 +142,6 @@ class BalanceCode(models.Model):
         else:
             usedpart = 'unused'
 
-        fmt = "%s (%s, created at %s)" % (fmt, usedpart, datepart)
+        series = self.refill_series
+        fmt = "%s (series %d, %s)" % (fmt, series.pk, usedpart)
         return smart_str(fmt)
