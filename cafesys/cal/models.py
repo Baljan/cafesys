@@ -115,6 +115,10 @@ class SwapRequest(models.Model, SwapMixin):
 class SwapPossibility(models.Model, SwapMixin):
     swap = models.ForeignKey(SwapRequest)
 
+    class Meta:
+        verbose_name = 'swap possibility'
+        verbose_name_plural = 'swap possibilities'
+
     # Exactly one of these must be set.
     morning = models.ForeignKey(ScheduledMorning, null=True)
     afternoon = models.ForeignKey(ScheduledAfternoon, null=True)
