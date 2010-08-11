@@ -2,11 +2,17 @@
 from django.db import models
 from django.utils.encoding import smart_str
 from django.contrib.auth.models import User, Group
+from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models.signals import post_save
 from datetime import date
 import random
 import string
 from dateutil.relativedelta import relativedelta
+
+BALANCE_CODE_LENGTH = 8
+BALANCE_CODE_DEFAULT_VALUE = 100 # SEK
+SERIES_RELATIVE_LEAST_VALIDITY = relativedelta(years=1)
+SERIES_CODE_COUNT = 50
 
 class Student(models.Model):
     user = models.ForeignKey(User, unique=True)
@@ -67,23 +73,16 @@ class JoinGroupRequest(models.Model):
         fmt = "%s wants to be in %s" % (self.student.liu_id, self.group.name)
         return smart_str(fmt)
 
-
-CODE_LENGTH = 8
-BALANCE_CODE_DEFAULT_VALUE = 100 # SEK
-RELATIVE_SERIES_LEAST_VALIDITY = relativedelta(years=1)
-SERIES_DEFAULT_VALUE = 1000 # SEK
-SERIES_CODE_COUNT = SERIES_DEFAULT_VALUE // BALANCE_CODE_DEFAULT_VALUE
-
 def default_issued():
     return date.today()
 
 def default_least_valid_until():
-    return default_issued() + RELATIVE_SERIES_LEAST_VALIDITY
+    return default_issued() + SERIES_RELATIVE_LEAST_VALIDITY
 
 def generate_balance_code():
     pool = string.letters + string.digits
     def get_code():
-        return ''.join(random.choice(pool) for _ in range(CODE_LENGTH))
+        return ''.join(random.choice(pool) for _ in range(BALANCE_CODE_LENGTH))
 
     code = get_code()
     while len(BalanceCode.objects.filter(code=code)) != 0:
@@ -94,6 +93,7 @@ def generate_balance_code():
 class RefillSeries(models.Model):
     issued = models.DateField(default=default_issued)
     least_valid_until = models.DateField(default=default_least_valid_until)
+    printed = models.BooleanField(default=False, help_text='manually set by admins to tell whether or not the series has been printed')
 
     class Meta:
         verbose_name = 'refill series'
@@ -112,19 +112,28 @@ class RefillSeries(models.Model):
         unused_codes = [c for c in codes if not c.used_by]
         return unused_codes
 
+    def value(self):
+        codes = self.codes()
+        value = 0
+        for code in codes:
+            value += code.value
+        return value
+
     def __str__(self):
-        used = len(self.used())
-        codes = len(self.codes())
-        pc = 100.0*float(used)/codes
-        fmt = "%s. issued %s, %d of %d used (%.1f%%)" \
-                % (self.pk, self.issued.strftime('%Y-%m-%d'), used, codes, pc)
+        used = self.used()
+        codes = self.codes()
+        value = self.value()
+
+        fmt = "%s. issued %s, %d of %d used, worth %s SEK" \
+                % (self.pk, self.issued.strftime('%Y-%m-%d'), len(used), 
+                        len(codes), intcomma(value))
         return smart_str(fmt)
 
 code_help = "To create a bulk of codes, <a href='../../refillseries/add'>create a new refill series</a> instead."
 
 class BalanceCode(models.Model):
     created_at = models.DateField(auto_now_add=True)
-    code = models.CharField(max_length=CODE_LENGTH, unique=True, 
+    code = models.CharField(max_length=BALANCE_CODE_LENGTH, unique=True, 
             default=generate_balance_code, help_text=code_help)
     value = models.PositiveIntegerField(default=BALANCE_CODE_DEFAULT_VALUE)
     refill_series = models.ForeignKey(RefillSeries)
