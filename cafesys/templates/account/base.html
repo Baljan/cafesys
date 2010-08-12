@@ -8,7 +8,6 @@
     {% if user.is_authenticated %}
         <ul>
             <li><a href="{% url acct_email %}">{% trans "E-Mail Addresses" %}</a></li>
-            <li><a href="/openid/associations/">{% trans "OpenID Associations" %}</a></li>
             {% if user.password %}
             <li><a href="{% url acct_passwd %}">{% trans "Change Password" %}</a></li>
             {% else %}
@@ -18,7 +17,7 @@
             <li><a href="{% url acct_passwd_delete %}">{% trans "Delete Password" %}</a></li>
             {% endif %}
             <li><a href="{% url acct_language_change %}">{% trans "Language" %}</a></li>
-            <li><a href="{% url acct_timezone_change %}">{% trans "Timezone" %}</a></li>
+            {# <li><a href="{% url acct_timezone_change %}">{% trans "Timezone" %}</a></li>#}
         </ul>
     {% else %}
         &nbsp; {# need this to give subnav some height when empty #}

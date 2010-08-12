@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 # Django settings for basic pinax project.
 
 import os.path
@@ -108,7 +107,6 @@ MIDDLEWARE_CLASSES = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django_openid.consumer.SessionConsumer",
     "django.contrib.messages.middleware.MessageMiddleware",
     "pinax.apps.account.middleware.LocaleMiddleware",
     "django.middleware.doc.XViewMiddleware",
@@ -155,9 +153,8 @@ INSTALLED_APPS = [
     
     # external
     "notification", # must be first
-    "django_openid",
     "emailconfirmation",
-    "mailer",
+    #"mailer", # use django.core.mail instead
     "announcements",
     "pagination",
     "timezones",
@@ -171,7 +168,7 @@ INSTALLED_APPS = [
     
     # Pinax
     "pinax.apps.analytics",
-    "pinax.apps.basic_profiles",
+    #"pinax.apps.basic_profiles",
     "pinax.apps.account",
     "pinax.apps.signup_codes",
     
@@ -219,10 +216,10 @@ else:
 
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = DEBUG
-CONTACT_EMAIL = "feedback@example.com"
-SITE_NAME = "Pinax"
+CONTACT_EMAIL = "styret@baljan.studorg.liu.se"
+SITE_NAME = "Sektionscafé Baljan"
 LOGIN_URL = "/account/login/"
-LOGIN_REDIRECT_URLNAME = "what_next"
+LOGIN_REDIRECT_URLNAME = "home"
 
 # URCHIN_ID = "ua-..."
 
