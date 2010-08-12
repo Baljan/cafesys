@@ -8,3 +8,4 @@
 django-rosetta
 #python-dateutil # included in base.txt
 reportlab
+Geraldo
