@@ -15,9 +15,9 @@ import calendar
 from models import Scheduled, ScheduledMorning, ScheduledAfternoon, MorningShift, AfternoonShift
 from models import SwapRequest
 
-def sibling_months_for(day):
+def sibling_months(some_date):
     one_month = relativedelta(months=1)
-    return (day - one_month, day + one_month)
+    return (some_date - one_month, some_date + one_month)
 
 def worker_calendar(request, year=None, month=None):
     now = datetime.now()
@@ -46,7 +46,7 @@ def worker_calendar(request, year=None, month=None):
         else:
             month = int(month)
 
-        prev_month, next_month = sibling_months_for(datetime(year, month, 1))
+        prev_month, next_month = sibling_months(datetime(year, month, 1))
 
     months = get_month_data(now, year, month, student, year_view)
 
