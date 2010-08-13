@@ -48,7 +48,7 @@ def worker_calendar(request, year=None, month=None):
 
         prev_month, next_month = sibling_months(datetime(year, month, 1))
 
-    months = get_month_data(now, year, month, student, year_view)
+    months = calendar_context(now, year, month, student, year_view)
 
     retdict.update({
         'calendar': months,
@@ -60,7 +60,7 @@ def worker_calendar(request, year=None, month=None):
 
     return render_to_response('calendar/calendar.html', retdict, context_instance=RequestContext(request))
 
-def get_month_data(now, year, month, student, year_view):
+def calendar_context(now, year, month, student, year_view):
     months = []
     if year_view:
         for m in range(1, 12+1):
