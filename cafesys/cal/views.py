@@ -48,10 +48,8 @@ def worker_calendar(request, year=None, month=None):
 
         prev_month, next_month = sibling_months(datetime(year, month, 1))
 
-    cal_ctx = calendar_context(now, year, month, student, year_view)
-
     retdict.update({
-        'calendar': cal_ctx,
+        'calendar': calendar_context(now, year, month, student, year_view),
         'year_view': year_view,
         'prev_month': prev_month,
         'next_month': next_month,
