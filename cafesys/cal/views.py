@@ -48,13 +48,26 @@ def worker_calendar(request, year=None, month=None):
 
         prev_month, next_month = sibling_months_for(datetime(year, month, 1))
 
+    months = get_month_data(now, year, month, student, year_view)
+
+    retdict.update({
+        'calendar': months,
+        'year_view': year_view,
+        'prev_month': prev_month,
+        'next_month': next_month,
+        'year': year,
+        })
+
+    return render_to_response('calendar/calendar.html', retdict, context_instance=RequestContext(request))
+
+def get_month_data(now, year, month, student, year_view):
     months = []
     if year_view:
         for m in range(1, 12+1):
             months.append((datetime(year, m, 1), calendar.monthcalendar(year, m)))
     else:
         months.append((datetime(year, month, 1), calendar.monthcalendar(year, month)))
-    
+
     for mid, (first_day, week_data) in enumerate(months):
         first_week = int(first_day.strftime('%W'))
 
@@ -137,7 +150,7 @@ def worker_calendar(request, year=None, month=None):
                         'has_morning_shift': len([x for x in ms if x.day.day==day]) != 0, 
                         'has_afternoon_shift': len([x for x in afs if x.day.day==day]) != 0, 
                         })
-                    
+
                     workers = 0
                     for sh in ['morning', 'afternoon']:
                         this_workers = len(to[sh])
@@ -155,16 +168,7 @@ def worker_calendar(request, year=None, month=None):
                 to['classes'] = ' '.join(to['classes'])
                 week_info['days'][did] = to
             months[mid][1][wid] = week_info
-
-    retdict.update({
-        'calendar': months,
-        'year_view': year_view,
-        'prev_month': prev_month,
-        'next_month': next_month,
-        'year': year,
-        })
-
-    return render_to_response('calendar/calendar.html', retdict, context_instance=RequestContext(request))
+    return months
 
 
 def swappable(request):
