@@ -98,6 +98,7 @@ class RefillSeries(models.Model):
     class Meta:
         verbose_name = 'refill series'
         verbose_name_plural = 'refill series'
+        ordering = ('id', )
 
     def codes(self):
         return BalanceCode.objects.filter(refill_series=self)
@@ -154,3 +155,6 @@ class BalanceCode(models.Model):
         series = self.refill_series
         fmt = "%s (series %d, %s)" % (fmt, series.pk, usedpart)
         return smart_str(fmt)
+
+    class Meta:
+        ordering = ('id', )

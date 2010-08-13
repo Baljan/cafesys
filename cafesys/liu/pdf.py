@@ -4,6 +4,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
+from pyPdf import PdfFileWriter, PdfFileReader
+from cStringIO import StringIO
 
 if __name__ == '__main__':
     from pdfstimuli import gettext as _
@@ -20,8 +22,8 @@ class RefillCard(object):
     def __init__(self, balance_code):
         self.balance_code = balance_code
 
-    def save(self):
-        c = canvas.Canvas("card.pdf", pagesize=A8)
+    def save(self, file_object):
+        c = canvas.Canvas(file_object, pagesize=A8)
         w, h = paper_size
         code = self.balance_code
         series = code.refill_series
@@ -47,8 +49,20 @@ class RefillCard(object):
         c.drawRightString(w-pad, pad, '%d.%d' % (series.pk, code.pk))
         c.showPage()
         c.save()
+        return c
 
-if __name__ == '__main__':
-    from pdfstimuli import dummy_balance_code
-    rc = RefillCard(dummy_balance_code())
-    rc.save()
+
+def refill_series(file_object, list_of_series):
+    out_pdf = PdfFileWriter()
+    for series in list_of_series:
+        balance_codes = series.balancecode_set.all().order_by('pk')
+        for balance_code in balance_codes:
+            card = RefillCard(balance_code)
+            buf = StringIO()
+            card.save(buf)
+            buf.seek(0)
+            pdfbuf = PdfFileReader(buf)
+            out_pdf.addPage(pdfbuf.getPage(0))
+    out_pdf.write(file_object)
+    return out_pdf
+

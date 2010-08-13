@@ -2,6 +2,10 @@
 from django.contrib import admin
 from models import Student, JoinGroupRequest, RefillSeries, BalanceCode
 from models import SERIES_CODE_COUNT
+import pdf
+from cStringIO import StringIO
+from django.http import HttpResponse
+from datetime import date
 
 class JoinGroupRequestAdmin(admin.ModelAdmin):
     def confirm_requests(self, request, queryset):
@@ -20,13 +24,14 @@ class BalanceCodeInline(admin.TabularInline):
     extra = SERIES_CODE_COUNT
     max_num = SERIES_CODE_COUNT
 
+balance_code_handling_actions = (
+        'set_code_value_100', 
+        'set_code_value_250', 
+        'set_code_value_500', 
+        )
 
 class BalanceCodeHandlingMixin(object):
-    actions = (
-            'set_code_value_100', 
-            'set_code_value_250', 
-            'set_code_value_500', 
-            )
+    actions = balance_code_handling_actions
 
     def codes_from_action_queryset(self, queryset):
         return queryset
@@ -60,6 +65,7 @@ class BalanceCodeAdmin(admin.ModelAdmin, BalanceCodeHandlingMixin):
 
 class RefillSeriesAdmin(admin.ModelAdmin, BalanceCodeHandlingMixin):
     inlines = (BalanceCodeInline,)
+    actions = balance_code_handling_actions + ('make_pdf', )
 
     def _used_count(series):
         return len(series.used())
@@ -75,6 +81,18 @@ class RefillSeriesAdmin(admin.ModelAdmin, BalanceCodeHandlingMixin):
     def codes_from_action_queryset(self, queryset):
         codes = BalanceCode.objects.filter(refill_series__in=queryset)
         return codes
+
+    def make_pdf(self, request, queryset):
+        buf = StringIO()
+        pdf.refill_series(buf, queryset)
+        buf.seek(0)
+        datestr = date.today().strftime('%Y-%m-%d')
+        response = HttpResponse(buf.read(), mimetype="application/pdf")
+        name = 'refill_series_%s_generated_at_%s.pdf' \
+                % ('-'.join([str(s.pk) for s in queryset]), datestr)
+        response['Content-Disposition'] = 'attachment; filename=%s' % name
+        return response
+    make_pdf.short_description = 'make PDF'
 
 
 for cls in [
