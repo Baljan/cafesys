@@ -44,8 +44,10 @@ please let someone know so that we can update this readme.
 ## Kiosk Mode
  * Opera browser
 
-## RFID IO tools
- * `pcsc-lite` (in yum)
+## Smartcard Tools
+ * The `pcsc-lite` and `ccid` packages should be installed (in yum). When they
+   have been, the ACR122 should be lighted and able to scan cards when the pcscd
+   daemon is running.
 
 ## LDAP
  * The `python-ldap` module needs (in yum): `openldap openldap-devel`
