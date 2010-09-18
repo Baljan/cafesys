@@ -221,6 +221,11 @@ SITE_NAME = "Sektionscafé Baljan"
 LOGIN_URL = "/account/login/"
 LOGIN_REDIRECT_URLNAME = "home"
 
+EMAIL_HOST = 'smtp.bahnhof.se'
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
+DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
+
 # URCHIN_ID = "ua-..."
 
 DEBUG_TOOLBAR_CONFIG = {

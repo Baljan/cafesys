@@ -15,4 +15,5 @@ mock
 # For RFIDIOt:
 #pycrypto
 #http://downloads.sourceforge.net/project/pyscard/pyscard/pyscard%201.6.10/pyscard-1.6.10.tar.gz?use_mirror=heanet&ts=1278761137#egg=pyscard
+pyscard
 #pyserial
