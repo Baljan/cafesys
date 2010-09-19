@@ -46,7 +46,7 @@ please let someone know so that we can update this readme.
 
 ## Smartcard Tools
  * The `pcsc-lite` and `ccid` packages should be installed (in yum). When they
-   have been, the ACR122 should be lighted and able to scan cards when the pcscd
+   have been, the ACR122 will be lighted and able to scan cards when the pcscd
    daemon is running.
 
 ## LDAP
