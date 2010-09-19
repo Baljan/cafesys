@@ -9,4 +9,4 @@ django-rosetta
 #python-dateutil # included in base.txt
 reportlab
 pyPdf
-Geraldo
+#Geraldo
