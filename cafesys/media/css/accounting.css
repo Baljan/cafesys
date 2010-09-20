@@ -22,6 +22,9 @@
     font-weight: bold;
     border: 1px solid;
 }
+.widget .balance small {
+    font-size: .6em;
+}
 .widget .balance.good {
     background: #efe;
     color: #090;
