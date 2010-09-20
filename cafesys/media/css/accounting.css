@@ -1,0 +1,34 @@
+.order-history .when {
+    font-style: italic;
+}
+
+.widget {
+    border: 1px solid #eee;
+    padding: 0 1%;
+    padding-bottom: .3em;
+    width: 46%;
+    margin-right: 1%;
+    float: left;
+}
+.widget h2 {
+    margin-top: .2em;
+}
+
+.widget .balance {
+    text-align: center;
+    background: #eee;
+    padding: .3em;
+    font-size: 1.5em;
+    font-weight: bold;
+    border: 1px solid;
+}
+.widget .balance.good {
+    background: #efe;
+    color: #090;
+    border-color: #070;
+}
+.widget .balance.bad {
+    background: #fee;
+    color: #900;
+    border-color: #700;
+}

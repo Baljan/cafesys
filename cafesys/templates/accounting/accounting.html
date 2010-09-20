@@ -1,0 +1,40 @@
+{% extends "site_base.html" %}
+{% load i18n %}
+{% load humanize %}
+
+{% block head_title %}{% trans "Accounting" %}{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/accounting.css" />
+{% endblock %}
+
+{% block subnav %}
+<ul>
+    <li><a href="{% url accounting.views.index %}">{% trans "Dashboard" %}</a></li>
+    <li><a href="{% url accounting.views.order_history %}">{% trans "Order History" %}</a></li>
+</ul>
+{% endblock %}
+
+{% block body_class %}accounting{% endblock %}
+
+{% block body %}
+    <h1>{% trans "Accounting Dashboard" %}</h1>
+
+    <div class="widget"> 
+        <h2>
+            {% trans "Balance" %} 
+        </h2>
+        <div class="balance {% if positive_balance %}good{% else %}bad{% endif %}">{{ balance }} SEK</div>
+        <form method="post" action="">{% csrf_token %}
+            <input style="width:70%" name="balance-code" type="text" class="textinput textInput" />
+            <input style="width:24%" type="submit" value="{% trans "Refill" %} &raquo;" />
+        </form>
+    </div>
+    
+    <div class="widget"> 
+        <h2>
+            {% trans "Orders" %} 
+        </h2>
+        {% include "accounting/history_widget.html" %}
+        <a href="{% url accounting.views.order_history %}">{% trans "show all" %}</a>
+    </div>
+{% endblock %}
