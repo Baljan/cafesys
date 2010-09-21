@@ -3,10 +3,12 @@
 # project specific not listed here use project.txt. You can, of course, update
 # versions of distributions here if needed.
 
+# Removing the following url will give an error when pip tries to install
+# django_timezones 0.2.something... It's not actually needed for pinax
 --extra-index-url=http://dist.pinaxproject.com/dev/
 
 Django==1.2
-Pinax
+git+git://github.com/pinax/pinax.git#egg=Pinax
 
 python-dateutil==1.4.1
 python-openid==2.2.4
