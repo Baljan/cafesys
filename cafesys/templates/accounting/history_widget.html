@@ -1,0 +1,21 @@
+{% load i18n %}
+
+<ul class="order-history">
+    {% for order in order_history %}
+        <li class="when">
+            {{ order.when|date:"Y-m-d H:i" }}
+        </li>
+            <ul>
+            {% for order_item in order.orderitem_set.all %}
+                <li>
+                {{ order_item.count }} 
+                {% trans "pcs." %}
+                {{ order_item.item.title }}
+                {% if order_item.item.description %}
+                    ({{ order_item.item.description }})
+                {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+    {% endfor %}
+</ul>

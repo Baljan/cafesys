@@ -2,13 +2,15 @@
 
 body.profile #tab_profile a,
 body.notices #tab_notices a,
-body.calendar #tab_calendar a
+body.calendar #tab_calendar a,
+body.accounting #tab_accounting a
 {
     color: #000; /* selected tab text colour */
 }
 body.profile #tab_profile,
 body.notices #tab_notices,
-body.calendar #tab_calendar
+body.calendar #tab_calendar,
+body.accounting #tab_accounting
 {
     margin: 0; /* to compensate for border */
     padding: 5px 0 5px;

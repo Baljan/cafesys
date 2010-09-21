@@ -39,6 +39,7 @@ urlpatterns = patterns("",
     #(r'^rosetta/', include('rosetta.urls')),
     (r"^terminal/", include("terminal.urls")),
     (r"^calendar/", include("cal.urls")),
+    (r"^accounting/", include("accounting.urls")),
 
     (r"^liu/", include("liu.urls")),
 
