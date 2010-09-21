@@ -107,6 +107,7 @@ MIDDLEWARE_CLASSES = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_openid.consumer.SessionConsumer",
     "django.contrib.messages.middleware.MessageMiddleware",
     "pinax.apps.account.middleware.LocaleMiddleware",
     "django.middleware.doc.XViewMiddleware",
@@ -131,6 +132,8 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
+
+    "staticfiles.context_processors.static_url",
     
     "pinax.core.context_processors.pinax_settings",
     
@@ -153,6 +156,7 @@ INSTALLED_APPS = [
     
     # external
     "notification", # must be first
+    "django_openid",
     "emailconfirmation",
     #"mailer", # use django.core.mail instead
     "announcements",
