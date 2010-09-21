@@ -21,8 +21,10 @@ def keys(request):
 
     return d
 
+
 class RefillError(Exception):
     pass
+
 
 def refill(student, code_string):
     bc = BalanceCode.objects.filter(code=code_string)

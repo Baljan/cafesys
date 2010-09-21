@@ -225,6 +225,8 @@ SITE_NAME = "Sektionscafé Baljan"
 LOGIN_URL = "/account/login/"
 LOGIN_REDIRECT_URLNAME = "home"
 
+WORKER_FREE_COFFEE_COOLDOWN_MINUTES = 15
+
 EMAIL_HOST = 'smtp.bahnhof.se'
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False

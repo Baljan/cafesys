@@ -8,6 +8,7 @@ from django.template import RequestContext
 from models import Item, Order, OrderItem, TagShown
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
+from terminal import orders_from, last_order_from, make_order
 
 def kiosk_view(request):
     items = Item.objects.all()
@@ -45,13 +46,8 @@ def handle_pending(request):
             item = Item.objects.get(pk=item_id)
             order_item = OrderItem(order=order, item=item, count=count)
             order_item.save()
-            total_cost += count * item.cost
 
-    if total_cost == 0:
-        order.delete()
-
-    student.balance -= total_cost
-    student.save()
+    cost_for_order = make_order(student, order)
 
     pending.pending = False
     pending.save()
