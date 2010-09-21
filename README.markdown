@@ -21,6 +21,7 @@ virtualenvwrapper in Fedora:
     $ cd ~
     $ mkdir -p envs
     $ echo 'export WORKON_HOME=$HOME/envs' >> .bashrc
+    $ echo 'export PIP_RESPECT_VIRTUALENV=true' >> .bashrc
     $ echo 'source /usr/bin/virtualenvwrapper.sh' >> .bashrc
     $ source .bashrc
     $ cd envs
@@ -41,13 +42,16 @@ SQLite packages. This has not been tried to work; if you do it successfully,
 please let someone know so that we can update this readme.
 
 # External Dependencies
+## Base dependencies
+ * Run `yum -y install gcc python-reportlab python-devel postgresql-devel zlib-devel jpeg-devel tk-devel swig openldap-devel` to install the yum packages required.
+
 ## Kiosk Mode
  * Opera browser
 
 ## Smartcard Tools
- * The `pcsc-lite` and `ccid` packages should be installed (in yum). When they
-   have been, the ACR122 will be lighted and able to scan cards when the pcscd
-   daemon is running.
+ * The `pcsc-lite-devel` and `ccid` packages should be installed (in yum). 
+   When they have been, the ACR122 will be lighted and able to scan cards 
+   when the pcscd daemon is running.
 
 ## LDAP
  * The `python-ldap` module needs (in yum): `openldap openldap-devel`
