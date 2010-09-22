@@ -9,12 +9,13 @@ from models import Item, Order, OrderItem, TagShown
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from terminal import orders_from, last_order_from, make_order
+import liu
 
 def kiosk_view(request):
-    items = Item.objects.all()
-    return render_to_response('terminal/terminal.html', {
-        'items': items,
-        }, context_instance=RequestContext(request))
+    retdict = liu.keys(request)
+    retdict['items'] = Item.objects.all()
+    return render_to_response('terminal/terminal.html', retdict,
+            context_instance=RequestContext(request))
 
 def item_info(request):
     items = serialize('json', Item.objects.all())
