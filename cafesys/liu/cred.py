@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import ldap
 
 SERVER = 'ldap://lukas-backend.unit.liu.se'
