@@ -110,7 +110,7 @@ $(document).ready(function() {
             });
         }
         
-        var pollOrderCountInterval = 1000;
+        var pollOrderCountInterval = 250;
         var pollOrderCount = function() {
             $(document).stopTime('pollOrderCount');
             $.getJSON('poll-pending-orders', function(info) {
