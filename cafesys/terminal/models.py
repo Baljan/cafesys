@@ -41,6 +41,7 @@ def _maybe_new_student_from_liu_id(liu_id):
 class Order(models.Model):
     when = models.DateTimeField(auto_now_add=True)
     student = models.ForeignKey('liu.Student')
+    in_cooldown = models.BooleanField(default=False)
     
     @staticmethod
     def from_liu_id(liu_id, *args, **kwargs):

@@ -8,7 +8,7 @@ from django.template import RequestContext
 from models import Item, Order, OrderItem, TagShown
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
-from terminal import orders_from, last_order_from, make_order
+from terminal import orders_from, make_order
 import liu
 
 def kiosk_view(request):
