@@ -6,6 +6,7 @@ $(document).ready(function() {
 
         var itemInfo = {}
         var lastBalance = 0;
+        var lastExtra = '';
 
         // Disable dragging images, marking text, and so on.
         $('body').unselectable(); // does not work in Opera
@@ -42,6 +43,7 @@ $(document).ready(function() {
             });
             $('.cost-total .value').html(totalCost() + ' SEK');
             $('.last-balance .value').html(lastBalance + ' SEK');
+            $('.last-balance .extra').html(lastExtra);
         }
 
         $.getJSON('item-info', function(items) {
@@ -123,6 +125,7 @@ $(document).ready(function() {
                     });
                     $.post('handle-pending', items, function(info) {
                         lastBalance = info.balance;
+                        lastExtra = info.extra;
                         resetOrder();
                         fxOrderPut(function() {
                             guiRefresh();
