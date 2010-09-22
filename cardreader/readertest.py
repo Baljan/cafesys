@@ -27,35 +27,42 @@ def translate_atr(atr):
 	print 'T15 supported: ', atr.isT15Supported()
 
 
+class TooFastSwipeException(Exception):
+	def __str__(self):
+		return "TooFastSwipeException: The card was swiped too fast"
+
 class rfidObserver(CardObserver):
 	def __init__(self):
 		self.cards = []
 		self.base_url = "http://localhost:8000"
 		#self.base_url = "http://google.com"
+
+	def send_order(self, uid):
+		try:
+			f = urlopen(self.base_url + "/terminal/trig-tag-shown/" + uid)
+			response = f.read()
+			if response == 'OK':
+				pass
+			elif response == 'PENDING':
+				pass
+		except HTTPError:
+			# TODO: Log error.
+			pass
+		
 		
 	def update(self, observable, (addedcards, removedcards)):
 		try:
 			for card in addedcards:
-			#if card not in self.cards:
-				self.cards += [card]
-				print "+Inserted: \n"
-				#translate_atr(card.atr)
+				print "Card inserted."
 				card.connection = card.createConnection()
 				card.connection.connect()
 				response, sw1, sw2 = card.connection.transmit( APDU_GET_CARD_ID )
-				#response, sw1, sw2 = card.connection.transmit( SELECT )
-				print "%.2x %.2x" % (sw1, sw2)
-				print response
-				to_int(response)
-				print "Sending http req"
-				f = urlopen(self.base_url + "/terminal/trig-tag-shown/" + str(to_int(response)) )
-				print "http req sent"
-				response = f.read()
-				print "Trying to read response"
-				print response
 				
+				if (("%.2x" % sw1) == "63"):
+					raise TooFastSwipeException
+				self.send_order(to_int(response))
 			for card in removedcards:
-				print "-Removed: ", toHexString(card.atr)
+				print "Card was removed."
 		except Exception, e:
 			print "Ignored error: " + str(e)
 
