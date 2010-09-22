@@ -40,7 +40,7 @@ def make_order(student, order):
 
     if previous_order is None:
         # Set to a really big value if no previous orders have been made.
-        since_previous_order = timedelta(50)
+        since_previous_order = timedelta(50) 
         print "previous_order None"
     else:
         since_previous_order = now - previous_order.when

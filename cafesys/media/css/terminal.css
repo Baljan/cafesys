@@ -160,6 +160,15 @@ body {
     border-radius: .2em;
     -moz-border-radius: .2em;
 }
+.last-balance .extra {
+    font-size: .7em;
+}
+.last-balance .extra .is-worker {
+    color: #060;
+}
+.last-balance .extra .is-board {
+    color: #d4a017;
+}
 
 #trig-order {
     position: fixed;

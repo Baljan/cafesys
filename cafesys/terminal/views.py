@@ -9,6 +9,7 @@ from models import Item, Order, OrderItem, TagShown
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from terminal import orders_from, make_order
+from django.utils.translation import ugettext as _ 
 import liu
 
 def kiosk_view(request):
@@ -38,6 +39,12 @@ def handle_pending(request):
     order = Order(student=student)
     order.save()
 
+    extra = ''
+    if student.is_worker():
+        extra = '<span class="is-worker">%s</span>' % _('adjusted for worker')
+    elif student.is_board_member():
+        extra = '<span class="is-board">%s</span>' % _('adjusted for board member')
+
     total_cost = 0
     for html_id, count in request.POST.items():
         assert html_id.startswith('item-')
@@ -55,6 +62,7 @@ def handle_pending(request):
 
     resp = {
             'balance': student.balance,
+            'extra': extra,
             }
 
     return HttpResponse(json.dumps(resp), mimetype='text/plain')
