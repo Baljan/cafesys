@@ -221,6 +221,7 @@ else:
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = DEBUG
 CONTACT_EMAIL = "styret@baljan.studorg.liu.se"
+USER_EMAIL_DOMAIN = 'student.liu.se'
 SITE_NAME = "Sektionscafé Baljan"
 LOGIN_URL = "/account/login/"
 LOGIN_REDIRECT_URLNAME = "home"
