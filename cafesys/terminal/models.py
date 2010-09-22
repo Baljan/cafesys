@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.utils.encoding import smart_str
+from django.contrib import auth
+from django.conf import settings
 
 # FIXME: Is there a way to get rid of this import and reach the Student model
 # in some other way?
@@ -22,8 +24,12 @@ class OrderManager(models.Manager):
 def _maybe_new_student_from_liu_id(liu_id):
     students = Student.objects.filter(liu_id=liu_id)
     if len(students) == 0:
-        # FIXME: Should be contrib.auth User
-        student = Student(liu_id=liu_id)
+        email = "%s@%s" % (liu_id, settings.USER_EMAIL_DOMAIN)
+        user = auth.models.User.objects.create_user(str(liu_id), email)
+        user.save()
+        student = user.get_profile()
+        student.liu_id = liu_id
+        student.save()
     elif len(students) == 1:
         student = students[0]
     else:
