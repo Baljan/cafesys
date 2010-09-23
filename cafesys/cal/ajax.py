@@ -49,7 +49,7 @@ dajaxice_functions.register(with_days)
 
 
 def worker_day_dialog(request, id, day):
-    assert is_worker(request)
+    assert is_worker(request) or is_board_member(request)
 
     dajax = Dajax()
     date = _date(day)
@@ -88,7 +88,7 @@ def worker_day_dialog(request, id, day):
 dajaxice_functions.register(worker_day_dialog)
 
 def sign_up(request, id, redir_url, day, shift):
-    assert is_worker(request)
+    assert is_worker(request) or is_board_member(request)
     assert shift in ['morning', 'afternoon']
 
     student = request.user.get_profile()
@@ -126,7 +126,7 @@ def _scheduled_from_id(scheduled_id):
     return obj
 
 def toggle_swappable(request, scheduled_id, redir_url=None):
-    assert is_worker(request)
+    assert is_worker(request) or is_board_member(request)
 
     student = request.user.get_profile()
     obj = _scheduled_from_id(scheduled_id)
@@ -144,7 +144,7 @@ dajaxice_functions.register(toggle_swappable)
 
 
 def remove_from_scheduled(request, scheduled_id, redir_url=None):
-    assert is_worker(request)
+    assert is_worker(request) or is_board_member(request)
 
     student = request.user.get_profile()
     obj = _scheduled_from_id(scheduled_id)
@@ -161,7 +161,7 @@ dajaxice_functions.register(remove_from_scheduled)
 
 
 def send_swap_request(request, scheduled_id, offers, redir_url=None):
-    assert is_worker(request)
+    assert is_worker(request) or is_board_member(request)
 
     student = request.user.get_profile()
     obj = _scheduled_from_id(scheduled_id)
@@ -184,7 +184,8 @@ dajaxice_functions.register(send_swap_request)
 
 
 def send_swap_request_dialog(request, id, scheduled_id):
-    assert is_worker(request)
+    assert is_worker(request) or is_board_member(request)
+
     dajax = Dajax()
     scheduled = _scheduled_from_id(scheduled_id)
     student = request.user.get_profile()
@@ -210,7 +211,7 @@ def send_swap_request_dialog(request, id, scheduled_id):
 dajaxice_functions.register(send_swap_request_dialog)
 
 def remove_swap_request(request, swap_id, redir_url=None):
-    assert is_worker(request)
+    assert is_worker(request) or is_board_member(request)
     student = request.user.get_profile()
     swap = SwapRequest.objects.get(pk=int(swap_id.split('-')[-1]))
     request_student = swap.student
@@ -225,7 +226,7 @@ dajaxice_functions.register(remove_swap_request)
 
 
 def respond_received_request_dialog(request, id, swap_id):
-    assert is_worker(request)
+    assert is_worker(request) or is_board_member(request)
     dajax = Dajax()
     swap = SwapRequest.objects.get(pk=int(swap_id.split('-')[-1]))
     scheduled = swap.get_scheduled()
@@ -251,7 +252,7 @@ dajaxice_functions.register(respond_received_request_dialog)
 
 
 def respond_received_request(request, swap_id, offer_id, redir_url=None):
-    assert is_worker(request)
+    assert is_worker(request) or is_board_member(request)
     dajax = Dajax()
     
     assert request.user.is_authenticated()
