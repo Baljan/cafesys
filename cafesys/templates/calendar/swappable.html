@@ -5,7 +5,7 @@
 {% block head_title %}{% trans "Swappable" %}{% endblock %}
 
 {% block body %}
-{% if is_worker %}
+{% if is_worker or is_board_member %}
     <h2>{% trans "Shift Swaps" %}</h2>
 
     <div class="swap-requests">
