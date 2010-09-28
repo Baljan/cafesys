@@ -1,0 +1,19 @@
+{% load i18n %}
+
+<table class="price-list">
+    <tr>
+        <th colspan="2">{% trans "Item" %}</th>
+        <th class="cost">{% trans "Cost" %}</th>
+    </tr>
+    {% for item in items %}
+        <tr>
+            <td>
+                <img height="{{ row_height }}" src="{{ MEDIA_URL }}{{ item.img }}" alt="{{ item.title }}" />
+            </td>
+            <td>
+                {{ item.title }} <br/>({{ item.description }})
+            </td>
+            <td class="cost">{{ item.cost }} SEK</td>
+        </tr>
+    {% endfor %}
+</table>

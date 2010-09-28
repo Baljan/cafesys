@@ -35,3 +35,10 @@
     color: #900;
     border-color: #700;
 }
+
+.price-list td {
+    padding: 0 .5em;
+}
+.price-list td.cost {
+    text-align: right;
+}

@@ -10,6 +10,8 @@ from django.contrib import messages
 import liu
 import accounting
 from accounting import history
+from terminal.models import Item
+from django.conf import settings
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -46,3 +48,12 @@ def order_history(request):
     assert student is not None
 
     return render_to_response('accounting/order_history.html', retdict, context_instance=RequestContext(request))
+
+
+def price_list(request):
+    retdict = liu.keys(request)
+    retdict.update(accounting.keys(request))
+    retdict['items'] = Item.objects.all()
+    retdict['row_height'] = settings.PRICE_LIST_ROW_HEIGHT
+
+    return render_to_response('accounting/price_list.html', retdict, context_instance=RequestContext(request))

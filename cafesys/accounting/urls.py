@@ -5,4 +5,5 @@ from django.views.generic.simple import direct_to_template
 urlpatterns = patterns("accounting.views",
     url(r"^$", 'index'),
     url(r"^order-history$", 'order_history'),
+    url(r"^price-list$", 'price_list'),
 )
