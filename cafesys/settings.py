@@ -182,7 +182,8 @@ INSTALLED_APPS = [
     "about",
     "terminal",
     "liu",
-    "cal"
+    "cal",
+    "accounting",
 ]
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
