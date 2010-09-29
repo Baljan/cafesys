@@ -40,6 +40,7 @@ urlpatterns = patterns("",
     (r"^terminal/", include("terminal.urls")),
     (r"^calendar/", include("cal.urls")),
     (r"^accounting/", include("accounting.urls")),
+    (r"^stats/", include("stats.urls")),
 
     (r"^liu/", include("liu.urls")),
 

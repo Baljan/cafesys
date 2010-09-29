@@ -13,10 +13,35 @@
     <li><a href="{% url accounting.views.index %}">{% trans "Dashboard" %}</a></li>
     <li><a href="{% url accounting.views.order_history %}">{% trans "Order History" %}</a></li>
     <li><a href="{% url accounting.views.price_list %}">{% trans "Price List" %}</a></li>
+    {% if is_board_member %}
+    <li><a href="{% url stats.views.index %}">{% trans "Statistics" %}</a></li>
+    {% endif %}
 </ul>
 {% endblock %}
 
 {% block body_class %}accounting{% endblock %}
+
+{% block extra_body %}
+    <script type="text/javascript">
+        {% if is_regular %}
+            IS_REGULAR=true;
+        {% else %}
+            IS_REGULAR=false;
+        {% endif %}
+        {% if is_worker %}
+            IS_WORKER=true;
+        {% else %}
+            IS_WORKER=false;
+        {% endif %}
+        {% if is_board_member %}
+            IS_BOARD_MEMBER=true;
+        {% else %}
+            IS_BOARD_MEMBER=false;
+        {% endif %}
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/stats.js"></script> 
+{% endblock %}
+
 
 {% block body %}
     <h1>{% trans "Accounting Dashboard for" %} {{ student.liu_id }}</h1>
