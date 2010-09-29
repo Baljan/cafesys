@@ -10,7 +10,6 @@ class OrderAdmin(admin.ModelAdmin):
 for cls in [
         Item,
         (Order, OrderAdmin),
-        OrderItem,
         TagShown,
         ]:
     if isinstance(cls, tuple):
