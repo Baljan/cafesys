@@ -2,7 +2,18 @@
 from django.contrib import admin
 from models import Item, Order, OrderItem, TagShown
 
-admin.site.register(Item)
-admin.site.register(Order)
-#admin.site.register(OrderItem)
-admin.site.register(TagShown)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'when', 'student')
+    search_fields = ('student__liu_id', 'orderitem__item__title')
+    list_filter = ('when', )
+
+for cls in [
+        Item,
+        (Order, OrderAdmin),
+        OrderItem,
+        TagShown,
+        ]:
+    if isinstance(cls, tuple):
+        admin.site.register(*cls)
+    else:
+        admin.site.register(cls)
