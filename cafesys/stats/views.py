@@ -12,10 +12,11 @@ import accounting
 from accounting import history
 from terminal.models import Item
 from django.conf import settings
+from datetime import date
 
 
 def index(request):
     retdict = liu.keys(request)
     retdict.update(accounting.keys(request))
-
+    retdict['today'] = date.today()
     return render_to_response('accounting/stats.html', retdict, context_instance=RequestContext(request))

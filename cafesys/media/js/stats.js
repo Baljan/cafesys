@@ -29,4 +29,10 @@ function processOrdersPerDayAndHour(data)
 $(document).ready(function () {
     Dajaxice.stats.orders_per_day_and_hour('processOrdersPerDayAndHour', {
     });
+
+    $('.date').datepicker({
+        dateFormat:"yy-mm-dd",
+        changeMonth: true,
+        changeYear: true
+        }); // TODO: i18n
 });
