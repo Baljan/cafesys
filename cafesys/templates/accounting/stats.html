@@ -7,17 +7,7 @@
 {% block body %}
 <h1>{% trans "Statistics" %}</h1>
 
-<div id="holder"></div>
-
-<script type="text/javascript" charset="utf-8"> 
-    window.onload = function () {
-        var r = Raphael("holder");
-        r.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
-
-        r.g.text(320, 70, "Static Pie Chart").attr({"font-size": 20});
-
-        r.g.piechart(320, 240, 150, [55, 20, 13, 32, 5, 1, 2, 10]);
-    };
-</script> 
+<h2>{% trans "Orders per Day and Hour" %}</h2>
+<div id="punch-card"></div>
 
 {% endblock %}
