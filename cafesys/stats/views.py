@@ -13,9 +13,11 @@ from accounting import history
 from terminal.models import Item
 from django.conf import settings
 from datetime import date
+from liu import is_worker, is_board_member
 
 
 def index(request):
+    assert is_board_member(request)
     retdict = liu.keys(request)
     retdict.update(accounting.keys(request))
     retdict['today'] = date.today()
