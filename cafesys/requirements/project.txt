@@ -11,3 +11,4 @@ reportlab
 pyPdf
 python-ldap
 #Geraldo
+numpy
