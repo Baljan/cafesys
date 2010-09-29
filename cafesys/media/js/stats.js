@@ -13,10 +13,8 @@ function processOrdersPerDayAndHour(data)
             3,3, 3, 3 ,3 ,3 ,3 ,3, 3, 3,
             2,2, 2, 2 ,2 ,2 ,2 ,2, 2, 2,
             1,1, 1, 1 ,1 ,1 ,1 ,1, 1, 1],
-        axisy = [ // TODO: i18n
-            "Fri", "Thu", "Wed", "Tue", "Mon" ],
-        axisx = ["08", "09", "10", "11", "12", "13", 
-                "14", "15", "16", "17"];
+        axisy = [ "Fri", "Thu", "Wed", "Tue", "Mon" ], // TODO: i18n
+        axisx = ["8:00-", "9:00-", "10:00-", "11:00-", "12:00-", "13:00-", "14:00-", "15:00-", "16:00-", "17:00-17:59"];
         
         var r = Raphael("punch-card");
         r.g.txtattr.font = "11px arial, sans-serif";
