@@ -10,8 +10,8 @@
 
 {% block subnav %}
 <ul>
-    <li><a href="{% url accounting.views.index %}">{% trans "Dashboard" %}</a></li>
-    <li><a href="{% url accounting.views.order_history %}">{% trans "Order History" %}</a></li>
+    <li><a href="{% url accounting.views.index %}">{% trans "My Status" %}</a></li>
+    {#<li><a href="{% url accounting.views.order_history %}">{% trans "My Order History" %}</a></li>#}
     <li><a href="{% url accounting.views.price_list %}">{% trans "Price List" %}</a></li>
     {% if is_board_member %}
     <li><a href="{% url stats.views.index %}">{% trans "Statistics" %}</a></li>
@@ -44,7 +44,7 @@
 
 
 {% block body %}
-    <h1>{% trans "Accounting Dashboard for" %} {{ student.liu_id }}</h1>
+    <h1>{% trans "Status for" %} {{ student.liu_id }}</h1>
 
     <div class="widget"> 
         <h2>
