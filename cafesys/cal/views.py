@@ -77,15 +77,16 @@ def calendar_context(now, year, month, student, year_view):
                 'shift__day__year': first_day.year,
                 'shift__day__month': first_day.month,
                 }
-        sms = ScheduledMorning.objects.filter(**sched_filter_args)
-        safs = ScheduledAfternoon.objects.filter(**sched_filter_args)
+
+        sms = ScheduledMorning.objects.select_related().filter(**sched_filter_args)
+        safs = ScheduledAfternoon.objects.select_related().filter(**sched_filter_args)
 
         shift_filter_args = {
                 'day__year': first_day.year,
                 'day__month': first_day.month,
                 }
-        ms = MorningShift.objects.filter(**shift_filter_args)
-        afs = MorningShift.objects.filter(**shift_filter_args)
+        ms = MorningShift.objects.select_related().filter(**shift_filter_args)
+        afs = MorningShift.objects.select_related().filter(**shift_filter_args)
 
         for wid, w in enumerate(week_data):
             week_info = {
