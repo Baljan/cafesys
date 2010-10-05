@@ -86,8 +86,8 @@ def calendar_context(now, year, month, student, year_view):
                 'day__month': first_day.month,
                 }
         shift_related = ('day__day',)
-        ms = MorningShift.objects.select_related().filter(**shift_filter_args)
-        afs = AfternoonShift.objects.select_related().filter(**shift_filter_args)
+        ms = MorningShift.objects.select_related(*shift_related).filter(**shift_filter_args)
+        afs = AfternoonShift.objects.select_related(*shift_related).filter(**shift_filter_args)
 
         for wid, w in enumerate(week_data):
             week_info = {
