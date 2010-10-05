@@ -1,9 +1,9 @@
 .tooltip {
     display:none;
-    background:url(../img/tt/black.png);
-    height:99px;
-    width:189px;
-    padding: 5px 10px;
+    background:url(../img/tt/black_big.png);
+    height:174px;
+    width:350px;
+    padding: 10px;
     font-size:11px;
     color:#fff;
 }
