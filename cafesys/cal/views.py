@@ -25,6 +25,8 @@ def worker_calendar(request, year=None, month=None):
         year = now.year
     else:
         year = int(year)
+
+    prev_year, next_year = year - 1, year + 1
     
     student = None
     shifts = None
@@ -53,6 +55,8 @@ def worker_calendar(request, year=None, month=None):
         'year_view': year_view,
         'prev_month': prev_month,
         'next_month': next_month,
+        'prev_year': prev_year,
+        'next_year': next_year,
         'year': year,
         })
 
@@ -131,12 +135,10 @@ def calendar_context(now, year, month, student, year_view):
                     else:
                         to['classes'].append('shiftable')
 
-                if day != 0:
                     to.update({
                         'morning': list([x.student.liu_id for x in sms if x.shift.day.day==day]), 
                         'afternoon': list([x.student.liu_id for x in safs if x.shift.day.day==day]), 
                         })
-
                     to.update({
                         'workers': to['morning'] + to['afternoon'],
                         })
