@@ -231,7 +231,13 @@ LOGIN_REDIRECT_URLNAME = "home"
 WORKER_COOLDOWN_SECONDS = 5
 WORKER_MAX_COST_REDUCE = 5
 
-PRICE_LIST_ROW_HEIGHT = 40
+PRICE_LIST_ROW_HEIGHT = 40 # px
+
+# For importing data from the old system. There is a management command
+# that uses these settings (importoldsystem).
+#OLD_SYSTEM_MYSQL_LOGIN = 'foo'
+#OLD_SYSTEM_MYSQL_PASSWORD = 'foo'
+#OLD_SYSTEM_MYSQL_DB = 'foo'
 
 EMAIL_HOST = 'smtp.bahnhof.se'
 EMAIL_PORT = 25
