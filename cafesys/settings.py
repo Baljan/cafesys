@@ -185,6 +185,8 @@ INSTALLED_APPS = [
     "cal",
     "accounting",
     "stats",
+
+    "gunicorn",
 ]
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
