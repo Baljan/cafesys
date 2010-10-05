@@ -77,15 +77,17 @@ def calendar_context(now, year, month, student, year_view):
                 'shift__day__year': first_day.year,
                 'shift__day__month': first_day.month,
                 }
-        sms = ScheduledMorning.objects.filter(**sched_filter_args)
-        safs = ScheduledAfternoon.objects.filter(**sched_filter_args)
+
+        sms = ScheduledMorning.objects.select_related().filter(**sched_filter_args)
+        safs = ScheduledAfternoon.objects.select_related().filter(**sched_filter_args)
 
         shift_filter_args = {
                 'day__year': first_day.year,
                 'day__month': first_day.month,
                 }
-        ms = MorningShift.objects.filter(**shift_filter_args)
-        afs = MorningShift.objects.filter(**shift_filter_args)
+        shift_related = ('day__day',)
+        ms = MorningShift.objects.select_related(*shift_related).filter(**shift_filter_args)
+        afs = AfternoonShift.objects.select_related(*shift_related).filter(**shift_filter_args)
 
         for wid, w in enumerate(week_data):
             week_info = {
@@ -135,26 +137,28 @@ def calendar_context(now, year, month, student, year_view):
                     else:
                         to['classes'].append('shiftable')
 
+
+                    to.update({
+                        'has_morning_shift': len([True for x in ms if x.day.day==day]) != 0,
+                        'has_afternoon_shift': len([True for x in afs if x.day.day==day]) != 0,
+                        })
+
                     def student_text(sched):
                         fname = sched.student.user.first_name
                         lname = sched.student.user.last_name
                         return u"%s %s (%s)" % (fname, lname, sched.student.liu_id)
 
-                    to.update({
-                        'morning': list([student_text(x) for x in sms if x.shift.day.day==day]), 
-                        'afternoon': list([student_text(x) for x in safs if x.shift.day.day==day]), 
-                        })
-                    to.update({
-                        'workers': to['morning'] + to['afternoon'],
-                        })
+                    if to['has_morning_shift'] or to['has_afternoon_shift']:
+                        to.update({
+                            'morning': list([student_text(x) for x in sms if x.shift.day.day==day]), 
+                            'afternoon': list([student_text(x) for x in safs if x.shift.day.day==day]), 
+                            })
+                        to.update({
+                            'workers': to['morning'] + to['afternoon'],
+                            })
 
-                    if student and student.liu_id in to['workers']:
-                        to['classes'].append('user-is-worker')
-
-                    to.update({
-                        'has_morning_shift': len([x for x in ms if x.day.day==day]) != 0, 
-                        'has_afternoon_shift': len([x for x in afs if x.day.day==day]) != 0, 
-                        })
+                        if student and student.liu_id in to['workers']:
+                            to['classes'].append('user-is-worker')
 
                     workers = 0
                     for sh in ['morning', 'afternoon']:
