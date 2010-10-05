@@ -135,9 +135,14 @@ def calendar_context(now, year, month, student, year_view):
                     else:
                         to['classes'].append('shiftable')
 
+                    def student_text(sched):
+                        fname = sched.student.user.first_name
+                        lname = sched.student.user.last_name
+                        return u"%s %s (%s)" % (fname, lname, sched.student.liu_id)
+
                     to.update({
-                        'morning': list([x.student.liu_id for x in sms if x.shift.day.day==day]), 
-                        'afternoon': list([x.student.liu_id for x in safs if x.shift.day.day==day]), 
+                        'morning': list([student_text(x) for x in sms if x.shift.day.day==day]), 
+                        'afternoon': list([student_text(x) for x in safs if x.shift.day.day==day]), 
                         })
                     to.update({
                         'workers': to['morning'] + to['afternoon'],
