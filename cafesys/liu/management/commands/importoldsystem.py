@@ -46,7 +46,7 @@ class Command(BaseCommand):
         uid_to_liu_id = {}
         fetched = c.fetchall()
         for liu_id, uid in fetched:
-            uid_to_liu_id[int(uid)] = liu_id.decode(enc)
+            uid_to_liu_id[int(uid)] = liu_id.decode(enc).lower()
         
         print "Importing %d users." % len(uid_to_liu_id.keys())
 
