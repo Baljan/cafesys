@@ -48,6 +48,9 @@ class Student(models.Model):
     def wants_to_be_a_worker(self):
         return len(self.joingrouprequest_set.filter(group__name='workers')) != 0
 
+    def name_and_id(self):
+        return "%s %s (%s)" % (self.user.first_name, self.user.last_name, self.liu_id)
+
 
 def create_profile(sender, instance=None, **kwargs):
     if instance is None:

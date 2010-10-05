@@ -143,15 +143,10 @@ def calendar_context(now, year, month, student, year_view):
                         'has_afternoon_shift': len([True for x in afs if x.day.day==day]) != 0,
                         })
 
-                    def student_text(sched):
-                        fname = sched.student.user.first_name
-                        lname = sched.student.user.last_name
-                        return u"%s %s (%s)" % (fname, lname, sched.student.liu_id)
-
                     if to['has_morning_shift'] or to['has_afternoon_shift']:
                         to.update({
-                            'morning': list([student_text(x) for x in sms if x.shift.day.day==day]), 
-                            'afternoon': list([student_text(x) for x in safs if x.shift.day.day==day]), 
+                            'morning': list([x.student.name_and_id() for x in sms if x.shift.day.day==day]), 
+                            'afternoon': list([x.student.name_and_id() for x in safs if x.shift.day.day==day]), 
                             })
                         to.update({
                             'workers': to['morning'] + to['afternoon'],

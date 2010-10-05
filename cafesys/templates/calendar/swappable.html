@@ -16,7 +16,7 @@
                 {% trans "you want" %}
                 <a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar sent.get_scheduled.shift.day.year sent.get_scheduled.shift.day.month %}">{% trans sent.get_scheduled.shift.name %} {{ sent.get_scheduled.shift.day|naturalday:"Y-m-d" }}</a>
                 {% trans "from" %}
-                {{ sent.get_scheduled.student.liu_id }}
+                {{ sent.get_scheduled.student.name_and_id }}
                 ( <span class="link remove-sent-request request-{{sent.pk}}">{% trans "remove" %}</span> )
             </li>
             {% empty %}
@@ -29,7 +29,7 @@
         <ul>
             {% for received in received_requests %}
             <li>
-                {{ received.student.liu_id }} {% trans "wants" %}
+                {{ received.student.name_and_id }} {% trans "wants" %}
                 <a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar received.get_scheduled.shift.day.year received.get_scheduled.shift.day.month %}">{% trans received.get_scheduled.shift.name %} {{ received.get_scheduled.shift.day|naturalday:"Y-m-d" }}</a>
                 {% trans "from you" %}
                 (
@@ -72,7 +72,7 @@
                         <a title="{% trans "go to this month" %}" href="{% url cal.views.worker_calendar swap.shift.day.year swap.shift.day.month %}">{{ swap.shift.day|naturalday:"Y-m-d" }}</a>
                     </td>
                     <td class="when">{% trans swap.shift.name %}</td>
-                    <td>{{ swap.student.liu_id }}</td>
+                    <td>{{ swap.student.name_and_id }}</td>
                     <td>
                         {% if not swap.student == student %}
                             {# TODO: Make it impossible to send multiple requests to the same shift. #}
