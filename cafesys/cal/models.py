@@ -8,7 +8,7 @@ from datetime import date
 from liu.models import Student
 
 class Shift(models.Model):
-    day = models.DateField()
+    day = models.DateField(unique=True)
 
     class Meta:
         abstract = True
