@@ -103,6 +103,8 @@ TEMPLATE_LOADERS = [
 ]
 
 MIDDLEWARE_CLASSES = [
+    #'johnny.middleware.LocalStoreClearMiddleware',
+    #'johnny.middleware.QueryCacheMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -187,6 +189,8 @@ INSTALLED_APPS = [
     "stats",
 
     "gunicorn",
+
+    #"johnny",
 ]
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
@@ -252,6 +256,9 @@ DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
 DEBUG_TOOLBAR_CONFIG = {
     "INTERCEPT_REDIRECTS": False,
 }
+
+#CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
+JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
