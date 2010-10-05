@@ -48,17 +48,17 @@ class Command(BaseCommand):
         for liu_id, uid in fetched:
             uid_to_liu_id[int(uid)] = liu_id.decode(enc).lower()
         
-        print "Importing %d users." % len(uid_to_liu_id.keys())
+        print "%d user(s) in the old system..." % len(uid_to_liu_id.keys())
 
         emailfmt = '%s@student.liu.se'
-        skipped = 0
-        failed = 0
+        skipped = []
+        failed = []
         for uid, liu_id in uid_to_liu_id.items():
             prevs = len(Student.objects.filter(liu_id=liu_id))
             if prevs == 0:
                 pass # OK
             elif prevs == 1:
-                skipped += 1
+                skipped.append(liu_id)
                 continue # user already exists
             else:
                 assert True==False
@@ -69,27 +69,30 @@ class Command(BaseCommand):
                 first_name, last_name = c.fetchone()
                 first_name = first_name.decode(enc)
                 last_name = last_name.decode(enc)
-                print "Found", first_name, last_name
             except TypeError:
                 first_name, last_name = None, None
 
             try:
                 user = User.objects.create_user(liu_id, emailfmt % liu_id, password=None)
-                user.first_name = first_name
-                user.last_name = last_name
-                user.save()
+                if first_name is not None:
+                    user.first_name = first_name
+                if last_name is not None:
+                    user.last_name = last_name
                 student = Student(user=user, liu_id=liu_id)
-                student.save()
-            except:
+                #student.save()
+                user.save()
+            except Exception, e:
                 # FIXME: Figure out exactly what went wrong here.
-                failed += 1
+                print "Failed %s: %s" % (liu_id, e)
+                failed.append(liu_id)
         
-        if skipped != 0:
-            print "Skipped importing %d users because they already existed." % skipped
-        if failed != 0:
-            print "Failed importing %d users." % skipped 
+        if len(skipped) != 0:
+            print "Skipped importing %d already existing user(s): %s..." % (len(skipped), ", ".join(skipped))
+        if len(failed) != 0:
+            print "Failed importing %d user(s): %s..." % (len(failed), ", ".join(failed))
 
         # Import workers and the schedule.
+        print "Adding scheduled shifts..."
         for uid, liu_id in uid_to_liu_id.items():
             c = db.cursor()
             c.execute('SELECT dag, em FROM persbok WHERE persid=%d' % uid)
