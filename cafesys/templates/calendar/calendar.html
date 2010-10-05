@@ -183,13 +183,13 @@
                                             <p>
                                                 {% if day.morning|length != 0 %}
                                                     <strong>{% trans "Morning workers" %}:</strong><br/>
-                                                    {{day.morning|join:", "}}
+                                                    {{day.morning|join:",<br/> "}}
                                                 {% endif %}
                                             </p>
                                             <p>
                                                 {% if day.afternoon|length != 0 %}
                                                     <strong>{% trans "Afternoon workers" %}:</strong><br/>
-                                                    {{day.afternoon|join:", "}}
+                                                    {{day.afternoon|join:",<br/> "}}
                                                 {% endif %}
                                             </p>
                                         </div>
