@@ -9,6 +9,7 @@ django-dajaxice
 psycopg2
 mock
 
+python-memcached
 johnny-cache
 
 # For Chrome kiosk:
