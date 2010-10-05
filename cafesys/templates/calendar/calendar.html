@@ -126,6 +126,15 @@
         <p class="cal-views"> 
             <a href="{% url cal.views.worker_calendar %}">{% trans "month view" %}</a>
         </p>
+
+        <p class="calendar-nav">
+            <a class="prev" href="{% url cal.views.worker_calendar prev_year None %}">
+                &larr; {{ prev_year }}
+            </a>
+            <a class="next" href="{% url cal.views.worker_calendar next_year None %}">
+                {{ next_year }} &rarr;
+            </a>
+        </p>
     {% else %}
         {% spaceless %}
         {% if is_board_member or is_worker %}
