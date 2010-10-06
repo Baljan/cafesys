@@ -103,8 +103,8 @@ TEMPLATE_LOADERS = [
 ]
 
 MIDDLEWARE_CLASSES = [
-    #'johnny.middleware.LocalStoreClearMiddleware',
-    #'johnny.middleware.QueryCacheMiddleware',
+    'johnny.middleware.LocalStoreClearMiddleware',
+    'johnny.middleware.QueryCacheMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -190,7 +190,7 @@ INSTALLED_APPS = [
 
     "gunicorn",
 
-    #"johnny",
+    "johnny",
 ]
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
@@ -226,6 +226,10 @@ else:
         "django.contrib.auth.backends.ModelBackend",
     ]
 
+AUTHENTICATION_BACKENDS += [
+        'liu.ldapbackend.LDAPBackend',
+        ]
+
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = DEBUG
 CONTACT_EMAIL = "styret@baljan.studorg.liu.se"
@@ -257,8 +261,12 @@ DEBUG_TOOLBAR_CONFIG = {
     "INTERCEPT_REDIRECTS": False,
 }
 
-#CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
+CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
 JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
+
+LDAP_SERVER = 'ldap://lukas-backend.unit.liu.se'
+LDAP_UID = "simpa395"
+LDAP_PASS = "<password>"
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
