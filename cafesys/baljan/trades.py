@@ -31,9 +31,7 @@ class TakeRequest(object):
         self.requester = requester
         if offered_signups is not None:
             for ofs in offered_signups:
-                if not self.valid_offer(ofs):
-                    raise self.BadOffer()
-        self.offered_signups = offered_signups
+                self.add_offer(ofs)
 
     def add_offer(self, offered_signup):
         """
@@ -44,8 +42,10 @@ class TakeRequest(object):
         if self.valid_offer(offered_signup):
             if self.offered_signups is None:
                 self.offered_signups = []
-            if not offered_signup in self.offered_signups:
-                self.offered_signups.append(offered_signup)
+            if offered_signup in self.offered_signups:
+                return self # do nothing
+
+            self.offered_signups.append(offered_signup)
             return self
         else:
             raise self.BadOffer()
