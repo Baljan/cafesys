@@ -78,19 +78,6 @@
             <a href="{% url admin:auth_user_change watched.id %}">{% trans "admin" %}</a>
         </div>
     {% endif %}
-    
-    {% if friends %}
-    <div class="friends">
-        <h2>{% trans "Friends" %}</h2>
-        <ul>
-            {% for friend in friends %}
-                <li>
-                    <a href="{{friend.get_absolute_url}}">{{friend.get_full_name}} ({{friend.username}})</a>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
 
     {% if received_friend_requests %}
     <div class="pending-highlight">
@@ -118,6 +105,20 @@
                 <a href="{{fr.sent_to.get_absolute_url}}">{{fr.sent_to.get_full_name}} ({{fr.sent_to.username}})</a>
 
                 <ul><li><a href="{% url baljan.views.toggle_friend_request fr.sent_to request.path %}">{% trans "cancel" %}</a></li></ul>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    
+    {% if friends %}
+    <div class="friends">
+        <h2>{% trans "Friends" %}</h2>
+        <ul>
+            {% for friend in friends %}
+                <li>
+                    <a href="{{friend.get_absolute_url}}">{{friend.get_full_name}} ({{friend.username}})</a>
                 </li>
             {% endfor %}
         </ul>

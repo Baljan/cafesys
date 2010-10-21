@@ -133,7 +133,7 @@ class Semester(Made):
     name = models.CharField(_("name"), max_length=6, unique=True, 
             help_text=_("must be something like HT2010")) # TODO: validation
     signup_possible = models.BooleanField(_("sign-up possible"), default=False,
-            help_text=_('if workers can sign-up to work on this semester'))
+            help_text=_('if workers can sign up to work on this semester'))
 
     def date_range(self):
         return baljan.util.date_range(self.start, self.end)
@@ -222,6 +222,12 @@ class Shift(Made):
     early = models.BooleanField(_("early shift"), help_text=_('if the shift is early or late'), default=True)
     when = models.DateField(_("what day the shift is on"))
     enabled = models.BooleanField(help_text=_('shifts can be disabled on special days'), default=True)
+
+    def timeofday(self):
+        return _("morning") if self.early else _("afternoon")
+
+    def ampm(self):
+        return _("am") if self.early else _("pm")
 
     def past(self):
         return self.when < date.today()

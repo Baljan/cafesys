@@ -18,6 +18,7 @@ import baljan.models
 import baljan.search
 from baljan import pseudogroups
 from baljan import friendrequests
+from baljan import trades
 from django.contrib.auth.models import User, Permission, Group
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
@@ -290,3 +291,16 @@ def search_person(request):
     tpl['groups'] = Group.objects.all().order_by('name')
     return render_to_response('baljan/search_person.html', tpl,
             context_instance=RequestContext(request))
+
+
+@permission_required('baljan.self_and_friend_signup')
+def trade_take(request, signup_pk, redir):
+    u = request.user
+    tpl = {}
+    signup = baljan.models.ShiftSignup.objects.get(pk=signup_pk)
+    try:
+        tpl['take'] = take = trades.TakeRequest(signup, u)
+        return render_to_response('baljan/trade.html', tpl,
+                context_instance=RequestContext(request))
+    except trades.TakeRequest.Error:
+        return HttpResponseRedirect(redir)

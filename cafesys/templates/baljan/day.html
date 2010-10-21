@@ -62,7 +62,7 @@
                                 {% if signup.user == user %}
                                 <a class="toggle-switchable" href="{% url baljan.views.toggle_switchable signup.id request.path %}">{% trans "make untradable" %}</a>
                                 {% else %}
-                                    <a href="#">{% trans "offer to take this shift" %}</a>
+                                    <a href="{% url baljan.views.trade_take signup.pk request.path%}">{% trans "offer to take this shift" %}</a>
                                 {% endif %}
                             {% endif %}
                         {% else %}{# the sh.upcoming check is needed for this case #}

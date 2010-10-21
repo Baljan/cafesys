@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load uni_form_tags %}
 {% load cache %}
+{% load baljan_extras %}
 
 {% block head_title %}{% trans "Semester" %}{% endblock %}
 
@@ -100,12 +101,12 @@
                     </td>
                     <td class="workers{%if sh.accepts_signups%} accepts{%endif%}">
                         {% for su in sh.signups %}
-                        <span class="{% if su.can_switch %}switchable{% endif %}"><a href="{{su.user.get_absolute_url}}">{{su.user.get_full_name}}</a></span>{% if not forloop.last %}, {% endif %}
+                        <span class="{% if su.can_switch %}switchable{% endif %}">{{su.user|name_link}}</span>{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </td>
                     <td class="on-call{%if sh.accepts_callduty%} accepts{%endif%}">
                         {% for u in sh.on_callduty %}
-                        <a href="{{u.get_absolute_url}}">{{u.get_full_name}}</a>{% if not forloop.last %}, {% endif %}
+                        {{u|name_link}}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </td>
                 </tr>
@@ -116,9 +117,7 @@
     <div id="worker-list">
         <ul class="users">
             {% for user in workers %}
-            <li>
-                <a href="{{user.get_absolute_url}}">{{user.get_full_name}} ({{user.username}})</a>
-            </li>
+            <li>{{user|user_link}}</li>
             {% endfor %}
         </ul>
         <p>
@@ -132,9 +131,7 @@
     <div id="oncall-list">
         <ul class="users">
             {% for user in oncall %}
-            <li>
-                <a href="{{user.get_absolute_url}}">{{user.get_full_name}} ({{user.username}})</a>
-            </li>
+            <li>{{user|user_link}}</li>
             {% endfor %}
         </ul>
         <p>
