@@ -387,7 +387,7 @@ body.semester table.plain .odd {
 body.day .empty, body.semester .past {
     color: #aaa;
 }
-body.user .switchable a, body.semester .switchable {
+body.user .tradable a, body.semester .tradable {
     text-decoration: line-through;
 }
 body.semester .today {
@@ -429,7 +429,7 @@ body.day .schedule .worker .person {
 }
 body.day .schedule .on-call .person {
 }
-body.day .switchable .type {
+body.day .tradable .type {
     color: #f00;
 }
 

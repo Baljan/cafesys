@@ -1,0 +1,397 @@
+/* GENERAL */
+
+html, body {
+    height: 100%;
+}
+body {
+    background-color: #FFF;
+    background-image: url(../img/3731107419_b64f5eb8cc_o.jpg);
+    background-position: center center;
+    background-attachment: fixed;
+    margin: 0;
+    color: #333;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10pt;
+}
+img {
+    border: 0;
+}
+dt {
+    font-weight: bold;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 0;
+    font-size: inherit;
+}
+div#body {
+    background-color: rgba(255, 255, 255, 0.9);
+    -webkit-border-bottom-right-radius: 15px;
+    -moz-border-radius-bottomright: 15px;
+    border-bottom-right-radius: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+td, th {
+    margin: 0;
+    border: 0;
+    padding: 0 .5em;
+}
+.even {
+    background: #eee;
+}
+h1 {
+    margin: 0;
+}
+
+a:link, a:active, a:hover, a:visited {
+    color: #0073EA;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* CLEARS */
+
+.clearboth {
+    clear: both;
+}
+
+/* reference:
+ *   http://www.positioniseverything.net/easyclearing.html
+ *   http://www.zeldman.com/2006/10/27/ie7fixes1/
+ *      comment by michael on 10/28/2006
+ */
+.clearfix {
+    min-height: 1%;
+}
+
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+/* hides from ie5-mac \*/
+* html .clearfix { height: 1%; }
+/* end hide from ie5-mac */
+
+/* FORMS */
+
+form th {
+    text-align : left;
+}
+form.signup input[type="submit"], form.login input[type="submit"] {
+    margin: 20px 0;
+    font-size: 14pt;
+}
+input[type="text"], input[type="password"], textarea {
+    padding: 3px;
+    margin: 3px;
+    border: solid 1px #C6C6C6;
+    border-bottom: solid 1px #E3E3E3;
+    color: #666;
+    font-size: 12pt;
+    /*background: #F3F3F3 url('../img/form-shadow.png') left top repeat-x;*/
+}
+ul.errorlist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: red;
+}
+
+
+/* MESSAGES */
+
+ul#messages {
+    margin: 0 0 10px 0;
+    padding: 0;
+    list-style: none;
+}
+ul#messages li {
+    padding: 5px 10px;
+    margin: 3px;
+}
+ul#messages li a {
+    float: right;
+    color: #693;
+}
+ul#messages .debug {
+    background: #EEE;
+    border: 1px solid #BBB;
+}
+ul#messages .info {
+    background: #DEF;
+    border: 1px solid #9BC;
+}
+ul#messages .success {
+    background: #EFD;
+    border: 1px solid #BC9;
+}
+ul#messages .warning {
+    background: #FED;
+    border: 1px solid #CB9;
+}
+ul#messages .error {
+    background: #FDD;
+    border: 1px solid #C99;
+}
+
+
+/* FORM TOGGLE */
+
+.form-toggle p {
+    margin-bottom: 2px;
+}
+
+.form-toggle p span {
+    background: #DEF;
+    padding: 3px 6px;
+    border-top: 1px solid #9BC;
+    border-left: 1px solid #9BC;
+    border-right: 1px solid #9BC;
+    cursor: pointer;
+}
+
+.form-toggle form {
+    padding: 3px 6px;
+    margin: 0;
+    background: #DEF;
+    border: 1px solid #9BC;
+}
+
+
+
+/* EXTRAS TO CLEAN UP */
+
+.warning {
+    color: red;
+    font-weight: bold;
+}
+
+div.profile_info p {
+    margin: 0;
+}
+div.left_panel {
+    width: 550px;
+}
+div.right_panel {
+    margin-top: 20px;
+    width: 200px;
+    float: right;
+    z-index: 999;
+}
+
+/* BALJAN */
+.tooltip {
+    display:none;
+    background:url(../img/tt/black_big.png);
+    height:174px;
+    width:350px;
+    padding: 10px;
+    font-size:11px;
+    color:#fff;
+}
+
+.tooltip a {
+    color:#ad4;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.link {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+li.selected {
+    font-weight: bold;
+}
+
+#body {
+    float: left;
+    clear: both;
+}
+
+#logo {
+}
+
+#login, #login a {
+    color: #fff;
+}
+#login .delim {
+    color: #999;
+}
+#login {
+    text-align: right;
+    background: #444;
+    padding: .3em;
+}
+#login a {
+    font-weight: bold;
+    text-decoration: none;
+}
+
+#nav .links-for div, #nav .links-for ul, #nav .links-for li {
+    padding: 0;
+    margin: 0;
+}
+#nav ul {
+    padding-left: 1em;
+}
+
+#nav .ui-accordion-content {
+    padding: .5em 1em;
+}
+
+#nav .ui-accordion-header a, #nav .ui-accordion-header a:hover {
+    padding: .1em;
+    padding-left: 2.2em;
+    text-decoration: none;
+}
+#nav li a {
+    display: block;
+    text-decoration: none;
+    color: #FF0084;
+}
+#nav li.active a, #nav li a:hover {
+    text-decoration: underline;
+}
+
+.hide {
+    visibility: hidden;
+}
+table th, table td {
+    text-align: left;
+}
+
+body.semesters ul.semesters {
+}
+
+body.admin #container {
+    min-width: 0px;
+    padding: 0;
+    margin: 0;
+    width: auto;
+}
+
+.container_12 {
+    float: left;
+}
+
+#main {
+    margin-top: 1em;
+}
+
+body.day .person, body.user .main div, body.user .secondary div {
+    padding: .5em;
+    border: 1px solid #eee;
+    margin: 1em 0;
+    background: rgba(255, 255, 255, 1.0);
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+body.semester .day-name, body.semester .week {
+    visibility: hidden;
+}
+body.semester .hide {
+    visibility: hidden;
+}
+body.semester .show {
+    visibility: visible;
+}
+body.semester .accepts {
+    background: #fee;
+}
+body.semester .even .accepts {
+    background: #fdd;
+}
+body.semester table.plain .accepts,
+body.semester table.plain .hide,
+body.semester table.plain .day-name,
+body.semester table.plain .week,
+body.semester table.plain .even,
+body.semester table.plain .odd {
+    background-color: #fff;
+    visibility: visible;
+}
+body.day .empty, body.semester .past {
+    color: #aaa;
+}
+body.user .tradable a, body.semester .tradable {
+    text-decoration: line-through;
+}
+body.semester .today {
+    /* Be cautious when changing rules here. */
+}
+body.semester ul.users {
+    padding: 1em;
+}
+
+body.day .sem-info {
+    margin-bottom: 1em;
+}
+body.day h2.early-or-late {
+    margin: 0;
+    padding: 0;
+    margin-top: .2em;
+    font-size: 1.4em;
+}
+body.day .shift-top {
+    margin: 1em 0;
+    margin-bottom: 0;
+}
+body.day .shift-top .admin-link {
+    margin-top: .5em;
+    line-height: 2em;
+}
+body.day .schedule {
+}
+body.day .person {
+    padding: .5em;
+    height: 10em;
+    border: 1px solid #eee;
+}
+body.day .sign-up {
+    text-align: right;
+    margin-top: 1em;
+    height: auto;
+}
+body.day .schedule .worker .person {
+}
+body.day .schedule .on-call .person {
+}
+body.day .tradable {
+    background: #fee;
+    border: 1px solid #f00;
+}
+body.day .tradable .type {
+    color: #f00;
+}
+
+body.user .main div h2, body.user .secondary div h2 {
+    margin: 0;
+    padding: 0;
+    margin-bottom: .5em;
+}
+body.user .signups table {
+    width: 100%;
+}
+body.user .signups .group td {
+    color: #999;
+}
+
+.admin-link {
+    background: inherit !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: right;
+}

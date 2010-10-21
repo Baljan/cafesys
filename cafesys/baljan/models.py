@@ -294,10 +294,10 @@ class Shift(Made):
 class ShiftSignup(Made):
     shift = models.ForeignKey(Shift, verbose_name=_("shift"))
     user = models.ForeignKey('auth.User', verbose_name=_("worker"))
-    switchable = models.BooleanField(_('the user wants to switch this shift for some other'), default=False)
+    tradable = models.BooleanField(_('the user wants to switch this shift for some other'), default=False)
 
-    def can_switch(self):
-        return self.switchable and self.shift.upcoming() 
+    def can_trade(self):
+        return self.tradable and self.shift.upcoming() 
 
     class Meta:
         verbose_name = _("shift sign-up")

@@ -821,7 +821,7 @@ msgid "need workers"
 msgstr "behöver jobbare"
 
 #: templates/baljan/work_planning.html:33
-msgid "only switchable"
+msgid "only tradable"
 msgstr "endast bytbara"
 
 #: templates/baljan/work_planning.html:38

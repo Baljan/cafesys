@@ -1,0 +1,179 @@
+@font-face {
+    font-family: Kaffeesaatz;
+    src: url(../fonts/YanoneKaffeesatz/YanoneKaffeesatz-Regular.otf) format("opentype");
+}
+@font-face {
+    font-family: Kaffeesaatz;
+    src: url(../fonts/YanoneKaffeesatz/YanoneKaffeesatz-Bold.otf) format("opentype");
+    font-weight: bold;
+}
+
+h2, h3, h4 {
+    margin: 0;
+}
+
+body, html {
+    /*cursor: none;*/
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-image: url(../img/terminal-top-no-gradient.png);
+    font-family: Kaffeesaatz, sans-serif;
+    font-size: 2em;
+}
+
+.menu {
+    overflow: auto;
+}
+
+.menu .item img {
+    float: left;
+    width: 47%;
+}
+.menu .item h3 {
+    margin: 0;
+    padding: 0;
+}
+
+.menu img {
+    border-radius: .2em;
+    -moz-border-radius: .2em;
+}
+
+.menu .item .meta {
+    float: right; 
+    width: 50%;
+}
+.menu .item h3 {
+    text-align: center;
+}
+
+.menu .item .desc {
+    text-align: center;
+    margin-top: 0em;
+    font-size: .7em;
+}
+
+.menu .item {
+    background-color: rgba(255, 255, 255, 0.5);
+    width: 30.333%;
+    padding: 1%;
+    margin: .5%;
+    border-radius: .4em;
+    -moz-border-radius: .4em;
+    float: left;
+}
+.item .number .value, .item .number .mod {
+    background: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    font-weight: bold;
+    float: left;
+}
+.item .number .value {
+    width: 100%;
+    padding: .1em 0;
+    font-size: .8em;
+    background: rgba(255, 255, 255, 0.8);
+    -moz-border-radius-topleft: .3em;
+    border-top-left-radius: .3em;
+    -moz-border-radius-topright: .3em;
+    border-top-right-radius: .3em;
+    border-bottom: .2em solid white;
+}
+.item .number h4 {
+    text-align: left;
+}
+.item .number .mod {
+    width: 50%;
+    padding: .2em 0;
+    float: left;
+}
+.item .number .add {
+    color: #090;
+    background-color: rgba(100, 255, 100, 0.6);
+    -moz-border-radius-bottomright: .3em;
+    border-bottom-right-radius: .3em;
+}
+.item .number .remove {
+    color: #900;
+    background-color: rgba(255, 100, 100, 0.6);
+    -moz-border-radius-bottomleft: .3em;
+    border-bottom-left-radius: .3em;
+}
+.number .remove.highlight {
+    background-color: red;
+}
+.number .add.highlight {
+    background-color: green;
+}
+
+
+.cost-total {
+    position: absolute;
+    left: 50%;
+    margin-left: -6.5em;
+    margin-top: 1em;
+    background-color: rgb(255, 255, 255);
+    text-align: center;
+    font-weight: bold;
+    padding: .5em;
+    border-radius: .4em;
+    -moz-border-radius: .4em;
+    width: 12em;
+}
+.cost-total .cost {
+    font-size: 2em;
+}
+.cost-total .help {
+    font-size: 0.8em;
+}
+.cost-total .overlay {
+    background-image: url(../img/terminal-loader-bw.gif);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: #fff;
+    width: 100%;
+    z-index: 1000;
+    position: relative;
+    top: 1em;
+    height: 55px;
+    margin-bottom: -55px;
+    visibility: hidden;
+}
+
+.last-balance {
+    position: absolute;
+    left: 50%;
+    display: none;
+    color: #000;
+    width: 30%;
+    top: 3em;
+    margin-left: -3.25em;
+    padding: .25em;
+    width: 6em;
+    background: white;
+    text-align: center;
+    font-size: 2em;
+    border-radius: .2em;
+    -moz-border-radius: .2em;
+}
+.last-balance .extra {
+    font-size: .5em;
+}
+.last-balance .extra .is-worker {
+    color: #060;
+}
+.last-balance .extra .is-board {
+    color: #d4a017;
+}
+
+#trig-order {
+    position: fixed;
+    bottom: 1em;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+}

@@ -24,7 +24,7 @@ class TakeRequest(object):
             raise self.BadUser()
         if requester == signup.user:
             raise self.SameUser()
-        if not signup.switchable:
+        if not signup.tradable:
             raise self.BadSignup()
         self.signup = signup
         self.shift = self.signup.shift

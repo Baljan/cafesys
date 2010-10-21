@@ -38,9 +38,9 @@
             <div class="worker
                 {% if forloop.first%}alpha {% endif %}
                 {% if forloop.last%}omega {% endif %}grid_3">
-                <div class="person{% if signup.can_switch %} switchable undo-highlight{% endif %}">
+                <div class="person{% if signup.can_trade %} tradable undo-highlight{% endif %}">
                     <strong class="type">
-                        {% if signup.can_switch %}
+                        {% if signup.can_trade %}
                             {% trans "worker wants to trade" %}
                         {% else %}
                             {% trans "worker" %}
@@ -53,21 +53,21 @@
                     {% endif %}
                     <br/>
                     {% if perms.baljan.self_and_friend_signup %}
-                        {% if signup.can_switch %}
+                        {% if signup.can_trade %}
                             {% if user.shiftsignup_set.all.count == 0 %}
                                 <span class="help">
                                     {% trans "you cannot offer to take this shift because you have no shifts to trade with" %}
                                 </span>
                             {% else %}
                                 {% if signup.user == user %}
-                                <a class="toggle-switchable" href="{% url baljan.views.toggle_switchable signup.id request.path %}">{% trans "make untradable" %}</a>
+                                <a class="toggle-tradable" href="{% url baljan.views.toggle_tradable signup.id request.path %}">{% trans "make untradable" %}</a>
                                 {% else %}
                                     <a href="{% url baljan.views.trade_take signup.pk request.path%}">{% trans "offer to take this shift" %}</a>
                                 {% endif %}
                             {% endif %}
                         {% else %}{# the sh.upcoming check is needed for this case #}
                             {% if sh.upcoming and signup.user == user %}
-                                <a class="toggle-switchable" href="{% url baljan.views.toggle_switchable signup.id request.path %}">{% trans "make tradable" %}</a>
+                                <a class="toggle-tradable" href="{% url baljan.views.toggle_tradable signup.id request.path %}">{% trans "make tradable" %}</a>
                             {% endif %}
                         {% endif %}
                     {% endif %}

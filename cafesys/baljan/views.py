@@ -84,10 +84,10 @@ def delete_callduty(request, pk, redir):
 
 
 @login_required
-def toggle_switchable(request, pk, redir):
+def toggle_tradable(request, pk, redir):
     su = baljan.models.ShiftSignup.objects.get(pk=int(pk))
     assert su.user == request.user or request.user.has_perm('baljan.change_shiftsignup')
-    su.switchable = not su.switchable
+    su.tradable = not su.tradable
     su.save()
     return HttpResponseRedirect(redir)
 

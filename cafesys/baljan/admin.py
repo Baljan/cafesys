@@ -66,8 +66,8 @@ class ShiftSignupInline(admin.TabularInline):
 
 class ShiftSignupAdmin(admin.ModelAdmin):
     search_fields = signup_oncall_fields
-    list_display = signup_oncall_display + ('switchable',)
-    list_filter = ('switchable',)
+    list_display = signup_oncall_display + ('tradable',)
+    list_filter = ('tradable',)
 admin.site.register(baljan.models.ShiftSignup, ShiftSignupAdmin)
 
 

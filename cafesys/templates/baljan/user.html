@@ -171,7 +171,7 @@
                                     {% endifchanged %}
                                 {% endwith %}
                             </td>
-                            <td class="{% if signup.can_switch %}switchable{% endif %}">
+                            <td class="{% if signup.can_trade %}tradable{% endif %}">
                                 <a href="{{shift.get_absolute_url}}">{{shift.when|naturalday}}</a>
                             </td>
                             <td>

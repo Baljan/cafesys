@@ -32,7 +32,7 @@ $(document).ready(function () {
             upcomingOnly = $('#upcoming-only').attr('checked'),
             needWorkers = $('#need-workers').attr('checked'),
             needCallDuty = $('#need-call-duty').attr('checked'),
-            onlySwitchable = $('#only-switchable').attr('checked'),
+            onlySwitchable = $('#only-tradable').attr('checked'),
             filters = [],
             rows = '.tabs table tbody tr';
 
@@ -68,7 +68,7 @@ $(document).ready(function () {
         }
         if (onlySwitchable) {
             filters.push(function(row) {
-                return $(row).find('.switchable').length != 0;
+                return $(row).find('.tradable').length != 0;
             });
         }
 

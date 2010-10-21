@@ -30,8 +30,8 @@
     <input class="filter" type="checkbox" id="need-workers" name="need-workers"/>
     <label for="need-workers">{% trans "need workers" %}</label>
 
-    <input class="filter" type="checkbox" id="only-switchable" name="only-switchable"/>
-    <label for="only-switchable">{% trans "only switchable" %}</label>
+    <input class="filter" type="checkbox" id="only-tradable" name="only-tradable"/>
+    <label for="only-tradable">{% trans "only tradable" %}</label>
 {% endif %}
 
 {% include "baljan/flash_become_worker.html" %}
@@ -101,7 +101,7 @@
                     </td>
                     <td class="workers{%if sh.accepts_signups%} accepts{%endif%}">
                         {% for su in sh.signups %}
-                        <span class="{% if su.can_switch %}switchable{% endif %}">{{su.user|name_link}}</span>{% if not forloop.last %}, {% endif %}
+                        <span class="{% if su.can_trade %}tradable{% endif %}">{{su.user|name_link}}</span>{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </td>
                     <td class="on-call{%if sh.accepts_callduty%} accepts{%endif%}">
