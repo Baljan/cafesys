@@ -17,4 +17,4 @@ EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
 
-SITE_ID=2
+SITE_ID=1

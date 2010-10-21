@@ -15,7 +15,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: accounting/views.py:28
 #, python-format
@@ -340,27 +339,26 @@ msgstr ""
 msgid "You can <a href=\"%(login_url)s\">Log in</a> to try out the site."
 msgstr ""
 
-#: templates/site_base.html:22 templates/admin/base.html:35
+#: templates/site_base.html:22
 msgid "logout"
 msgstr ""
 
-#: templates/site_base.html:24 templates/admin/base.html:37
+#: templates/site_base.html:24
 msgid "login"
 msgstr ""
 
 #: templates/about/what_next.html:6 templates/about/what_next.html.py:9
-#: templates/terminal/what_next.html:6 templates/terminal/what_next.html:9
 msgid "What Next?"
 msgstr ""
 
-#: templates/about/what_next.html:35 templates/terminal/what_next.html:35
+#: templates/about/what_next.html:35
 #, python-format
 msgid ""
 "Start by <a href=\"%(signup_url)s\">signing up</a> and <a href=\"%(login_url)"
 "s\">logging in</a>."
 msgstr ""
 
-#: templates/about/what_next.html:37 templates/terminal/what_next.html:37
+#: templates/about/what_next.html:37
 #, python-format
 msgid "Start by <a href=\"%(login_url)s\">logging in</a>."
 msgstr ""
@@ -393,7 +391,7 @@ msgstr ""
 msgid "Log In"
 msgstr ""
 
-#: templates/account/login.html:20 templates/calendar/calendar.html:65
+#: templates/account/login.html:20
 msgid "Note"
 msgstr ""
 
@@ -431,14 +429,10 @@ msgid "My Status"
 msgstr ""
 
 #: templates/accounting/accounting.html:15
-#: templates/accounting/price_list.html:5
-#: templates/accounting/price_list.html:8
 msgid "Price List"
 msgstr ""
 
-#: templates/accounting/accounting.html:17 templates/accounting/stats.html:5
-#: templates/accounting/stats.html.py:8 templates/baljan/stats.html:5
-#: templates/baljan/stats.html.py:8
+#: templates/accounting/accounting.html:17
 msgid "Statistics"
 msgstr ""
 
@@ -483,6 +477,11 @@ msgstr ""
 msgid "Order History"
 msgstr ""
 
+#: templates/accounting/price_list.html:5
+#: templates/accounting/price_list.html:8
+msgid "Price List"
+msgstr ""
+
 #: templates/accounting/price_list_widget.html:5
 msgid "Item"
 msgstr ""
@@ -491,25 +490,36 @@ msgstr ""
 msgid "Cost"
 msgstr ""
 
-#: templates/accounting/stats.html:11 templates/baljan/stats.html:11
-#: templates/calendar/swappable.html:18
+#: templates/accounting/stats.html:5 templates/accounting/stats.html.py:8
+msgid "Statistics"
+msgstr ""
+
+#: templates/accounting/stats.html:11
 msgid "from"
 msgstr ""
 
-#: templates/accounting/stats.html:12 templates/baljan/stats.html:12
+#: templates/accounting/stats.html:12
 msgid "to"
 msgstr ""
 
-#: templates/accounting/stats.html:13 templates/baljan/stats.html:13
+#: templates/accounting/stats.html:13
 msgid "auto-update"
 msgstr ""
 
-#: templates/accounting/stats.html:14 templates/baljan/stats.html:14
+#: templates/accounting/stats.html:14
 msgid "Update now"
 msgstr ""
 
-#: templates/accounting/stats.html:17 templates/baljan/stats.html:17
+#: templates/accounting/stats.html:17
 msgid "Orders per Day and Hour"
+msgstr ""
+
+#: templates/admin/base.html:35
+msgid "logout"
+msgstr ""
+
+#: templates/admin/base.html:37
+msgid "login"
 msgstr ""
 
 #: templates/admin/base.html:67
@@ -552,12 +562,37 @@ msgstr ""
 msgid "manage on admin site"
 msgstr ""
 
-#: templates/calendar/calendar.html:11 templates/calendar/calendar.html:43
+#: templates/baljan/stats.html:5 templates/baljan/stats.html.py:8
+msgid "Statistics"
+msgstr ""
+
+#: templates/baljan/stats.html:11
+msgid "from"
+msgstr ""
+
+#: templates/baljan/stats.html:12
+msgid "to"
+msgstr ""
+
+#: templates/baljan/stats.html:13
+msgid "auto-update"
+msgstr ""
+
+#: templates/baljan/stats.html:14
+msgid "Update now"
+msgstr ""
+
+#: templates/baljan/stats.html:17
+msgid "Orders per Day and Hour"
+msgstr ""
+
+#: templates/calendar/calendar.html:11
+#: templates/calendar/calendar.html:43
 #: templates/calendar/calendar.html:46
 msgid "Calendar"
 msgstr ""
 
-#: templates/calendar/calendar.html:13 templates/calendar/swappable.html:9
+#: templates/calendar/calendar.html:13
 msgid "Shift Swaps"
 msgstr ""
 
@@ -589,6 +624,10 @@ msgstr ""
 msgid "Hold the <code>Ctrl</code> key for multi-select mode."
 msgstr ""
 
+#: templates/calendar/calendar.html:65
+msgid "Note"
+msgstr ""
+
 #: templates/calendar/calendar.html:66
 msgid "Shifts will be removed even if workers have signed up for them."
 msgstr ""
@@ -609,11 +648,11 @@ msgstr ""
 msgid "My Shifts"
 msgstr ""
 
-#: templates/calendar/calendar.html:90 templates/calendar/swappable.html:63
+#: templates/calendar/calendar.html:90
 msgid "date"
 msgstr ""
 
-#: templates/calendar/calendar.html:91 templates/calendar/swappable.html:64
+#: templates/calendar/calendar.html:91
 msgid "when"
 msgstr ""
 
@@ -625,8 +664,7 @@ msgstr ""
 msgid "tasks"
 msgstr ""
 
-#: templates/calendar/calendar.html:100 templates/calendar/swappable.html:17
-#: templates/calendar/swappable.html:33 templates/calendar/swappable.html:72
+#: templates/calendar/calendar.html:100
 msgid "go to this month"
 msgstr ""
 
@@ -634,7 +672,7 @@ msgstr ""
 msgid "toggle swappability"
 msgstr ""
 
-#: templates/calendar/calendar.html:116 templates/calendar/swappable.html:20
+#: templates/calendar/calendar.html:116
 msgid "remove"
 msgstr ""
 
@@ -690,12 +728,30 @@ msgstr ""
 msgid "Swappable"
 msgstr ""
 
+#: templates/calendar/swappable.html:9
+msgid "Shift Swaps"
+msgstr ""
+
 #: templates/calendar/swappable.html:12
 msgid "Sent Requests"
 msgstr ""
 
 #: templates/calendar/swappable.html:16
 msgid "you want"
+msgstr ""
+
+#: templates/calendar/swappable.html:17
+#: templates/calendar/swappable.html:33
+#: templates/calendar/swappable.html:72
+msgid "go to this month"
+msgstr ""
+
+#: templates/calendar/swappable.html:18
+msgid "from"
+msgstr ""
+
+#: templates/calendar/swappable.html:20
+msgid "remove"
 msgstr ""
 
 #: templates/calendar/swappable.html:24
@@ -735,6 +791,14 @@ msgid ""
 "                "
 msgstr ""
 
+#: templates/calendar/swappable.html:63
+msgid "date"
+msgstr ""
+
+#: templates/calendar/swappable.html:64
+msgid "when"
+msgstr ""
+
 #: templates/calendar/swappable.html:65
 msgid "who"
 msgstr ""
@@ -751,10 +815,19 @@ msgstr ""
 msgid "You are not a worker."
 msgstr ""
 
-#: terminal/views.py:44
-msgid "adjusted for worker"
+#: templates/terminal/what_next.html:6
+#: templates/terminal/what_next.html:9
+msgid "What Next?"
 msgstr ""
 
-#: terminal/views.py:46
-msgid "adjusted for board member"
+#: templates/terminal/what_next.html:35
+#, python-format
+msgid ""
+"Start by <a href=\"%(signup_url)s\">signing up</a> and <a href=\"%(login_url)"
+"s\">logging in</a>."
+msgstr ""
+
+#: templates/terminal/what_next.html:37
+#, python-format
+msgid "Start by <a href=\"%(login_url)s\">logging in</a>."
 msgstr ""
