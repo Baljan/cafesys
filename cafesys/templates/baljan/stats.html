@@ -1,0 +1,20 @@
+{% extends "accounting/accounting.html" %}
+{% load i18n %}
+{% load humanize %}
+
+{% block head_title %}{% trans "Statistics" %}{% endblock %}
+
+{% block body %}
+<h1>{% trans "Statistics" %}</h1>
+
+<div id="range-selector">
+    <label for="from-date">{% trans "from" %}</label><input value="{{ today|date:"Y-m-d" }}" class="date" type="text" name="from-date" id="from-date" />
+    <label for="to-date">{% trans "to" %}</label><input value="{{ today|date:"Y-m-d" }}" class="date" type="text" name="to-date" id="to-date" /><br />
+    <label for="auto-update">{% trans "auto-update" %}</label><input checked="checked" type="checkbox" name="auto-update" id="auto-update" />
+    <input type="button" value="{% trans "Update now" %} &raquo;" id="update-now" name="update-now"/>
+</div>
+
+<h2>{% trans "Orders per Day and Hour" %}</h2>
+<div id="punch-card"></div>
+
+{% endblock %}

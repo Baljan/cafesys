@@ -1,0 +1,168 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+{% load cache %}
+
+{% block head_title %}{% trans "Semester" %}{% endblock %}
+
+
+{% block body_class %}semester{% endblock %}
+{% block body %}
+
+{% if perms.baljan.change_semester %}
+<div class="admin-link">
+    <a href="{% url admin:baljan_semester_change selected_semester.id %}">{% trans "admin" %}</a>
+</div>
+{% endif %}
+
+<select class="sem">
+    {% for sem in semesters %}
+    <option {% if sem == selected_semester %}selected="selected" {% endif %}>{{ sem.name }}</option>
+    {% endfor %}
+</select>
+
+<input {% if selected_semester.upcoming %}class="filter" checked="checked" {% else %}class="filter past" disabled="disabled" {% endif %}type="checkbox" id="upcoming-only" name="upcoming-only"/>
+<label for="upcoming-only">{% trans "upcoming days only" %}</label>
+
+{% if selected_semester.upcoming and perms.baljan.self_and_friend_signup %}
+    <input class="filter" type="checkbox" id="need-workers" name="need-workers"/>
+    <label for="need-workers">{% trans "need workers" %}</label>
+
+    <input class="filter" type="checkbox" id="only-switchable" name="only-switchable"/>
+    <label for="only-switchable">{% trans "only switchable" %}</label>
+{% endif %}
+
+{% include "baljan/flash_become_worker.html" %}
+
+{% if selected_semester.upcoming and perms.baljan.add_oncallduty and perms.baljan.change_oncallduty %}
+    <input class="filter" type="checkbox" id="need-call-duty" name="need-call-duty"/>
+    <label for="need-call-duty">{% trans "need call duty" %}</label>
+{% endif %}
+
+<div class="tabs init-hidden">
+    <ul>
+        <li><a href="#schedule">{% trans "work shifts" %}</a></li>
+        <li><a href="#worker-list">{% trans "worker list" %}</a></li>
+        <li><a href="#oncall-list">{% trans "call duty list" %}</a></li>
+    </ul>
+    <div id="schedule">
+        <table>
+            <thead>
+                <tr>
+                    <th>{% trans "week" %}</th>
+                    <th>{% trans "day" %}</th>
+                    <th>{% trans "date" %}</th>
+                    <th>{% trans "am/pm" %}</th>
+                    <th>{% trans "workers" %}</th>
+                    <th>{% trans "on call" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sh in shifts %}
+                <tr class="day
+                    {%if sh.past %} past{%endif%}
+                    {%if sh.today%} today{%endif%} 
+                    {%if sh.upcoming%} upcoming{%endif%} 
+                    {% cycle "odd" "even" %}">
+                    {% with sh.when|date:'W' as week %}
+                        <td class="week{% ifchanged week %} show{% endifchanged %}">
+                            {{week}}
+                        </td>
+                    {% endwith %}
+                    {% with sh.when|date:'D' as day %}
+                        <td class="day-name{% ifchanged day %} show{% endifchanged %}">
+                            {{day}}
+                        </td>
+                    {% endwith %}
+                    {# Edit baljan.js if you change date format. #}
+                    <td class="when">
+                        {% spaceless %}
+                        {% with sh.when|naturalday as when %}
+                                {% ifchanged when %}
+                                    <a class ="show date" href="{{ sh.get_absolute_url }}">
+                                        {{when}}
+                                    </a>
+                                {% else %}
+                                    <a class="hide date" href="{{ sh.get_absolute_url }}">
+                                        {{when}}
+                                    </a>
+                                {% endifchanged %}
+                        {% endwith %}
+                        {% endspaceless %}
+                    </td>
+                    <td class="early-or-late">
+                        {% if sh.early %}
+                            {% trans "am" %}
+                        {% else %}
+                            {% trans "pm" %}
+                        {% endif %}
+                    </td>
+                    <td class="workers{%if sh.accepts_signups%} accepts{%endif%}">
+                        {% for su in sh.signups %}
+                        <span class="{% if su.can_switch %}switchable{% endif %}"><a href="{{su.user.get_absolute_url}}">{{su.user.get_full_name}}</a></span>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td class="on-call{%if sh.accepts_callduty%} accepts{%endif%}">
+                        {% for u in sh.on_callduty %}
+                        <a href="{{u.get_absolute_url}}">{{u.get_full_name}}</a>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="worker-list">
+        <ul class="users">
+            {% for user in workers %}
+            <li>
+                <a href="{{user.get_absolute_url}}">{{user.get_full_name}} ({{user.username}})</a>
+            </li>
+            {% endfor %}
+        </ul>
+        <p>
+            {% blocktrans count workers.count as counter %}
+                One worker.
+            {% plural %}
+                A total of {{counter}} workers.
+            {% endblocktrans %}
+        </p>
+    </div>
+    <div id="oncall-list">
+        <ul class="users">
+            {% for user in oncall %}
+            <li>
+                <a href="{{user.get_absolute_url}}">{{user.get_full_name}} ({{user.username}})</a>
+            </li>
+            {% endfor %}
+        </ul>
+        <p>
+            {% blocktrans count oncall.count as counter %}
+                One person on the call duty list.
+            {% plural %}
+                Total of {{counter}} people on the call duty list.
+            {% endblocktrans %}
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_body %}
+<script type="text/javascript">
+// <![CDATA[
+    SEMESTER_URLS = {
+        {% for sem in semesters %}
+        "{{sem.name}}": "{{ sem.get_absolute_url }}",
+        {% endfor %}
+        "dummy": false
+    };
+    $('select.sem').change(function() {
+        var val = $(this).children(':selected').html(),
+            tab = $('.tabs .ui-tabs-selected a:first').attr('href');
+        location.href = SEMESTER_URLS[val] + tab;
+    });
+
+// ]]>
+</script>
+{% endblock %}

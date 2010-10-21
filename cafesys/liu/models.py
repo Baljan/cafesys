@@ -60,21 +60,21 @@ def create_profile(sender, instance=None, **kwargs):
             liu_id=instance.username,
             )
 
-post_save.connect(create_profile, sender=User)
+#post_save.connect(create_profile, sender=User)
 
 
-class JoinGroupRequest(models.Model):
-    student = models.ForeignKey(Student)
-    group = models.ForeignKey(Group)
-
-    @staticmethod
-    def from_group_name(student, group_name):
-        group = Group.objects.get(name=group_name)
-        return JoinGroupRequest(student=student, group=group)
-
-    def __str__(self):
-        fmt = "%s wants to be in %s" % (self.student.liu_id, self.group.name)
-        return smart_str(fmt)
+#class JoinGroupRequest(models.Model):
+#    student = models.ForeignKey(Student)
+#    group = models.ForeignKey(Group)
+#
+#    @staticmethod
+#    def from_group_name(student, group_name):
+#        group = Group.objects.get(name=group_name)
+#        return JoinGroupRequest(student=student, group=group)
+#
+#    def __str__(self):
+#        fmt = "%s wants to be in %s" % (self.student.liu_id, self.group.name)
+#        return smart_str(fmt)
 
 def default_issued():
     return date.today()

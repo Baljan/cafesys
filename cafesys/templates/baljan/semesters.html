@@ -1,0 +1,45 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load uni_form_tags %}
+
+{% block head_title %}{% trans "Semesters" %}{% endblock %}
+
+{% block body_class %}semesters{% endblock %}
+{% block body %}
+<div class="grid_6 alpha">
+    <table class="semesters">
+        <thead>
+            <tr>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Start" %}</th>
+                <th>{% trans "End" %}</th>
+                <th colspan="2">{% trans "Sign-Up Possible" %}</th>
+            </tr>
+        </thead>
+        {% for semester in semesters %}
+        <tr class="{% cycle 'even' 'odd' %}">
+            <td>{{ semester.name }}</td>
+            <td>{{ semester.start|date:"Y-m-d" }}</td>
+            <td>{{ semester.end|date:"Y-m-d" }}</td>
+            <td>{{ semester.signup_possible|yesno }}</td>
+            <td><a href="{% url admin:baljan_semester_change semester.id %}">{% trans "admin" %}</a></td>
+        </tr>
+        {% empty %}
+            <tr><td colspan="5">{% trans "No semesters available." %}</td></tr>
+        {% endfor %}
+    </table>
+</div>
+<div class="grid_3 omega">
+    <form action="" method="post" name="add" class="uniForm">
+        {% csrf_token %}
+        <input type="hidden" name="task" value="add"/>
+        {{ add_form|as_uni_form }}
+        <div class="ctrlHolder">
+            <input type="submit" value="{% trans "Add" %}"/>
+        </div>
+    </form>
+    <p>
+        <a href="{% url admin:baljan_semester_changelist %}">{% trans "manage on admin site" %}</a>
+    </p>
+</div>
+{% endblock %}

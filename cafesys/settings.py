@@ -20,7 +20,7 @@ TERMINAL_FIREWALL = not DEBUG
 DAJAXICE_MEDIA_PREFIX="dajaxice"
 
 # tells Pinax to serve media through the staticfiles app.
-SERVE_MEDIA = DEBUG
+SERVE_MEDIA = True #DEBUG
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -49,6 +49,11 @@ DATABASES = {
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
 TIME_ZONE = "Europe/Stockholm"
+
+DATE_FORMAT = 'Y-m-d'
+DATETIME_FORMAT = 'Y-m-d H:i'
+TIME_FORMAT = 'H:i'
+USE_L10N = True
 
 # Language code for this installation. All choices can be found here:
 # http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
@@ -116,7 +121,7 @@ MIDDLEWARE_CLASSES = [
     "pagination.middleware.PaginationMiddleware",
     "pinax.middleware.security.HideSensistiveFieldsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
-    "terminal.middleware.RestrictAccessMiddleware",
+    #"terminal.middleware.RestrictAccessMiddleware",
     'django.middleware.transaction.TransactionMiddleware',
 ]
 
@@ -142,6 +147,8 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "notification.context_processors.notification",
     "announcements.context_processors.site_wide_announcements",
     "pinax.apps.account.context_processors.account",
+
+    "baljan.ctx.actions",
 ]
 
 INSTALLED_APPS = [
@@ -153,6 +160,8 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.messages",
     "django.contrib.humanize",
+
+    "django.contrib.databrowse",
     
     "pinax.templatetags",
     
@@ -169,8 +178,8 @@ INSTALLED_APPS = [
     "staticfiles",
     "debug_toolbar",
 
-    "dajaxice",
-    "dajax",
+    #"dajaxice",
+    #"dajax",
     
     # Pinax
     "pinax.apps.analytics",
@@ -180,13 +189,14 @@ INSTALLED_APPS = [
     
     # project
     #"rosetta",
-    "fixtures",
+    #"fixtures",
     "about",
-    "terminal",
-    "liu",
-    "cal",
-    "accounting",
-    "stats",
+    #"terminal",
+    #"liu",
+    #"cal",
+    #"accounting",
+    #"stats",
+    "baljan",
 
     "gunicorn",
 
@@ -196,7 +206,8 @@ INSTALLED_APPS = [
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 ABSOLUTE_URL_OVERRIDES = {
-    "auth.user": lambda o: "/profiles/profile/%s/" % o.username,
+    "auth.user": lambda o: "/baljan/user/%s" % o.username,
+    "auth.group": lambda o: "/baljan/group/%s" % o.name,
 }
 
 MARKUP_FILTER_FALLBACK = "none"
@@ -208,7 +219,7 @@ MARKUP_CHOICES = [
 ]
 WIKI_MARKUP_CHOICES = MARKUP_CHOICES
 
-AUTH_PROFILE_MODULE = "liu.Student"
+AUTH_PROFILE_MODULE = "baljan.Profile"
 NOTIFICATION_LANGUAGE_MODULE = "account.Account"
 
 ACCOUNT_OPEN_SIGNUP = False
@@ -237,6 +248,9 @@ LOGIN_REDIRECT_URLNAME = "home"
 WORKER_COOLDOWN_SECONDS = 5
 WORKER_MAX_COST_REDUCE = 5
 
+BOARD_GROUP = 'styrelsen'
+WORKER_GROUP = 'jobbare'
+
 PRICE_LIST_ROW_HEIGHT = 40 # px
 
 # For importing data from the old system. There is a management command
@@ -258,7 +272,8 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 #CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
-JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
+#JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
+CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
