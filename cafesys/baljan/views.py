@@ -61,7 +61,9 @@ def _semester(request, sem):
     tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
     tpl['selected_semester'] = sem
     if sem:
-        tpl['shifts'] = shifts = sem.shift_set.order_by('when', '-early').filter(enabled=True)
+        tpl['shifts'] = shifts = sem.shift_set.order_by('when', '-early').filter(enabled=True).iterator()
+        # Do not use iterator() on workers and oncall because the template is
+        # unable to count() them. Last tested in Django 1.2.3.
         tpl['workers'] = workers = User.objects.filter(shiftsignup__shift__semester=sem).order_by('first_name').distinct()
         tpl['oncall'] = oncall = User.objects.filter(oncallduty__shift__semester=sem).order_by('first_name').distinct()
     return render_to_response('baljan/work_planning.html', tpl,
