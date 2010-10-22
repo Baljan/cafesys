@@ -150,34 +150,34 @@ class TradeRequest(Made):
 
 def traderequest_notice_delete(tr):
     if not tr.answered:
-        return
-
-    if tr.accepted:
-        answer_happening = _("was accepted")
-        wanted_rename = _("new shift")
-        offered_rename = _("lost shift")
+        pass # FIXME: notifications should be sent here as well
     else:
-        answer_happening = _("was denied")
-        wanted_rename = _("requested shift")
-        offered_rename = _("offered shift")
+        if tr.accepted:
+            answer_happening = _("was accepted")
+            wanted_rename = _("new shift")
+            offered_rename = _("lost shift")
+        else:
+            answer_happening = _("was denied")
+            wanted_rename = _("requested shift")
+            offered_rename = _("offered shift")
 
-    if tr.wanted_signup.shift.when < date.today():
-        return
-    if tr.offered_signup.shift.when < date.today():
-        return
+        if tr.wanted_signup.shift.when < date.today():
+            return
+        if tr.offered_signup.shift.when < date.today():
+            return
 
-    requester = tr.offered_signup.user
-    notification.send([requester], "trade_request", {
-        'accepted': tr.accepted,
-        'answer_happening': answer_happening,
-        'answered_by': tr.wanted_signup.user,
-        'wanted_rename': wanted_rename,
-        'offered_rename': offered_rename,
-        'wanted_signup': tr.wanted_signup,
-        'offered_signup': tr.offered_signup,
-        'deleted': True,
-        'saved': False,
-        })
+        requester = tr.offered_signup.user
+        notification.send([requester], "trade_request", {
+            'accepted': tr.accepted,
+            'answer_happening': answer_happening,
+            'answered_by': tr.wanted_signup.user,
+            'wanted_rename': wanted_rename,
+            'offered_rename': offered_rename,
+            'wanted_signup': tr.wanted_signup,
+            'offered_signup': tr.offered_signup,
+            'deleted': True,
+            'saved': False,
+            })
 
 
 def traderequest_post_delete(sender, instance=None, **kwargs):
@@ -213,21 +213,21 @@ signals.post_delete.connect(traderequest_post_delete, sender=TradeRequest)
 
 def traderequest_notice_save(tr):
     if tr.answered:
-        return
+        pass 
+    else:
+        if tr.wanted_signup.shift.when < date.today():
+            return
+        if tr.offered_signup.shift.when < date.today():
+            return
 
-    if tr.wanted_signup.shift.when < date.today():
-        return
-    if tr.offered_signup.shift.when < date.today():
-        return
-
-    accepter = tr.wanted_signup.user
-    requester = tr.offered_signup.user
-    notification.send([requester, accepter], "trade_request", {
-        'wanted_signup': tr.wanted_signup,
-        'offered_signup': tr.offered_signup,
-        'deleted': False,
-        'saved': True,
-        })
+        accepter = tr.wanted_signup.user
+        requester = tr.offered_signup.user
+        notification.send([requester, accepter], "trade_request", {
+            'wanted_signup': tr.wanted_signup,
+            'offered_signup': tr.offered_signup,
+            'deleted': False,
+            'saved': True,
+            })
 
 
 def traderequest_post_save(sender, instance=None, **kwargs):
