@@ -132,6 +132,28 @@ class TradeRequest(Made):
                 'shift': self.wanted_signup.shift,
                 }
 
+    def accept(self):
+        accepter_kwargs = {
+                'user': self.wanted_signup.user,
+                'shift': self.offered_signup.shift,
+                }
+        requester_kwargs = {
+                'user': self.offered_signup.user,
+                'shift': self.wanted_signup.shift,
+                }
+
+        self.offered_signup.delete()
+        self.wanted_signup.delete()
+
+        accepter_signup = ShiftSignup(**accepter_kwargs)
+        accepter_signup.save()
+
+        requester_signup = ShiftSignup(**requester_kwargs)
+        requester_signup.save()
+
+    def deny(self):
+        self.delete()
+
 
 class SemesterManager(models.Manager):
     def for_date(self, the_date):

@@ -144,4 +144,9 @@ $(document).ready(function () {
             });
         });
     }
+
+    /* User View */
+    $('body.user a.accept, body.user a.deny').click(function() {
+        return confirm(CONFIRM_MSG);
+    });
 });

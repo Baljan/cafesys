@@ -5,9 +5,38 @@ from baljan.models import ShiftSignup, Shift, TradeRequest
 from datetime import date
 from django.db.models import Q
 
+def _requests(user, wanted):
+    if wanted:
+        su = 'wanted_signup'
+        su_other = 'offered_signup'
+    else:
+        su = 'offered_signup'
+        su_other = 'wanted_signup'
+
+    order = (
+            'wanted_signup__shift__when',
+            'offered_signup__shift__when',
+            )
+    today = date.today()
+    filt = {
+            "%s__user" % su: user,
+            'wanted_signup__shift__when__gte': today,
+            'offered_signup__shift__when__gte': today,
+            }
+    return TradeRequest.objects.filter(**filt).distinct().order_by(*order)
+
+def requests_sent_to(user):
+    return _requests(user, wanted=True)
+
+def requests_sent_by(user):
+    return _requests(user, wanted=False)
+
 
 class TakeRequest(object):
-    """Utility class for trading shifts between users."""
+    """Utility class for managing requests to take shifts. This class is not
+    used for confirming requests. To accept requests, use `requests_sent_to` and
+    `requests_sent_by` and `TradeRequest.accept` or `TradeRequest.deny`.
+    """
 
     class Error(Exception):
         pass
@@ -17,14 +46,18 @@ class TakeRequest(object):
         pass
     class BadUser(Error):
         pass
-    class SameUser(BadUser):
+    class DoubleSignup(BadUser):
         pass
 
     def __init__(self, signup, requester, offered_signups=None):
         if not requester.has_perm('baljan.self_and_friend_signup'):
             raise self.BadUser()
         if requester == signup.user:
-            raise self.SameUser()
+            raise self.DoubleSignup()
+        if ShiftSignup.objects.filter( # prevent double bookings
+                shift=signup.shift, 
+                user=requester):
+            raise self.DoubleSignup()
         if not signup.tradable:
             raise self.BadSignup()
         self.signup = signup
@@ -84,4 +117,3 @@ class TakeRequest(object):
         trs = self._current_trade_requests()
         for tr in trs:
             self.add_offer(tr.offered_signup)
-

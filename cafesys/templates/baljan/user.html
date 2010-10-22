@@ -10,7 +10,7 @@
 {% block body_class %}user{% endblock %}
 {% block body %}
 <h1>{{watched.get_full_name}} ({{watched.username}})</h1>
-<div class="grid_5 alpha main">
+<div class="grid_4 alpha main">
 
     <div class="friend-request {{friend_request_classes|join:" "}}">
         {% if watching_self %}
@@ -23,11 +23,6 @@
                 and can sign each other up for work shifts
                 </p>
                 {% endblocktrans %}
-                <!-- flickr image -->
-                <a href="http://www.flickr.com/photos/lorenjavier/5010735811/">
-                    <img title="Loren Javier @ flickr"
-                        src="http://farm5.static.flickr.com/4104/5010735811_cf5bdb0a34_z.jpg" />
-                </a>
             {% else %}
                 {% url baljan.views.toggle_friend_request watched.username request.path as request_link %}
                 {% if pending_friends %}
@@ -72,8 +67,41 @@
         </dl>
     </div>
 
+    {% with watched.groups.all as groups %}
+    <div class="groups">
+        <h2>{% trans "Groups" %}</h2>
+        {% if groups|length %}
+            <ul>
+            {% for group in groups %}
+                <li>
+                <a href="{% url group group.name %}">{{ group.name }}</a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+        {% url become_worker as become_worker_link %}
+        <p>
+        {% blocktrans %}
+        None. To work for Baljan, one must <a href="{{become_worker_link}}">become a member of the workers' group</a>.
+        {% endblocktrans %}
+        </p>
+        {% endif %}
+    </div>
+    {% endwith %}
+
+    {% if friends %}
+    <div class="friends">
+        <h2>{% trans "Friends" %}</h2>
+        <ul>
+            {% for friend in friends %}
+                <li>{{friend|user_link}}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
 </div><!--.main-->
-<div class="grid_5 omega secondary">
+<div class="grid_6 omega secondary">
     {% if perms.auth.change_user %}
         <div class="admin-link">
             admin: 
@@ -99,6 +127,101 @@
         </ul>
     </div>
     {% endif %}
+
+    {% if trade_requests %}
+    <div class="pending-highlight">
+        <h2>{% trans "Trade Requests" %}</h2>
+        {% if received_trade_requests %}
+            <strong>{% trans "Received" %}</strong>
+            <table>
+                <thead>
+                    <tr>
+                        <th>{% trans "wanted" %}</th>
+                        <th>{% trans "offered" %}</th>
+                        <th>{% trans "from" %}</th>
+                        <th class="action" colspan="2">{% trans "answer" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for recd in received_trade_requests %}
+                <tr>
+                    {% with recd.wanted_signup as wanted %}
+                        <td>
+                            {% ifchanged wanted %}
+                                {{wanted|shift_link_short}}
+                            {% endifchanged %}
+                        </td>
+                    {% endwith %}
+                    {% with recd.offered_signup as offered %}
+                        <td>
+                            {% ifchanged offered %}
+                                {{offered|shift_link_short}}
+                            {% endifchanged %}
+                        </td>
+                        <td>
+                            {{offered|name_link}}
+                        </td>
+                    {% endwith %}
+                    <td class="action">
+                        <a class="deny" 
+                            href="{% url deny_trade recd.pk request.path %}"
+                            >{% trans "deny" %}</a>
+                    </td>
+                    <td class="action">
+                        <a class="accept" 
+                            href="{% url accept_trade recd.pk request.path %}"
+                            >{% trans "accept" %}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        {% if sent_trade_requests %}
+            <strong>{% trans "Sent" %}</strong>
+            <table>
+                <thead>
+                    <tr>
+                        <th>{% trans "wanted" %}</th>
+                        <th>{% trans "offered" %}</th>
+                        <th>{% trans "to" %}</th>
+                        <th class="action">{% trans "action" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for sent in sent_trade_requests %}
+                <tr>
+                    {% with sent.wanted_signup as wanted %}
+                        <td>
+                            {% ifchanged wanted %}
+                                {{wanted|shift_link_short}}
+                            {% endifchanged %}
+                        </td>
+                        {% with sent.offered_signup as offered %}
+                        <td>
+                            {% ifchanged offered %}
+                                {{offered|shift_link_short}}
+                            {% endifchanged %}
+                        </td>
+                        <td>
+                            {{wanted|name_link}}
+                        </td>
+                        {% endwith %}
+                        <td class="action">
+                            {% ifchanged wanted %}
+                                <a href="{% url baljan.views.trade_take wanted.pk request.path%}">{% trans "edit" %}</a>
+                            {% endifchanged %}
+                        </td>
+                    {% endwith %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    {% endif %}
+
 
     {% if received_friend_requests %}
     <div class="pending-highlight">
@@ -131,40 +254,6 @@
         </ul>
     </div>
     {% endif %}
-
-    
-    {% if friends %}
-    <div class="friends">
-        <h2>{% trans "Friends" %}</h2>
-        <ul>
-            {% for friend in friends %}
-                <li>{{friend|user_link}}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-
-    {% with watched.groups.all as groups %}
-        <div class="groups">
-            <h2>{% trans "Groups" %}</h2>
-            {% if groups|length %}
-                <ul>
-                {% for group in groups %}
-                    <li>
-                    <a href="{% url group group.name %}">{{ group.name }}</a>
-                    </li>
-                {% endfor %}
-                </ul>
-            {% else %}
-            {% url become_worker as become_worker_link %}
-            <p>
-            {% blocktrans %}
-            None. To work for Baljan, one must <a href="{{become_worker_link}}">become a member of the workers' group</a>.
-            {% endblocktrans %}
-            </p>
-            {% endif %}
-        </div>
-    {% endwith %}
     
     {% for type_title, type_classes, grouped_signups in signup_types %}
         {% if grouped_signups|length %}

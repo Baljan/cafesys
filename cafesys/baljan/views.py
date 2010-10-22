@@ -217,6 +217,9 @@ def see_user(request, who):
         tpl['received_friend_requests'] = friendrequests.sent_to(u)
         jgr = baljan.models.JoinGroupRequest.objects.filter(user=u)
         tpl['join_group_requests'] = jgr
+        tpl['sent_trade_requests'] = tr_sent = trades.requests_sent_by(u)
+        tpl['received_trade_requests'] = tr_recd = trades.requests_sent_to(u)
+        tpl['trade_requests'] = tr_sent or tr_recd
     
     # Call duties come after work shifts because they are more frequent.
     tpl['signup_types'] = (
@@ -300,24 +303,47 @@ def trade_take(request, signup_pk, redir):
     u = request.user
     tpl = {}
     signup = baljan.models.ShiftSignup.objects.get(pk=signup_pk)
-    tpl['take'] = take = trades.TakeRequest(signup, u)
-
-    if request.method == 'POST':
-        offers = []
-        for field, value in request.POST.items():
-            if not field.startswith('signup_'):
-                continue
-            pk = int(value)
-            offers.append(baljan.models.ShiftSignup.objects.get(pk=pk))
-        [take.add_offer(o) for o in offers]
-        take.save()
-    else:
-        take.load()
-
-    tpl['redir'] = redir
 
     try:
+        tpl['take'] = take = trades.TakeRequest(signup, u)
+
+        if request.method == 'POST':
+            offers = []
+            for field, value in request.POST.items():
+                if not field.startswith('signup_'):
+                    continue
+                pk = int(value)
+                offers.append(baljan.models.ShiftSignup.objects.get(pk=pk))
+            [take.add_offer(o) for o in offers]
+            take.save()
+            tpl['saved'] = True
+        else:
+            take.load()
+
+        tpl['redir'] = redir
+
         return render_to_response('baljan/trade.html', tpl,
                 context_instance=RequestContext(request))
     except trades.TakeRequest.Error:
+        messages.add_message(request, messages.ERROR, _("Invalid trade request."))
         return HttpResponseRedirect(redir)
+
+
+def _trade_answer(request, request_pk, redir, accept):
+    u = request.user
+    tr = baljan.models.TradeRequest.objects.get(pk=int(request_pk))
+    assert tr in trades.requests_sent_to(u)
+    if accept:
+        tr.accept()
+    else:
+        tr.deny()
+    return HttpResponseRedirect(redir)
+
+
+@permission_required('baljan.self_and_friend_signup')
+def trade_accept(request, request_pk, redir):
+    return _trade_answer(request, request_pk, redir, accept=True)
+
+@permission_required('baljan.self_and_friend_signup')
+def trade_deny(request, request_pk, redir):
+    return _trade_answer(request, request_pk, redir, accept=False)

@@ -311,13 +311,19 @@ body.admin #container {
     margin-top: 1em;
 }
 
-body .person, body .main div, body .secondary div {
+.person, .main div, .secondary div {
     padding: .5em;
     margin: 1em 0;
     background: rgb(255, 255, 255);
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
+}
+.main div.layout, .secondary div.layout {
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
 }
 body .main img, body .secondary img {
     margin-left: auto;
@@ -349,12 +355,18 @@ body .pending-highlight {
     border: 1px solid #aa0 !important;
     color: #990;
 }
-body .confirmed-highlight {
+body .pending-highlight .action {
+    background: #eea;
+}
+body .confirmed-highlight, .saved {
     background: #efe !important;
     border: 1px solid #0a0 !important;
 }
-.confirmed-highlight {
+.confirmed-highlight, .saved {
     color: #090;
+}
+.saved {
+    text-align: center;
 }
 .undo-highlight {
     color: #f00;

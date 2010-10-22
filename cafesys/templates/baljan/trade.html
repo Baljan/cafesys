@@ -87,6 +87,17 @@
     </div>
     {% endif %}
 
+    {% if saved %}
+    <div class="saved">
+        <h2>{% trans "changes saved" %}</h2>
+        {% if redir %}
+        <p>
+            <a href="{{redir}}">{% trans "return to previous page" %}</a>
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+
     {# TODO: add instructions #}
 </div><!--.secondary-->
 <div class="clean"></div>
