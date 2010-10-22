@@ -62,10 +62,18 @@
             {% block body %}
             {% endblock %}
             </div>
+
+            <!--[if IE]>
+                <div class="clear"></div>
+                <p class="ie-support">
+                {% blocktrans %}
+                Basic functionality is tested in IE 8. You are encouraged to
+                switch to a browser with support for transparency.
+                {% endblocktrans %}
+                </p>
+            <![endif]-->
         </div>
         {% endblock %}
-        
-        <div id="footer">{% block footer %}{% endblock %}</div>
         
         {#<script src="{% block jquery_src %}{{ STATIC_URL }}pinax/js/jquery-1.3.2.min.js{% endblock %}" type="text/javascript"></script>#}
         <script src="{% block jquery_src %}{{ STATIC_URL }}js/jquery-1.4.2.min.js{% endblock %}" type="text/javascript"></script>

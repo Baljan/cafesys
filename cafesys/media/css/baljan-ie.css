@@ -2,3 +2,10 @@
 div#body {
     background-color: #eee;
 }
+
+.ie-support {
+    font-size: .8em;
+    font-style: italic;
+    margin: 1em;
+    text-align: center;
+}
