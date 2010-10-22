@@ -115,6 +115,16 @@ class FriendRequest(Made):
 class TradeRequest(Made):
     """Trade sign-up requests. To make synchronization easier, sign-ups are
     deleted and new ones are created when trades are confirmed.
+    
+    The typical life of a trade request is:
+
+        1.  created, answered set to false;
+        2a. possibly deleted by its creator (requester);
+        2b. possibly denied by its answering user;
+        2c. possibly accepted by its answering user;
+        2d. possibly deleted because of dependency on some other request; 
+        3.  deleted, dependent requests also deleted; and last, 
+        4   if accepted, perform the trade.
     """
     wanted_signup = models.ForeignKey('baljan.ShiftSignup', 
             verbose_name=_("wanted sign-up"),
