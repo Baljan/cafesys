@@ -8,16 +8,12 @@ if "notification" in settings.INSTALLED_APPS:
 
     def create_notice_types(app, created_models, verbosity, **kwargs):
         notification.create_notice_type(
-                "switch_request_received",
-                _("Request Received"),
-                _("you have received a request to switch shifts"))
+                "trade_request",
+                _("Trade Request"),
+                _("you have received a trade request message"))
         notification.create_notice_type(
-                "switch_request_accepted",
-                _("Request Accepted"),
-                _("your request to switch shifts has been accepted"))
-        notification.create_notice_type(
-                "switch_request_denied",
-                _("Request Denied"),
-                _("your request to switch shifts has been denied"))
+                "signup",
+                _("Sign-Up"),
+                _("you have received a sign-up message"))
     signals.post_syncdb.connect(create_notice_types, sender=notification)
 

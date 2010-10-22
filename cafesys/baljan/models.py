@@ -14,6 +14,7 @@ from dateutil.relativedelta import relativedelta
 import baljan.util
 import itertools
 from django.core.cache import cache
+from notification import models as notification
 
 
 class Made(models.Model):
@@ -121,6 +122,7 @@ class TradeRequest(Made):
     offered_signup = models.ForeignKey('baljan.ShiftSignup', 
             verbose_name=_("offered sign-up"),
             related_name='traderequests_offered')
+    accepted = models.BooleanField(_("accepted"), default=False)
 
     class Meta:
         verbose_name = _("trade request")
@@ -133,26 +135,61 @@ class TradeRequest(Made):
                 }
 
     def accept(self):
+        self.accepted = True
+        self.save()
+        self.delete()
+
+    def deny(self):
+        self.accepted = False
+        self.save()
+        self.delete()
+
+
+def traderequest_post_delete(sender, instance=None, **kwargs):
+    if instance is None:
+        return
+
+    tr = instance
+    answerer = tr.wanted_signup.user
+    requester = tr.offered_signup.user
+
+    if tr.accepted:
         accepter_kwargs = {
-                'user': self.wanted_signup.user,
-                'shift': self.offered_signup.shift,
+                'user': answerer,
+                'shift': tr.offered_signup.shift,
                 }
         requester_kwargs = {
-                'user': self.offered_signup.user,
-                'shift': self.wanted_signup.shift,
+                'user': requester,
+                'shift': tr.wanted_signup.shift,
                 }
 
-        self.offered_signup.delete()
-        self.wanted_signup.delete()
+        tr.offered_signup.delete()
+        tr.wanted_signup.delete()
 
         accepter_signup = ShiftSignup(**accepter_kwargs)
         accepter_signup.save()
 
         requester_signup = ShiftSignup(**requester_kwargs)
         requester_signup.save()
-
-    def deny(self):
-        self.delete()
+        
+        answer_happening = _("was accepted")
+        wanted_rename = _("new shift")
+        offered_rename = _("lost shift")
+    else:
+        answer_happening = _("was denied")
+        wanted_rename = _("requested shift")
+        offered_rename = _("offered shift")
+    
+    notification.send([requester], "trade_request", {
+        'accepted': tr.accepted,
+        'answer_happening': answer_happening,
+        'answered_by': tr.wanted_signup.user,
+        'wanted_rename': wanted_rename,
+        'offered_rename': offered_rename,
+        'wanted_signup': tr.wanted_signup,
+        'offered_signup': tr.offered_signup,
+        })
+signals.post_delete.connect(traderequest_post_delete, sender=TradeRequest)
 
 
 class SemesterManager(models.Manager):
@@ -373,20 +410,52 @@ def signup_post(sender, instance=None, **kwargs):
             Q(wanted_signup=instance) | Q(offered_signup=instance))
     trs.delete()
 
+def _signup_notice_common(signup):
+    return {
+            'shift': signup.shift,
+            'shift_url': signup.shift.get_absolute_url(),
+            'signup': signup,
+            }
+
+def signup_notice_save(signup):
+    tpl = _signup_notice_common(signup)
+    tpl.update({
+        'saved': True,
+        'deleted': False,
+        'mail_msg': _("You were signed up for a shift."),
+        'web_msg': _("You were signed up for"),
+        })
+    notification.send([signup.user], "signup", tpl)
+
+
+def signup_notice_delete(signup):
+    tpl = _signup_notice_common(signup)
+    tpl.update({
+        'saved': False,
+        'deleted': True,
+        'mail_msg': _("You were removed from a shift."),
+        'web_msg': _("You were removed from"),
+        })
+    notification.send([signup.user], "signup", tpl)
+
 
 def signup_post_save(sender, instance=None, **kwargs):
     if instance is None:
         return
-    signup_post(sender, instance, **kwargs)
+
+    signup = instance
+    signup_post(sender, signup, **kwargs)
     
     # Remove pending trade requests that would result in a user being
     # double-booked for a shift.
     trs_possible_doubles = TradeRequest.objects.filter(
-            Q(wanted_signup__shift=instance.shift,
-                offered_signup__user=instance.user) |
-            Q(wanted_signup__user=instance.user,
-                offered_signup__shift=instance.shift))
+            Q(wanted_signup__shift=signup.shift,
+                offered_signup__user=signup.user) |
+            Q(wanted_signup__user=signup.user,
+                offered_signup__shift=signup.shift))
     trs_possible_doubles.delete()
+
+    signup_notice_save(signup)
 
 signals.post_save.connect(signup_post_save, sender=ShiftSignup)
 
@@ -394,7 +463,10 @@ signals.post_save.connect(signup_post_save, sender=ShiftSignup)
 def signup_post_delete(sender, instance=None, **kwargs):
     if instance is None:
         return
-    signup_post(sender, instance, **kwargs)
+    signup = instance
+    signup_post(sender, signup, **kwargs)
+
+    signup_notice_delete(signup)
 
 signals.post_delete.connect(signup_post_delete, sender=ShiftSignup)
 
@@ -420,12 +492,22 @@ class OnCallDuty(Made):
 
 
 def oncallduty_post(sender, instance=None, **kwargs):
-    if instance is None:
-        return
     instance.shift._invalidate_cache()
 
-signals.post_save.connect(oncallduty_post, sender=OnCallDuty)
-signals.post_delete.connect(oncallduty_post, sender=OnCallDuty)
+def oncallduty_post_save(sender, instance=None, **kwargs):
+    if instance is None:
+        return
+    oncallduty_post(sender, instance, **kwargs)
+    signup_notice_save(instance)
+
+def oncallduty_post_delete(sender, instance=None, **kwargs):
+    if instance is None:
+        return
+    oncallduty_post(sender, instance, **kwargs)
+    signup_notice_delete(instance)
+
+signals.post_save.connect(oncallduty_post_save, sender=OnCallDuty)
+signals.post_delete.connect(oncallduty_post_delete, sender=OnCallDuty)
 
 
 class Good(Made):

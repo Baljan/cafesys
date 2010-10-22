@@ -203,7 +203,7 @@ div.right_panel {
     display: none;
 }
 .inbox {
-    color: #fcd;
+    /* unread notifications */
 }
 .tooltip {
     display:none;

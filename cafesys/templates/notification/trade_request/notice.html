@@ -1,0 +1,6 @@
+{% load i18n %}
+{% load baljan_extras %}
+{% url baljan.views.profile as profile_page %}
+{% blocktrans with wanted_rename as wrename and offered_rename as orename and answer_happening as happening and answered_by|name_link as answerer and wanted_signup|shift_link as wanted and offered_signup|shift_link as offered %}
+Your request to trade {{wanted}} for {{offered}} {{happening}} by {{answerer}}.
+{% endblocktrans %}

@@ -20,12 +20,15 @@
 
 {% block login %}
     {% if user.is_authenticated %}
-        <a href="{{user.get_absolute_url}}">
         {% if notice_unseen_count != 0 %}
-            <span class="inbox">&#x2709;</span>
+        <a href="/notices">
+            <span class="inbox">&#x2709; unread notifications</span>
+        </a>
+        <span class="delim">|</span>
         {% endif %}
-        {% user_display user %}</a>
-        {#| <a href="{% url acct_email %}">{% trans "Account" %}</a>#} <span class="delim">|</span>
+        <a href="{{user.get_absolute_url}}">{% user_display user %}</a>
+        {#| <a href="{% url acct_email %}">{% trans "Account" %}</a>#}
+        <span class="delim">|</span>
         <a href="{% url acct_logout %}">{% trans "logout" %}</a>
     {% else %}
         <a href="{% url acct_login %}">{% trans "login" %}</a> 

@@ -1,0 +1,6 @@
+{% load i18n %}
+{% load baljan_extras %}
+{% url baljan.views.profile as profile_page %}
+{% blocktrans with shift|shift_link as shift_link and web_msg as msg %}
+{{msg}} {{shift_link}}.
+{% endblocktrans %}

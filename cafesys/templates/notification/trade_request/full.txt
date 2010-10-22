@@ -1,0 +1,7 @@
+{% load i18n %}{% load baljan_extras %}{% url baljan.views.profile as profile_page %}{% blocktrans with wanted_rename as wrename and offered_rename as orename and answer_happening as happening and answered_by.get_absolute_url as answerer and wanted_signup.get_absolute_url as wanted and offered_signup.get_absolute_url as offered %}Your request to trade shifts {{happening}}.
+
+ * answered by: http://{{current_site}}{{answerer}}
+ * {{wrename}}: http://{{current_site}}{{wanted}}
+ * {{orename}}: http://{{current_site}}{{offered}}
+
+{% endblocktrans %}
