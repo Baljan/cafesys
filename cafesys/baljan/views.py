@@ -324,6 +324,10 @@ def trade_take(request, signup_pk, redir):
 
         return render_to_response('baljan/trade.html', tpl,
                 context_instance=RequestContext(request))
+    except trades.TakeRequest.DoubleSignup:
+        messages.add_message(request, messages.ERROR, 
+                _("This would result in a double booking."))
+        return HttpResponseRedirect(redir)
     except trades.TakeRequest.Error:
         messages.add_message(request, messages.ERROR, _("Invalid trade request."))
         return HttpResponseRedirect(redir)
