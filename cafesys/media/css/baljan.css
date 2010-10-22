@@ -314,7 +314,7 @@ body.admin #container {
 body .person, body .main div, body .secondary div {
     padding: .5em;
     margin: 1em 0;
-    background: rgba(255, 255, 255, 1.0);
+    background: rgb(255, 255, 255);
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
@@ -397,7 +397,7 @@ body.semester ul.users {
     padding: 1em;
 }
 
-body.day .sem-info {
+.top-nav {
     margin-bottom: 1em;
 }
 body.day h2.early-or-late {
