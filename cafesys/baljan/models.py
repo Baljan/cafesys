@@ -125,6 +125,9 @@ class TradeRequest(Made):
         2d. possibly deleted because of dependency on some other request; 
         3.  deleted, dependent requests also deleted; and last, 
         4   if accepted, perform the trade.
+
+    The important thing to remember is that the deletion of a trade request
+    triggers the trade, if both `answered` and `accepted` are true.
     """
     wanted_signup = models.ForeignKey('baljan.ShiftSignup', 
             verbose_name=_("wanted sign-up"),
