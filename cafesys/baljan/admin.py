@@ -49,6 +49,15 @@ class FriendRequestAdmin(admin.ModelAdmin):
 admin.site.register(baljan.models.FriendRequest, FriendRequestAdmin)
 
 
+class TradeRequestAdmin(admin.ModelAdmin):
+    search_fields = (
+            'wanted_signup__user',
+            'offered_signup__user',
+            )
+    list_display = ('__str__', 'wanted_signup', 'offered_signup',)
+admin.site.register(baljan.models.TradeRequest, TradeRequestAdmin)
+
+
 class SemesterAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_display = ('name', 'start', 'end', 'signup_possible')

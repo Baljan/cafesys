@@ -215,6 +215,8 @@ def see_user(request, who):
     if watching_self:
         tpl['sent_friend_requests'] = friendrequests.sent_by(u)
         tpl['received_friend_requests'] = friendrequests.sent_to(u)
+        jgr = baljan.models.JoinGroupRequest.objects.filter(user=u)
+        tpl['join_group_requests'] = jgr
     
     # Call duties come after work shifts because they are more frequent.
     tpl['signup_types'] = (
@@ -298,8 +300,23 @@ def trade_take(request, signup_pk, redir):
     u = request.user
     tpl = {}
     signup = baljan.models.ShiftSignup.objects.get(pk=signup_pk)
+    tpl['take'] = take = trades.TakeRequest(signup, u)
+
+    if request.method == 'POST':
+        offers = []
+        for field, value in request.POST.items():
+            if not field.startswith('signup_'):
+                continue
+            pk = int(value)
+            offers.append(baljan.models.ShiftSignup.objects.get(pk=pk))
+        [take.add_offer(o) for o in offers]
+        take.save()
+    else:
+        take.load()
+
+    tpl['redir'] = redir
+
     try:
-        tpl['take'] = take = trades.TakeRequest(signup, u)
         return render_to_response('baljan/trade.html', tpl,
                 context_instance=RequestContext(request))
     except trades.TakeRequest.Error:

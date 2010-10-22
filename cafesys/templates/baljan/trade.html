@@ -9,6 +9,12 @@
 {% block body_class %}trade{% endblock %}
 {% block body %}
 
+{% if redir %}
+<div class="top-nav">
+    <a href="{{redir}}">&laquo; {% trans "return" %}</a>
+</div>
+{% endif %}
+
 <h1>{% trans "Trade Shifts" %}</h1>
 <div class="grid_5 alpha main">
     {% if take %}
@@ -56,13 +62,15 @@
         <p> 
         {% blocktrans with take.signup.user.first_name as first_name %}
         Check the shifts you would like to offer. {{first_name}} will be able to
-        pick one of them.
+        pick one of them. You can add and remove offers whenever you want to.
         {% endblocktrans %}
         </p>
         <form name="take-request" method="POST" action="">{% csrf_token %}
             <p>
             {% for su in take.can_offer %}
-                <input type="checkbox" name="signup_{{su.pk}}" 
+            <input {%if su in take.offered_signups%} checked="checked"{%endif%} 
+                type="checkbox" name="signup_{{su.pk}}" 
+                    value="{{su.pk}}"
                     id="id_signup_{{su.pk}}" />
                 <label for="id_signup_{{su.pk}}">
                 {{su.shift.timeofday}}
@@ -73,7 +81,7 @@
             {% endfor %}
             </p>
             <div class="submit">
-                <input type="submit" value="{% trans "send trade request" %}"/>
+                <input type="submit" value="{%if take.offered_signups%}{% trans "update trade request" %}{%else%}{% trans "send trade request" %}{%endif%}"/>
             </div>
         </form>
     </div>

@@ -725,7 +725,7 @@ msgstr "gör bytbar"
 
 #: templates/baljan/day.html:78
 msgid "No workers have signed up."
-msgstr "Inga jobbare har anmält sig till den här dagen!"
+msgstr "Inga jobbare har anmält sig till den här dagen."
 
 #: templates/baljan/day.html:96 templates/baljan/day.html.py:129
 msgid "sign up"

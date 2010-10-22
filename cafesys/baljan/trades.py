@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.utils.translation import ugettext as _ 
 from django.utils.safestring import mark_safe 
-from baljan.models import ShiftSignup, Shift
+from baljan.models import ShiftSignup, Shift, TradeRequest
 from datetime import date
+from django.db.models import Q
 
 
 class TakeRequest(object):
@@ -29,6 +30,7 @@ class TakeRequest(object):
         self.signup = signup
         self.shift = self.signup.shift
         self.requester = requester
+        self.offered_signups = []
         if offered_signups is not None:
             for ofs in offered_signups:
                 self.add_offer(ofs)
@@ -40,8 +42,6 @@ class TakeRequest(object):
         offers. Returns the TakeRequest instance.
         """
         if self.valid_offer(offered_signup):
-            if self.offered_signups is None:
-                self.offered_signups = []
             if offered_signup in self.offered_signups:
                 return self # do nothing
 
@@ -56,9 +56,32 @@ class TakeRequest(object):
 
     def can_offer(self):
         """Returns all possible signup offers."""
+        double_shifts = Shift.objects.filter(shiftsignup__user=self.signup.user)
         user_signups = ShiftSignup.objects.filter(
                 user=self.requester,
                 shift__when__gte=date.today()).exclude(
-                shift=self.shift)
+                Q(shift=self.shift) | Q(shift__in=double_shifts))
         return user_signups
+
+    def save(self):
+        # Remove and add trade requests.
+        current_trs = self._current_trade_requests()
+        for tr in current_trs:
+            if not tr.offered_signup in self.offered_signups:
+                tr.delete()
+
+        for ofs in self.offered_signups:
+            tr, created = TradeRequest.objects.get_or_create(
+                    wanted_signup=self.signup,
+                    offered_signup=ofs)
+
+    def _current_trade_requests(self):
+        return TradeRequest.objects.filter(
+                wanted_signup=self.signup, 
+                offered_signup__user=self.requester)
+
+    def load(self):
+        trs = self._current_trade_requests()
+        for tr in trs:
+            self.add_offer(tr.offered_signup)
 

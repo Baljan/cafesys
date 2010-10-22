@@ -9,7 +9,7 @@
 {% block body %}
 
 {% if semester %}
-<div class="sem-info">
+<div class="top-nav">
     {% blocktrans with semester.get_absolute_url as sem_url and semester.name as sem_name %}
         <a href="{{sem_url}}">&laquo; semester {{sem_name}}</a>
     {% endblocktrans %}

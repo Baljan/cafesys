@@ -1,4 +1,3 @@
-/* apa*/
 $(document).ready(function () {
     $('.init-hidden').css('visibility', 'visible').show();
     $('#links-for .accordion').accordion();

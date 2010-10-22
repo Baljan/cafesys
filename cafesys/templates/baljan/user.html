@@ -80,6 +80,24 @@
         </div>
     {% endif %}
 
+    {% if join_group_requests %}
+    <div class="pending-highlight">
+        <h2>{% trans "Requesting to Join" %}</h2>
+        <ul>
+            {% for jgr in join_group_requests %}
+                <li>
+                <a href="{% url group jgr.group %}">{{jgr.group.name}}</a>
+                </li>
+                <ul>
+                    <li>
+                        <a href="{% url baljan.views.toggle_become_worker_request request.path %}">{% trans "recall" %}</a>
+                    </li>
+                </ul>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
     {% if received_friend_requests %}
     <div class="pending-highlight">
         <h2>{% trans "Received Friend Requests From" %}</h2>

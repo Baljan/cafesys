@@ -111,6 +111,28 @@ class FriendRequest(Made):
                 }
 
 
+class TradeRequest(Made):
+    """Trade sign-up requests. To make synchronization easier, sign-ups are
+    deleted and new ones are created when trades are confirmed.
+    """
+    wanted_signup = models.ForeignKey('baljan.ShiftSignup', 
+            verbose_name=_("wanted sign-up"),
+            related_name='traderequests_wanted')
+    offered_signup = models.ForeignKey('baljan.ShiftSignup', 
+            verbose_name=_("offered sign-up"),
+            related_name='traderequests_offered')
+
+    class Meta:
+        verbose_name = _("trade request")
+        verbose_name_plural = _("trade requests")
+
+    def __unicode__(self):
+        return _(u"%(requester)s wants %(shift)s") % {
+                'requester': self.offered_signup.user,
+                'shift': self.wanted_signup.shift,
+                }
+
+
 class SemesterManager(models.Manager):
     def for_date(self, the_date):
         try:
@@ -294,7 +316,10 @@ class Shift(Made):
 class ShiftSignup(Made):
     shift = models.ForeignKey(Shift, verbose_name=_("shift"))
     user = models.ForeignKey('auth.User', verbose_name=_("worker"))
-    tradable = models.BooleanField(_('the user wants to switch this shift for some other'), default=False)
+    tradable = models.BooleanField(
+            _('the user wants to switch this shift for some other'), 
+            help_text=_('remember that trade requests of sign-ups are removed whenever the sign-up is altered'),
+            default=False)
 
     def can_trade(self):
         return self.tradable and self.shift.upcoming() 
@@ -318,6 +343,40 @@ class ShiftSignup(Made):
                 }
 
 
+def signup_post(sender, instance=None, **kwargs):
+    instance.shift._invalidate_cache()
+
+    # Remove trade requests where this sign-up is wanted wanted or offered.
+    trs = TradeRequest.objects.filter(
+            Q(wanted_signup=instance) | Q(offered_signup=instance))
+    trs.delete()
+
+
+def signup_post_save(sender, instance=None, **kwargs):
+    if instance is None:
+        return
+    signup_post(sender, instance, **kwargs)
+    
+    # Remove pending trade requests that would result in a user being
+    # double-booked for a shift.
+    trs_possible_doubles = TradeRequest.objects.filter(
+            Q(wanted_signup__shift=instance.shift,
+                offered_signup__user=instance.user) |
+            Q(wanted_signup__user=instance.user,
+                offered_signup__shift=instance.shift))
+    trs_possible_doubles.delete()
+
+signals.post_save.connect(signup_post_save, sender=ShiftSignup)
+
+
+def signup_post_delete(sender, instance=None, **kwargs):
+    if instance is None:
+        return
+    signup_post(sender, instance, **kwargs)
+
+signals.post_delete.connect(signup_post_delete, sender=ShiftSignup)
+
+
 class OnCallDuty(Made):
     shift = models.ForeignKey(Shift, verbose_name=_("shift"))
     user = models.ForeignKey('auth.User', verbose_name=_("user"))
@@ -338,16 +397,13 @@ class OnCallDuty(Made):
                 }
 
 
-def signup_post(sender, instance=None, **kwargs):
+def oncallduty_post(sender, instance=None, **kwargs):
     if instance is None:
         return
     instance.shift._invalidate_cache()
 
-signals.post_save.connect(signup_post, sender=ShiftSignup)
-signals.post_delete.connect(signup_post, sender=ShiftSignup)
-
-signals.post_save.connect(signup_post, sender=OnCallDuty)
-signals.post_delete.connect(signup_post, sender=OnCallDuty)
+signals.post_save.connect(oncallduty_post, sender=OnCallDuty)
+signals.post_delete.connect(oncallduty_post, sender=OnCallDuty)
 
 
 class Good(Made):
