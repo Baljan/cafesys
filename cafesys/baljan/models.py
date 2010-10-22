@@ -123,6 +123,7 @@ class TradeRequest(Made):
             verbose_name=_("offered sign-up"),
             related_name='traderequests_offered')
     accepted = models.BooleanField(_("accepted"), default=False)
+    answered = models.BooleanField(_("accepted"), default=False)
 
     class Meta:
         verbose_name = _("trade request")
@@ -136,14 +137,15 @@ class TradeRequest(Made):
 
     def accept(self):
         self.accepted = True
+        self.answered = True
         self.save()
         self.delete()
 
     def deny(self):
         self.accepted = False
+        self.answered = True
         self.save()
         self.delete()
-
 
 def traderequest_post_delete(sender, instance=None, **kwargs):
     if instance is None:
@@ -152,6 +154,9 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
     tr = instance
     answerer = tr.wanted_signup.user
     requester = tr.offered_signup.user
+
+    if not tr.answered:
+        return
 
     if tr.accepted:
         accepter_kwargs = {
@@ -179,6 +184,11 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
         answer_happening = _("was denied")
         wanted_rename = _("requested shift")
         offered_rename = _("offered shift")
+
+    if tr.wanted_signup.shift.when < date.today():
+        return
+    if tr.offered_signup.shift.when < date.today():
+        return
     
     notification.send([requester], "trade_request", {
         'accepted': tr.accepted,
@@ -418,6 +428,9 @@ def _signup_notice_common(signup):
             }
 
 def signup_notice_save(signup):
+    if signup.shift.when < date.today():
+        return
+
     tpl = _signup_notice_common(signup)
     tpl.update({
         'saved': True,
@@ -429,6 +442,9 @@ def signup_notice_save(signup):
 
 
 def signup_notice_delete(signup):
+    if signup.shift.when < date.today():
+        return
+
     tpl = _signup_notice_common(signup)
     tpl.update({
         'saved': False,
