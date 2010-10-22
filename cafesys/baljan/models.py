@@ -150,14 +150,6 @@ class TradeRequest(Made):
 
 def traderequest_notice_delete(tr):
     if tr.answered:
-        # FIXME: When a trade request is carried out, others "like it should"
-        # and will be removed. However, because these neighbors are considered
-        # unanswered, no notifications are delivered to the senders of the
-        # requests. It would be nice if notifications were sent. The solution
-        # is to mark the correct requests as answered here, or to delete them
-        # directly in this branch. The latter is probably nicer because we can
-        # customize the message if we want to.
-
         if tr.accepted:
             answer_happening = _("was accepted")
             wanted_rename = _("new shift")
@@ -197,6 +189,14 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
     requester = tr.offered_signup.user
 
     if tr.accepted:
+        # FIXME: When a trade request is carried out, others "like it" should
+        # and will be removed. However, because these neighbors are considered
+        # unanswered, no notifications are delivered to the senders of the
+        # requests. It would be nice if notifications were sent. The solution
+        # is to mark the correct requests as answered here, or to delete them
+        # directly in this branch. The latter is probably nicer because we can
+        # customize the message if we want to.
+
         accepter_kwargs = {
                 'user': answerer,
                 'shift': tr.offered_signup.shift,
