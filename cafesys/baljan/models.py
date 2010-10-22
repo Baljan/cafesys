@@ -149,9 +149,7 @@ class TradeRequest(Made):
         self.delete()
 
 def traderequest_notice_delete(tr):
-    if not tr.answered:
-        pass # FIXME: notifications should be sent here as well
-    else:
+    if tr.answered:
         if tr.accepted:
             answer_happening = _("was accepted")
             wanted_rename = _("new shift")
@@ -178,6 +176,8 @@ def traderequest_notice_delete(tr):
             'deleted': True,
             'saved': False,
             })
+    else:
+        pass # FIXME: notifications should be sent here as well
 
 
 def traderequest_post_delete(sender, instance=None, **kwargs):
