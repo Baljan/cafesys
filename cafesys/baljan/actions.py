@@ -42,7 +42,7 @@ def categories_and_actions(request):
             )),
         ('anyone', _('everyone'), (
             Action(_('work planning'), 'baljan.views.current_semester'),
-            Action(_('search person'), 'baljan.views.search_person'),
+            Action(_('people and groups'), 'baljan.views.search_person'),
             Action(_('admin site'), 'admin:index'),
             #Action(_('price list'), 'accounting.views.price_list'),
             #Action(_('top lists and order stats'), 'stats.views.index'),
