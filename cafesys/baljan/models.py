@@ -123,7 +123,8 @@ class TradeRequest(Made):
             verbose_name=_("offered sign-up"),
             related_name='traderequests_offered')
     accepted = models.BooleanField(_("accepted"), default=False)
-    answered = models.BooleanField(_("answered"), default=False)
+    answered = models.BooleanField(_("answered"), default=False,
+            help_text=_("if this is true when the shift is deleted, and \"accepted\" is true as well, the trade will be performed even if it was in the past"))
 
     class Meta:
         verbose_name = _("trade request")
@@ -147,6 +148,38 @@ class TradeRequest(Made):
         self.save()
         self.delete()
 
+def traderequest_notice_delete(tr):
+    if not tr.answered:
+        return
+
+    if tr.accepted:
+        answer_happening = _("was accepted")
+        wanted_rename = _("new shift")
+        offered_rename = _("lost shift")
+    else:
+        answer_happening = _("was denied")
+        wanted_rename = _("requested shift")
+        offered_rename = _("offered shift")
+
+    if tr.wanted_signup.shift.when < date.today():
+        return
+    if tr.offered_signup.shift.when < date.today():
+        return
+
+    requester = tr.offered_signup.user
+    notification.send([requester], "trade_request", {
+        'accepted': tr.accepted,
+        'answer_happening': answer_happening,
+        'answered_by': tr.wanted_signup.user,
+        'wanted_rename': wanted_rename,
+        'offered_rename': offered_rename,
+        'wanted_signup': tr.wanted_signup,
+        'offered_signup': tr.offered_signup,
+        'deleted': True,
+        'saved': False,
+        })
+
+
 def traderequest_post_delete(sender, instance=None, **kwargs):
     if instance is None:
         return
@@ -154,9 +187,6 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
     tr = instance
     answerer = tr.wanted_signup.user
     requester = tr.offered_signup.user
-
-    if not tr.answered:
-        return
 
     if tr.accepted:
         accepter_kwargs = {
@@ -177,29 +207,36 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
         requester_signup = ShiftSignup(**requester_kwargs)
         requester_signup.save()
         
-        answer_happening = _("was accepted")
-        wanted_rename = _("new shift")
-        offered_rename = _("lost shift")
-    else:
-        answer_happening = _("was denied")
-        wanted_rename = _("requested shift")
-        offered_rename = _("offered shift")
+    traderequest_notice_delete(tr)
+signals.post_delete.connect(traderequest_post_delete, sender=TradeRequest)
+
+
+def traderequest_notice_save(tr):
+    if tr.answered:
+        return
 
     if tr.wanted_signup.shift.when < date.today():
         return
     if tr.offered_signup.shift.when < date.today():
         return
-    
-    notification.send([requester], "trade_request", {
-        'accepted': tr.accepted,
-        'answer_happening': answer_happening,
-        'answered_by': tr.wanted_signup.user,
-        'wanted_rename': wanted_rename,
-        'offered_rename': offered_rename,
+
+    accepter = tr.wanted_signup.user
+    requester = tr.offered_signup.user
+    notification.send([requester, accepter], "trade_request", {
         'wanted_signup': tr.wanted_signup,
         'offered_signup': tr.offered_signup,
+        'deleted': False,
+        'saved': True,
         })
-signals.post_delete.connect(traderequest_post_delete, sender=TradeRequest)
+
+
+def traderequest_post_save(sender, instance=None, **kwargs):
+    if instance is None:
+        return
+
+    tr = instance
+    traderequest_notice_save(tr)
+signals.post_save.connect(traderequest_post_save, sender=TradeRequest)
 
 
 class SemesterManager(models.Manager):
@@ -319,6 +356,12 @@ class Shift(Made):
 
     def ampm(self):
         return _("am") if self.early else _("pm")
+
+    def name(self):
+        return "%s %s" % (self.timeofday(), self.when.strftime('%Y-%m-%d'))
+
+    def name_short(self):
+        return "%s %s" % (self.ampm(), self.when.strftime('%Y-%m-%d'))
 
     def past(self):
         return self.when < date.today()

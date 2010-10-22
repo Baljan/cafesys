@@ -1,6 +1,15 @@
 {% load i18n %}
 {% load baljan_extras %}
 {% url baljan.views.profile as profile_page %}
-{% blocktrans with wanted_rename as wrename and offered_rename as orename and answer_happening as happening and answered_by|name_link as answerer and wanted_signup|shift_link as wanted and offered_signup|shift_link as offered %}
-Your request to trade {{wanted}} for {{offered}} {{happening}} by {{answerer}}.
-{% endblocktrans %}
+{% if saved %}
+    {% blocktrans with wanted_signup.user|name_link as responder and wanted_signup|shift_link as wanted and offered_signup.user|name_link as requester and offered_signup|shift_link as offered %}
+    {{requester}} wants {{wanted}} from {{responder}} in exchange for {{offered}}.
+    
+    You can answer to or cancel requests on your <a href="{{profile_page}}">profile page</a>.
+
+    {% endblocktrans %}
+{% else %}
+    {% blocktrans with wanted_rename as wrename and offered_rename as orename and answer_happening as happening and answered_by|name_link as answerer and wanted_signup|shift_link as wanted and offered_signup|shift_link as offered %}
+    Your request to trade {{offered}} for {{wanted}} {{happening}} by {{answerer}}.
+    {% endblocktrans %}
+{% endif %}
