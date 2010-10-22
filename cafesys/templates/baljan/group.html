@@ -35,6 +35,18 @@
     {% endfor %}
 </div><!--.main-->
 <div class="grid_3 omega secondary">
+    {% if other_groups %}
+    <div class="groups">
+        <h2>{% trans "Other Groups" %}</h2>
+        <ul>
+            {% for group in other_groups %}
+            <li>
+                <a href="{% url group group.name%}">{{group.name}}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
 </div><!--.secondary-->
 <div class="clear"></div>
 

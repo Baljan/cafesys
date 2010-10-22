@@ -229,10 +229,11 @@ def see_user(request, who):
             context_instance=RequestContext(request))
 
 
-def see_group(request, group):
+def see_group(request, group_name):
     user = request.user
     tpl = {}
-    tpl['group'] = group = Group.objects.get(name__exact=group)
+    tpl['group'] = group = Group.objects.get(name__exact=group_name)
+    tpl['other_groups'] = Group.objects.all().exclude(name__exact=group_name).order_by('name')
     tpl['members'] = members = group.user_set.all().order_by('first_name', 'last_name')
     tpl['pseudo_groups'] = pseudo_groups = pseudogroups.for_group(group)
     return render_to_response('baljan/group.html', tpl,
