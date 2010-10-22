@@ -123,7 +123,7 @@ class TradeRequest(Made):
             verbose_name=_("offered sign-up"),
             related_name='traderequests_offered')
     accepted = models.BooleanField(_("accepted"), default=False)
-    answered = models.BooleanField(_("accepted"), default=False)
+    answered = models.BooleanField(_("answered"), default=False)
 
     class Meta:
         verbose_name = _("trade request")
