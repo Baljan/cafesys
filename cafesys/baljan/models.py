@@ -188,15 +188,23 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
     answerer = tr.wanted_signup.user
     requester = tr.offered_signup.user
 
+    # Mark other trade requests involving the wanted or offered sign-up as
+    # denied and answered, so that notifications will be sent for them. Do not
+    # mark requests where the requester and wanted shift is the same as this
+    # one, to prevent sending unnecessary notifications. Save configurations for
+    # sign-ups to be created and delete the current ones. If the request was
+    # denied, there is no need to do anything besides sending the appropriate
+    # notifications.
     if tr.accepted:
-        # FIXME: When a trade request is carried out, others "like it" should
-        # and will be removed. However, because these neighbors are considered
-        # unanswered, no notifications are delivered to the senders of the
-        # requests. It would be nice if notifications were sent. The solution
-        # is to mark the correct requests as answered here, or to delete them
-        # directly in this branch. The latter is probably nicer because we can
-        # customize the message if we want to.
-
+        TradeRequest.objects.filter(
+                Q(wanted_signup=tr.wanted_signup) |
+                Q(wanted_signup=tr.offered_signup) |
+                Q(offered_signup=tr.wanted_signup) |
+                Q(offered_signup=tr.offered_signup)).exclude(
+                        Q(pk=tr.pk) | 
+                        Q(offered_signup__user=requester, 
+                            wanted_signup=tr.wanted_signup)).update(
+                            accepted=False, answered=True)
         accepter_kwargs = {
                 'user': answerer,
                 'shift': tr.offered_signup.shift,
@@ -205,7 +213,6 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
                 'user': requester,
                 'shift': tr.wanted_signup.shift,
                 }
-
         tr.offered_signup.delete()
         tr.wanted_signup.delete()
 
