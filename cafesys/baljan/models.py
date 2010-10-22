@@ -478,7 +478,7 @@ def signup_notice_save(signup):
     tpl.update({
         'saved': True,
         'deleted': False,
-        'mail_msg': _("You were signed up for a shift."),
+        'mail_msg': _("You were signed up for a shift"),
         'web_msg': _("You were signed up for"),
         })
     notification.send([signup.user], "signup", tpl)
@@ -492,7 +492,7 @@ def signup_notice_delete(signup):
     tpl.update({
         'saved': False,
         'deleted': True,
-        'mail_msg': _("You were removed from a shift."),
+        'mail_msg': _("You were removed from a shift"),
         'web_msg': _("You were removed from"),
         })
     notification.send([signup.user], "signup", tpl)
