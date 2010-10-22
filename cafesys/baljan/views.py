@@ -184,7 +184,6 @@ def callduties_for(user):
 @login_required
 def profile(request):
     u = request.user
-    notification.send([u], "switch_request_accepted")
     return see_user(request, who=u.username)
 
 
