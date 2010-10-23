@@ -369,7 +369,18 @@ def semester_post_save(sender, instance, **kwargs):
                     when=day)
             if created:
                 created_count += 1
+    logger = get_logger('baljan.semesters')
+    logger.info('%s: %d/%d shifts added/deleted, signups=%s' % (
+        sem.name, created_count, deleted_count, sem.signup_possible))
 signals.post_save.connect(semester_post_save, sender=Semester)
+
+def semester_post_delete(sender, instance, **kwargs):
+    if instance is None:
+        return
+    sem = instance
+    logger = get_logger('baljan.semesters')
+    logger.info('%s: deleted' % sem.name)
+signals.post_delete.connect(semester_post_delete, sender=Semester)
 
 
 class Shift(Made):
