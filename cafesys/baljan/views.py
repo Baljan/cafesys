@@ -61,6 +61,8 @@ def _semester(request, sem):
     tpl = {}
     tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
     tpl['selected_semester'] = sem
+    tpl['worker_group_name'] = settings.WORKER_GROUP
+    tpl['board_group_name'] = settings.WORKER_GROUP
     if sem:
         tpl['shifts'] = shifts = sem.shift_set.order_by('when', '-early').filter(enabled=True).iterator()
         # Do not use iterator() on workers and oncall because the template is
