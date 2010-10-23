@@ -51,7 +51,11 @@ def invalidate_template_cache(fragment_name, *variables):
 
 
 class Logger(object):
-    """Wrapper around regular loggers."""
+    """Wrapper around regular loggers.
+
+    'exc_auto=True' can be added to calls to add 'exc_info=sys.exc_info()' to
+    the delegate.
+    """
     def __init__(self, delegate_logger):
         self.delegate = delegate_logger
 
@@ -76,7 +80,9 @@ class Logger(object):
                     kwargs.update({
                         'data': {'username': req.user.username},
                         })
-        return call(*args, exc_info=sys.exc_info(), extra=kwargs)
+        if kwargs.pop('exc_auto', False):
+            return call(*args, exc_info=sys.exc_info(), extra=kwargs)
+        return call(*args, extra=kwargs)
 
     def debug(self, *args, **kwargs):
         return self._wrap_call('debug', *args, **kwargs)
