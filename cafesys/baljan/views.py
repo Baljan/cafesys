@@ -24,8 +24,6 @@ from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
 from notification import models as notification
 
-logger = baljan.util.get_logger('baljan.views')
-
 def index(request):
     return render_to_response('baljan/baljan.html', {}, context_instance=RequestContext(request))
 
