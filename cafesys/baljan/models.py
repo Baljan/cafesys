@@ -120,8 +120,17 @@ def friendrequest_post_save(sender, instance=None, **kwargs):
     sent_to = fr.sent_to
     sent_by = fr.sent_by
 
-    get_logger('baljan.friends').info('friend request %s → %s saved' % (
-        sent_by, sent_to))
+    extra_msgs = []
+    if fr.answered_at:
+        extra_msgs.append('answered_at=%s' % fr.answered_at.strftime('%Y-%m-%d'))
+        extra_msgs.append('accepted=%s' % fr.accepted)
+
+    extra = ''
+    if len(extra_msgs):
+        extra = ', ' + ', '.join(extra_msgs)
+    get_logger('baljan.friends').info(
+            'friend request %s → %s saved%s' % (
+                sent_by, sent_to, extra))
 
     if fr.answered_at:
         link = "<a href='%s'>%s</a>" % (
