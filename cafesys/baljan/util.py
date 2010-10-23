@@ -100,14 +100,32 @@ class Logger(object):
         return self._wrap_call('critical', *args, **kwargs)
 
 
+class Borg(object):
+    _shared_state = {}
+
+    def __init__(self):
+        self.__dict__ = self._shared_state
+
+
+class Logging(Borg):
+    def _key(self, name):
+        return "_log_%s" % name
+
+    def _setup_logger(self, name):
+        logger = logging.getLogger(name)
+        logger.addHandler(SentryHandler())
+        # TODO: Add file handler.
+        #logger.propagate = False # FIXME: should this be done?
+        self.__dict__[self._key(name)] = Logger(logger)
+
+    def get_logger(self, name):
+        key = self._key(name)
+        d = self.__dict__
+        if not d.has_key(key):
+            self._setup_logger(name)
+        return d[key]
+
+
 def get_logger(name='baljan'):
-    # Make sure only one root handler is present.
-    # FIXME: Ugly and still broken.
-    logger = logging.getLogger(name)
-    for handler in logger.handlers:
-        logger.removeHandler(handler)
-    logger.addHandler(SentryHandler())
-    logger.addHandler(logging.StreamHandler())
-    #logger.propagate = False
-    return Logger(logger)
+    return Logging().get_logger(name)
 
