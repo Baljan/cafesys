@@ -12,10 +12,10 @@ import random
 import string
 from dateutil.relativedelta import relativedelta
 import baljan.util
+from baljan.util import get_logger
 import itertools
 from django.core.cache import cache
 from notification import models as notification
-
 
 class Made(models.Model):
     made = models.DateTimeField(_("made at"), help_text=_("when the object was created"), auto_now_add=True)
@@ -209,6 +209,8 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
     # denied, there is no need to do anything besides sending the appropriate
     # notifications.
     if tr.accepted:
+        logger = get_logger('baljan.trades')
+        logger.info('%s accepted' % tr, trade_request=tr)
         TradeRequest.objects.filter(
                 Q(wanted_signup=tr.wanted_signup) |
                 Q(wanted_signup=tr.offered_signup) |
@@ -367,9 +369,6 @@ def semester_post_save(sender, instance, **kwargs):
                     when=day)
             if created:
                 created_count += 1
-
-    # FIXME: log instead
-    print "%d/%d added/deleted shifts for %s" % (created_count, deleted_count, sem)
 signals.post_save.connect(semester_post_save, sender=Semester)
 
 
