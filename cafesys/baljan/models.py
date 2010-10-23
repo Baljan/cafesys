@@ -16,6 +16,7 @@ from baljan.util import get_logger
 import itertools
 from django.core.cache import cache
 from notification import models as notification
+from django.utils.safestring import mark_safe
 
 class Made(models.Model):
     made = models.DateTimeField(_("made at"), help_text=_("when the object was created"), auto_now_add=True)
@@ -110,6 +111,70 @@ class FriendRequest(Made):
                 'sent_by': self.sent_by,
                 'sent_to': self.sent_to,
                 }
+
+
+def friendrequest_post_save(sender, instance=None, **kwargs):
+    if instance is None:
+        return
+    fr = instance
+    sent_to = fr.sent_to
+    sent_by = fr.sent_by
+
+    get_logger('baljan.friends').info('friend request %s → %s saved' % (
+        sent_by, sent_to))
+
+    if fr.answered_at:
+        link = "<a href='%s'>%s</a>" % (
+                sent_to.get_absolute_url(), 
+                sent_to.get_full_name())
+
+        if fr.accepted:
+            common_msg = _("%s accepted your friend request")
+        else:
+            common_msg = _("%s denied your friend request")
+
+        mail_msg = common_msg % sent_to.get_full_name()
+        web_msg = common_msg % link
+        notification.send([sent_by], "friend_request_answered", {
+            'mail_msg': mark_safe(mail_msg),
+            'web_msg': mark_safe(web_msg),
+            })
+    else:
+        link = "<a href='%s'>%s</a>" % (
+                sent_by.get_absolute_url(), 
+                sent_by.get_full_name())
+
+        common_msg = _("You have received a friend request from %s")
+        mail_msg =  common_msg % sent_by.get_full_name()
+        web_msg = common_msg % link
+        notification.send([sent_to], "friend_request_received", {
+            'mail_msg': mark_safe(mail_msg),
+            'web_msg': mark_safe(web_msg),
+            })
+signals.post_save.connect(friendrequest_post_save, sender=FriendRequest)
+
+
+def friendrequest_post_delete(sender, instance=None, **kwargs):
+    if instance is None:
+        return
+    fr = instance
+    sent_to = fr.sent_to
+    sent_by = fr.sent_by
+
+    get_logger('baljan.friends').info('friend request %s → %s deleted' % (
+        fr.sent_by, fr.sent_to))
+
+    link = "<a href='%s'>%s</a>" % (
+            sent_by.get_absolute_url(), 
+            sent_by.get_full_name())
+    common_msg = _("The pending friend request from %s was recalled")
+    mail_msg =  common_msg % sent_by.get_full_name()
+    web_msg = common_msg % link
+    notification.send([sent_to], "friend_request_received", {
+        'mail_msg': mark_safe(mail_msg),
+        'web_msg': mark_safe(web_msg),
+        })
+signals.post_delete.connect(friendrequest_post_delete, sender=FriendRequest)
 
 
 class TradeRequest(Made):

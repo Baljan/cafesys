@@ -15,5 +15,13 @@ if "notification" in settings.INSTALLED_APPS:
                 "signup",
                 _("Sign-Up"),
                 _("you have received a sign-up message"))
+        notification.create_notice_type(
+                "friend_request_received",
+                _("Friend Request"),
+                _("you have received a friends message"))
+        notification.create_notice_type(
+                "friend_request_answered",
+                _("Friend Request"),
+                _("a friend request has been answered"))
     signals.post_syncdb.connect(create_notice_types, sender=notification)
 
