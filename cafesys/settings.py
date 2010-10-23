@@ -12,7 +12,7 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 PINAX_THEME = "default"
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+TEMPLATE_DEBUG = True # nice for Sentry, different than DEBUG
 
 # Terminal settings.
 TERMINAL_FIREWALL = not DEBUG
@@ -199,9 +199,26 @@ INSTALLED_APPS = [
     "baljan",
 
     "gunicorn",
+    "indexer",
+    "paging",
+    "sentry",
+    "sentry.client",
+    "sentry.plugins.sentry_urls",
 
     #"johnny",
 ]
+
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+SENTRY_THRASHING_TIMEOUT = 0
+SENTRY_TESTING = True
+SENTRY_FILTERS = (
+        'sentry.filters.StatusFilter',
+        'sentry.filters.LoggerFilter',
+        'sentry.filters.LevelFilter',
+)
+SENTRY_PUBLIC = False
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 

@@ -54,6 +54,7 @@ urlpatterns = patterns("",
     (r"^baljan/", include("baljan.urls")),
 
     (r"^admin/", include(admin.site.urls)),
+    (r"^sentry/", include('sentry.urls')),
 )
 
 
