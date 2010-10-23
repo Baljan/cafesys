@@ -553,6 +553,7 @@ def signup_post_save(sender, instance=None, **kwargs):
     trs_possible_doubles.delete()
 
     signup_notice_save(signup)
+    get_logger('baljan.signups').info("%s saved" % signup)
 
 signals.post_save.connect(signup_post_save, sender=ShiftSignup)
 
@@ -564,6 +565,7 @@ def signup_post_delete(sender, instance=None, **kwargs):
     signup_post(sender, signup, **kwargs)
 
     signup_notice_delete(signup)
+    get_logger('baljan.signups').info("%s deleted" % instance)
 
 signals.post_delete.connect(signup_post_delete, sender=ShiftSignup)
 
@@ -595,6 +597,7 @@ def oncallduty_post_save(sender, instance=None, **kwargs):
     if instance is None:
         return
     oncallduty_post(sender, instance, **kwargs)
+    get_logger('baljan.signups').info("%s saved" % instance)
     signup_notice_save(instance)
 
 def oncallduty_post_delete(sender, instance=None, **kwargs):
@@ -602,6 +605,7 @@ def oncallduty_post_delete(sender, instance=None, **kwargs):
         return
     oncallduty_post(sender, instance, **kwargs)
     signup_notice_delete(instance)
+    get_logger('baljan.signups').info("%s deleted" % instance)
 
 signals.post_save.connect(oncallduty_post_save, sender=OnCallDuty)
 signals.post_delete.connect(oncallduty_post_delete, sender=OnCallDuty)
