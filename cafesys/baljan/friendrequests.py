@@ -3,7 +3,9 @@ from django.contrib.auth.models import User, Permission, Group
 from baljan.models import FriendRequest
 from django.db.models import Q
 from datetime import date
+from baljan.util import get_logger
 
+logger = get_logger('baljan.friends')
 
 def pending_between(usera, userb):
     if usera == userb:
@@ -29,6 +31,8 @@ def answer_to(frequest, accept):
             sent_by.friend_profiles.add(sent_to)
             sent_by.save()
             sent_to.save()
+            logger.info('%s and %s are now friends' % (
+                sent_by, sent_to))
     
     frequest.accepted = accept
     frequest.answered_at = date.today()
