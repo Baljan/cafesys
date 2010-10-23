@@ -102,14 +102,12 @@ class Logger(object):
 
 def get_logger(name='baljan'):
     # Make sure only one root handler is present.
-    # FIXME: This is ugly.
-    root_logger = logging.getLogger()
-    for handler in root_logger.handlers:
-        root_logger.removeHandler(handler)
-    logging.getLogger().addHandler(SentryHandler())
-
+    # FIXME: Ugly and still broken.
     logger = logging.getLogger(name)
-    #logger.propagate = False
+    for handler in logger.handlers:
+        logger.removeHandler(handler)
+    logger.addHandler(SentryHandler())
     logger.addHandler(logging.StreamHandler())
+    #logger.propagate = False
     return Logger(logger)
 
