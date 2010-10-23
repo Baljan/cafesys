@@ -5,8 +5,10 @@ html, body {
 }
 body {
     background-color: #FFF;
-    background-image: url(../img/3731107419_b64f5eb8cc_o.jpg);
+    /* http://www.flickr.com/photos/31288116@N02/3731106877/ */
+    background-image: url(../img/flickr/3731106877_28a642a1a6_o.jpg);
     background-position: center center;
+    background-position: left top;
     background-attachment: fixed;
     margin: 0;
     color: #333;
@@ -26,7 +28,7 @@ table {
     font-size: inherit;
 }
 div#body {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.8);
     -webkit-border-bottom-right-radius: 15px;
     -moz-border-radius-bottomright: 15px;
     border-bottom-right-radius: 15px;
@@ -38,11 +40,19 @@ td, th {
     border: 0;
     padding: 0 .5em;
 }
-.even {
+.even td {
     background: #eee;
+}
+.even .week, .even .day-name {
+    background-color: transparent; /* to keep the vertical alignment */
 }
 h1 {
     margin: 0;
+    color: #FF0084;
+    text-shadow: 1px -1px 0px #903;
+}
+div.admin h1 {
+    text-shadow: none;
 }
 
 a:link, a:active, a:hover, a:visited {
@@ -188,6 +198,13 @@ div.right_panel {
 }
 
 /* BALJAN */
+.init-hidden {
+    visibility: hidden;
+    display: none;
+}
+.inbox {
+    /* unread notifications */
+}
 .tooltip {
     display:none;
     background:url(../img/tt/black_big.png);
@@ -197,11 +214,13 @@ div.right_panel {
     font-size:11px;
     color:#fff;
 }
-
 .tooltip a {
     color:#ad4;
     font-size:11px;
     font-weight:bold;
+}
+div.submit {
+    text-align: right;
 }
 
 .link {
@@ -242,7 +261,11 @@ li.selected {
     margin: 0;
 }
 #nav ul {
-    padding-left: 1em;
+    padding-left: 18px;
+    list-style-image: url(../img/coffee-bullet-gray.png);
+}
+#nav ul li:hover, #nav li.active {
+    list-style-image: url(../img/coffee-bullet-pink.png);
 }
 
 #nav .ui-accordion-content {
@@ -288,14 +311,65 @@ body.admin #container {
     margin-top: 1em;
 }
 
-body.day .person, body.user .main div, body.user .secondary div {
+.person, .main div, .secondary div {
     padding: .5em;
-    border: 1px solid #eee;
     margin: 1em 0;
-    background: rgba(255, 255, 255, 1.0);
+    background: rgb(255, 255, 255);
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
+}
+.main div.layout, .secondary div.layout {
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+}
+body .main img, body .secondary img {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    width: 100%;
+    max-width: 100%;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+body .main div img, body .secondary div img {
+    /* Less radius for images inside divs looks better. */
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    order-radius: 5px;
+}
+body .main div h2, body .secondary div h2 {
+    margin: 0;
+    padding: 0;
+    margin-bottom: .5em;
+}
+body .undo-highlight {
+    background: #fee !important;
+    border: 1px solid #f00 !important;
+}
+body .pending-highlight {
+    background: #ffc !important;
+    border: 1px solid #aa0 !important;
+    color: #990;
+}
+body .pending-highlight .action {
+    background: #eea;
+}
+body .confirmed-highlight, .saved {
+    background: #efe !important;
+    border: 1px solid #0a0 !important;
+}
+.confirmed-highlight, .saved {
+    color: #090;
+}
+.saved {
+    text-align: center;
+}
+.undo-highlight {
+    color: #f00;
 }
 
 body.semester .day-name, body.semester .week {
@@ -317,9 +391,9 @@ body.semester table.plain .accepts,
 body.semester table.plain .hide,
 body.semester table.plain .day-name,
 body.semester table.plain .week,
-body.semester table.plain .even,
+body.semester table.plain .even td,
 body.semester table.plain .odd {
-    background-color: #fff;
+    background-color: transparent;
     visibility: visible;
 }
 body.day .empty, body.semester .past {
@@ -335,7 +409,7 @@ body.semester ul.users {
     padding: 1em;
 }
 
-body.day .sem-info {
+.top-nav {
     margin-bottom: 1em;
 }
 body.day h2.early-or-late {
@@ -357,35 +431,35 @@ body.day .schedule {
 body.day .person {
     padding: .5em;
     height: 10em;
-    border: 1px solid #eee;
 }
 body.day .sign-up {
     text-align: right;
-    margin-top: 1em;
+    margin-top: 0em;
     height: auto;
 }
 body.day .schedule .worker .person {
 }
 body.day .schedule .on-call .person {
 }
-body.day .tradable {
-    background: #fee;
-    border: 1px solid #f00;
-}
 body.day .tradable .type {
     color: #f00;
 }
 
-body.user .main div h2, body.user .secondary div h2 {
-    margin: 0;
-    padding: 0;
-    margin-bottom: .5em;
-}
 body.user .signups table {
     width: 100%;
 }
 body.user .signups .group td {
     color: #999;
+}
+body.user .friend-request {
+    text-align: center;
+}
+
+body.become-worker .toggle-request a {
+    font-size: 1.5em;
+}
+body.become-worker .toggle-request {
+    text-align: center;
 }
 
 .admin-link {
@@ -395,3 +469,4 @@ body.user .signups .group td {
     padding: 0 !important;
     text-align: right;
 }
+

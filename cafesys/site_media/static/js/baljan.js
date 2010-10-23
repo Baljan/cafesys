@@ -1,5 +1,5 @@
-/* apa*/
 $(document).ready(function () {
+    $('.init-hidden').css('visibility', 'visible').show();
     $('#links-for .accordion').accordion();
     $('#links-for').css('visibility', 'visible');
     $('#nav .active').click();
@@ -24,7 +24,7 @@ $(document).ready(function () {
     });
 
     /* Work Planning View */
-    $('body.semester .tabs').tabs().css('visibility', 'visible');
+    $('body.semester .tabs').tabs();
 
     var updateShifts = function() {
         var sem = $('.sem :selected:first').html(),
@@ -99,10 +99,54 @@ $(document).ready(function () {
     $('body.day .delete').click(function() {
         return confirm(CONFIRM_DELETE);
     });
-    // Switchability can be reversed by the user.
-    /*
-    $('body.day .toggle-tradable').click(function() {
+
+    /* Search Person View */
+    if ($('body').hasClass('search-person')) {
+        var uFormat = function(user) {
+            var uName = user.fields.username,
+                fName = user.fields.first_name,
+                lName = user.fields.last_name;
+
+            // FIXME: DRY, use get_absolute_url in some way
+            var link = '/baljan/user/' + uName;
+            return [
+                '<li>',
+                    '<a href="', link, '">',
+                        fName, ' ', lName, ' (', uName, ')',
+                    '</a>',
+                '</li>'
+                ].join('');
+        }
+
+        var f = $('form.search'),
+            terms = $('#search-terms'),
+            ul = $('.results ul'),
+            count = $('.results .count');
+        
+        // These should be nice in JS-enabled browsers.
+        terms.focus();
+        f.attr('autocomplete', 'off');
+        f.submit(function() { return false; });
+
+        terms.bind('keyup', function() {
+            $.ajax({
+                data: f.serialize(),
+                url: document.location.pathname, // f.attr('action') is empty string
+                type: f.attr('method'),
+                dataType: 'json',
+                success: function(hits) {
+                    ul.html('');
+                    count.html('' + hits.length);
+                    for (i in hits) {
+                        ul.append(uFormat(hits[i]));
+                    }
+                }
+            });
+        });
+    }
+
+    /* User View */
+    $('body.user a.accept, body.user a.deny').click(function() {
         return confirm(CONFIRM_MSG);
     });
-    */
 });
