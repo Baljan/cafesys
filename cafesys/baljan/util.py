@@ -101,6 +101,9 @@ class Logger(object):
 
 
 def get_logger(name='baljan'):
+    # FIXME: Log messages are undeterministically duplicated. Has to do with
+    # threads.
+
     logging.getLogger().addHandler(SentryHandler())
     logger = logging.getLogger(name)
     #logger.propagate = False
