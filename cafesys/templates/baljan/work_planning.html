@@ -8,6 +8,7 @@
 {% block head_title %}{% trans "Semester" %}{% endblock %}
 
 
+
 {% block body_class %}semester{% endblock %}
 {% block body %}
 
@@ -126,6 +127,10 @@
             {% plural %}
                 A total of {{counter}} workers.
             {% endblocktrans %}
+            {% url group worker_group_name as worker_group_url %}
+            {% blocktrans %}
+            <a href="{{worker_group_url}}">Full overview of the group</a>.
+            {% endblocktrans %}
         </p>
     </div>
     <div id="oncall-list">
@@ -139,6 +144,10 @@
                 One person on the call duty list.
             {% plural %}
                 Total of {{counter}} people on the call duty list.
+            {% endblocktrans %}
+            {% url group board_group_name as board_group_url %}
+            {% blocktrans %}
+            <a href="{{board_group_url}}">Full overview of the group</a>.
             {% endblocktrans %}
         </p>
     </div>
