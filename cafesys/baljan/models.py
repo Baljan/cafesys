@@ -543,8 +543,8 @@ def signup_post_save(sender, instance=None, **kwargs):
     signup = instance
     signup_post(sender, signup, **kwargs)
     
-    # Remove pending trade requests that would result in a user being
-    # double-booked for a shift.
+    # Remove pending trade requests that, if accepted, would result in a user
+    # being double-booked for a shift.
     trs_possible_doubles = TradeRequest.objects.filter(
             Q(wanted_signup__shift=signup.shift,
                 offered_signup__user=signup.user) |
