@@ -44,8 +44,13 @@
         
         {% block body_outer %}
         <div id="body" class="container container_12">
-            <div id="nav" class="grid_2">
+            <div class="grid_2">
+                <div id="logo">
+                    <a href="/"><img src="{{ STATIC_URL }}img/logo/baljan.png" /></a>
+                </div>
+                <div id="nav">
                 {% block nav %}{% endblock %}
+                </div>
             </div>
             {#<div id="logo" class="9" dir="ltr">{% block logo_link_image %}{% endblock %}</div>#}
             <div id="main" class="grid_10">
