@@ -33,6 +33,9 @@ class Profile(Made):
     balance_currency = models.CharField(_("balance currency"), max_length=20, default=u"SEK", 
             help_text=_("in case Sweden changes currency"))
 
+    def get_absolute_url(self):
+        return self.user.get_absolute_url()
+
     def friend_users(self, distinct=True):
         f = User.objects.filter(profile__friend_profiles__user=self.user)
         if distinct:
