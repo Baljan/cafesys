@@ -40,11 +40,10 @@ def categories_and_actions(request):
             #Action(_('recharge card'), 'accounting.views.index'),
             #Action(_('card order history'), 'accounting.views.order_history'),
             )),
-        ('anyone', _('everyone'), (
+        ('anyone', _('users'), (
             Action(_('work planning'), 'baljan.views.current_semester'),
             Action(_('work for Baljan'), 'become_worker'),
             Action(_('people and groups'), 'baljan.views.search_person'),
-            Action(_('admin site'), 'admin:index'),
             #Action(_('price list'), 'accounting.views.price_list'),
             #Action(_('top lists and order stats'), 'stats.views.index'),
             Action(_('login'), 'acct_login') if student is None else Action(_('logout'), 'acct_logout'),
