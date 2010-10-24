@@ -86,16 +86,12 @@ class Logger(object):
 
     def debug(self, *args, **kwargs):
         return self._wrap_call('debug', *args, **kwargs)
-
     def info(self, *args, **kwargs):
         return self._wrap_call('info', *args, **kwargs)
-
     def warning(self, *args, **kwargs):
         return self._wrap_call('warning', *args, **kwargs)
-
     def error(self, *args, **kwargs):
         return self._wrap_call('error', *args, **kwargs)
-
     def critical(self, *args, **kwargs):
         return self._wrap_call('critical', *args, **kwargs)
 
