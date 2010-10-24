@@ -23,8 +23,8 @@ def categories_and_actions(request):
 
     levels = (
         (settings.BOARD_GROUP, _('the board'), (
-            Action(_('semesters'), 'baljan.views.current_semester'),
-            Action(_('work applications'), '#', resolve_func=None),
+            #Action(_('semesters'), 'baljan.views.current_semester'),
+            #Action(_('work applications'), '#', resolve_func=None),
             )),
         ('sysadmins', _('sysadmins'), (
             Action(_('django admin site'), 'admin:index'),
@@ -39,10 +39,10 @@ def categories_and_actions(request):
         ('regulars', _('students'), (
             #Action(_('recharge card'), 'accounting.views.index'),
             #Action(_('card order history'), 'accounting.views.order_history'),
-            Action(_('work for Baljan'), 'become_worker'),
             )),
         ('anyone', _('everyone'), (
             Action(_('work planning'), 'baljan.views.current_semester'),
+            Action(_('work for Baljan'), 'become_worker'),
             Action(_('people and groups'), 'baljan.views.search_person'),
             Action(_('admin site'), 'admin:index'),
             #Action(_('price list'), 'accounting.views.price_list'),
@@ -87,12 +87,15 @@ def categories_and_actions(request):
         if got_link:
             break
     
-    if not got_link:
+    if got_link:
+        pass
+    elif len(avail_levels):
         if reserve is None:
             avail_levels[-1][0] += active_cls
         else:
             avail_levels[reserve][0] += active_cls
 
-    return avail_levels
+    no_empty = [lev for lev in avail_levels if len(lev[2])]
+    return no_empty
 
 
