@@ -198,6 +198,10 @@ div.right_panel {
 }
 
 /* BALJAN */
+#logo {
+    text-align: center;
+    margin-top: -1.2em;
+}
 .init-hidden {
     visibility: hidden;
     display: none;
