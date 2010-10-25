@@ -259,7 +259,7 @@ AUTHENTICATION_BACKENDS += [
 ] 
 
 EMAIL_CONFIRMATION_DAYS = 2
-EMAIL_DEBUG = DEBUG
+EMAIL_DEBUG = True
 CONTACT_EMAIL = "styret@baljan.studorg.liu.se"
 USER_EMAIL_DOMAIN = 'student.liu.se'
 SITE_NAME = "Sektionscafé Baljan"
@@ -281,7 +281,7 @@ PRICE_LIST_ROW_HEIGHT = 40 # px
 #OLD_SYSTEM_MYSQL_DB = 'foo'
 #OLD_SYSTEM_MYSQL_HOST = 'localhost'
 
-EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = ''
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
