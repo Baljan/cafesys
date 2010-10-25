@@ -11,7 +11,7 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 # tells Pinax to use the default theme
 PINAX_THEME = "default"
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = True # nice for Sentry, different than DEBUG
 
 # Terminal settings.
@@ -286,6 +286,8 @@ EMAIL_HOST = ''
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
+
+LDAP_SERVER = 'ldap://lukas-backend.unit.liu.se'
 
 # URCHIN_ID = "ua-..."
 
