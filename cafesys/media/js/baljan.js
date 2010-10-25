@@ -106,16 +106,14 @@ $(document).ready(function () {
             var uName = user.fields.username,
                 fName = user.fields.first_name,
                 lName = user.fields.last_name;
+            return [fName,' ',lName,' (', uName, ')'].join('');
+        }
 
+        var uLink = function(user) {
+            var uName = user.fields.username;
             // FIXME: DRY, use get_absolute_url in some way
             var link = '/baljan/user/' + uName;
-            return [
-                '<li>',
-                    '<a href="', link, '">',
-                        fName, ' ', lName, ' (', uName, ')',
-                    '</a>',
-                '</li>'
-                ].join('');
+            return '<a href="' + link + '"/>';
         }
 
         var f = $('form.search'),
@@ -141,10 +139,12 @@ $(document).ready(function () {
                 type: f.attr('method'),
                 dataType: 'json',
                 success: function(hits) {
+                    if (!hits) return;
                     ul.html('');
                     count.html('' + hits.length);
                     for (i in hits) {
-                        ul.append(uFormat(hits[i]));
+                        ul.append('<li>' + uLink(hits[i]) + '</li>');
+                        ul.find('li a').last().text(uFormat(hits[i]));
                     }
                 }
             });
