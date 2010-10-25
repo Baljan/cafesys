@@ -277,6 +277,7 @@ PRICE_LIST_ROW_HEIGHT = 40 # px
 #OLD_SYSTEM_MYSQL_DB = 'foo'
 #OLD_SYSTEM_MYSQL_HOST = 'localhost'
 
+EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
 EMAIL_HOST = 'smtp.bahnhof.se'
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
