@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-25 23:58+0200\n"
+"POT-Creation-Date: 2010-10-26 00:05+0200\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -136,8 +136,7 @@ msgstr "varukostnader"
 #, python-format
 msgid ""
 "%(unused_count)d codes successfully updated, skipped %(used_count)d used"
-msgstr ""
-"%(unused_count)d koder uppdaterades, skippade %(used_count)d använda"
+msgstr "%(unused_count)d koder uppdaterades, skippade %(used_count)d använda"
 
 #: baljan/admin.py:163 baljan/admin.py:167 baljan/admin.py:171
 #, python-format
@@ -561,6 +560,10 @@ msgid "made by"
 msgstr "skapad av"
 
 #: baljan/models.py:795
+msgid "printed"
+msgstr "utskriven"
+
+#: baljan/models.py:795
 msgid ""
 "manually set by admins to tell whether or not the series has been printed"
 msgstr "sätts manuellt av admins när serier skrivs ut"
@@ -575,16 +578,16 @@ msgid ""
 "%(id)s. issued %(issued)s, %(used_count)d of %(total_count)d used, made by %"
 "(made_by)s"
 msgstr ""
-"%(id)s. skapad %(issued)s, %(used_count)d av %(total_count)d använda, skapad av %"
-"(made_by)s"
+"%(id)s. skapad %(issued)s, %(used_count)d av %(total_count)d använda, skapad "
+"av %(made_by)s"
 
 #: baljan/models.py:836
 msgid ""
 "To create a bulk of codes, <a href='../../refillseries/add'>create a new "
 "refill series</a> instead."
 msgstr ""
-"För att skapa många koder, <a href='../../refillseries/add'>skapa en ny"
-"serie</a> istället."
+"För att skapa många koder, <a href='../../refillseries/add'>skapa en "
+"nyserie</a> istället."
 
 #: baljan/models.py:853
 #, python-format

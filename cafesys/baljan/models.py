@@ -792,7 +792,7 @@ class RefillSeries(Made):
     least_valid_until = models.DateField(_("least valid until"), 
             default=default_least_valid_until)
     made_by = models.ForeignKey('auth.User', verbose_name=_("made by"))
-    printed = models.BooleanField(default=False, help_text=_('manually set by admins to tell whether or not the series has been printed'))
+    printed = models.BooleanField(_("printed"), default=False, help_text=_('manually set by admins to tell whether or not the series has been printed'))
 
     class Meta:
         verbose_name = _('refill series')
