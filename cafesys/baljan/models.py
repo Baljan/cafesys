@@ -5,7 +5,7 @@ from django.utils.encoding import smart_str
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models import signals
-from django.utils.translation import ugettext as _ 
+from django.utils.translation import ugettext_lazy as _ 
 from django.conf import settings
 from datetime import date
 import random
