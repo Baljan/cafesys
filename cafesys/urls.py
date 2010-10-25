@@ -12,11 +12,6 @@ from pinax.apps.account.openid_consumer import PinaxConsumer
 #dajaxice_autodiscover()
 
 
-from django.contrib import databrowse
-from liu.models import Student
-databrowse.site.register(Student)
-
-
 handler500 = "pinax.views.server_error"
 
 
@@ -38,8 +33,6 @@ urlpatterns = patterns("",
     (r"^account/", include("pinax.apps.account.urls")),
     (r"^notices/", include("notification.urls")), # TODO: roll our own
     (r"^announcements/", include("announcements.urls")),
-
-    (r"^databrowse/(.*)", databrowse.site.root),
 
     #(r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('dajaxice.urls')),
 
