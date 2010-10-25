@@ -12,9 +12,18 @@ DATABASES = {
     }
 }
 
-EMAIL_HOST = 'smtp.bahnhof.se'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_HOST = 'smtp.bahnhof.se'
+EMAIL_HOST = ''
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
 
 SITE_ID=1
+
+# For importing data from the old system. There is a management command
+# that uses these settings (importoldsystem).
+OLD_SYSTEM_MYSQL_LOGIN = 'root'
+OLD_SYSTEM_MYSQL_PASSWORD = ''
+OLD_SYSTEM_MYSQL_DB = 'baljan'
+OLD_SYSTEM_MYSQL_HOST = 'localhost'

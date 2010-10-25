@@ -3,3 +3,4 @@
 local_settings.py
 sphinx/*
 baljan/_build/*
+*_settings.py
