@@ -106,16 +106,14 @@ $(document).ready(function () {
             var uName = user.fields.username,
                 fName = user.fields.first_name,
                 lName = user.fields.last_name;
+            return ''+fName+' '+lName+' ('+uName+')';
+        }
 
+        var uLink = function(user) {
+            var uName = user.fields.username;
             // FIXME: DRY, use get_absolute_url in some way
             var link = '/baljan/user/' + uName;
-            return [
-                '<li>',
-                    '<a href="', link, '">',
-                        fName, ' ', lName, ' (', uName, ')',
-                    '</a>',
-                '</li>'
-                ].join('');
+            return '<a href="' + link + '"/>';
         }
 
         var f = $('form.search'),
@@ -141,11 +139,41 @@ $(document).ready(function () {
                 type: f.attr('method'),
                 dataType: 'json',
                 success: function(hits) {
+                    if (!hits) return;
                     ul.html('');
                     count.html('' + hits.length);
-                    for (i in hits) {
-                        ul.append(uFormat(hits[i]));
+                    var lis = false,
+                        as = false,
+                        delay = 0;
+
+                    // This looks odd. With this code, the hit list is populated
+                    // asynchronously.
+                    var addTexts = {
+                        delay: delay,
+                        loop: function(i) {
+                            $(this).text(uFormat(hits[i]));
+                        }
                     }
+                    var addLinks = {
+                        delay: delay,
+                        loop: function(i) {
+                            $(this).html(uLink(hits[i]));
+                        },
+                        end: function() {
+                            var as = lis.children('a');
+                            as.eachAsync(addTexts);
+                        }
+                    }
+                    $.eachAsync(hits, {
+                        delay: delay,
+                        loop: function() {
+                            ul.append('<li/>');
+                        },
+                        end: function() {
+                            lis = ul.children('li');
+                            lis.eachAsync(addLinks);
+                        }
+                    });
                 }
             });
         });
