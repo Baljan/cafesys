@@ -116,11 +116,6 @@
         </table>
     </div>
     <div id="worker-list">
-        <ul class="users">
-            {% for user in workers %}
-            <li>{{user|user_link}}</li>
-            {% endfor %}
-        </ul>
         <p>
             {% blocktrans count workers.count as counter %}
                 One worker.
@@ -132,13 +127,13 @@
             <a href="{{worker_group_url}}">Full overview of the group</a>.
             {% endblocktrans %}
         </p>
-    </div>
-    <div id="oncall-list">
         <ul class="users">
-            {% for user in oncall %}
+            {% for user in workers %}
             <li>{{user|user_link}}</li>
             {% endfor %}
         </ul>
+    </div>
+    <div id="oncall-list">
         <p>
             {% blocktrans count oncall.count as counter %}
                 One person on the call duty list.
@@ -150,6 +145,11 @@
             <a href="{{board_group_url}}">Full overview of the group</a>.
             {% endblocktrans %}
         </p>
+        <ul class="users">
+            {% for user in oncall %}
+            <li>{{user|user_link}}</li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
 {% endblock %}

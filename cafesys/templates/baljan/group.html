@@ -22,7 +22,7 @@
     </div>
 
     {% for pgroup in pseudo_groups %}
-    <div class="pseudo-group">
+    <div class="pseudo-group" id="{{pgroup.name}}">
         <h2><a href="{{pgroup.link}}">{{pgroup.name}}</a></h2>
         <ul>
         {% for member in pgroup.members %}
@@ -47,6 +47,15 @@
         </ul>
     </div>
     {% endif %}
+    
+    <div class="jump-to">
+        <h2>{% trans "Jump To" %}</h2>
+        <ul>
+        {% for pgroup in pseudo_groups %}
+            <li><a href="#{{pgroup.name}}">{{pgroup.name}}</a></li>
+        {% endfor %}
+        </li>
+    </div>
 </div><!--.secondary-->
 <div class="clear"></div>
 
