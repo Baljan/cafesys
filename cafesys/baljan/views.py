@@ -192,8 +192,29 @@ def profile(request):
 def see_user(request, who):
     u = request.user
     tpl = {}
-    tpl['watched'] = watched = User.objects.get(username__exact=who)
-    tpl['watching_self'] = watching_self = u == watched
+
+    watched = User.objects.get(username__exact=who)
+    watching_self = u == watched
+    profile_form_cls_inst = (
+            (baljan.forms.UserForm, u),
+            (baljan.forms.ProfileForm, u.get_profile()),
+            )
+
+    if watching_self and request.method == 'POST':
+        profile_forms = [c(request.POST, instance=i) for c, i in profile_form_cls_inst]
+
+        # Make sure all forms are valid before saving.
+        all_valid = True
+        for f in profile_forms:
+            if not f.is_valid():
+                all_valid = False
+        if all_valid:
+            for f in profile_forms:
+                f.save()
+        watched = User.objects.get(username__exact=who)
+
+    tpl['watched'] = watched
+    tpl['watching_self'] = watching_self
 
     are_friends = False
     pending_friends = False
@@ -221,6 +242,8 @@ def see_user(request, who):
         tpl['sent_trade_requests'] = tr_sent = trades.requests_sent_by(u)
         tpl['received_trade_requests'] = tr_recd = trades.requests_sent_to(u)
         tpl['trade_requests'] = tr_sent or tr_recd
+        profile_forms = [c(instance=i) for c, i in profile_form_cls_inst]
+        tpl['profile_forms'] = profile_forms
     
     # Call duties come after work shifts because they are more frequent.
     tpl['signup_types'] = (

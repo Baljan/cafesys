@@ -55,11 +55,12 @@ div.admin h1 {
     text-shadow: none;
 }
 
-a:link, a:active, a:hover, a:visited {
+a:link, a:active, a:hover, a:visited, .link {
+    cursor: pointer;
     color: #0073EA;
     text-decoration: none;
 }
-a:hover {
+a:hover, .link:hover {
     text-decoration: underline;
 }
 
@@ -198,6 +199,10 @@ div.right_panel {
 }
 
 /* BALJAN */
+form table th {
+    font-weight: normal;
+}
+
 #logo {
     text-align: center;
     margin-top: -1.2em;
@@ -225,11 +230,6 @@ div.right_panel {
 }
 div.submit {
     text-align: right;
-}
-
-.link {
-    text-decoration: underline;
-    cursor: pointer;
 }
 
 li.selected {
@@ -322,6 +322,12 @@ body.admin #container {
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
+}
+.box-actions {
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: right;
+    float: right;
 }
 .main div.layout, .secondary div.layout {
     padding: 0;

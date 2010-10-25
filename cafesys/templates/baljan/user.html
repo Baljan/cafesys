@@ -49,6 +49,11 @@
     </div>
 
     <div class="profile">
+        {% if profile_forms %}
+            <div class="box-actions">
+                <span class="link show-profile-dialog">{% trans "edit" %}</span>
+            </div>
+        {% endif %}
         {# TODO: Hide phone number and such for regular users. #}
         <h2>{% trans "profile"|title %}</h2>
         <dl>
@@ -294,6 +299,18 @@
         {% endif %}
     {% endfor %}
 </div><!--.secondary-->
+        
+{% if profile_forms %}
+<div class="init-hidden" id="profile-dialog" title="{% trans "Edit Profile" %}">
+    <form method="POST" action="">{% csrf_token %}
+        <table>
+        {% for profile_form in profile_forms %}
+            {{profile_form.as_table}}
+        {% endfor %}
+        </table>
+    </form>
+</div>
+{% endif %}
 <div class="clear"></div>
 
 {% endblock %}
@@ -301,6 +318,8 @@
 {% block extra_body %}
 <script type="text/javascript">
 // <![CDATA[
+    SAVE_MSG = "{% trans "save" %}";
+    CANCEL_MSG = "{% trans "cancel" %}";
     CONFIRM_MSG = "{% trans "Are you sure?" %}";
     CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
     CONFIRM_DELETE = CONFIRM_MSG;

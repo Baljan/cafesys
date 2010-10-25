@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-18 20:45+0200\n"
+"POT-Creation-Date: 2010-10-24 23:07+0200\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,14 +27,6 @@ msgstr "Fyllde på %d SEK"
 msgid "the board"
 msgstr "styrelsen"
 
-#: baljan/actions.py:26 baljan/models.py:160
-msgid "semesters"
-msgstr "terminer"
-
-#: baljan/actions.py:27
-msgid "work applications"
-msgstr "jobbansökningar"
-
 #: baljan/actions.py:29
 msgid "sysadmins"
 msgstr "sysadmins"
@@ -44,315 +36,513 @@ msgid "django admin site"
 msgstr "djangos adminsida"
 
 #: baljan/actions.py:31
+msgid "sentry"
+msgstr "sentry"
+
+#: baljan/actions.py:32
 msgid "munin"
 msgstr "munin"
 
-#: baljan/actions.py:32
+#: baljan/actions.py:33
 msgid "github"
 msgstr "github"
 
-#: baljan/actions.py:34 templates/baljan/work_planning.html:55
+#: baljan/actions.py:35 templates/baljan/work_planning.html:59
 msgid "workers"
 msgstr "jobbare"
 
-#: baljan/actions.py:38
+#: baljan/actions.py:39
 msgid "students"
 msgstr "studenter"
 
-#: baljan/actions.py:42
-msgid "everyone"
-msgstr "alla"
-
 #: baljan/actions.py:43
+#, fuzzy
+msgid "users"
+msgstr "användare"
+
+#: baljan/actions.py:44
 msgid "work planning"
 msgstr "jobbplanering"
 
-#: baljan/actions.py:44
-msgid "admin site"
-msgstr "djangos adminsida"
+#: baljan/actions.py:45
+msgid "work for Baljan"
+msgstr "jobba för Baljan"
 
-#: baljan/actions.py:47 templates/site_base.html:24
-#: templates/admin/base.html:37
+#: baljan/actions.py:46
+msgid "people and groups"
+msgstr "personer och grupper"
+
+#: baljan/actions.py:49 templates/site_base.html:34
+#: templates/admin/base.html:40
 msgid "login"
 msgstr "logga in"
 
-#: baljan/actions.py:47 templates/site_base.html:22
-#: templates/admin/base.html:35
+#: baljan/actions.py:49 templates/site_base.html:32
+#: templates/admin/base.html:38
 msgid "logout"
 msgstr "logga ut"
 
-#: baljan/admin.py:75 templates/baljan/user.html:24
+#: baljan/admin.py:26
+msgid "Confirm and add to requested groups"
+msgstr "Bekräfta och lägg till i grupper"
+
+#: baljan/admin.py:109 templates/baljan/user.html:62
 msgid "unset"
 msgstr "ej angett"
 
-#: baljan/admin.py:77 baljan/models.py:354
+#: baljan/admin.py:111 baljan/models.py:727
 msgid "cost"
 msgstr "varukostnader"
 
-#: baljan/models.py:20
+#: baljan/models.py:22
 msgid "made at"
 msgstr "skapad den"
 
-#: baljan/models.py:20
+#: baljan/models.py:22
 msgid "when the object was created"
 msgstr "när objektet skapades"
 
-#: baljan/models.py:27 baljan/models.py:68 baljan/models.py:288
-#: baljan/models.py:374
+#: baljan/models.py:29 baljan/models.py:81 baljan/models.py:652
+#: baljan/models.py:747 templates/baljan/user.html:108
 msgid "user"
 msgstr "användare"
 
-#: baljan/models.py:28
+#: baljan/models.py:30
 msgid "friend profiles"
 msgstr "vänprofiler"
 
-#: baljan/models.py:29
+#: baljan/models.py:31
 msgid "mobile phone number"
 msgstr "mobilnummer"
 
-#: baljan/models.py:31
+#: baljan/models.py:33
 msgid "balance currency"
 msgstr "balansvalör"
 
-#: baljan/models.py:32 baljan/models.py:358
+#: baljan/models.py:34 baljan/models.py:731
 msgid "in case Sweden changes currency"
 msgstr "om Sverige byter valör"
 
-#: baljan/models.py:46 templates/baljan/user.html:15
+#: baljan/models.py:59 templates/baljan/user.html:53
+#: templates/baljan/user.html.py:109
 msgid "profile"
 msgstr "profil"
 
-#: baljan/models.py:47
+#: baljan/models.py:60
 msgid "profiles"
 msgstr "profiler"
 
-#: baljan/models.py:49
+#: baljan/models.py:62
 msgid "Available for call duty"
 msgstr "Tillgäng för jour"
 
-#: baljan/models.py:69
+#: baljan/models.py:82
 msgid "group"
 msgstr "grupp"
 
-#: baljan/models.py:72
+#: baljan/models.py:85
 msgid "join group request"
 msgstr "förfrågan om att ansluta till grupp"
 
-#: baljan/models.py:73
+#: baljan/models.py:86
 msgid "join group requests"
 msgstr "förfrågningar om att ansluta till grupper"
 
-#: baljan/models.py:75
+#: baljan/models.py:88
 msgid "Can request group"
 msgstr "Kan fråga om grupp"
 
-#: baljan/models.py:79
+#: baljan/models.py:92
 #, python-format
 msgid "%(user)s wants to be in %(group)s"
 msgstr "%(user)s vill vara med i %(group)s"
 
-#: baljan/models.py:102
+#: baljan/models.py:99
+msgid "sent by"
+msgstr ""
+
+#: baljan/models.py:101
+msgid "sent to"
+msgstr ""
+
+#: baljan/models.py:105 baljan/models.py:215
+msgid "accepted"
+msgstr ""
+
+#: baljan/models.py:106
+msgid "answered at"
+msgstr ""
+
+#: baljan/models.py:109
+msgid "friend request"
+msgstr "vänförfrågan"
+
+#: baljan/models.py:110
+msgid "friend requests"
+msgstr "vänförfrågningar"
+
+#: baljan/models.py:113
+#, python-format
+msgid "%(sent_by)s wants to be friends with %(sent_to)s"
+msgstr "%(sent_by)s vill bli kompis med %(sent_to)s"
+
+#: baljan/models.py:144
+#, python-format
+msgid "%s accepted your friend request"
+msgstr "%s accepterade din vänförfrågan"
+
+#: baljan/models.py:146
+#, python-format
+msgid "%s denied your friend request"
+msgstr "%s nekade din vänförfrågan"
+
+#: baljan/models.py:159
+#, python-format
+msgid "You have received a friend request from %s"
+msgstr "Du har fått en vänförfrågan från %s"
+
+#: baljan/models.py:182
+#, python-format
+msgid "The pending friend request from %s was recalled"
+msgstr "Vänförfrågan från %s drogs tillbaka"
+
+#: baljan/models.py:210
+msgid "wanted sign-up"
+msgstr "passanmälan som efterfrågas"
+
+#: baljan/models.py:213
+msgid "offered sign-up"
+msgstr "passanmälan som erbjuds"
+
+#: baljan/models.py:216
+msgid "answered"
+msgstr "besvarad"
+
+#: baljan/models.py:217
+msgid ""
+"if this is true when the shift is deleted, and \"accepted\" is true as well, "
+"the trade will be performed even if it was in the past"
+msgstr ""
+
+#: baljan/models.py:220
+msgid "trade request"
+msgstr "bytesförfrågan"
+
+#: baljan/models.py:221
+msgid "trade requests"
+msgstr "bytesförfrågningar"
+
+#: baljan/models.py:224
+#, python-format
+msgid "%(requester)s wants %(shift)s"
+msgstr "%(requester)s vill ha %(shift)s"
+
+#: baljan/models.py:244
+msgid "was accepted"
+msgstr "accepterades"
+
+#: baljan/models.py:245
+msgid "new shift"
+msgstr "nytt pass"
+
+#: baljan/models.py:246
+msgid "lost shift"
+msgstr "borttaget pass"
+
+#: baljan/models.py:248
+msgid "was denied"
+msgstr "nekades"
+
+#: baljan/models.py:249
+msgid "requested shift"
+msgstr "begärt pass"
+
+#: baljan/models.py:250
+msgid "offered shift"
+msgstr "erbjudet pass"
+
+#: baljan/models.py:366
 msgid "first day"
 msgstr "första dag"
 
-#: baljan/models.py:103
+#: baljan/models.py:367
 msgid "last day"
 msgstr "sista dag"
 
-#: baljan/models.py:104 templates/baljan/user.html:17
+#: baljan/models.py:368 templates/baljan/user.html:55
 msgid "name"
 msgstr "namn"
 
-#: baljan/models.py:105
+#: baljan/models.py:369
 msgid "must be something like HT2010"
 msgstr "ska vara något i stil med HT2010"
 
-#: baljan/models.py:106
+#: baljan/models.py:370
 msgid "sign-up possible"
 msgstr "anmälan möjlig"
 
-#: baljan/models.py:107
-msgid "if workers can sign-up to work on this semester"
+#: baljan/models.py:371
+msgid "if workers can sign up to work on this semester"
 msgstr "om jobbare kan skriva upp sig för att arbeta denna termin"
 
-#: baljan/models.py:127
+#: baljan/models.py:391
 msgid "bad combination of start and end dates"
 msgstr "dålig kombination av start- och slutdatum"
 
-#: baljan/models.py:129
+#: baljan/models.py:393
 msgid "bad semester name"
 msgstr "dåligt terminnamn"
 
-#: baljan/models.py:139
+#: baljan/models.py:403
 #, python-format
 msgid "semester overlaps with %s"
 msgstr "terminen överlappar med %s"
 
-#: baljan/models.py:159 baljan/models.py:192 templates/baljan/user.html:61
+#: baljan/models.py:423 baljan/models.py:464 templates/baljan/user.html:265
 msgid "semester"
 msgstr "termin"
 
-#: baljan/models.py:193
+#: baljan/models.py:424
+msgid "semesters"
+msgstr "terminer"
+
+#: baljan/models.py:465
 msgid "early shift"
 msgstr "tidigt pass"
 
-#: baljan/models.py:193
+#: baljan/models.py:465
 msgid "if the shift is early or late"
 msgstr "om passet är tidigt eller sent"
 
-#: baljan/models.py:194
+#: baljan/models.py:466
 msgid "what day the shift is on"
 msgstr "vilken dag passet är på"
 
-#: baljan/models.py:195
+#: baljan/models.py:467
 msgid "shifts can be disabled on special days"
 msgstr "pass kan tas bort på speciella dagar"
 
-#: baljan/models.py:243 baljan/models.py:260 baljan/models.py:287
+#: baljan/models.py:470 templates/baljan/day.html:24
+msgid "morning"
+msgstr "förmiddag"
+
+#: baljan/models.py:470 templates/baljan/day.html:26
+msgid "afternoon"
+msgstr "eftermiddag"
+
+#: baljan/models.py:473 templates/baljan/user.html:286
+#: templates/baljan/work_planning.html:98
+msgid "am"
+msgstr "fm"
+
+#: baljan/models.py:473 templates/baljan/user.html:286
+#: templates/baljan/work_planning.html:100
+msgid "pm"
+msgstr "em"
+
+#: baljan/models.py:527 baljan/models.py:544 baljan/models.py:651
 msgid "shift"
 msgstr "pass"
 
-#: baljan/models.py:244
+#: baljan/models.py:528
 msgid "shifts"
 msgstr "pass"
 
-#: baljan/models.py:261 templates/baljan/day.html:46
+#: baljan/models.py:545 templates/baljan/day.html:46
 msgid "worker"
 msgstr "jobbare"
 
-#: baljan/models.py:262
+#: baljan/models.py:547
 msgid "the user wants to switch this shift for some other"
 msgstr "jobbaren vill byta passet mot något annat"
 
-#: baljan/models.py:268
+#: baljan/models.py:548
+msgid ""
+"remember that trade requests of sign-ups are removed whenever the sign-up is "
+"altered"
+msgstr ""
+
+#: baljan/models.py:555
 msgid "shift sign-up"
 msgstr "passanmälan"
 
-#: baljan/models.py:269
+#: baljan/models.py:556
 msgid "shift sign-ups"
 msgstr "passanmälningar"
 
-#: baljan/models.py:272
+#: baljan/models.py:559
 msgid "Can sign up self and friends"
 msgstr "Kan anmäla sig själv och vänner"
 
-#: baljan/models.py:280 baljan/models.py:300
+#: baljan/models.py:567 baljan/models.py:664
 #, python-format
 msgid "%(user)s on %(shift)s"
 msgstr "%(user)s på %(shift)s"
 
-#: baljan/models.py:291
+#: baljan/models.py:596
+msgid "You were signed up for a shift"
+msgstr ""
+
+#: baljan/models.py:597
+msgid "You were signed up for"
+msgstr "Du anmäldes"
+
+#: baljan/models.py:610
+msgid "You were removed from a shift"
+msgstr "Du togs bort ett pass"
+
+#: baljan/models.py:611
+msgid "You were removed from"
+msgstr "Du togs bort från"
+
+#: baljan/models.py:655
 msgid "on call duty"
 msgstr "jourande"
 
-#: baljan/models.py:292
+#: baljan/models.py:656
 msgid "on call duties"
 msgstr "jourande"
 
-#: baljan/models.py:319
+#: baljan/models.py:692
 msgid "title"
 msgstr "rubrik"
 
-#: baljan/models.py:320
+#: baljan/models.py:693
 msgid "short description"
 msgstr "kort beskrivning"
 
-#: baljan/models.py:321
+#: baljan/models.py:694
 msgid "image"
 msgstr "bild"
 
-#: baljan/models.py:322
+#: baljan/models.py:695
 msgid "position"
 msgstr "position"
 
-#: baljan/models.py:323
+#: baljan/models.py:696
 msgid ""
 "when listing goods, this value tells at what position this good should be put"
 msgstr ""
 "när varor listas talar detta värde om på vilken position varan ska läggas"
 
-#: baljan/models.py:342 baljan/models.py:384
+#: baljan/models.py:715 baljan/models.py:757
 msgid "good"
 msgstr "vara"
 
-#: baljan/models.py:343
+#: baljan/models.py:716
 msgid "goods"
 msgstr "varor"
 
-#: baljan/models.py:346
+#: baljan/models.py:719
 #, python-format
 msgid "%(title)s (%(desc)s)"
 msgstr "%(title)s (%(desc)s)"
 
-#: baljan/models.py:353 baljan/models.py:361
+#: baljan/models.py:726 baljan/models.py:734
 msgid "good cost"
 msgstr "varukostnad"
 
-#: baljan/models.py:355
+#: baljan/models.py:728
 msgid "the cost of goods change over time"
 msgstr "priset för varor ändras med tiden"
 
-#: baljan/models.py:356
+#: baljan/models.py:729
 msgid "from date"
 msgstr "från datum"
 
-#: baljan/models.py:357
+#: baljan/models.py:730
 msgid "currency"
 msgstr "valör"
 
-#: baljan/models.py:362
+#: baljan/models.py:735
 msgid "good costs"
 msgstr "varukostnader"
 
-#: baljan/models.py:366
+#: baljan/models.py:739
 #, python-format
 msgid "%(title)s %(cost)s %(currency)s"
 msgstr "%(title)s %(cost)s %(currency)s"
 
-#: baljan/models.py:377 baljan/models.py:383
+#: baljan/models.py:750 baljan/models.py:756
 msgid "order"
 msgstr "köp"
 
-#: baljan/models.py:378
+#: baljan/models.py:751
 msgid "orders"
 msgstr "köp"
 
-#: baljan/models.py:385
+#: baljan/models.py:758
 msgid "count"
 msgstr "antal"
 
-#: baljan/models.py:388
+#: baljan/models.py:761
 msgid "order good"
 msgstr "vara i köp"
 
-#: baljan/models.py:389
+#: baljan/models.py:762
 msgid "order goods"
 msgstr "varor i köp"
 
-#: baljan/views.py:38
+#: baljan/views.py:43
 #, python-format
 msgid "%s was added successfully."
 msgstr "%s lades till utan problem"
 
-#: baljan/views.py:121
+#: baljan/views.py:152
 msgid "Nothing scheduled for this shift (yet)."
 msgstr "Ingenting schemalagt för detta shift (än)."
 
-#: baljan/views.py:134
+#: baljan/views.py:165
 msgid "upcoming"
 msgstr "kommande"
 
-#: baljan/views.py:135
+#: baljan/views.py:166
 msgid "past"
 msgstr "gångna"
 
-#: baljan/views.py:162 templates/baljan/work_planning.html:43
+#: baljan/views.py:227 templates/baljan/work_planning.html:47
 msgid "work shifts"
 msgstr "jobbpass"
 
-#: baljan/views.py:163
+#: baljan/views.py:228
 msgid "call duties"
 msgstr "jourpass"
+
+#: baljan/views.py:331
+msgid "This would result in a double booking."
+msgstr ""
+
+#: baljan/views.py:334
+msgid "Invalid trade request."
+msgstr ""
+
+#: baljan/management/__init__.py:12
+msgid "Trade Request"
+msgstr "Bytesförfrågningar"
+
+#: baljan/management/__init__.py:13
+msgid "you have received a trade request message"
+msgstr "du har mottagit ett bytesmeddelande"
+
+#: baljan/management/__init__.py:16
+msgid "Sign-Up"
+msgstr "Anmälan"
+
+#: baljan/management/__init__.py:17
+msgid "you have received a sign-up message"
+msgstr "du har mottagit ett anmälningsmeddelande"
+
+#: baljan/management/__init__.py:20 baljan/management/__init__.py:24
+msgid "Friend Request"
+msgstr "Vänförfrågan"
+
+#: baljan/management/__init__.py:21
+msgid "you have received a friends message"
+msgstr "du har mottagit ett vänmeddelande"
+
+#: baljan/management/__init__.py:25
+msgid "a friend request has been answered"
+msgstr "en vänförfrågan har besvarats"
 
 #: cal/ajax.py:66
 msgid "Morning"
@@ -397,9 +587,18 @@ msgstr ""
 msgid "Hide announcement"
 msgstr "Dölj meddelande"
 
-#: templates/base.html:56
-msgid "clear"
-msgstr "rensa"
+#: templates/base.html:61
+msgid "hide"
+msgstr ""
+
+#: templates/base.html:74
+msgid ""
+"\n"
+"                Basic functionality is tested in IE 8. You are encouraged "
+"to\n"
+"                switch to a browser with support for transparency.\n"
+"                "
+msgstr ""
 
 #: templates/homepage.html:6
 msgid "Welcome"
@@ -603,11 +802,12 @@ msgid "Cost"
 msgstr "Kostnad"
 
 #: templates/accounting/stats.html:11 templates/baljan/stats.html:11
-#: templates/calendar/swappable.html:18
+#: templates/baljan/user.html:141 templates/calendar/swappable.html:18
 msgid "from"
 msgstr "från"
 
 #: templates/accounting/stats.html:12 templates/baljan/stats.html:12
+#: templates/baljan/user.html:188
 msgid "to"
 msgstr "till"
 
@@ -623,7 +823,7 @@ msgstr "Uppdatera nu"
 msgid "Orders per Day and Hour"
 msgstr "Beställningar per dag och timme"
 
-#: templates/admin/base.html:60
+#: templates/admin/base.html:68
 msgid "Home"
 msgstr "Hem"
 
@@ -631,11 +831,17 @@ msgstr "Hem"
 msgid "About Baljan"
 msgstr "Om Baljan"
 
-#: templates/baljan/about.html:35
+#: templates/baljan/about.html:33
+#, fuzzy, python-format
 msgid ""
 "\n"
 "    <div>\n"
-"        <h2>Opening Hours</h2>\n"
+"        <a href=\"http://www.flickr.com/photos/chipgriffin/2210297177/\">\n"
+"            <img title=\"chipgriffin @ flickr\"\n"
+"                 src=\"%(STATIC_URL)simg/flickr/2210297177_d5a88290b3.jpg\"/"
+">\n"
+"        </a>\n"
+"\n"
 "        <dl>\n"
 "            <dt>weekdays</dt>\n"
 "            <dd>8:00 pm to 4:15 pm<dd>\n"
@@ -648,12 +854,50 @@ msgid ""
 "    </div>\n"
 "    "
 msgstr ""
+"\n"
+"    <div>\n"
+"        <a href=\"http://www.flickr.com/photos/chipgriffin/2210297177/\">\n"
+"            <img title=\"chipgriffin @ flickr\"\n"
+"                 src=\"%(STATIC_URL)simg/flickr/2210297177_d5a88290b3.jpg\"/"
+">\n"
+"        </a>\n"
+"        <h2>Öppettider</h2>\n"
+"        <dl>\n"
+"            <dt>vardagar</dt>\n"
+"            <dd>8:00 till 16:15<dd>\n"
+"            <dt>helger, högtider</dt>\n"
+"            <dd>stängt<dd>\n"
+"        </dl>\n"
+"        <p>\n"
+"        Öppet vanliga tider under tenta-p.\n"
+"        </p>\n"
+"    </div>\n"
+"\n"
+"    <div>\n"
+"        <a href=\"http://www.flickr.com/photos/20988296@N03/2133238064/\">\n"
+"            <img title=\"MINGHE*luciano @ flickr\" \n"
+"                 src=\"%(STATIC_URL)simg/flickr/2133238064_b7a6f87cf2.jpg\"/"
+">\n"
+"        </a>\n"
+"        <h2>Hitta hit</h2>\n"
+"        <p>\n"
+"        Baljan finns på bottenplan i <a\n"
+"            href=\"http://www.karservice.se/karallen/\">Kårallen</a>, \n"
+"        campus Valla, Linköping.\n"
+"        </p>\n"
+"    </div>\n"
+"    "
 
-#: templates/baljan/about.html:54
+#: templates/baljan/about.html:52
+#, fuzzy, python-format
 msgid ""
 "\n"
 "    <div>\n"
-"        <h2>Finding Us</h2>\n"
+"        <a href=\"http://www.flickr.com/photos/20988296@N03/2133238064/\">\n"
+"            <img title=\"MINGHE*luciano @ flickr\" \n"
+"                 src=\"%(STATIC_URL)simg/flickr/2133238064_b7a6f87cf2.jpg\"/"
+">\n"
+"        </a>\n"
 "        <p>\n"
 "        Baljan is located at the bottom floor of <a\n"
 "            href=\"http://www.karservice.se/karallen/\">Kårallen</a>, \n"
@@ -662,10 +906,83 @@ msgid ""
 "    </div>\n"
 "    "
 msgstr ""
+"\n"
+"    <div>\n"
+"        <a href=\"http://www.flickr.com/photos/chipgriffin/2210297177/\">\n"
+"            <img title=\"chipgriffin @ flickr\"\n"
+"                 src=\"%(STATIC_URL)simg/flickr/2210297177_d5a88290b3.jpg\"/"
+">\n"
+"        </a>\n"
+"        <h2>Öppettider</h2>\n"
+"        <dl>\n"
+"            <dt>vardagar</dt>\n"
+"            <dd>8:00 till 16:15<dd>\n"
+"            <dt>helger, högtider</dt>\n"
+"            <dd>stängt<dd>\n"
+"        </dl>\n"
+"        <p>\n"
+"        Öppet vanliga tider under tenta-p.\n"
+"        </p>\n"
+"    </div>\n"
+"\n"
+"    <div>\n"
+"        <a href=\"http://www.flickr.com/photos/20988296@N03/2133238064/\">\n"
+"            <img title=\"MINGHE*luciano @ flickr\" \n"
+"                 src=\"%(STATIC_URL)simg/flickr/2133238064_b7a6f87cf2.jpg\"/"
+">\n"
+"        </a>\n"
+"        <h2>Hitta hit</h2>\n"
+"        <p>\n"
+"        Baljan finns på bottenplan i <a\n"
+"            href=\"http://www.karservice.se/karallen/\">Kårallen</a>, \n"
+"        campus Valla, Linköping.\n"
+"        </p>\n"
+"    </div>\n"
+"    "
 
 #: templates/baljan/baljan.html:6
 msgid "Dashboard"
 msgstr "Dashboard"
+
+#: templates/baljan/become_worker.html:6
+#: templates/baljan/become_worker.html:11
+msgid "Work for Baljan"
+msgstr ""
+
+#: templates/baljan/become_worker.html:34
+#, python-format
+msgid ""
+"\n"
+"                <strong><a href=\"%(profile_link)s\">You</a> are\n"
+"                a worker.</strong> If you wish to stop being one, <a\n"
+"                href=\"mailto:%(CONTACT_EMAIL)s\">send us an email</a>. \n"
+"            "
+msgstr ""
+
+#: templates/baljan/become_worker.html:47
+msgid "recall pending request"
+msgstr "återkalla väntande förfrågningar"
+
+#: templates/baljan/become_worker.html:49
+msgid "request to become a worker"
+msgstr "begär att bli jobbare"
+
+#: templates/baljan/become_worker.html:54
+msgid "currently awaiting confirmation"
+msgstr "väntar på att bekräftas"
+
+#: templates/baljan/become_worker.html:56
+msgid "can be undone until someone confirms your request"
+msgstr "kan ångras innan någon bekräftar din begäran"
+
+#: templates/baljan/become_worker.html:67 templates/baljan/day.html:31
+#: templates/baljan/semesters.html:25 templates/baljan/work_planning.html:17
+msgid "admin"
+msgstr "admin"
+
+#: templates/baljan/become_worker.html:77
+msgid "Parties are regularly arranged for our hard-working personnel."
+msgstr "Fester anordnas regelbundet för vår hårt arbetande personal."
 
 #: templates/baljan/day.html:13
 #, python-format
@@ -678,29 +995,16 @@ msgstr ""
 "        <a href=\"%(sem_url)s\">&laquo; termin %(sem_name)s</a>\n"
 "    "
 
-#: templates/baljan/day.html:19 templates/baljan/work_planning.html:51
+#: templates/baljan/day.html:19 templates/baljan/work_planning.html:55
 #: templates/calendar/calendar.html:162
 msgid "week"
 msgstr "vecka"
-
-#: templates/baljan/day.html:24
-msgid "morning"
-msgstr "förmiddag"
-
-#: templates/baljan/day.html:26
-msgid "afternoon"
-msgstr "eftermiddag"
-
-#: templates/baljan/day.html:31 templates/baljan/semesters.html:25
-#: templates/baljan/user.html:35 templates/baljan/work_planning.html:15
-msgid "admin"
-msgstr "admin"
 
 #: templates/baljan/day.html:44
 msgid "worker wants to trade"
 msgstr "jobbare vill byta"
 
-#: templates/baljan/day.html:51 templates/baljan/day.html.py:107
+#: templates/baljan/day.html:51 templates/baljan/day.html.py:114
 msgid "remove from this shift"
 msgstr "ta bort från det här passet"
 
@@ -725,27 +1029,79 @@ msgstr "gör bytbar"
 
 #: templates/baljan/day.html:78
 msgid "No workers have signed up."
-msgstr "Inga jobbare har anmält sig till den här dagen."
+msgstr "Inga jobbare har anmält sig."
 
-#: templates/baljan/day.html:96 templates/baljan/day.html.py:129
+#: templates/baljan/day.html:96 templates/baljan/day.html.py:136
 msgid "sign up"
 msgstr "anmäl"
 
-#: templates/baljan/day.html:104 templates/baljan/work_planning.html:56
+#: templates/baljan/day.html:100
+msgid "only approved workers can be signed up"
+msgstr "endast bekräftade jobbare kan anmälas"
+
+#: templates/baljan/day.html:102
+msgid "find worker friends"
+msgstr "hitta jobbarkompisar"
+
+#: templates/baljan/day.html:111 templates/baljan/work_planning.html:60
 msgid "on call"
 msgstr "jour"
 
-#: templates/baljan/day.html:113
+#: templates/baljan/day.html:120
 msgid "Nobody has signed up to be on call."
 msgstr "Ingen har anmält sig till att joura."
 
-#: templates/baljan/day.html:142 templates/baljan/user.html:100
+#: templates/baljan/day.html:149 templates/baljan/group.html:58
+#: templates/baljan/search_person.html:62 templates/baljan/user.html:304
 msgid "Are you sure?"
 msgstr "Är du säker?"
 
-#: templates/baljan/day.html:143 templates/baljan/user.html:101
+#: templates/baljan/day.html:150 templates/baljan/group.html:59
+#: templates/baljan/search_person.html:63 templates/baljan/user.html:305
 msgid "This cannot be undone. Are you sure?"
 msgstr "Det här är permanent. Är du säker?"
+
+#: templates/baljan/flash_become_worker.html:3
+msgid "want free coffee? become a worker!"
+msgstr ""
+
+#: templates/baljan/group.html:11
+msgid "Group"
+msgstr "Grupp"
+
+#: templates/baljan/group.html:14
+msgid "Members"
+msgstr "Medlemmar"
+
+#: templates/baljan/group.html:19 templates/baljan/group.html.py:31
+msgid "no members"
+msgstr ""
+
+#: templates/baljan/group.html:40
+msgid "Other Groups"
+msgstr "Andra grupper"
+
+#: templates/baljan/search_person.html:6
+#: templates/baljan/search_person.html:10
+msgid "Search Person"
+msgstr "Sök person"
+
+#: templates/baljan/search_person.html:24
+msgid ""
+"\n"
+"            Matches first name, last name, liu id, and groups. Only people "
+"that\n"
+"            match each term show up in the results.\n"
+"            "
+msgstr ""
+
+#: templates/baljan/search_person.html:32
+msgid "Hits"
+msgstr "Träffar"
+
+#: templates/baljan/search_person.html:45 templates/baljan/user.html:72
+msgid "Groups"
+msgstr "Grupper"
 
 #: templates/baljan/semesters.html:5
 msgid "Semesters"
@@ -779,68 +1135,221 @@ msgstr "Lägg till"
 msgid "manage on admin site"
 msgstr "hantera på adminsidan"
 
+#: templates/baljan/trade.html:7 templates/baljan/trade.html.py:18
+msgid "Trade Shifts"
+msgstr "Byt pass"
+
+#: templates/baljan/trade.html:14
+msgid "return"
+msgstr ""
+
+#: templates/baljan/trade.html:22
+msgid "Wanted Shift"
+msgstr "Begärt pass"
+
+#: templates/baljan/trade.html:25 templates/calendar/calendar.html:91
+#: templates/calendar/swappable.html:64
+msgid "when"
+msgstr "när"
+
+#: templates/baljan/trade.html:31
+msgid "from user"
+msgstr "från användare"
+
+#: templates/baljan/trade.html:40
+msgid "You Can Offer"
+msgstr "Du kan erbjuda"
+
+#: templates/baljan/trade.html:51
+msgid "you have no shifts to offer"
+msgstr "du har inga pass att erbjuda"
+
+#: templates/baljan/trade.html:63
+#, python-format
+msgid ""
+"\n"
+"        Check the shifts you would like to offer. %(first_name)s will be "
+"able to\n"
+"        pick one of them. You can add and remove offers whenever you want "
+"to.\n"
+"        "
+msgstr ""
+
+#: templates/baljan/trade.html:80
+msgid "You have no shifts to offer."
+msgstr ""
+
+#: templates/baljan/trade.html:84
+msgid "update trade request"
+msgstr "uppdatera bytesförfrågan"
+
+#: templates/baljan/trade.html:84
+msgid "send trade request"
+msgstr "skicka bytesförfrågan"
+
+#: templates/baljan/trade.html:92
+msgid "changes saved"
+msgstr "ändringar sparade"
+
+#: templates/baljan/trade.html:95
+msgid "return to previous page"
+msgstr "tillbaks till föregående sida"
+
+#: templates/baljan/user.html:17
+msgid "this is you"
+msgstr "det här är du"
+
 #: templates/baljan/user.html:20
+msgid ""
+"\n"
+"                <p>\n"
+"                <strong>you are friends</strong>\n"
+"                and can sign each other up for work shifts\n"
+"                </p>\n"
+"                "
+msgstr ""
+
+#: templates/baljan/user.html:31
+msgid "user wants to be friends with you"
+msgstr "användaren vill bli vän med dig"
+
+#: templates/baljan/user.html:32 templates/baljan/user.html.py:168
+#: templates/baljan/user.html:235
+msgid "deny"
+msgstr "neka"
+
+#: templates/baljan/user.html:33 templates/baljan/user.html.py:173
+#: templates/baljan/user.html:236
+msgid "accept"
+msgstr "acceptera"
+
+#: templates/baljan/user.html:37
+msgid "awaiting friend confirmation"
+msgstr "väntar på vänförfågan"
+
+#: templates/baljan/user.html:42
+msgid "send friend request"
+msgstr "skicka vänförfrågan"
+
+#: templates/baljan/user.html:45
+msgid "(friends can sign each other up for work shifts)"
+msgstr "(vänner kan anmäla varandra till jobbpass)"
+
+#: templates/baljan/user.html:58
 msgid "phone"
 msgstr "telefon"
 
-#: templates/baljan/user.html:27
+#: templates/baljan/user.html:65
 msgid "last login"
 msgstr "senast inloggad"
 
-#: templates/baljan/user.html:42
-msgid "Groups"
-msgstr "Grupper"
+#: templates/baljan/user.html:84
+#, python-format
+msgid ""
+"\n"
+"        None. To work for Baljan, one must <a href=\"%(become_worker_link)s"
+"\">become a member of the workers' group</a>.\n"
+"        "
+msgstr ""
 
-#: templates/baljan/user.html:62 templates/baljan/work_planning.html:53
+#: templates/baljan/user.html:94
+msgid "Friends"
+msgstr "Vänner"
+
+#: templates/baljan/user.html:115
+msgid "Requesting to Join"
+msgstr ""
+
+#: templates/baljan/user.html:123
+msgid "recall"
+msgstr "återkalla"
+
+#: templates/baljan/user.html:133
+msgid "Trade Requests"
+msgstr "Bytesförfrågningar"
+
+#: templates/baljan/user.html:135
+msgid "Received"
+msgstr "Mottagna"
+
+#: templates/baljan/user.html:139 templates/baljan/user.html.py:186
+msgid "wanted"
+msgstr "begärt"
+
+#: templates/baljan/user.html:140 templates/baljan/user.html.py:187
+msgid "offered"
+msgstr "erbjudet"
+
+#: templates/baljan/user.html:142
+msgid "answer"
+msgstr "svar"
+
+#: templates/baljan/user.html:182
+msgid "Sent"
+msgstr "Skickat"
+
+#: templates/baljan/user.html:189
+msgid "action"
+msgstr "åtgärd"
+
+#: templates/baljan/user.html:213
+msgid "edit"
+msgstr "ändra"
+
+#: templates/baljan/user.html:228
+msgid "Received Friend Requests From"
+msgstr "Mottagna vänförfrågningar från"
+
+#: templates/baljan/user.html:245
+msgid "Awaiting Friend Confirmations From"
+msgstr "Väntar på vänbekräftelser från"
+
+#: templates/baljan/user.html:251
+msgid "cancel"
+msgstr "avbryt"
+
+#: templates/baljan/user.html:266 templates/baljan/work_planning.html:57
 #: templates/calendar/calendar.html:90 templates/calendar/swappable.html:63
 msgid "date"
 msgstr "datum"
 
-#: templates/baljan/user.html:63 templates/baljan/work_planning.html:54
+#: templates/baljan/user.html:267 templates/baljan/work_planning.html:58
 msgid "am/pm"
 msgstr "fm/em"
 
-#: templates/baljan/user.html:82 templates/baljan/work_planning.html:94
-msgid "am"
-msgstr "fm"
-
-#: templates/baljan/user.html:82 templates/baljan/work_planning.html:96
-msgid "pm"
-msgstr "em"
-
-#: templates/baljan/work_planning.html:7
+#: templates/baljan/work_planning.html:8
 msgid "Semester"
 msgstr "Termin"
 
-#: templates/baljan/work_planning.html:26
+#: templates/baljan/work_planning.html:28
 msgid "upcoming days only"
 msgstr "endast kommande dagar"
 
-#: templates/baljan/work_planning.html:30
+#: templates/baljan/work_planning.html:32
 msgid "need workers"
 msgstr "behöver jobbare"
 
-#: templates/baljan/work_planning.html:33
+#: templates/baljan/work_planning.html:35
 msgid "only tradable"
 msgstr "endast bytbara"
 
-#: templates/baljan/work_planning.html:38
+#: templates/baljan/work_planning.html:42
 msgid "need call duty"
 msgstr "behöver jour"
 
-#: templates/baljan/work_planning.html:44
+#: templates/baljan/work_planning.html:48
 msgid "worker list"
 msgstr "jobbarlista"
 
-#: templates/baljan/work_planning.html:45
+#: templates/baljan/work_planning.html:49
 msgid "call duty list"
 msgstr "jourlista"
 
-#: templates/baljan/work_planning.html:52
+#: templates/baljan/work_planning.html:56
 msgid "day"
 msgstr "dag"
 
-#: templates/baljan/work_planning.html:123
+#: templates/baljan/work_planning.html:125
 #, python-format
 msgid ""
 "\n"
@@ -858,7 +1367,16 @@ msgstr[1] ""
 "\n"
 "Totalt %(counter)s jobbare."
 
-#: templates/baljan/work_planning.html:139
+#: templates/baljan/work_planning.html:131
+#, python-format
+msgid ""
+"\n"
+"            <a href=\"%(worker_group_url)s\">Full overview of the group</"
+"a>.\n"
+"            "
+msgstr ""
+
+#: templates/baljan/work_planning.html:143
 #, python-format
 msgid ""
 "\n"
@@ -874,6 +1392,14 @@ msgstr[0] ""
 msgstr[1] ""
 "\n"
 "Totalt %(counter)s personer på jourlistan."
+
+#: templates/baljan/work_planning.html:149
+#, python-format
+msgid ""
+"\n"
+"            <a href=\"%(board_group_url)s\">Full overview of the group</a>.\n"
+"            "
+msgstr ""
 
 #: templates/calendar/calendar.html:11 templates/calendar/calendar.html:43
 #: templates/calendar/calendar.html:46
@@ -931,10 +1457,6 @@ msgstr ""
 #: templates/calendar/calendar.html:86
 msgid "My Shifts"
 msgstr "Mina skift"
-
-#: templates/calendar/calendar.html:91 templates/calendar/swappable.html:64
-msgid "when"
-msgstr "när"
 
 #: templates/calendar/calendar.html:92
 msgid "swappable"
@@ -1069,6 +1591,40 @@ msgstr "För tillfället vill inga jobbare byta skift."
 msgid "You are not a worker."
 msgstr ""
 
+#: templates/notification/friend_request_answered/notice.html:1
+#: templates/notification/friend_request_received/notice.html:1
+msgid "Friends can sign each other up for work shifts."
+msgstr ""
+
+#: templates/notification/signup/notice.html:4
+#, python-format
+msgid ""
+"\n"
+"%(msg)s %(shift_link)s.\n"
+msgstr "%(msg)s på %(shift_link)s."
+
+#: templates/notification/trade_request/notice.html:5
+#, python-format
+msgid ""
+"\n"
+"    %(requester)s wants %(wanted)s from %(responder)s in exchange for %"
+"(offered)s.\n"
+"    \n"
+"    You can answer to or cancel requests on your <a href=\"%(profile_page)s"
+"\">profile page</a>.\n"
+"\n"
+"    "
+msgstr ""
+
+#: templates/notification/trade_request/notice.html:12
+#, python-format
+msgid ""
+"\n"
+"    Your request to trade %(offered)s for %(wanted)s %(happening)s by %"
+"(answerer)s.\n"
+"    "
+msgstr ""
+
 #: terminal/views.py:44
 msgid "adjusted for worker"
 msgstr ""
@@ -1077,87 +1633,23 @@ msgstr ""
 msgid "adjusted for board member"
 msgstr ""
 
-#~ msgid ""
-#~ "\n"
-#~ "    <div>\n"
-#~ "        <a href=\"http://www.flickr.com/photos/chipgriffin/2210297177/"
-#~ "\">\n"
-#~ "            <img title=\"chipgriffin @ flickr\"\n"
-#~ "                 src=\"%(STATIC_URL)simg/flickr/2210297177_d5a88290b3.jpg"
-#~ "\"/>\n"
-#~ "        </a>\n"
-#~ "        <h2>Opening Hours</h2>\n"
-#~ "        <dl>\n"
-#~ "            <dt>weekdays</dt>\n"
-#~ "            <dd>8:00 pm to 4:15 pm<dd>\n"
-#~ "            <dt>weekends, holidays</dt>\n"
-#~ "            <dd>closed<dd>\n"
-#~ "        </dl>\n"
-#~ "        <p>\n"
-#~ "        Open normal hours during mid-terms and final exams.\n"
-#~ "        </p>\n"
-#~ "    </div>\n"
-#~ "\n"
-#~ "    <div>\n"
-#~ "        <a href=\"http://www.flickr.com/photos/20988296@N03/2133238064/"
-#~ "\">\n"
-#~ "            <img title=\"MINGHE*luciano @ flickr\" \n"
-#~ "                 src=\"%(STATIC_URL)simg/flickr/2133238064_b7a6f87cf2.jpg"
-#~ "\"/>\n"
-#~ "        </a>\n"
-#~ "        <h2>Finding Us</h2>\n"
-#~ "        <p>\n"
-#~ "        Baljan is located at the bottom floor of <a\n"
-#~ "            href=\"http://www.karservice.se/karallen/\">Kårallen</a>, \n"
-#~ "        campus Valla, Linköping.\n"
-#~ "        </p>\n"
-#~ "    </div>\n"
-#~ "    "
-#~ msgstr ""
-#~ "\n"
-#~ "    <div>\n"
-#~ "        <a href=\"http://www.flickr.com/photos/chipgriffin/2210297177/"
-#~ "\">\n"
-#~ "            <img title=\"chipgriffin @ flickr\"\n"
-#~ "                 src=\"%(STATIC_URL)simg/flickr/2210297177_d5a88290b3.jpg"
-#~ "\"/>\n"
-#~ "        </a>\n"
-#~ "        <h2>Öppettider</h2>\n"
-#~ "        <dl>\n"
-#~ "            <dt>vardagar</dt>\n"
-#~ "            <dd>8:00 till 16:15<dd>\n"
-#~ "            <dt>helger, högtider</dt>\n"
-#~ "            <dd>stängt<dd>\n"
-#~ "        </dl>\n"
-#~ "        <p>\n"
-#~ "        Öppet vanliga tider under tenta-p.\n"
-#~ "        </p>\n"
-#~ "    </div>\n"
-#~ "\n"
-#~ "    <div>\n"
-#~ "        <a href=\"http://www.flickr.com/photos/20988296@N03/2133238064/"
-#~ "\">\n"
-#~ "            <img title=\"MINGHE*luciano @ flickr\" \n"
-#~ "                 src=\"%(STATIC_URL)simg/flickr/2133238064_b7a6f87cf2.jpg"
-#~ "\"/>\n"
-#~ "        </a>\n"
-#~ "        <h2>Hitta hit</h2>\n"
-#~ "        <p>\n"
-#~ "        Baljan finns på bottenplan i <a\n"
-#~ "            href=\"http://www.karservice.se/karallen/\">Kårallen</a>, \n"
-#~ "        campus Valla, Linköping.\n"
-#~ "        </p>\n"
-#~ "    </div>\n"
-#~ "    "
+#~ msgid "everyone"
+#~ msgstr "alla"
+
+#~ msgid "admin site"
+#~ msgstr "adminsida"
+
+#~ msgid "work applications"
+#~ msgstr "jobbansökningar"
+
+#~ msgid "clear"
+#~ msgstr "rensa"
 
 #~ msgid "schedule"
 #~ msgstr "schema"
 
 #~ msgid "swaps"
 #~ msgstr "byten"
-
-#~ msgid "recharge card"
-#~ msgstr "ladda kort"
 
 #~ msgid "card order history"
 #~ msgstr "korthistorik"
@@ -1173,9 +1665,6 @@ msgstr ""
 
 #~ msgid "semester membership"
 #~ msgstr "terminmedlemskap"
-
-#~ msgid "the shift"
-#~ msgstr "passet"
 
 #~ msgid "the worker"
 #~ msgstr "jobbaren"
