@@ -1,0 +1,93 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+
+{% block head_title %}{% trans "Work for Baljan" %}{% endblock %}
+
+{% block body_class %}become-worker{% endblock %}
+{% block body %}
+
+<h1>{% trans "Work for Baljan" %}</h1>
+<div class="grid_7 alpha main">
+    
+    {# TODO: Translations. #}
+    <div>
+    <p>
+        Det är personalen som håller igång vårt fik! Det är dem du
+        träffar när du handlar hos oss. Som personal i baljan jobbar man tre
+        halvdagar under en termin. Som tack för detta får man gratis kaffe/te
+        hela terminen, en duktigt subventionerad P-fest och den beryktade
+        P-presenten™.
+    </p>
+    <p>
+        För höstterminens jobbpass har vi ett jobbsläpp, i slutet av
+        vårterminen. För vårens jobbpass är släppet strax före
+        jul-tenta-p. Jobbsläppen brukar vara tidigt på morgonen i 
+        <a href="{% url home %}">Baljan</a>.
+    </p>
+    </div>
+
+    {% if perms.baljan.self_and_friend_signup %}
+        <div class="confirmed-highlight">
+            <p>
+            {% blocktrans with user.get_absolute_url as profile_link %}
+                <strong><a href="{{profile_link}}">You</a> are
+                a worker.</strong> If you wish to stop being one, <a
+                href="mailto:{{CONTACT_EMAIL}}">send us an email</a>. 
+            {% endblocktrans %}
+            </p>
+        </div>
+    {% else %}    
+        {% with user.get_profile.pending_become_worker_request as pending %}
+            <div class="toggle-request{%if pending%} pending-highlight{%endif%}">
+                <p>
+                <a href="{% url baljan.views.toggle_become_worker_request request.path %}">
+                    {% if pending %}
+                        {% trans "recall pending request" %}
+                    {% else %}
+                        {% trans "request to become a worker" %}
+                    {% endif %}
+                </a>
+                <br/>
+                {% if pending %}
+                    ({% trans "currently awaiting confirmation" %})
+                {% else %}
+                    ({% trans "can be undone until someone confirms your request" %})
+                {% endif %}
+                </p>
+            </div>
+        {% endwith %}
+    {% endif %}
+
+</div><!--.main-->
+<div class="grid_3 omega secondary">
+    {% if perms.auth.change_joingrouprequest %}
+        <div class="admin-link">
+            <a href="{% url admin:baljan_joingrouprequest_changelist %}">{% trans "admin" %}</a>
+        </div>
+    {% endif %}
+
+    <div>
+        <!-- flickr image -->
+        <a href="http://www.flickr.com/photos/pinksherbet/3724943003/">
+            <img title="Pink Sherbet Photography @ flickr"
+                src="http://farm4.static.flickr.com/3430/3724943003_7c48cf9e8b.jpg" />
+        </a>
+        {% trans "Parties are regularly arranged for our hard-working personnel." %}
+    </div>
+</div><!--.secondary-->
+<div class="clean"></div>
+
+{% endblock %}
+
+{% block extra_body %}
+{% endblock %}
+
+{% comment %}
+    <!-- flickr image -->
+    <a href="">
+        <img title=""
+            src="" />
+    </a>
+{% endcomment %}

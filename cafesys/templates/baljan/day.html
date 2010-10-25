@@ -1,0 +1,154 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+
+{% block head_title %}{{day|date}}{% endblock %}
+
+{% block body_class %}day{% endblock %}
+{% block body %}
+
+{% if semester %}
+<div class="top-nav">
+    {% blocktrans with semester.get_absolute_url as sem_url and semester.name as sem_name %}
+        <a href="{{sem_url}}">&laquo; semester {{sem_name}}</a>
+    {% endblocktrans %}
+</div>
+{% endif %}
+
+<h1>{{day|naturalday}}: {{day|date:'l'}} {% trans "week" %} {{day|date:'W'}}</h1>
+{% for sh in shifts %}
+    <div class="shift-top">
+        <h2 style="float:left" class="early-or-late">
+            {% if sh.early %}
+                {% trans "morning"|title %}
+            {% else %}
+                {% trans "afternoon"|title %}
+            {% endif %}
+        </h2>
+        {% if perms.baljan.change_shift %}
+            <div style="float:right" class="admin-link">
+                <a href="{% url admin:baljan_shift_change sh.id %}">{% trans "admin" %}</a>
+            </div>
+        {% endif %}
+        <div class="clear"></div>
+    </div>
+    <div class="schedule grid_6 alpha">
+        {% for signup in sh.signups %}
+            <div class="worker
+                {% if forloop.first%}alpha {% endif %}
+                {% if forloop.last%}omega {% endif %}grid_3">
+                <div class="person{% if signup.can_trade %} tradable undo-highlight{% endif %}">
+                    <strong class="type">
+                        {% if signup.can_trade %}
+                            {% trans "worker wants to trade" %}
+                        {% else %}
+                            {% trans "worker" %}
+                        {% endif %}
+                    </strong><br/>
+                    <a href="{{signup.user.get_absolute_url}}">{{signup.user.get_full_name}} ({{signup.user.username}})</a>
+                    {% if perms.baljan.delete_shiftsignup %}
+                        <a class="delete" title="{% trans "remove from this shift" %}" 
+                            href="{% url baljan.views.delete_signup signup.id request.path %}">&#x2715;</a>
+                    {% endif %}
+                    <br/>
+                    {% if perms.baljan.self_and_friend_signup %}
+                        {% if signup.can_trade %}
+                            {% if user.shiftsignup_set.all.count == 0 %}
+                                <span class="help">
+                                    {% trans "you cannot offer to take this shift because you have no shifts to trade with" %}
+                                </span>
+                            {% else %}
+                                {% if signup.user == user %}
+                                <a class="toggle-tradable" href="{% url baljan.views.toggle_tradable signup.id request.path %}">{% trans "make untradable" %}</a>
+                                {% else %}
+                                    <a href="{% url baljan.views.trade_take signup.pk request.path%}">{% trans "offer to take this shift" %}</a>
+                                {% endif %}
+                            {% endif %}
+                        {% else %}{# the sh.upcoming check is needed for this case #}
+                            {% if sh.upcoming and signup.user == user %}
+                                <a class="toggle-tradable" href="{% url baljan.views.toggle_tradable signup.id request.path %}">{% trans "make tradable" %}</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="worker person empty">
+                {% trans "No workers have signed up." %}
+            </div>
+        {% endfor %}
+        <div class="clear"></div>
+        {% if sh.accepts_signups and perms.baljan.self_and_friend_signup %}
+            <div class="sign-up person worker">
+                <form method="post" class="init-hidden">{% csrf_token %}
+                    <input type="hidden" name="signup-for" value="work"/>
+                    <input type="hidden" name="early" value="{{sh.early}}"/>
+                    <select id="sign-worker-{{sh.pk}}" name="user">
+                        {% for friend in worker_friends %}
+                            {% if not friend in sh.signed_up %}
+                            <option value="{{friend.pk}}" {% if friend == user %}selected="selected"{% endif %}>
+                                {{ friend.get_full_name }}
+                            </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <input type="submit" value="{% trans "sign up" %}"/>
+                </form>
+                <span>
+                    <a 
+                        title="{% trans "only approved workers can be signed up" %}"
+                        href="{% url baljan.views.search_person %}">
+                        {% trans "find worker friends" %}
+                    </a>
+                </span>
+            </div>
+        {% endif %}
+    </div>
+    <div class="grid_4 omega on-calls">
+        {% for oncall in sh.callduties %}
+            <div class="on-call person">
+                <strong class="type">{% trans "on call" %}</strong><br/>
+                <a href="{{oncall.user.get_absolute_url}}">{{oncall.user.get_full_name}} ({{oncall.user.username}})</a>
+                {% if perms.baljan.delete_oncallduty %}
+                    <a class="delete" title="{% trans "remove from this shift" %}" 
+                        href="{% url baljan.views.delete_callduty oncall.id request.path %}">&#x2715;</a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="on-call person empty">
+                {% trans "Nobody has signed up to be on call." %}
+            </div>
+        {% endfor %}
+        <div class="clear"></div>
+        {% if sh.accepts_callduty and perms.baljan.add_oncallduty and perms.baljan.change_oncallduty %}
+            <div class="sign-up person call-duty">
+                <form method="post" class="init-hidden">{% csrf_token %}
+                    <input type="hidden" name="signup-for" value="call-duty"/>
+                    <input type="hidden" name="early" value="{{sh.early}}"/>
+                    <select name="user">
+                        {% for avail in available_for_call_duty %}
+                            <option value="{{avail.pk}}" {% if avail == user %}selected="selected"{% endif %}>
+                                {{ avail.get_full_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" value="{% trans "sign up" %}"/>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+    <div class="clear"></div>
+{% endfor %}
+<div class="clear"></div>
+{% endblock %}
+
+{% block extra_body %}
+<script type="text/javascript">
+// <![CDATA[
+    CONFIRM_MSG = "{% trans "Are you sure?" %}";
+    CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
+    CONFIRM_DELETE = CONFIRM_MSG;
+// ]]>
+</script>
+{% endblock %}

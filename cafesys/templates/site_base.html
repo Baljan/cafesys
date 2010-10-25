@@ -6,33 +6,54 @@
 {% load ifsetting_tag %}
 {% load analytics %}
 
-{% load dajaxice_templatetags %}
+{#{% load dajaxice_templatetags %}#}
 
 {% block extra_head_base %}
     <link type="text/css" href="{{ STATIC_URL}}css/flick/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/site_tabs.css" />
     <link rel="stylesheet" href="{{ STATIC_URL }}css/site_base.css" />
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/baljan.css" />
+    <!--[if IE]>
+        <link rel="stylesheet" href="{{ STATIC_URL }}css/baljan-ie.css" />
+    <![endif]-->
     {% block extra_head %}{% endblock %}
 {% endblock %}
 
 {% block login %}
     {% if user.is_authenticated %}
-        {% ifopenid %}<img src="{{ STATIC_URL }}images/openid-icon.png" alt="Logged in with OpenID" />{% endifopenid %}<b>{% user_display user %}</b> | <a href="{% url acct_email %}">{% trans "Account" %}</a> | {% if user.is_staff %}<a href="/admin/">{% trans "Admin" %}</a> | {% endif %}<a href="{% url acct_logout %}">{% trans "Logout" %}</a>
+        {% if notice_unseen_count != 0 %}
+        <a href="/notices">
+            <span class="inbox">&#x2709; unread notifications</span>
+        </a>
+        <span class="delim">|</span>
+        {% endif %}
+        <a href="{{user.get_absolute_url}}">{% user_display user %}</a>
+        {#| <a href="{% url acct_email %}">{% trans "Account" %}</a>#}
+        <span class="delim">|</span>
+        <a href="{% url acct_logout %}">{% trans "logout" %}</a>
     {% else %}
-        <a href="{% url acct_login %}">{% trans "Login" %}</a> {% ifsetting ACCOUNT_OPEN_SIGNUP %}{% trans "or" %} <a href="{% url acct_signup %}"><b>{% trans "Sign up" %}</b></a>{% endifsetting %}
+        <a href="{% url acct_login %}">{% trans "login" %}</a> 
     {% endif %}
 {% endblock %}
 
 {% block logo_link_image %}<a href="{% url home %}"><img src="{{ STATIC_URL }}img/baljan-logo.png" alt="Sectionscafé Baljan"/></a>{% endblock %}
 
 {% block right_tabs %}
-    {% if user.is_authenticated %}
-        <ul class="tabs">{% spaceless %}
-            <li id="tab_accounting"><a href="{% url accounting.views.index %}">{% trans "Accounting" %}</a></li>
-            <li id="tab_calendar"><a href="{% url cal.views.worker_calendar %}">{% trans "Calendar" %}</a></li>
-            <li id="tab_notices"><a href="{% url notification_notices %}">{% trans "Notices" %}{% if notice_unseen_count %} ({{ notice_unseen_count }}){% endif %}</a></li>
-        {% endspaceless %}</ul>
-    {% endif %}
+{#<li id="tab_notices"><a href="{% url notification_notices %}">{% trans "Notices" %}{% if notice_unseen_count %} ({{ notice_unseen_count }}){% endif %}</a></li>#}
+{% endblock %}
+
+{% block nav %}
+    <div id="links-for" class="hide">
+        {% for id, action_title, actions in action_categories %}
+            <h3><a class="{{ id }}" href="#">{{ action_title }}</a></h3>
+            <div>
+                <ul>
+                {% for action in actions %}
+                    <li class="{% if action.active %}active{% endif %}"><a href="{{ action.link }}">{{ action.text }}</a></li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
 
 {% block footer %}
@@ -44,13 +65,16 @@
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.tools.min.js"></script> 
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.plugins.js"></script> 
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.2.custom.min.js"></script>
-    {% dajaxice_js_import %}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.dajax.core.js"></script>
+    {#{% dajaxice_js_import %}#}
+    {#<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.dajax.core.js"></script>#}
     <script type="text/javascript" src="{{ STATIC_URL }}js/raphael-min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/g.raphael-min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/g.pie-min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/g.bar-min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/g.dot-min.js"></script>
+    <script src="{{ STATIC_URL }}js/uni-form.jquery.js" type="text/javascript"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/baljan.js"></script> 
     {% block extra_body %}
     {% endblock %}
 {% endblock %}
+

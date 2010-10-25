@@ -1,0 +1,14 @@
+{% load i18n %}{% load baljan_extras %}{% url baljan.views.profile as profile_page %}{% if saved %}{% blocktrans with wanted_signup.user.get_full_name as responder_name and offered_signup.user.get_full_name as requester_name and wanted_signup.user.get_absolute_url as responder_url and offered_signup.user.get_absolute_url as requester_url and wanted_signup.shift.name as wanted_name and offered_signup.shift.name as offered_name and wanted_signup.get_absolute_url as wanted_url and offered_signup.get_absolute_url as offered_url %}{{requester_name}} wants {{wanted_name}} from {{responder_name}} in exchange for {{offered_name}}.
+
+You can answer to or cancel requests on your profile page.
+
+ * wanted shift: http://{{current_site}}{{wanted_url}}
+ * offered shift: http://{{current_site}}{{offered_url}}
+ * profile of {{requester_name}}: http://{{current_site}}{{requester_url}}
+ * profile of {{responder_name}}: http://{{current_site}}{{responder_url}}
+{% endblocktrans %}{% else %}{% blocktrans with wanted_rename as wrename and offered_rename as orename and answer_happening as happening and answered_by.get_absolute_url as answerer and wanted_signup.get_absolute_url as wanted and offered_signup.get_absolute_url as offered %}Your request to trade shifts {{happening}}.
+
+ * answered by: http://{{current_site}}{{answerer}}
+ * {{wrename}}: http://{{current_site}}{{wanted}}
+ * {{orename}}: http://{{current_site}}{{offered}}
+{% endblocktrans %}{% endif %}
