@@ -56,7 +56,6 @@ msgid "students"
 msgstr "studenter"
 
 #: baljan/actions.py:43
-#, fuzzy
 msgid "users"
 msgstr "användare"
 
@@ -159,19 +158,19 @@ msgstr "%(user)s vill vara med i %(group)s"
 
 #: baljan/models.py:99
 msgid "sent by"
-msgstr ""
+msgstr "skickad av"
 
 #: baljan/models.py:101
 msgid "sent to"
-msgstr ""
+msgstr "skickad till"
 
 #: baljan/models.py:105 baljan/models.py:215
 msgid "accepted"
-msgstr ""
+msgstr "accepterad"
 
 #: baljan/models.py:106
 msgid "answered at"
-msgstr ""
+msgstr "svarad den"
 
 #: baljan/models.py:109
 msgid "friend request"
@@ -222,7 +221,7 @@ msgstr "besvarad"
 msgid ""
 "if this is true when the shift is deleted, and \"accepted\" is true as well, "
 "the trade will be performed even if it was in the past"
-msgstr ""
+msgstr "om detta är sant när passet tas bort, och \"accepterad\" också är sant, så kommer bytet att genomföras även om det redan har varit"
 
 #: baljan/models.py:220
 msgid "trade request"
@@ -360,7 +359,7 @@ msgstr "jobbaren vill byta passet mot något annat"
 msgid ""
 "remember that trade requests of sign-ups are removed whenever the sign-up is "
 "altered"
-msgstr ""
+msgstr "kom ihåg att bytesförfrågningar tas bort när passanmälningar sparas"
 
 #: baljan/models.py:555
 msgid "shift sign-up"
@@ -381,7 +380,7 @@ msgstr "%(user)s på %(shift)s"
 
 #: baljan/models.py:596
 msgid "You were signed up for a shift"
-msgstr ""
+msgstr "Du anmäldes till ett pass"
 
 #: baljan/models.py:597
 msgid "You were signed up for"
@@ -510,11 +509,11 @@ msgstr "jourpass"
 
 #: baljan/views.py:354
 msgid "This would result in a double booking."
-msgstr ""
+msgstr "Detta skulle resultera i en dubbelbokning."
 
 #: baljan/views.py:357
 msgid "Invalid trade request."
-msgstr ""
+msgstr "Ogiltig bytesförfrågan."
 
 #: baljan/management/__init__.py:12
 msgid "Trade Request"
@@ -581,7 +580,7 @@ msgstr "%d SEK"
 #: liu/pdf.py:47
 #, python-format
 msgid "expires no sooner than %s"
-msgstr ""
+msgstr "går ej ut tidigare än %s"
 
 #: templates/base.html:36
 msgid "Hide announcement"
@@ -589,7 +588,7 @@ msgstr "Dölj meddelande"
 
 #: templates/base.html:61
 msgid "hide"
-msgstr ""
+msgstr "dölj"
 
 #: templates/base.html:74
 msgid ""
@@ -710,7 +709,7 @@ msgstr "Obs"
 #: templates/account/login.html:20
 #, python-format
 msgid "you are already logged in as %(user_display)s."
-msgstr ""
+msgstr "du är redan inloggad som %(user_display)s."
 
 #: templates/account/login.html:24
 #, python-format
@@ -947,7 +946,7 @@ msgstr "Dashboard"
 #: templates/baljan/become_worker.html:6
 #: templates/baljan/become_worker.html:11
 msgid "Work for Baljan"
-msgstr ""
+msgstr "Jobba för Baljan"
 
 #: templates/baljan/become_worker.html:34
 #, python-format
@@ -1063,7 +1062,7 @@ msgstr "Det här är permanent. Är du säker?"
 
 #: templates/baljan/flash_become_worker.html:3
 msgid "want free coffee? become a worker!"
-msgstr ""
+msgstr "vill du ha gratis kaffe? bli jobbare!"
 
 #: templates/baljan/group.html:11
 msgid "Group"
@@ -1075,7 +1074,7 @@ msgstr "Medlemmar"
 
 #: templates/baljan/group.html:19 templates/baljan/group.html.py:31
 msgid "no members"
-msgstr ""
+msgstr "inga medlemmar"
 
 #: templates/baljan/group.html:40
 msgid "Other Groups"
@@ -1141,7 +1140,7 @@ msgstr "Byt pass"
 
 #: templates/baljan/trade.html:14
 msgid "return"
-msgstr ""
+msgstr "tillbaks"
 
 #: templates/baljan/trade.html:22
 msgid "Wanted Shift"
@@ -1177,7 +1176,7 @@ msgstr ""
 
 #: templates/baljan/trade.html:80
 msgid "You have no shifts to offer."
-msgstr ""
+msgstr "Du har inga pass att erbjuda."
 
 #: templates/baljan/trade.html:84
 msgid "update trade request"
@@ -1262,7 +1261,7 @@ msgstr "Vänner"
 
 #: templates/baljan/user.html:120
 msgid "Requesting to Join"
-msgstr ""
+msgstr "Begär att gå med i"
 
 #: templates/baljan/user.html:128
 msgid "recall"
@@ -1318,13 +1317,12 @@ msgid "am/pm"
 msgstr "fm/em"
 
 #: templates/baljan/user.html:304
-#, fuzzy
 msgid "Edit Profile"
-msgstr "profil"
+msgstr "Ändra profil"
 
 #: templates/baljan/user.html:321
 msgid "save"
-msgstr ""
+msgstr "spara"
 
 #: templates/baljan/work_planning.html:8
 msgid "Semester"
@@ -1457,11 +1455,11 @@ msgstr "bekräfta"
 
 #: templates/calendar/calendar.html:77
 msgid "Remove request to become a worker"
-msgstr ""
+msgstr "Ta bort begäran att bli jobbare"
 
 #: templates/calendar/calendar.html:79
 msgid "Request to become a worker"
-msgstr ""
+msgstr "Begär att bli jobbare"
 
 #: templates/calendar/calendar.html:86
 msgid "My Shifts"
@@ -1638,11 +1636,11 @@ msgstr ""
 
 #: terminal/views.py:44
 msgid "adjusted for worker"
-msgstr ""
+msgstr "ändrad för jobbare"
 
 #: terminal/views.py:46
 msgid "adjusted for board member"
-msgstr ""
+msgstr "ändrad för styrelsemedlem"
 
 #~ msgid "everyone"
 #~ msgstr "alla"
