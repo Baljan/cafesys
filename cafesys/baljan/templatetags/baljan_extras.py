@@ -3,6 +3,7 @@ from django import template
 from django.utils.safestring import mark_safe 
 from baljan.models import ShiftSignup, OnCallDuty, TradeRequest, Shift
 from django.contrib.auth.models import User
+from django.template.defaultfilters import escape
 
 register = template.Library()
 
@@ -24,9 +25,10 @@ def user_link(user, autoescape=None):
     Also see `name_link`.
     """
     user = _find_user(user)
+    full_name = escape(user.get_full_name())
     return mark_safe(u'<a href="%s">%s (%s)</a>' % (
             user.get_absolute_url(),
-            user.get_full_name(),
+            full_name,
             user.username))
 user_link.needs_autoescape = True
 
@@ -38,9 +40,10 @@ def name_link(user, autoescape=None):
     See its bro' `user_link`.
     """
     user = _find_user(user)
+    full_name = escape(user.get_full_name())
     return mark_safe(u'<a href="%s">%s</a>' % (
             user.get_absolute_url(),
-            user.get_full_name()))
+            full_name))
 name_link.needs_autoescape = True
 
 def _find_shift(obj):
