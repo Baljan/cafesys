@@ -192,10 +192,11 @@ def see_user(request, who):
 
     watched = User.objects.get(username__exact=who)
     watching_self = u == watched
-    profile_form_cls_inst = (
-            (baljan.forms.UserForm, u),
-            (baljan.forms.ProfileForm, u.get_profile()),
-            )
+    if u.is_authenticated():
+        profile_form_cls_inst = (
+                (baljan.forms.UserForm, u),
+                (baljan.forms.ProfileForm, u.get_profile()),
+                )
 
     if watching_self and request.method == 'POST':
         profile_forms = [c(request.POST, instance=i) for c, i in profile_form_cls_inst]

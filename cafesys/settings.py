@@ -287,6 +287,8 @@ EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
 
+LDAP_SERVER = 'ldap://lukas-backend.unit.liu.se'
+
 # URCHIN_ID = "ua-..."
 
 DEBUG_TOOLBAR_CONFIG = {
