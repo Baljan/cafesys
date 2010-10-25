@@ -153,8 +153,10 @@ class BalanceCodeHandlingMixin(object):
         unused = codes.filter(used_by__isnull=True)
         unused.update(value=value, currency='SEK')
         [u.save() for u in unused]
-        self.message_user(request, _('%d codes successfully updated, skipped %d used') % (
-            len(unused), len(codes) - len(unused)))
+        self.message_user(request, 
+            _('%(unused_count)d codes successfully updated, skipped %(used_count)d used') % {
+                'unused_count': len(unused), 
+                'used_count': len(codes) - len(unused)})
 
     def set_code_value_100(self, request, queryset):
         return self.set_code_value(100, request, queryset)

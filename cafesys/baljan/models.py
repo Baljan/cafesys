@@ -824,9 +824,12 @@ class RefillSeries(Made):
         codes = self.codes()
         value = self.value()
 
-        fmt = _("%s. issued %s, %d of %d used, made by %s")  % (
-                self.pk, self.issued.strftime('%Y-%m-%d'), len(used), 
-                len(codes), self.made_by)
+        fmt = _("%(id)s. issued %(issued)s, %(used_count)d of %(total_count)d used, made by %(made_by)s")  % {
+                'id': self.pk, 
+                'issued': self.issued.strftime('%Y-%m-%d'), 
+                'used_count': len(used), 
+                'total_count': len(codes), 
+                'made_by': self.made_by}
         return smart_str(fmt)
 
 
@@ -847,14 +850,19 @@ class BalanceCode(Made):
 
         if self.used_by:
             try:
-                usedpart = _('used by %s %s') % (self.used_by.username, self.used_at.strftime('%Y-%m-%d'))
+                usedpart = _('used by %(user)s %(at)s') % {
+                        'user': self.used_by.username, 
+                        'at': self.used_at.strftime('%Y-%m-%d')}
             except:
                 usedpart = _('used by %s') % self.used_by.username
         else:
             usedpart = _('unused')
 
         series = self.refill_series
-        fmt = _("%s (series %d, %s)") % (fmt, series.pk, usedpart)
+        fmt = _("%(fmt)s (series %(id)d, %(usedpart)s)") % {
+                'fmt': fmt, 
+                'id': series.pk, 
+                'usedpart': usedpart}
         return smart_str(fmt)
 
     class Meta:
