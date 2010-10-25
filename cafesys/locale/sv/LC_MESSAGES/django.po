@@ -137,25 +137,24 @@ msgstr "varukostnader"
 msgid ""
 "%(unused_count)d codes successfully updated, skipped %(used_count)d used"
 msgstr ""
+"%(unused_count)d koder uppdaterades, skippade %(used_count)d använda"
 
 #: baljan/admin.py:163 baljan/admin.py:167 baljan/admin.py:171
 #, python-format
 msgid "make unused codes worth %d SEK"
-msgstr ""
+msgstr "gör oanvända koder värda %d SEK"
 
 #: baljan/admin.py:188
-#, fuzzy
 msgid "used"
-msgstr "användare"
+msgstr "använd"
 
 #: baljan/admin.py:192
-#, fuzzy
 msgid "codes"
-msgstr "köp"
+msgstr "koder"
 
 #: baljan/admin.py:211
 msgid "make PDF"
-msgstr ""
+msgstr "skapa PDF"
 
 #: baljan/models.py:22
 msgid "made at"
@@ -551,25 +550,24 @@ msgstr "varor i köp"
 
 #: baljan/models.py:791
 msgid "issued"
-msgstr ""
+msgstr "skapad"
 
 #: baljan/models.py:792
 msgid "least valid until"
-msgstr ""
+msgstr "minst giltig till"
 
 #: baljan/models.py:794
-#, fuzzy
 msgid "made by"
-msgstr "skapad den"
+msgstr "skapad av"
 
 #: baljan/models.py:795
 msgid ""
 "manually set by admins to tell whether or not the series has been printed"
-msgstr ""
+msgstr "sätts manuellt av admins när serier skrivs ut"
 
 #: baljan/models.py:798 baljan/models.py:799
 msgid "refill series"
-msgstr ""
+msgstr "kodserie(r)"
 
 #: baljan/models.py:827
 #, python-format
@@ -577,42 +575,43 @@ msgid ""
 "%(id)s. issued %(issued)s, %(used_count)d of %(total_count)d used, made by %"
 "(made_by)s"
 msgstr ""
+"%(id)s. skapad %(issued)s, %(used_count)d av %(total_count)d använda, skapad av %"
+"(made_by)s"
 
 #: baljan/models.py:836
 msgid ""
 "To create a bulk of codes, <a href='../../refillseries/add'>create a new "
 "refill series</a> instead."
 msgstr ""
+"För att skapa många koder, <a href='../../refillseries/add'>skapa en ny"
+"serie</a> istället."
 
 #: baljan/models.py:853
-#, fuzzy, python-format
+#, python-format
 msgid "used by %(user)s %(at)s"
-msgstr "%(user)s på %(shift)s"
+msgstr "använd av %(user)s %(at)s"
 
 #: baljan/models.py:857
 #, python-format
 msgid "used by %s"
-msgstr ""
+msgstr "använd av %s"
 
 #: baljan/models.py:859
-#, fuzzy
 msgid "unused"
 msgstr "ej angett"
 
 #: baljan/models.py:862
 #, python-format
 msgid "%(fmt)s (series %(id)d, %(usedpart)s)"
-msgstr ""
+msgstr "%(fmt)s (serie %(id)d, %(usedpart)s)"
 
 #: baljan/models.py:869
-#, fuzzy
 msgid "balance code"
-msgstr "balansvaluta"
+msgstr "kod"
 
 #: baljan/models.py:870
-#, fuzzy
 msgid "balance codes"
-msgstr "balansvaluta"
+msgstr "kodvaluta"
 
 #: baljan/views.py:40
 #, python-format
