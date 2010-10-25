@@ -824,26 +824,25 @@ class RefillSeries(Made):
         codes = self.codes()
         value = self.value()
 
-        fmt = _("%(id)s. issued %(issued)s, %(used_count)d of %(total_count)d used, made by %(made_by)s")  % {
+        fmt = _("%(id)s. issued %(issued)s")  % {
                 'id': self.pk, 
                 'issued': self.issued.strftime('%Y-%m-%d'), 
-                'used_count': len(used), 
-                'total_count': len(codes), 
-                'made_by': self.made_by}
+                }
         return smart_str(fmt)
 
 
 code_help = _("To create a bulk of codes, <a href='../../refillseries/add'>create a new refill series</a> instead.")
 
 class BalanceCode(Made):
-    code = models.CharField(max_length=BALANCE_CODE_LENGTH, unique=True, 
+    code = models.CharField(_("code"), max_length=BALANCE_CODE_LENGTH, unique=True, 
             default=generate_balance_code, help_text=code_help)
-    value = models.PositiveIntegerField(default=BALANCE_CODE_DEFAULT_VALUE)
+    value = models.PositiveIntegerField(_("value"), default=BALANCE_CODE_DEFAULT_VALUE)
     currency = models.CharField(_("currency"), max_length=20, default=u"SEK", 
             help_text=_("currency"))
-    refill_series = models.ForeignKey(RefillSeries)
-    used_by = models.ForeignKey('auth.User', null=True, blank=True)
-    used_at = models.DateField(blank=True, null=True)
+    refill_series = models.ForeignKey(RefillSeries, verbose_name=_("refill series"))
+    used_by = models.ForeignKey('auth.User', null=True, blank=True, 
+            verbose_name=_("used by"))
+    used_at = models.DateField(_("used at"), blank=True, null=True)
 
     def __str__(self):
         fmt = "%d %s" % (self.value, self.currency)

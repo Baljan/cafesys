@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-26 00:05+0200\n"
+"POT-Creation-Date: 2010-10-26 00:09+0200\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -180,8 +180,8 @@ msgstr "mobilnummer"
 msgid "balance currency"
 msgstr "balansvaluta"
 
-#: baljan/models.py:34 baljan/models.py:730 baljan/models.py:842
-#: baljan/models.py:843
+#: baljan/models.py:34 baljan/models.py:730 baljan/models.py:840
+#: baljan/models.py:841
 msgid "currency"
 msgstr "valuta"
 
@@ -568,20 +568,16 @@ msgid ""
 "manually set by admins to tell whether or not the series has been printed"
 msgstr "sätts manuellt av admins när serier skrivs ut"
 
-#: baljan/models.py:798 baljan/models.py:799
+#: baljan/models.py:798 baljan/models.py:799 baljan/models.py:842
 msgid "refill series"
-msgstr "kodserie(r)"
+msgstr "kodserie"
 
 #: baljan/models.py:827
 #, python-format
-msgid ""
-"%(id)s. issued %(issued)s, %(used_count)d of %(total_count)d used, made by %"
-"(made_by)s"
-msgstr ""
-"%(id)s. skapad %(issued)s, %(used_count)d av %(total_count)d använda, skapad "
-"av %(made_by)s"
+msgid "%(id)s. issued %(issued)s"
+msgstr "%(id)s. skapad %(issued)s"
 
-#: baljan/models.py:836
+#: baljan/models.py:834
 msgid ""
 "To create a bulk of codes, <a href='../../refillseries/add'>create a new "
 "refill series</a> instead."
@@ -589,30 +585,46 @@ msgstr ""
 "För att skapa många koder, <a href='../../refillseries/add'>skapa en "
 "nyserie</a> istället."
 
-#: baljan/models.py:853
+#: baljan/models.py:837
+msgid "code"
+msgstr "kod"
+
+#: baljan/models.py:839
+msgid "value"
+msgstr "värde"
+
+#: baljan/models.py:844
+msgid "used by"
+msgstr "använd av"
+
+#: baljan/models.py:845
+msgid "used at"
+msgstr "använd den"
+
+#: baljan/models.py:852
 #, python-format
 msgid "used by %(user)s %(at)s"
 msgstr "använd av %(user)s %(at)s"
 
-#: baljan/models.py:857
+#: baljan/models.py:856
 #, python-format
 msgid "used by %s"
 msgstr "använd av %s"
 
-#: baljan/models.py:859
+#: baljan/models.py:858
 msgid "unused"
 msgstr "ej angett"
 
-#: baljan/models.py:862
+#: baljan/models.py:861
 #, python-format
 msgid "%(fmt)s (series %(id)d, %(usedpart)s)"
 msgstr "%(fmt)s (serie %(id)d, %(usedpart)s)"
 
-#: baljan/models.py:869
+#: baljan/models.py:868
 msgid "balance code"
 msgstr "kod"
 
-#: baljan/models.py:870
+#: baljan/models.py:869
 msgid "balance codes"
 msgstr "kodvaluta"
 
@@ -1740,6 +1752,13 @@ msgstr "ändrad för jobbare"
 #: terminal/views.py:46
 msgid "adjusted for board member"
 msgstr "ändrad för styrelsemedlem"
+
+#~ msgid ""
+#~ "%(id)s. issued %(issued)s, %(used_count)d of %(total_count)d used, made "
+#~ "by %(made_by)s"
+#~ msgstr ""
+#~ "%(id)s. skapad %(issued)s, %(used_count)d av %(total_count)d använda, "
+#~ "skapad av %(made_by)s"
 
 #~ msgid "everyone"
 #~ msgstr "alla"
