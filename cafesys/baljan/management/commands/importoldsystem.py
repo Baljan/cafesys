@@ -1,17 +1,23 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.contrib.auth.models import User
-from liu.models import Student
-from cal.models import Shift, ScheduledMorning, ScheduledAfternoon
-from cal.models import MorningShift, AfternoonShift
 import MySQLdb
 from datetime import date
+from baljan.models import Profile
+from baljan.util import get_logger
+import re
 
-class Command(BaseCommand):
-    args = ''
-    help = 'Import data from the old version of the system.'
+log = get_logger('baljan.migration')
 
-    def handle(self, *args, **options):
+def _assoc(cursor, data):
+    desc = cursor.description
+    d = {}
+    for name, value in zip(desc, data):
+        d[name[0]] = value
+    return d
+
+class Import(object):
+    def __init__(self):
         # Make sure that all needed settings and such are configured.
         settingfmt = 'OLD_SYSTEM_MYSQL_%s'
         valid = True
@@ -34,113 +40,73 @@ class Command(BaseCommand):
 
         def s(setting):
             return getattr(settings, settingfmt % setting.upper())
-        db = MySQLdb.connect(
+        self._db = MySQLdb.connect(
                 user=s('login'),
                 passwd=s('password'),
                 host=s('host'),
                 db=s('db'))
 
-        c = db.cursor()
-        c.execute('''SELECT login, id FROM user''')
+        self.enc = 'latin-1'
 
-        enc = 'latin-1'
-        uid_to_liu_id = {}
+    def _cursor(self):
+        return self._db.cursor()
+
+    def _decode(self, s):
+        return s.decode(self.enc)
+
+    def get_user_dicts(self):
+        c = self._cursor()
+        c.execute('''
+SELECT user.*, person.* FROM user INNER JOIN person ON person.id=user.id
+''')
+
         fetched = c.fetchall()
-        for liu_id, uid in fetched:
-            uid_to_liu_id[int(uid)] = liu_id.decode(enc).lower()
-        
-        print "%d user(s) in the old system..." % len(uid_to_liu_id.keys())
+        return [_assoc(c, cols) for cols in fetched]
 
-        emailfmt = '%s@student.liu.se'
-        skipped = []
-        failed = []
-        create_users = True
-        if create_users:
-            for uid, liu_id in uid_to_liu_id.items():
-                prevs = len(Student.objects.filter(liu_id=liu_id))
-                if prevs == 0:
-                    pass # OK
-                elif prevs == 1:
-                    skipped.append(liu_id)
-                    continue # user already exists
-                else:
-                    assert True==False
+    def _get_phone(self, user_dict):
+        c = self._cursor()
+        c.execute('''
+SELECT nummer FROM telefon WHERE persid=%d
+''' % user_dict['id'])
+        phone = c.fetchone()
+        if phone: # validate
+            trial = re.sub("[^0-9]", "", phone[0])[:10]
+            phone = None
+            if trial.startswith('07'): # only cells
+                phone = trial
+        return phone
 
-                c = db.cursor()
-                c.execute('SELECT fnamn, enamn FROM person WHERE id=%d LIMIT 1' % int(uid))
-                try:
-                    first_name, last_name = c.fetchone()
-                    first_name = first_name.decode(enc)
-                    last_name = last_name.decode(enc)
-                except TypeError:
-                    first_name, last_name = None, None
+    def setup_users(self):
+        user_dicts = self.get_user_dicts()
+        decode = self._decode
+        created_count, existing_count = 0, 0
+        for ud in user_dicts:
+            u, created = User.objects.get_or_create(
+                    username=decode(ud['login']).lower(),
+                    first_name=decode(ud['fnamn']),
+                    last_name=decode(ud['enamn']))
 
-                try:
-                    user = User.objects.create_user(liu_id, emailfmt % liu_id, password=None)
-                    if first_name is not None:
-                        user.first_name = first_name
-                    if last_name is not None:
-                        user.last_name = last_name
-                    student = Student(user=user, liu_id=liu_id)
-                    user.save()
-                except Exception, e:
-                    # FIXME: Figure out exactly what went wrong here.
-                    print "Failed %s: %s" % (liu_id, e)
-                    failed.append(liu_id)
-        
-        if len(skipped) != 0:
-            print "Skipped importing %d already existing user(s): %s..." % (len(skipped), ", ".join(skipped))
-        if len(failed) != 0:
-            print "Failed importing %d user(s): %s..." % (len(failed), ", ".join(failed))
+            u.email = decode(ud['login']).lower() + u"@student.liu.se"
+            u.save()
 
-        # Import workers and the schedule.
-        import_schedule = True
-        if import_schedule:
-            print "Adding scheduled shifts..."
-            for uid, liu_id in uid_to_liu_id.items():
-                c = db.cursor()
-                c.execute('SELECT dag, em FROM persbok WHERE persid=%d' % uid)
-                shifts = c.fetchall()
-                if len(shifts) == 0:
-                    continue # not a worker
+            p = u.get_profile()
+            p.mobile_phone = self._get_phone(ud)
+            p.save()
+            if created:
+                log.info('created: %r %r' % (u, p))
+                created_count += 1
+            else:
+                log.info('existing: %r %r' % (u, p))
+                existing_count += 1
+        log.info('%d/%d user(s) created/existing' % (created_count, existing_count))
 
-                student = Student.objects.get(liu_id=liu_id)
-                for day, is_afternoon in shifts:
-                    Shift.add_to(day)
-                    if is_afternoon:
-                        shift = AfternoonShift.objects.get(day=day)
-                        sched = ScheduledAfternoon(shift=shift, student=student)
-                        sched.save()
-                    else:
-                        shift = MorningShift.objects.get(day=day)
-                        sched = ScheduledMorning(shift=shift, student=student)
-                        sched.save()
 
-                    # TODO: Possibly make a worker of the student. Depends on how
-                    # long ago the shift was.
+class Command(BaseCommand):
+    args = ''
+    help = """Import data from the old version of the system. There must be a running MySQL 
+server. See OLD_SYSTEM_* settings.
+"""
 
-        # Create pending swap requests.
-        create_swaps = True
-        if create_swaps:
-            print "Creating swap requests..."
-            for uid, liu_id in uid_to_liu_id.items():
-                c = db.cursor()
-                c.execute('SELECT dag, em FROM passbyte WHERE persid=%d AND bytdag IS NULL' % uid)
-                fetched = c.fetchall()
-                from pprint import pprint
-                for day, is_afternoon in fetched:
-                    if day < date.today():
-                        continue # ignore dates in the past
-
-                    pprint([day, is_afternoon])
-
-                    student = Student.objects.get(liu_id=liu_id)
-                    if is_afternoon:
-                        scheds = ScheduledAfternoon.objects.filter(student=student)
-                    else:
-                        scheds = ScheduledMorning.objects.filter(student=student)
-
-                    for sched in scheds:
-                        if sched.shift.day == day:
-                            sched.swappable = True
-                            sched.save()
+    def handle(self, *args, **options):
+        imp = Import()
+        imp.setup_users()
