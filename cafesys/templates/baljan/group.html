@@ -11,7 +11,7 @@
 <h1>{% trans "Group" %}: {{group.name}}</h1>
 <div class="grid_7 alpha main">
     <div class="members">
-        <h2>{% trans "Members" %}</h2>
+        <h2>{% trans "Members" %} ({{members|length}})</h2>
         <ul>
         {% for member in members %}
             <li>{{member|user_link}}</li>
@@ -23,7 +23,7 @@
 
     {% for pgroup in pseudo_groups %}
     <div class="pseudo-group" id="{{pgroup.name}}">
-        <h2><a href="{{pgroup.link}}">{{pgroup.name}}</a></h2>
+        <h2><a href="{{pgroup.link}}">{{pgroup.name}}</a> ({{pgroup.members|length}})</h2>
         <ul>
         {% for member in pgroup.members %}
             <li>{{member|user_link}}</li>
