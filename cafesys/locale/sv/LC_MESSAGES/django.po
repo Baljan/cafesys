@@ -626,7 +626,7 @@ msgstr "kod"
 
 #: baljan/models.py:869
 msgid "balance codes"
-msgstr "kodvaluta"
+msgstr "koder"
 
 #: baljan/views.py:40
 #, python-format
