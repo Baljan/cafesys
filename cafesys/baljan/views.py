@@ -8,9 +8,6 @@ from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.translation import ugettext as _ 
 from django.contrib import messages
-import accounting
-from accounting import history
-from terminal.models import Item
 from django.conf import settings
 from datetime import date
 import baljan.forms
