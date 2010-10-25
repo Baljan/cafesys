@@ -142,16 +142,37 @@ $(document).ready(function () {
                     if (!hits) return;
                     ul.html('');
                     count.html('' + hits.length);
-                    for (i in hits) {
-                        ul.append('<li/>' + uLink(hits[i]) + '</li>');
+                    var lis = false,
+                        as = false,
+                        delay = 0;
+
+                    // This looks odd. With this code, the hit list is populated
+                    // asynchronously.
+                    var addTexts = {
+                        delay: delay,
+                        loop: function(i) {
+                            $(this).text(uFormat(hits[i]));
+                        }
                     }
-                    var lis = ul.children('li');
-                    lis.html(function(i) {
-                        return uLink(hits[i]);
-                    });
-                    var as = lis.children('a');
-                    as.text(function(i) {
-                        return uFormat(hits[i]);
+                    var addLinks = {
+                        delay: delay,
+                        loop: function(i) {
+                            $(this).html(uLink(hits[i]));
+                        },
+                        end: function() {
+                            var as = lis.children('a');
+                            as.eachAsync(addTexts);
+                        }
+                    }
+                    $.eachAsync(hits, {
+                        delay: delay,
+                        loop: function() {
+                            ul.append('<li/>');
+                        },
+                        end: function() {
+                            lis = ul.children('li');
+                            lis.eachAsync(addLinks);
+                        }
                     });
                 }
             });
