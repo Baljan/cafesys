@@ -54,17 +54,18 @@
                 <span class="link show-profile-dialog">{% trans "edit" %}</span>
             </div>
         {% endif %}
-        {# TODO: Hide phone number and such for regular users. #}
         <h2>{% trans "profile"|title %}</h2>
         <dl>
             <dt>{% trans "name" %}</dt>
             <dd>{{watched.get_full_name}}</dd>
             {% with watched.get_profile as prof %}
-                <dt>{% trans "phone" %}</dt>
-                {% if prof.mobile_phone %}
-                    <dd>{{prof.mobile_phone }}</dd>
-                {% else %}
-                    <dd>{% trans "unset" %}</dd>
+                {% if watching_self or perms.baljan.self_and_friend_signup %}
+                    <dt>{% trans "phone" %}</dt>
+                    {% if prof.mobile_phone %}
+                        <dd>{{prof.mobile_phone }}</dd>
+                    {% else %}
+                        <dd>{% trans "unset" %}</dd>
+                    {% endif %}
                 {% endif %}
             {% endwith %}
             <dt>{% trans "last login" %}</dt>
