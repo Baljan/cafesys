@@ -29,12 +29,7 @@ class LiuLdap(object):
 
         
 
-def main():
-    import sys
-    con = ldap.initialize(SERVER)
-    con.protocol_version = ldap.VERSION2
-    ll = LiuLdap(con, "pabka760", "xfz8pk01")
-
-
-if __name__ == '__main__':
-    main()
+#import sys
+#con = ldap.initialize(SERVER)
+#con.protocol_version = ldap.VERSION2
+#ll = LiuLdap(con, "", "")
