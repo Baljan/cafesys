@@ -121,7 +121,9 @@ $(document).ready(function () {
         var f = $('form.search'),
             terms = $('#search-terms'),
             ul = $('.results ul'),
-            count = $('.results .count');
+            count = $('.results .count'),
+            curSerial = '',
+            curRequest = false;
         
         // These should be nice in JS-enabled browsers.
         terms.focus();
@@ -129,8 +131,12 @@ $(document).ready(function () {
         f.submit(function() { return false; });
 
         terms.bind('keyup', function() {
-            $.ajax({
-                data: f.serialize(),
+            var serial = f.serialize();
+            if (curSerial == serial) return;
+            if (curRequest) curRequest.abort();
+
+            curRequest = $.ajax({
+                data: serial,
                 url: document.location.pathname, // f.attr('action') is empty string
                 type: f.attr('method'),
                 dataType: 'json',
