@@ -183,7 +183,7 @@ msgstr "vänförfrågningar"
 #: baljan/models.py:113
 #, python-format
 msgid "%(sent_by)s wants to be friends with %(sent_to)s"
-msgstr "%(sent_by)s vill bli kompis med %(sent_to)s"
+msgstr "%(sent_by)s vill bli vän med %(sent_to)s"
 
 #: baljan/models.py:144
 #, python-format
