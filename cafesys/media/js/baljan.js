@@ -106,7 +106,7 @@ $(document).ready(function () {
             var uName = user.fields.username,
                 fName = user.fields.first_name,
                 lName = user.fields.last_name;
-            return [fName,' ',lName,' (', uName, ')'].join('');
+            return ''+fName+' '+lName+' ('+uName+')';
         }
 
         var uLink = function(user) {
@@ -143,9 +143,16 @@ $(document).ready(function () {
                     ul.html('');
                     count.html('' + hits.length);
                     for (i in hits) {
-                        ul.append('<li>' + uLink(hits[i]) + '</li>');
-                        ul.find('li a').last().text(uFormat(hits[i]));
+                        ul.append('<li/>' + uLink(hits[i]) + '</li>');
                     }
+                    var lis = ul.children('li');
+                    lis.html(function(i) {
+                        return uLink(hits[i]);
+                    });
+                    var as = lis.children('a');
+                    as.text(function(i) {
+                        return uFormat(hits[i]);
+                    });
                 }
             });
         });
