@@ -11,7 +11,7 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 # tells Pinax to use the default theme
 PINAX_THEME = "default"
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = True # nice for Sentry, different than DEBUG
 
 # Terminal settings.
@@ -254,8 +254,12 @@ else:
         "django.contrib.auth.backends.ModelBackend",
     ]
 
+AUTHENTICATION_BACKENDS += [
+    'baljan.ldapbackend.LDAPBackend',
+] 
+
 EMAIL_CONFIRMATION_DAYS = 2
-EMAIL_DEBUG = DEBUG
+EMAIL_DEBUG = True
 CONTACT_EMAIL = "styret@baljan.studorg.liu.se"
 USER_EMAIL_DOMAIN = 'student.liu.se'
 SITE_NAME = "Sektionscafé Baljan"
@@ -277,8 +281,8 @@ PRICE_LIST_ROW_HEIGHT = 40 # px
 #OLD_SYSTEM_MYSQL_DB = 'foo'
 #OLD_SYSTEM_MYSQL_HOST = 'localhost'
 
-EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
-EMAIL_HOST = 'smtp.bahnhof.se'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = ''
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
