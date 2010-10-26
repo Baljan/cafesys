@@ -765,9 +765,10 @@ class OrderGood(Made):
 
 BALANCE_CODE_LENGTH = 8
 BALANCE_CODE_DEFAULT_VALUE = 100 # SEK
+BALANCE_CODE_MAX_VALUE = 500 # SEK
 SERIES_RELATIVE_LEAST_VALIDITY = relativedelta(years=1)
-SERIES_CODE_COUNT = 50
-
+SERIES_CODE_DEFAULT_COUNT = 16
+SERIES_MAX_VALUE = BALANCE_CODE_MAX_VALUE * SERIES_CODE_DEFAULT_COUNT
 
 def default_issued():
     return date.today()
@@ -792,8 +793,15 @@ class RefillSeries(Made):
     issued = models.DateField(_("issued"), default=default_issued)
     least_valid_until = models.DateField(_("least valid until"), 
             default=default_least_valid_until)
-    made_by = models.ForeignKey('auth.User', verbose_name=_("made by"))
-    printed = models.BooleanField(_("printed"), default=False, help_text=_('manually set by admins to tell whether or not the series has been printed'))
+    made_by = models.ForeignKey('auth.User', verbose_name=_("made by"), editable=False)
+
+    code_count = models.PositiveIntegerField(_("code count"), 
+            default=SERIES_CODE_DEFAULT_COUNT,
+            help_text=_("multiple of 16 recommended (4x4 on A4 paper), total value can be at most %d SEK") % SERIES_MAX_VALUE)
+    code_value = models.PositiveIntegerField(_("code value"), 
+            default=BALANCE_CODE_DEFAULT_VALUE,
+            help_text=_("maximum value is %d SEK") % BALANCE_CODE_MAX_VALUE)
+    code_currency = models.CharField(_("code currency"), max_length=5, default=u"SEK")
 
     class Meta:
         verbose_name = _('refill series')
@@ -840,6 +848,13 @@ class RefillSeries(Made):
                 }
         return smart_str(fmt)
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.code_value * self.code_count > SERIES_MAX_VALUE:
+            raise ValidationError("Invalid total worth.")
+        if self.code_value > BALANCE_CODE_MAX_VALUE:
+            raise ValidationError(_("Code value too high."))
+
 
 class RefillSeriesPDF(Made):
     refill_series = models.ForeignKey(RefillSeries, verbose_name=_("series"),
@@ -852,8 +867,8 @@ class RefillSeriesPDF(Made):
         return ('admin:baljan_shift_change', (self.id))
 
     class Meta:
-        verbose_name = _('refill series PDF')
-        verbose_name_plural = _('refill series PDFs')
+        verbose_name = _('generated refill series PDF')
+        verbose_name_plural = _('generated refill series PDFs')
         ordering = ('-made', '-id', '-refill_series__id')
 
 

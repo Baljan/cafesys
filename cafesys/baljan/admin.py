@@ -2,7 +2,6 @@
 from django.contrib import admin
 import baljan.models
 from django.utils.translation import ugettext as _ 
-from baljan.models import SERIES_CODE_COUNT
 from baljan import pdf
 from cStringIO import StringIO
 from django.http import HttpResponse
@@ -131,48 +130,7 @@ admin.site.register(baljan.models.GoodCost, GoodCostAdmin)
 admin.site.register(baljan.models.Order)
 admin.site.register(baljan.models.OrderGood)
 
-
-class BalanceCodeInline(admin.TabularInline):
-    model = baljan.models.BalanceCode
-    extra = SERIES_CODE_COUNT
-    max_num = SERIES_CODE_COUNT
-
-balance_code_handling_actions = (
-        'set_code_value_100', 
-        'set_code_value_250', 
-        'set_code_value_500', 
-        )
-
-class BalanceCodeHandlingMixin(object):
-    actions = balance_code_handling_actions
-
-    def codes_from_action_queryset(self, queryset):
-        return queryset
-
-    def set_code_value(self, value, request, queryset):
-        codes = self.codes_from_action_queryset(queryset)
-        unused = codes.filter(used_by__isnull=True)
-        unused.update(value=value, currency='SEK')
-        [u.save() for u in unused]
-        self.message_user(request, 
-            _('%(unused_count)d codes successfully updated, skipped %(used_count)d used') % {
-                'unused_count': len(unused), 
-                'used_count': len(codes) - len(unused)})
-
-    def set_code_value_100(self, request, queryset):
-        return self.set_code_value(100, request, queryset)
-    set_code_value_100.short_description = _('make unused codes worth %d SEK') % 100
-
-    def set_code_value_250(self, request, queryset):
-        return self.set_code_value(250, request, queryset)
-    set_code_value_250.short_description = _('make unused codes worth %d SEK') % 250
-
-    def set_code_value_500(self, request, queryset):
-        return self.set_code_value(500, request, queryset)
-    set_code_value_500.short_description = _('make unused codes worth %d SEK') % 500
-
-
-class BalanceCodeAdmin(admin.ModelAdmin, BalanceCodeHandlingMixin):
+class BalanceCodeAdmin(admin.ModelAdmin):
     search_fields = ('code', 'used_by__username', 'id', 'refill_series__id')
     fieldsets = (
         (_('Value and Identification'), {
@@ -223,8 +181,8 @@ class RefillSeriesPDFAdmin(admin.ModelAdmin):
 admin.site.register(baljan.models.RefillSeriesPDF, RefillSeriesPDFAdmin)
 
 
-class RefillSeriesAdmin(admin.ModelAdmin, BalanceCodeHandlingMixin):
-    actions = balance_code_handling_actions + ('make_pdf', )
+class RefillSeriesAdmin(admin.ModelAdmin):
+    actions = ('make_pdf', )
 
     def _used_count(series):
         return len(series.used())
@@ -252,14 +210,33 @@ class RefillSeriesAdmin(admin.ModelAdmin, BalanceCodeHandlingMixin):
     _pdfs.short_description = _('# made PDFs')
 
     list_display = ('id', 'value', _currency, _used_count, _unused_count, 
-            'issued', _pdfs, 'printed')
-    list_filter = ('issued', 'printed')
+            'issued', 'made_by', _pdfs)
+    list_filter = ('issued',)
 
-    def codes_from_action_queryset(self, queryset):
-        codes = baljan.models.BalanceCode.objects.filter(refill_series__in=queryset)
-        return codes
+    def save_model(self, request, obj, form, change):
+        if change:
+            self.message_user(request, _("No changes saved. Create a new series instead."))
+        else:
+            obj.made_by = request.user
+            obj.save()
+            for i in range(obj.code_count):
+                code = baljan.models.BalanceCode(
+                        refill_series=obj,
+                        currency=obj.code_currency,
+                        value=obj.code_value)
+                code.save()
 
     def make_pdf(self, request, queryset):
+        has_used = False
+        for series in queryset:
+            if len(series.used()):
+                has_used = True
+                break
+        if has_used:
+            self.message_user(request, 
+                _("There are used codes in one or more of the series."))
+            return
+
         buf = StringIO()
         pdf.refill_series(buf, queryset)
         buf.seek(0)
