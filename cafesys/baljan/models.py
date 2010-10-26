@@ -30,7 +30,7 @@ class Profile(Made):
     friend_profiles = models.ManyToManyField('self', verbose_name=_("friend profiles"), null=True, blank=True)
     mobile_phone = models.CharField(_("mobile phone number"), max_length=10, blank=True, null=True)
     balance = models.IntegerField(default=0)
-    balance_currency = models.CharField(_("balance currency"), max_length=20, default=u"SEK", 
+    balance_currency = models.CharField(_("balance currency"), max_length=5, default=u"SEK", 
             help_text=_("currency"))
 
     def get_absolute_url(self):
@@ -727,7 +727,7 @@ class GoodCost(Made):
     cost = models.PositiveIntegerField(_("cost"), 
         help_text=_("the cost of goods change over time"))
     from_date = models.DateField(_("from date"), default=date.today)
-    currency = models.CharField(_("currency"), max_length=20, default=u"SEK", 
+    currency = models.CharField(_("currency"), max_length=5, default=u"SEK", 
             help_text=_("in case Sweden changes currency"))
 
     class Meta:
@@ -837,7 +837,7 @@ class BalanceCode(Made):
     code = models.CharField(_("code"), max_length=BALANCE_CODE_LENGTH, unique=True, 
             default=generate_balance_code, help_text=code_help)
     value = models.PositiveIntegerField(_("value"), default=BALANCE_CODE_DEFAULT_VALUE)
-    currency = models.CharField(_("currency"), max_length=20, default=u"SEK", 
+    currency = models.CharField(_("currency"), max_length=5, default=u"SEK", 
             help_text=_("currency"))
     refill_series = models.ForeignKey(RefillSeries, verbose_name=_("refill series"))
     used_by = models.ForeignKey('auth.User', null=True, blank=True, 
