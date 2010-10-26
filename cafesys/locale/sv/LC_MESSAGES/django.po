@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-27 00:31+0200\n"
+"POT-Creation-Date: 2010-10-27 00:41+0200\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1765,7 +1765,7 @@ msgid ""
 "%(msg)s %(shift_link)s.\n"
 msgstr ""
 "\n"
-"%(msg)s på %(shift_link)s.\n"
+"%(msg)s %(shift_link)s.\n"
 
 #: templates/notification/trade_request/notice.html:5
 #, python-format
