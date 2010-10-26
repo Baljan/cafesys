@@ -6,6 +6,8 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models import signals
 from django.utils.translation import ugettext_lazy as _ 
+from django.utils.translation import ugettext as _nl
+from django.utils.translation import string_concat
 from django.conf import settings
 from datetime import date
 import random
@@ -474,10 +476,10 @@ class Shift(Made):
         return _("am") if self.early else _("pm")
 
     def name(self):
-        return "%s %s" % (self.timeofday(), self.when.strftime('%Y-%m-%d'))
+        return string_concat(self.timeofday(), ' ', self.when.strftime('%Y-%m-%d'))
 
     def name_short(self):
-        return "%s %s" % (self.ampm(), self.when.strftime('%Y-%m-%d'))
+        return string_concat(self.ampm(), ' ', self.when.strftime('%Y-%m-%d'))
 
     def past(self):
         return self.when < date.today()
@@ -582,6 +584,7 @@ def signup_post(sender, instance=None, **kwargs):
 def _signup_notice_common(signup):
     return {
             'shift': signup.shift,
+            'shift_name': signup.shift.name(),
             'shift_url': signup.shift.get_absolute_url(),
             'signup': signup,
             }
@@ -594,7 +597,7 @@ def signup_notice_save(signup):
     tpl.update({
         'saved': True,
         'deleted': False,
-        'mail_msg': _("You were signed up for a shift"),
+        'mail_msg': _("You were signed up for a shift on"),
         'web_msg': _("You were signed up for"),
         })
     notification.send([signup.user], "signup", tpl)
@@ -608,7 +611,7 @@ def signup_notice_delete(signup):
     tpl.update({
         'saved': False,
         'deleted': True,
-        'mail_msg': _("You were removed from a shift"),
+        'mail_msg': _("You were removed from a shift on"),
         'web_msg': _("You were removed from"),
         })
     notification.send([signup.user], "signup", tpl)

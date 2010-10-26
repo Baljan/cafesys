@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-26 23:29+0200\n"
+"POT-Creation-Date: 2010-10-27 00:31+0200\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -128,7 +128,7 @@ msgstr "Bekräfta och lägg till i grupper"
 msgid "unset"
 msgstr "ej angett"
 
-#: baljan/admin.py:116 baljan/models.py:728
+#: baljan/admin.py:116 baljan/models.py:731
 msgid "cost"
 msgstr "varukostnader"
 
@@ -140,7 +140,7 @@ msgstr ""
 msgid "Code"
 msgstr "Kod"
 
-#: baljan/admin.py:176 baljan/models.py:860
+#: baljan/admin.py:176 baljan/models.py:863
 msgid "series"
 msgstr "serie"
 
@@ -156,8 +156,8 @@ msgstr "# oanvända"
 msgid "codes"
 msgstr "koder"
 
-#: baljan/admin.py:201 baljan/models.py:35 baljan/models.py:731
-#: baljan/models.py:881 baljan/models.py:882
+#: baljan/admin.py:201 baljan/models.py:37 baljan/models.py:734
+#: baljan/models.py:884 baljan/models.py:885
 msgid "currency"
 msgstr "valuta"
 
@@ -177,127 +177,127 @@ msgstr "Det finns använda koder i serien/-erna."
 msgid "make PDF"
 msgstr "skapa PDF"
 
-#: baljan/models.py:23
+#: baljan/models.py:25
 msgid "made at"
 msgstr "skapad"
 
-#: baljan/models.py:23
+#: baljan/models.py:25
 msgid "when the object was created"
 msgstr "när objektet skapades"
 
-#: baljan/models.py:30 baljan/models.py:82 baljan/models.py:653
-#: baljan/models.py:748 templates/baljan/user.html:114
+#: baljan/models.py:32 baljan/models.py:84 baljan/models.py:656
+#: baljan/models.py:751 templates/baljan/user.html:114
 msgid "user"
 msgstr "användare"
 
-#: baljan/models.py:31
+#: baljan/models.py:33
 msgid "friend profiles"
 msgstr "vänprofiler"
 
-#: baljan/models.py:32
+#: baljan/models.py:34
 msgid "mobile phone number"
 msgstr "mobilnummer"
 
-#: baljan/models.py:34
+#: baljan/models.py:36
 msgid "balance currency"
 msgstr "balansvaluta"
 
-#: baljan/models.py:60 templates/baljan/user.html:57
+#: baljan/models.py:62 templates/baljan/user.html:57
 #: templates/baljan/user.html.py:115
 msgid "profile"
 msgstr "profil"
 
-#: baljan/models.py:61
+#: baljan/models.py:63
 msgid "profiles"
 msgstr "profiler"
 
-#: baljan/models.py:63
+#: baljan/models.py:65
 msgid "Available for call duty"
 msgstr "Tillgäng för jour"
 
-#: baljan/models.py:83
+#: baljan/models.py:85
 msgid "group"
 msgstr "grupp"
 
-#: baljan/models.py:86
+#: baljan/models.py:88
 msgid "join group request"
 msgstr "förfrågan om att ansluta till grupp"
 
-#: baljan/models.py:87
+#: baljan/models.py:89
 msgid "join group requests"
 msgstr "förfrågningar om att ansluta till grupper"
 
-#: baljan/models.py:89
+#: baljan/models.py:91
 msgid "Can request group"
 msgstr "Kan fråga om grupp"
 
-#: baljan/models.py:93
+#: baljan/models.py:95
 #, python-format
 msgid "%(user)s wants to be in %(group)s"
 msgstr "%(user)s vill vara med i %(group)s"
 
-#: baljan/models.py:100
+#: baljan/models.py:102
 msgid "sent by"
 msgstr "skickad av"
 
-#: baljan/models.py:102
+#: baljan/models.py:104
 msgid "sent to"
 msgstr "skickad till"
 
-#: baljan/models.py:106 baljan/models.py:216
+#: baljan/models.py:108 baljan/models.py:218
 msgid "accepted"
 msgstr "accepterad"
 
-#: baljan/models.py:107
+#: baljan/models.py:109
 msgid "answered at"
 msgstr "svarad den"
 
-#: baljan/models.py:110
+#: baljan/models.py:112
 msgid "friend request"
 msgstr "vänförfrågan"
 
-#: baljan/models.py:111
+#: baljan/models.py:113
 msgid "friend requests"
 msgstr "vänförfrågningar"
 
-#: baljan/models.py:114
+#: baljan/models.py:116
 #, python-format
 msgid "%(sent_by)s wants to be friends with %(sent_to)s"
 msgstr "%(sent_by)s vill bli vän med %(sent_to)s"
 
-#: baljan/models.py:145
+#: baljan/models.py:147
 #, python-format
 msgid "%s accepted your friend request"
 msgstr "%s accepterade din vänförfrågan"
 
-#: baljan/models.py:147
+#: baljan/models.py:149
 #, python-format
 msgid "%s denied your friend request"
 msgstr "%s nekade din vänförfrågan"
 
-#: baljan/models.py:160
+#: baljan/models.py:162
 #, python-format
 msgid "You have received a friend request from %s"
 msgstr "Du har fått en vänförfrågan från %s"
 
-#: baljan/models.py:183
+#: baljan/models.py:185
 #, python-format
 msgid "The pending friend request from %s was recalled"
 msgstr "Vänförfrågan från %s drogs tillbaka"
 
-#: baljan/models.py:211
+#: baljan/models.py:213
 msgid "wanted sign-up"
 msgstr "passanmälan som efterfrågas"
 
-#: baljan/models.py:214
+#: baljan/models.py:216
 msgid "offered sign-up"
 msgstr "passanmälan som erbjuds"
 
-#: baljan/models.py:217
+#: baljan/models.py:219
 msgid "answered"
 msgstr "besvarad"
 
-#: baljan/models.py:218
+#: baljan/models.py:220
 msgid ""
 "if this is true when the shift is deleted, and \"accepted\" is true as well, "
 "the trade will be performed even if it was in the past"
@@ -305,282 +305,282 @@ msgstr ""
 "om detta är sant när passet tas bort, och \"accepterad\" också är sant, så "
 "kommer bytet att genomföras även om det redan har varit"
 
-#: baljan/models.py:221
+#: baljan/models.py:223
 msgid "trade request"
 msgstr "bytesförfrågan"
 
-#: baljan/models.py:222
+#: baljan/models.py:224
 msgid "trade requests"
 msgstr "bytesförfrågningar"
 
-#: baljan/models.py:225
+#: baljan/models.py:227
 #, python-format
 msgid "%(requester)s wants %(shift)s"
 msgstr "%(requester)s vill ha %(shift)s"
 
-#: baljan/models.py:245
+#: baljan/models.py:247
 msgid "was accepted"
 msgstr "accepterades"
 
-#: baljan/models.py:246
+#: baljan/models.py:248
 msgid "new shift"
 msgstr "nytt pass"
 
-#: baljan/models.py:247
+#: baljan/models.py:249
 msgid "lost shift"
 msgstr "borttaget pass"
 
-#: baljan/models.py:249
+#: baljan/models.py:251
 msgid "was denied"
 msgstr "nekades"
 
-#: baljan/models.py:250
+#: baljan/models.py:252
 msgid "requested shift"
 msgstr "begärt pass"
 
-#: baljan/models.py:251
+#: baljan/models.py:253
 msgid "offered shift"
 msgstr "erbjudet pass"
 
-#: baljan/models.py:367
+#: baljan/models.py:369
 msgid "first day"
 msgstr "första dag"
 
-#: baljan/models.py:368
+#: baljan/models.py:370
 msgid "last day"
 msgstr "sista dag"
 
-#: baljan/models.py:369 templates/baljan/user.html:59
+#: baljan/models.py:371 templates/baljan/user.html:59
 msgid "name"
 msgstr "namn"
 
-#: baljan/models.py:370
+#: baljan/models.py:372
 msgid "must be something like HT2010"
 msgstr "ska vara något i stil med HT2010"
 
-#: baljan/models.py:371
+#: baljan/models.py:373
 msgid "sign-up possible"
 msgstr "anmälan möjlig"
 
-#: baljan/models.py:372
+#: baljan/models.py:374
 msgid "if workers can sign up to work on this semester"
 msgstr "om jobbare kan skriva upp sig för att arbeta denna termin"
 
-#: baljan/models.py:392
+#: baljan/models.py:394
 msgid "bad combination of start and end dates"
 msgstr "dålig kombination av start- och slutdatum"
 
-#: baljan/models.py:394
+#: baljan/models.py:396
 msgid "bad semester name"
 msgstr "dåligt terminnamn"
 
-#: baljan/models.py:404
+#: baljan/models.py:406
 #, python-format
 msgid "semester overlaps with %s"
 msgstr "terminen överlappar med %s"
 
-#: baljan/models.py:424 baljan/models.py:465 templates/baljan/user.html:271
+#: baljan/models.py:426 baljan/models.py:467 templates/baljan/user.html:271
 msgid "semester"
 msgstr "termin"
 
-#: baljan/models.py:425
+#: baljan/models.py:427
 msgid "semesters"
 msgstr "terminer"
 
-#: baljan/models.py:466
+#: baljan/models.py:468
 msgid "early shift"
 msgstr "tidigt pass"
 
-#: baljan/models.py:466
+#: baljan/models.py:468
 msgid "if the shift is early or late"
 msgstr "om passet är tidigt eller sent"
 
-#: baljan/models.py:467
+#: baljan/models.py:469
 msgid "what day the shift is on"
 msgstr "vilken dag passet är på"
 
-#: baljan/models.py:468
+#: baljan/models.py:470
 msgid "shifts can be disabled on special days"
 msgstr "pass kan tas bort på speciella dagar"
 
-#: baljan/models.py:471 templates/baljan/day.html:24
+#: baljan/models.py:473 templates/baljan/day.html:24
 msgid "morning"
 msgstr "förmiddag"
 
-#: baljan/models.py:471 templates/baljan/day.html:26
+#: baljan/models.py:473 templates/baljan/day.html:26
 msgid "afternoon"
 msgstr "eftermiddag"
 
-#: baljan/models.py:474 templates/baljan/user.html:292
+#: baljan/models.py:476 templates/baljan/user.html:292
 #: templates/baljan/work_planning.html:98
 msgid "am"
 msgstr "fm"
 
-#: baljan/models.py:474 templates/baljan/user.html:292
+#: baljan/models.py:476 templates/baljan/user.html:292
 #: templates/baljan/work_planning.html:100
 msgid "pm"
 msgstr "em"
 
-#: baljan/models.py:528 baljan/models.py:545 baljan/models.py:652
+#: baljan/models.py:530 baljan/models.py:547 baljan/models.py:655
 msgid "shift"
 msgstr "pass"
 
-#: baljan/models.py:529
+#: baljan/models.py:531
 msgid "shifts"
 msgstr "pass"
 
-#: baljan/models.py:546 templates/baljan/day.html:46
+#: baljan/models.py:548 templates/baljan/day.html:46
 msgid "worker"
 msgstr "jobbare"
 
-#: baljan/models.py:548
+#: baljan/models.py:550
 msgid "the user wants to switch this shift for some other"
 msgstr "jobbaren vill byta passet mot något annat"
 
-#: baljan/models.py:549
+#: baljan/models.py:551
 msgid ""
 "remember that trade requests of sign-ups are removed whenever the sign-up is "
 "altered"
 msgstr "kom ihåg att bytesförfrågningar tas bort när passanmälningar sparas"
 
-#: baljan/models.py:556
+#: baljan/models.py:558
 msgid "shift sign-up"
 msgstr "passanmälan"
 
-#: baljan/models.py:557
+#: baljan/models.py:559
 msgid "shift sign-ups"
 msgstr "passanmälningar"
 
-#: baljan/models.py:560
+#: baljan/models.py:562
 msgid "Can sign up self and friends"
 msgstr "Kan anmäla sig själv och vänner"
 
-#: baljan/models.py:568 baljan/models.py:665
+#: baljan/models.py:570 baljan/models.py:668
 #, python-format
 msgid "%(user)s on %(shift)s"
 msgstr "%(user)s på %(shift)s"
 
-#: baljan/models.py:597
-msgid "You were signed up for a shift"
-msgstr "Du anmäldes till ett pass"
+#: baljan/models.py:600
+msgid "You were signed up for a shift on"
+msgstr "Du anmäldes till ett pass på"
 
-#: baljan/models.py:598
+#: baljan/models.py:601
 msgid "You were signed up for"
-msgstr "Du anmäldes"
+msgstr "Du anmäldes till"
 
-#: baljan/models.py:611
-msgid "You were removed from a shift"
-msgstr "Du togs bort ett pass"
+#: baljan/models.py:614
+msgid "You were removed from a shift on"
+msgstr "Du togs bort från ett pass på"
 
-#: baljan/models.py:612
+#: baljan/models.py:615
 msgid "You were removed from"
 msgstr "Du togs bort från"
 
-#: baljan/models.py:656
+#: baljan/models.py:659
 msgid "on call duty"
 msgstr "jourande"
 
-#: baljan/models.py:657
+#: baljan/models.py:660
 msgid "on call duties"
 msgstr "jourande"
 
-#: baljan/models.py:693
+#: baljan/models.py:696
 msgid "title"
 msgstr "rubrik"
 
-#: baljan/models.py:694
+#: baljan/models.py:697
 msgid "short description"
 msgstr "kort beskrivning"
 
-#: baljan/models.py:695
+#: baljan/models.py:698
 msgid "image"
 msgstr "bild"
 
-#: baljan/models.py:696
+#: baljan/models.py:699
 msgid "position"
 msgstr "position"
 
-#: baljan/models.py:697
+#: baljan/models.py:700
 msgid ""
 "when listing goods, this value tells at what position this good should be put"
 msgstr ""
 "när varor listas talar detta värde om på vilken position varan ska läggas"
 
-#: baljan/models.py:716 baljan/models.py:758
+#: baljan/models.py:719 baljan/models.py:761
 msgid "good"
 msgstr "vara"
 
-#: baljan/models.py:717
+#: baljan/models.py:720
 msgid "goods"
 msgstr "varor"
 
-#: baljan/models.py:720
+#: baljan/models.py:723
 #, python-format
 msgid "%(title)s (%(desc)s)"
 msgstr "%(title)s (%(desc)s)"
 
-#: baljan/models.py:727 baljan/models.py:735
+#: baljan/models.py:730 baljan/models.py:738
 msgid "good cost"
 msgstr "varukostnad"
 
-#: baljan/models.py:729
+#: baljan/models.py:732
 msgid "the cost of goods change over time"
 msgstr "priset för varor ändras med tiden"
 
-#: baljan/models.py:730
+#: baljan/models.py:733
 msgid "from date"
 msgstr "från datum"
 
-#: baljan/models.py:732
+#: baljan/models.py:735
 msgid "in case Sweden changes currency"
 msgstr "om Sverige byter valuta"
 
-#: baljan/models.py:736
+#: baljan/models.py:739
 msgid "good costs"
 msgstr "varukostnader"
 
-#: baljan/models.py:740
+#: baljan/models.py:743
 #, python-format
 msgid "%(title)s %(cost)s %(currency)s"
 msgstr "%(title)s %(cost)s %(currency)s"
 
-#: baljan/models.py:751 baljan/models.py:757
+#: baljan/models.py:754 baljan/models.py:760
 msgid "order"
 msgstr "köp"
 
-#: baljan/models.py:752
+#: baljan/models.py:755
 msgid "orders"
 msgstr "köp"
 
-#: baljan/models.py:759
+#: baljan/models.py:762
 msgid "count"
 msgstr "antal"
 
-#: baljan/models.py:762
+#: baljan/models.py:765
 msgid "order good"
 msgstr "vara i köp"
 
-#: baljan/models.py:763
+#: baljan/models.py:766
 msgid "order goods"
 msgstr "varor i köp"
 
-#: baljan/models.py:793
+#: baljan/models.py:796
 msgid "issued"
 msgstr "skapad"
 
-#: baljan/models.py:794
+#: baljan/models.py:797
 msgid "least valid until"
 msgstr "minst giltig till"
 
-#: baljan/models.py:796
+#: baljan/models.py:799
 msgid "made by"
 msgstr "skapad av"
 
-#: baljan/models.py:798
+#: baljan/models.py:801
 msgid "code count"
 msgstr "antal koder"
 
-#: baljan/models.py:800
+#: baljan/models.py:803
 #, python-format
 msgid ""
 "multiple of 16 recommended (4x4 on A4 paper), total value can be at most %d "
@@ -588,40 +588,40 @@ msgid ""
 msgstr ""
 "multipel av 16 rekommenderas (4x4 på A4-papper), totalt maxvärde är %d SEK"
 
-#: baljan/models.py:801
+#: baljan/models.py:804
 msgid "code value"
 msgstr "kodvärde"
 
-#: baljan/models.py:803
+#: baljan/models.py:806
 #, python-format
 msgid "maximum value is %d SEK"
 msgstr "maxvärde är %d SEK"
 
-#: baljan/models.py:804
+#: baljan/models.py:807
 msgid "code currency"
 msgstr "kodvaluta"
 
-#: baljan/models.py:807 baljan/models.py:808 baljan/models.py:883
+#: baljan/models.py:810 baljan/models.py:811 baljan/models.py:886
 msgid "refill series"
 msgstr "kodserie"
 
-#: baljan/models.py:856
+#: baljan/models.py:859
 msgid "Code value too high."
 msgstr "Kodvärde för högt."
 
-#: baljan/models.py:862
+#: baljan/models.py:865
 msgid "generated by"
 msgstr "genererad av"
 
-#: baljan/models.py:870
+#: baljan/models.py:873
 msgid "generated refill series PDF"
 msgstr "genererad PDF"
 
-#: baljan/models.py:871
+#: baljan/models.py:874
 msgid "generated refill series PDFs"
 msgstr "genererade PDF:er"
 
-#: baljan/models.py:875
+#: baljan/models.py:878
 msgid ""
 "To create a bulk of codes, <a href='../../refillseries/add'>create a new "
 "refill series</a> instead."
@@ -629,46 +629,46 @@ msgstr ""
 "För att skapa många koder, <a href='../../refillseries/add'>skapa en "
 "nyserie</a> istället."
 
-#: baljan/models.py:878
+#: baljan/models.py:881
 msgid "code"
 msgstr "kod"
 
-#: baljan/models.py:880
+#: baljan/models.py:883
 msgid "value"
 msgstr "värde"
 
-#: baljan/models.py:885
+#: baljan/models.py:888
 msgid "used by"
 msgstr "använd av"
 
-#: baljan/models.py:886
+#: baljan/models.py:889
 msgid "used at"
 msgstr "använd den"
 
-#: baljan/models.py:893
+#: baljan/models.py:896
 #, python-format
 msgid "used by %(user)s %(at)s"
 msgstr "använd av %(user)s %(at)s"
 
-#: baljan/models.py:897
+#: baljan/models.py:900
 #, python-format
 msgid "used by %s"
 msgstr "använd av %s"
 
-#: baljan/models.py:899
+#: baljan/models.py:902
 msgid "unused"
 msgstr "oanvänd"
 
-#: baljan/models.py:902
-#, fuzzy, python-format
+#: baljan/models.py:905
+#, python-format
 msgid "%(fmt)s (%(usedpart)s)"
-msgstr "%(fmt)s (serie %(id)d, %(usedpart)s)"
+msgstr "%(fmt)s (%(usedpart)s)"
 
-#: baljan/models.py:908
+#: baljan/models.py:911
 msgid "balance code"
 msgstr "kod"
 
-#: baljan/models.py:909
+#: baljan/models.py:912
 msgid "balance codes"
 msgstr "koder"
 
