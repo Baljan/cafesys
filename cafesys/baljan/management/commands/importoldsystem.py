@@ -13,13 +13,6 @@ log = get_logger('baljan.migration')
 
 manual_board = []
 
-def _assoc(cursor, data):
-    desc = cursor.description
-    d = {}
-    for name, value in zip(desc, data):
-        d[name[0]] = value
-    return d
-
 class Import(object):
     def __init__(self):
         # Make sure that all needed settings and such are configured.
