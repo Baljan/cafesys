@@ -81,7 +81,7 @@ SELECT nummer FROM telefon WHERE persid=%d
 ''' % user_dict['id'])
         phone = c.fetchone()
         if phone: # validate
-            trial = re.sub("[^0-9]", "", phone[0])[:10]
+            trial = re.sub("[^0-9]", "", phone['nummer'])[:10]
             phone = None
             if trial.startswith('07'): # only cells
                 phone = trial
