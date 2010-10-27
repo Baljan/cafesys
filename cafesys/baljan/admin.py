@@ -19,7 +19,6 @@ class JoinGroupRequestAdmin(admin.ModelAdmin):
             'group__name', 
             )
     list_display = ('__str__', 'user', 'group', 'made')
-    list_filter = ('group',)
 
     def confirm_requests(self, request, queryset):
         for jgr in queryset:
