@@ -14,7 +14,7 @@
 
 {% cache 43200 group_and_pseudo group.name LANGUAGE_CODE %}
 
-<h1>{% trans "Group" %}: {{group.name}}</h1>
+<h1 id="group">{% trans "Group" %}: {{group.name}}</h1>
 <div class="grid_7 alpha main">
     <div class="members">
         <h2>{% trans "Members" %} ({{members|length}})</h2>
@@ -30,6 +30,9 @@
     {% for pgroup in pseudo_groups %}
         {% if pgroup.members|length %}
             <div class="pseudo-group" id="{{pgroup.name}}">
+                <div class="box-actions">
+                    <a href="#group">{% trans "↑ back to top" %}</a>
+                </div>
                 <h2><a href="{{pgroup.link}}">{{pgroup.name}}</a> ({{pgroup.members|length}})</h2>
                 <ul>
                 {% if pgroup.titles %}
@@ -51,33 +54,31 @@
     {% endfor %}
 </div><!--.main-->
 <div class="grid_3 omega secondary">
-    <div class="quick-nav layout">
-        {% if other_groups %}
-        <div class="groups">
-            <h2>{% trans "Other Groups" %}</h2>
-            <ul>
-                {% for group in other_groups %}
-                <li>
-                    <a href="{% url group group.name%}">{{group.name}}</a>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
-        {% if pseudo_groups %}
-        <div class="jump-to">
-            <h2>{% trans "Jump To" %}</h2>
-            <ul>
-            {% for pgroup in pseudo_groups %}
-                {% if pgroup.members|length %}
-                    <li><a href="#{{pgroup.name}}">{{pgroup.name}}</a></li>
-                {% endif %}
-            {% endfor %}
+    {% if other_groups %}
+    <div class="groups">
+        <h2>{% trans "Other Groups" %}</h2>
+        <ul>
+            {% for group in other_groups %}
+            <li>
+                <a href="{% url group group.name%}">{{group.name}}</a>
             </li>
-        </div>
-        {% endif %}
+            {% endfor %}
+        </ul>
     </div>
+    {% endif %}
+
+    {% if pseudo_groups %}
+    <div class="jump-to">
+        <h2>{% trans "Jump To" %}</h2>
+        <ul>
+        {% for pgroup in pseudo_groups %}
+            {% if pgroup.members|length %}
+                <li><a href="#{{pgroup.name}}">{{pgroup.name}}</a></li>
+            {% endif %}
+        {% endfor %}
+        </li>
+    </div>
+    {% endif %}
 </div><!--.secondary-->
 <div class="clear"></div>
 
