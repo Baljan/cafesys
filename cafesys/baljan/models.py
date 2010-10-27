@@ -6,6 +6,8 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models import signals
 from django.utils.translation import ugettext_lazy as _ 
+from django.utils.translation import ugettext as _nl
+from django.utils.translation import string_concat
 from django.conf import settings
 from datetime import date
 import random
@@ -17,6 +19,7 @@ import itertools
 from django.core.cache import cache
 from notification import models as notification
 from django.utils.safestring import mark_safe
+from django.core.urlresolvers import reverse
 
 class Made(models.Model):
     made = models.DateTimeField(_("made at"), help_text=_("when the object was created"), auto_now_add=True)
@@ -30,7 +33,7 @@ class Profile(Made):
     friend_profiles = models.ManyToManyField('self', verbose_name=_("friend profiles"), null=True, blank=True)
     mobile_phone = models.CharField(_("mobile phone number"), max_length=10, blank=True, null=True)
     balance = models.IntegerField(default=0)
-    balance_currency = models.CharField(_("balance currency"), max_length=20, default=u"SEK", 
+    balance_currency = models.CharField(_("balance currency"), max_length=5, default=u"SEK", 
             help_text=_("currency"))
 
     def get_absolute_url(self):
@@ -473,10 +476,10 @@ class Shift(Made):
         return _("am") if self.early else _("pm")
 
     def name(self):
-        return "%s %s" % (self.timeofday(), self.when.strftime('%Y-%m-%d'))
+        return string_concat(self.timeofday(), ' ', self.when.strftime('%Y-%m-%d'))
 
     def name_short(self):
-        return "%s %s" % (self.ampm(), self.when.strftime('%Y-%m-%d'))
+        return string_concat(self.ampm(), ' ', self.when.strftime('%Y-%m-%d'))
 
     def past(self):
         return self.when < date.today()
@@ -581,6 +584,7 @@ def signup_post(sender, instance=None, **kwargs):
 def _signup_notice_common(signup):
     return {
             'shift': signup.shift,
+            'shift_name': signup.shift.name(),
             'shift_url': signup.shift.get_absolute_url(),
             'signup': signup,
             }
@@ -593,7 +597,7 @@ def signup_notice_save(signup):
     tpl.update({
         'saved': True,
         'deleted': False,
-        'mail_msg': _("You were signed up for a shift"),
+        'mail_msg': _("You were signed up for a shift on"),
         'web_msg': _("You were signed up for"),
         })
     notification.send([signup.user], "signup", tpl)
@@ -607,7 +611,7 @@ def signup_notice_delete(signup):
     tpl.update({
         'saved': False,
         'deleted': True,
-        'mail_msg': _("You were removed from a shift"),
+        'mail_msg': _("You were removed from a shift on"),
         'web_msg': _("You were removed from"),
         })
     notification.send([signup.user], "signup", tpl)
@@ -727,7 +731,7 @@ class GoodCost(Made):
     cost = models.PositiveIntegerField(_("cost"), 
         help_text=_("the cost of goods change over time"))
     from_date = models.DateField(_("from date"), default=date.today)
-    currency = models.CharField(_("currency"), max_length=20, default=u"SEK", 
+    currency = models.CharField(_("currency"), max_length=5, default=u"SEK", 
             help_text=_("in case Sweden changes currency"))
 
     class Meta:
@@ -764,9 +768,10 @@ class OrderGood(Made):
 
 BALANCE_CODE_LENGTH = 8
 BALANCE_CODE_DEFAULT_VALUE = 100 # SEK
+BALANCE_CODE_MAX_VALUE = 500 # SEK
 SERIES_RELATIVE_LEAST_VALIDITY = relativedelta(years=1)
-SERIES_CODE_COUNT = 50
-
+SERIES_CODE_DEFAULT_COUNT = 16
+SERIES_MAX_VALUE = BALANCE_CODE_MAX_VALUE * SERIES_CODE_DEFAULT_COUNT
 
 def default_issued():
     return date.today()
@@ -791,13 +796,20 @@ class RefillSeries(Made):
     issued = models.DateField(_("issued"), default=default_issued)
     least_valid_until = models.DateField(_("least valid until"), 
             default=default_least_valid_until)
-    made_by = models.ForeignKey('auth.User', verbose_name=_("made by"))
-    printed = models.BooleanField(_("printed"), default=False, help_text=_('manually set by admins to tell whether or not the series has been printed'))
+    made_by = models.ForeignKey('auth.User', verbose_name=_("made by"), editable=False)
+
+    code_count = models.PositiveIntegerField(_("code count"), 
+            default=SERIES_CODE_DEFAULT_COUNT,
+            help_text=_("multiple of 16 recommended (4x4 on A4 paper), total value can be at most %d SEK") % SERIES_MAX_VALUE)
+    code_value = models.PositiveIntegerField(_("code value"), 
+            default=BALANCE_CODE_DEFAULT_VALUE,
+            help_text=_("maximum value is %d SEK") % BALANCE_CODE_MAX_VALUE)
+    code_currency = models.CharField(_("code currency"), max_length=5, default=u"SEK")
 
     class Meta:
         verbose_name = _('refill series')
         verbose_name_plural = _('refill series')
-        ordering = ('id', )
+        ordering = ('-id', )
 
     def codes(self):
         return BalanceCode.objects.filter(refill_series=self)
@@ -819,16 +831,48 @@ class RefillSeries(Made):
             value += code.value
         return value
 
+    def currencies(self):
+        codes = self.codes()
+        currencies = set([c.currency for c in codes])
+        return currencies
+
+    def currency(self):
+        curs = self.currencies()
+        assert len(curs) == 1
+        return curs[0]
+
     def __str__(self):
         used = self.used()
         codes = self.codes()
         value = self.value()
 
-        fmt = _("%(id)s. issued %(issued)s")  % {
+        fmt = "%(id)d"  % {
                 'id': self.pk, 
-                'issued': self.issued.strftime('%Y-%m-%d'), 
                 }
         return smart_str(fmt)
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.code_value * self.code_count > SERIES_MAX_VALUE:
+            raise ValidationError("Invalid total worth.")
+        if self.code_value > BALANCE_CODE_MAX_VALUE:
+            raise ValidationError(_("Code value too high."))
+
+
+class RefillSeriesPDF(Made):
+    refill_series = models.ForeignKey(RefillSeries, verbose_name=_("series"),
+            editable=False)
+    generated_by = models.ForeignKey('auth.User', verbose_name=_("generated by"),
+            editable=False)
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('admin:baljan_shift_change', (self.id))
+
+    class Meta:
+        verbose_name = _('generated refill series PDF')
+        verbose_name_plural = _('generated refill series PDFs')
+        ordering = ('-made', '-id', '-refill_series__id')
 
 
 code_help = _("To create a bulk of codes, <a href='../../refillseries/add'>create a new refill series</a> instead.")
@@ -837,7 +881,7 @@ class BalanceCode(Made):
     code = models.CharField(_("code"), max_length=BALANCE_CODE_LENGTH, unique=True, 
             default=generate_balance_code, help_text=code_help)
     value = models.PositiveIntegerField(_("value"), default=BALANCE_CODE_DEFAULT_VALUE)
-    currency = models.CharField(_("currency"), max_length=20, default=u"SEK", 
+    currency = models.CharField(_("currency"), max_length=5, default=u"SEK", 
             help_text=_("currency"))
     refill_series = models.ForeignKey(RefillSeries, verbose_name=_("refill series"))
     used_by = models.ForeignKey('auth.User', null=True, blank=True, 
@@ -845,7 +889,7 @@ class BalanceCode(Made):
     used_at = models.DateField(_("used at"), blank=True, null=True)
 
     def __str__(self):
-        fmt = "%d %s" % (self.value, self.currency)
+        fmt = "%d.%d" % (self.refill_series.id, self.id)
 
         if self.used_by:
             try:
@@ -858,13 +902,12 @@ class BalanceCode(Made):
             usedpart = _('unused')
 
         series = self.refill_series
-        fmt = _("%(fmt)s (series %(id)d, %(usedpart)s)") % {
+        fmt = _("%(fmt)s (%(usedpart)s)") % {
                 'fmt': fmt, 
-                'id': series.pk, 
                 'usedpart': usedpart}
         return smart_str(fmt)
 
     class Meta:
         verbose_name = _('balance code')
         verbose_name_plural = _('balance codes')
-        ordering = ('id', )
+        ordering = ('-id', '-refill_series__id')

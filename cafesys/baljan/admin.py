@@ -2,11 +2,11 @@
 from django.contrib import admin
 import baljan.models
 from django.utils.translation import ugettext as _ 
-from baljan.models import SERIES_CODE_COUNT
 from baljan import pdf
 from cStringIO import StringIO
 from django.http import HttpResponse
 from datetime import date
+from django.utils.safestring import mark_safe
 
 admin.site.register(baljan.models.Profile)
 
@@ -130,75 +130,113 @@ admin.site.register(baljan.models.GoodCost, GoodCostAdmin)
 admin.site.register(baljan.models.Order)
 admin.site.register(baljan.models.OrderGood)
 
-
-class BalanceCodeInline(admin.TabularInline):
-    model = baljan.models.BalanceCode
-    extra = SERIES_CODE_COUNT
-    max_num = SERIES_CODE_COUNT
-
-balance_code_handling_actions = (
-        'set_code_value_100', 
-        'set_code_value_250', 
-        'set_code_value_500', 
-        )
-
-class BalanceCodeHandlingMixin(object):
-    actions = balance_code_handling_actions
-
-    def codes_from_action_queryset(self, queryset):
-        return queryset
-
-    def set_code_value(self, value, request, queryset):
-        codes = self.codes_from_action_queryset(queryset)
-        unused = codes.filter(used_by__isnull=True)
-        unused.update(value=value, currency='SEK')
-        [u.save() for u in unused]
-        self.message_user(request, 
-            _('%(unused_count)d codes successfully updated, skipped %(used_count)d used') % {
-                'unused_count': len(unused), 
-                'used_count': len(codes) - len(unused)})
-
-    def set_code_value_100(self, request, queryset):
-        return self.set_code_value(100, request, queryset)
-    set_code_value_100.short_description = _('make unused codes worth %d SEK') % 100
-
-    def set_code_value_250(self, request, queryset):
-        return self.set_code_value(250, request, queryset)
-    set_code_value_250.short_description = _('make unused codes worth %d SEK') % 250
-
-    def set_code_value_500(self, request, queryset):
-        return self.set_code_value(500, request, queryset)
-    set_code_value_500.short_description = _('make unused codes worth %d SEK') % 500
-
-
-class BalanceCodeAdmin(admin.ModelAdmin, BalanceCodeHandlingMixin):
-    search_fields = ('code', 'used_by__username',)
-    list_display = ('__str__', 'pk', 'used_by', 'used_at', 'value',)
+class BalanceCodeAdmin(admin.ModelAdmin):
+    search_fields = ('code', 'used_by__username', 'id', 'refill_series__id')
+    fieldsets = (
+        (_('Value and Identification'), {
+            'fields': (
+                ('value', 'currency'), 
+                ('used_by', 'used_at'), 
+                'refill_series',
+            ),
+        }),
+        (_('Code'), {
+            'classes': ('collapse', ),
+            'fields': ('code', )
+        }),
+    )
+    readonly_fields = (
+            'code', 
+            'value', 
+            'currency', 
+            'refill_series',
+            'used_by',
+            'used_at',
+            )
+    list_display = (
+            'id', 'refill_series', 'value', 'currency', 'used_by', 'used_at', 
+            )
     list_filter = ('used_at', 'value', )
 
 admin.site.register(baljan.models.BalanceCode, BalanceCodeAdmin)
 
 
-class RefillSeriesAdmin(admin.ModelAdmin, BalanceCodeHandlingMixin):
-    inlines = (BalanceCodeInline,)
-    actions = balance_code_handling_actions + ('make_pdf', )
+class RefillSeriesPDFAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'generated_by',
+        'refill_series',
+    )
+
+    def _series(seriespdf):
+        return '<a href="../refillseries/?id__exact=%d">%d</a>' % (
+            seriespdf.refill_series.id,
+            seriespdf.refill_series.id,
+        )
+    _series.allow_tags = True
+    _series.short_description = _('series')
+
+    list_display = ('generated_by', 'made', _series)
+    search_fields = ('refill_series__id', 'generated_by__username')
+
+admin.site.register(baljan.models.RefillSeriesPDF, RefillSeriesPDFAdmin)
+
+
+class RefillSeriesAdmin(admin.ModelAdmin):
+    actions = ('make_pdf', )
 
     def _used_count(series):
         return len(series.used())
-    _used_count.short_description = _('used')
+    _used_count.short_description = _('# used')
+
+    def _unused_count(series):
+        return len(series.unused())
+    _unused_count.short_description = _('# unused')
 
     def _code_count(series):
         return len(series.codes())
     _code_count.short_description = _('codes')
 
-    list_display = ('__str__', 'pk', 'value',  _code_count, _used_count, 
-            'made', )
+    def _currency(series):
+        return ", ".join(series.currencies())
+    _currency.short_description = _('currency')
+    
+    def _pdfs(series):
+        gens = series.refillseriespdf_set.all()
+        return '<a href="../refillseriespdf/?refill_series__id__exact=%d">%d</a>' % (
+            series.id,
+            len(gens),
+        )
+    _pdfs.allow_tags = True
+    _pdfs.short_description = _('# made PDFs')
 
-    def codes_from_action_queryset(self, queryset):
-        codes = baljan.models.BalanceCode.objects.filter(refill_series__in=queryset)
-        return codes
+    list_display = ('id', 'value', _currency, _used_count, _unused_count, 
+            'issued', 'made_by', _pdfs)
+    list_filter = ('issued',)
+
+    def save_model(self, request, obj, form, change):
+        if change:
+            self.message_user(request, _("No changes saved. Create a new series instead."))
+        else:
+            obj.made_by = request.user
+            obj.save()
+            for i in range(obj.code_count):
+                code = baljan.models.BalanceCode(
+                        refill_series=obj,
+                        currency=obj.code_currency,
+                        value=obj.code_value)
+                code.save()
 
     def make_pdf(self, request, queryset):
+        has_used = False
+        for series in queryset:
+            if len(series.used()):
+                has_used = True
+                break
+        if has_used:
+            self.message_user(request, 
+                _("There are used codes in one or more of the series."))
+            return
+
         buf = StringIO()
         pdf.refill_series(buf, queryset)
         buf.seek(0)
@@ -207,7 +245,20 @@ class RefillSeriesAdmin(admin.ModelAdmin, BalanceCodeHandlingMixin):
         name = 'refill_series_%s_generated_at_%s.pdf' \
                 % ('-'.join([str(s.pk) for s in queryset]), datestr)
         response['Content-Disposition'] = 'attachment; filename=%s' % name
+
+        for series in queryset:
+            gen = baljan.models.RefillSeriesPDF(
+                    generated_by=request.user,
+                    refill_series=series)
+            gen.save()
+
         return response
     make_pdf.short_description = _('make PDF')
+
+    readonly_fields = (
+        'made_by',
+        'issued',
+        'least_valid_until',
+    )
 
 admin.site.register(baljan.models.RefillSeries, RefillSeriesAdmin)

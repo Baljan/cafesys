@@ -1,1 +1,1 @@
-{% load i18n %}{% load baljan_extras %}{% blocktrans with shift_url as shift_link and shift.name as shift_name and mail_msg as msg %}{{msg}} on {{shift_name}}{% endblocktrans %}
+{% load i18n %}{% load baljan_extras %}{% blocktrans with shift_name as shift_name and mail_msg as msg %}{{msg}} {{shift_name}}{% endblocktrans %}
