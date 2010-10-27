@@ -737,11 +737,10 @@ class Good(Made):
 
 
 class GoodCost(Made):
-    good = models.ForeignKey(Good, verbose_name=_("good cost"))
-    cost = models.PositiveIntegerField(_("cost"), 
-        help_text=_("the cost of goods change over time"))
-    from_date = models.DateField(_("from date"), default=date.today)
+    good = models.ForeignKey(Good, verbose_name=_("good"))
+    cost = models.PositiveIntegerField(_("cost"))
     currency = models.CharField(_("currency"), max_length=5, default=u"SEK")
+    from_date = models.DateField(_("from date"), default=date.today)
 
     class Meta:
         verbose_name = _("good cost")
