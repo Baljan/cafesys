@@ -51,28 +51,32 @@
     {% endfor %}
 </div><!--.main-->
 <div class="grid_3 omega secondary">
-    {% if other_groups %}
-    <div class="groups">
-        <h2>{% trans "Other Groups" %}</h2>
-        <ul>
-            {% for group in other_groups %}
-            <li>
-                <a href="{% url group group.name%}">{{group.name}}</a>
-            </li>
+    <div class="quick-nav layout">
+        {% if other_groups %}
+        <div class="groups">
+            <h2>{% trans "Other Groups" %}</h2>
+            <ul>
+                {% for group in other_groups %}
+                <li>
+                    <a href="{% url group group.name%}">{{group.name}}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if pseudo_groups %}
+        <div class="jump-to">
+            <h2>{% trans "Jump To" %}</h2>
+            <ul>
+            {% for pgroup in pseudo_groups %}
+                {% if pgroup.members|length %}
+                    <li><a href="#{{pgroup.name}}">{{pgroup.name}}</a></li>
+                {% endif %}
             {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-    
-    <div class="jump-to">
-        <h2>{% trans "Jump To" %}</h2>
-        <ul>
-        {% for pgroup in pseudo_groups %}
-            {% if pgroup.members|length %}
-                <li><a href="#{{pgroup.name}}">{{pgroup.name}}</a></li>
-            {% endif %}
-        {% endfor %}
-        </li>
+            </li>
+        </div>
+        {% endif %}
     </div>
 </div><!--.secondary-->
 <div class="clear"></div>

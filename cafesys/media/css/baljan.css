@@ -480,3 +480,6 @@ body.become-worker .toggle-request {
     text-align: right;
 }
 
+body.group .quick-nav {
+    position: fixed;
+}
