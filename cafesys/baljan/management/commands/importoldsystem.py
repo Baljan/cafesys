@@ -105,6 +105,7 @@ SELECT nummer FROM telefon WHERE persid=%d
 
             u.email = u"%s@%s" % (
                 decode(ud['login']).lower(), settings.USER_EMAIL_DOMAIN)
+            u.set_unusable_password()
             u.save()
 
             p = u.get_profile()
