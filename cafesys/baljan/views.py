@@ -260,7 +260,6 @@ def see_group(request, group_name):
     tpl['other_groups'] = pseudogroups.real_only().exclude(name__exact=group_name).order_by('name')
     tpl['members'] = members = group.user_set.all().order_by('first_name', 'last_name')
     tpl['pseudo_groups'] = pseudo_groups = pseudogroups.for_group(group)
-    print pseudo_groups[0].members()
     return render_to_response('baljan/group.html', tpl,
             context_instance=RequestContext(request))
 
