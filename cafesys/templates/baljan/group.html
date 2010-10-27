@@ -25,11 +25,19 @@
     <div class="pseudo-group" id="{{pgroup.name}}">
         <h2><a href="{{pgroup.link}}">{{pgroup.name}}</a> ({{pgroup.members|length}})</h2>
         <ul>
-        {% for member in pgroup.members %}
-            <li>{{member|user_link}}</li>
-        {% empty %}
-            <li>{% trans "no members" %}</li>
-        {% endfor %}
+        {% if pgroup.titles %}
+            {% for member, title in pgroup.members_with_titles %}
+                <li>{{title|join:", "}} {{member|user_link}}</li>
+            {% empty %}
+                <li>{% trans "no members" %}</li>
+            {% endfor %}
+        {% else %}
+            {% for member in pgroup.members %}
+                <li>{{member|user_link}}</li>
+            {% empty %}
+                <li>{% trans "no members" %}</li>
+            {% endfor %}
+        {% endif %}
         </ul>
     </div>
     {% endfor %}

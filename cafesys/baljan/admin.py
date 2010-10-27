@@ -262,3 +262,18 @@ class RefillSeriesAdmin(admin.ModelAdmin):
     )
 
 admin.site.register(baljan.models.RefillSeries, RefillSeriesAdmin)
+
+
+class BoardPostAdmin(admin.ModelAdmin):
+    search_fields = (
+            'user__first_name',
+            'user__last_name',
+            'user__username', 
+            'semester__name', 
+            'post', 
+            )
+    list_display = ('semester', 'user', 'post')
+    list_filter = ('post',)
+
+admin.site.register(baljan.models.BoardPost, BoardPostAdmin)
+

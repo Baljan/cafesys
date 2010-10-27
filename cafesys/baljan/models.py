@@ -388,6 +388,16 @@ class Semester(Made):
     def upcoming(self):
         return not self.past()
 
+    def year(self):
+        assert self.start.year == self.end.year
+        return self.start.year
+
+    def spring(self):
+        return self.name.startswith('VT')
+
+    def fall(self):
+        return not self.spring()
+
     def clean(self):
         from django.core.exceptions import ValidationError
         if not self.start <= self.end:
@@ -911,3 +921,21 @@ class BalanceCode(Made):
         verbose_name = _('balance code')
         verbose_name_plural = _('balance codes')
         ordering = ('-id', '-refill_series__id')
+
+
+class BoardPost(Made):
+    semester = models.ForeignKey(Semester, verbose_name=_("semester"))
+    user = models.ForeignKey('auth.User', verbose_name=_("user"))
+    post = models.CharField(_("post"), max_length=50)
+
+    class Meta:
+        verbose_name = _('board post')
+        verbose_name_plural = _('board posts')
+        ordering = ('-semester__start', 'user__first_name', 'user__last_name')
+
+    def __unicode__(self):
+        return _(u"%(user)s %(post)s in %(sem)s") % {
+            'user': self.user.username, 
+            'post': self.post, 
+            'sem': self.semester.name,
+        }

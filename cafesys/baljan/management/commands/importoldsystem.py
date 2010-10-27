@@ -4,9 +4,11 @@ from django.contrib.auth.models import User, Group
 import MySQLdb
 import MySQLdb.cursors
 from datetime import date
-from baljan.models import Profile, Semester, ShiftSignup, Shift
+from baljan.models import Profile, Semester, ShiftSignup, Shift, BoardPost
 from baljan.models import OnCallDuty
 from baljan.util import get_logger
+from baljan import pseudogroups
+from dateutil.relativedelta import relativedelta
 import re
 
 log = get_logger('baljan.migration')
@@ -122,26 +124,37 @@ SELECT nummer FROM telefon WHERE persid=%d
         fetched = c.fetchall()
         return fetched
 
+    def _is_spring(self, day):
+        return day.month < 7
+
+    def _sem_for_day(self, day):
+        sem = Semester.objects.for_date(day)
+        if sem is None: # automatically create semester
+            spring = self._is_spring(day)
+            if spring:
+                name = "VT%s" % day.year
+                start = date(day.year, 1, 1)
+                end = date(day.year, 7, 1)
+            else:
+                name = "HT%s" % day.year
+                start = date(day.year, 8, 1)
+                end = date(day.year, 12, 31)
+
+            sem = Semester(name=name, start=start, end=end)
+            log.info('created %r' % sem)
+            try:
+                sem.save()
+            except:
+                raise Exception("day=%s (m=%s), start=%s, end=%s" % (day, day.month, sem.start, sem.end))
+        return sem
+
     def setup_shifts(self):
         shift_dicts = self.get_shift_dicts()
         decode = self._decode
         created_count, existing_count, skipped = 0, 0, []
         for sd in shift_dicts:
             day = sd['dag']
-            sem = Semester.objects.for_date(day)
-            if sem is None: # automatically create semester
-                spring = day.month < 8
-                if spring:
-                    name = "VT%s" % day.year
-                    start = date(day.year, 1, 1)
-                    end = date(day.year, 7, 1)
-                else:
-                    name = "HT%s" % day.year
-                    start = date(day.year, 8, 1)
-                    end = date(day.year, 12, 24)
-                sem = Semester(name=name, start=start, end=end)
-                log.info('created %r' % sem)
-                sem.save()
+            sem = self._sem_for_day(day)
 
             ud = self.get_user_dicts(user_id=sd['persid'])
             if ud is None:
@@ -232,6 +245,135 @@ SELECT nummer FROM telefon WHERE persid=%d
         log.info('found %d/%d board/worker member(s)' % (
             len(board_members), len(workers)))
 
+    def _get_styrelse_persids(self):
+        c = self._cursor()
+        c.execute('''SELECT DISTINCT persid FROM styrelse''')
+        fetched = c.fetchall()
+        persids = [p['persid'] for p in fetched]
+        return persids
+
+    def _norm_sem_day(self, day):
+        if self._is_spring(day):
+            return date(day.year, 2, 1)
+        return date(day.year, 9, 1)
+
+    def _sems_between(self, start, end):
+        start_norm = self._norm_sem_day(start)
+        end_norm = self._norm_sem_day(end)
+        start_sem = self._sem_for_day(start_norm)
+        end_sem = self._sem_for_day(end_norm)
+
+        current = start_norm
+        added_sem = start_sem
+        sems = [added_sem]
+        while added_sem != end_sem:
+            if self._is_spring(current):
+                current = date(current.year, 9, 1)
+            else:
+                current = date(current.year+1, 2, 1)
+            added_sem = self._sem_for_day(current)
+            if not added_sem in sems:
+                sems.append(added_sem)
+        return sems
+
+    def _add_to_board_groups(self, persid):
+        decode = self._decode
+        c = self._cursor()
+        c.execute('''
+SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
+        ''' % persid)
+        fetched = c.fetchall()
+        ts_med_post = []
+        for row in fetched:
+            p = decode(row['post']) if row['post'] else None
+            ts_med_post.append(
+                [row['ts'], row['med'], p]
+            )
+
+        ts_med_post.append([date.today(), 0, None]) # needed for current members
+
+        try:
+            ud = self.get_user_dicts(user_id=persid)
+            user = User.objects.get(username__exact=decode(ud['login']))
+        except:
+            log.warning('skipped user with persid=%s' % persid)
+            return
+
+        def valid_post(post):
+            return post and not post in ('null', '0')
+
+        in_board = False
+        last_post = None
+        last_became_member = None
+        _medsum = 0
+        still_board = False
+        current_sem = Semester.objects.for_date(date.today())
+
+        bgroup = Group.objects.get(name__exact=settings.BOARD_GROUP)
+        for ts, med, post in ts_med_post:
+            _medsum += med
+            if _medsum == 1:
+                if valid_post(post) or last_post:
+                    in_board = True
+                    still_board = True
+                    if last_became_member:
+                        log.debug('%r in board' % user)
+                    else:
+                        last_became_member = ts
+                        log.debug('%r in board since %s' % (user, last_became_member))
+            elif _medsum == 0:
+                still_board = False
+            else:
+                assert False
+
+            # Hurry board removal if date is too close.
+            if med == -1 and ts.month in  (8, 9):
+                log.debug("hurried board removal of %r" % user)
+                still_board = False
+                in_board = False
+
+            if in_board and valid_post(post):
+                last_post = post
+
+            if in_board:
+                sems = self._sems_between(last_became_member, ts)
+                for sem in sems:
+                    g = pseudogroups.manual_group_from_semester(bgroup, sem)
+                    if not g in user.groups.all():
+                        user.groups.add(g)
+                        log.info('added %s to %s' % (user, g))
+
+                    if sem == current_sem:
+                        if BoardPost.objects.filter(
+                                user=user,
+                                semester=sem).count():
+                            pass
+                        else:
+                            bpost, created = BoardPost.objects.get_or_create(
+                                user=user,
+                                semester=sem,
+                                post=last_post,
+                            )
+                            if created:
+                                log.info('created %r' % bpost)
+
+            if not still_board:
+                in_board = False
+                last_became_member = None
+                log.debug('%r not in board' % user)
+
+        return fetched
+
+
+    def setup_board_groups(self):
+        c = self._cursor()
+        persids = self._get_styrelse_persids()
+        decode = self._decode
+        for persid in persids:
+            self._add_to_board_groups(persid)
+
+
+
     def manual_board(self):
         bgroup = Group.objects.get(name__exact=settings.BOARD_GROUP)
         for uname in manual_board:
@@ -255,3 +397,4 @@ server. See OLD_SYSTEM_* settings.
         #imp.setup_oncallduties()
         #imp.setup_current_workers_and_board()
         #imp.manual_board()
+        imp.setup_board_groups()
