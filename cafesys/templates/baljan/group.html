@@ -3,11 +3,17 @@
 {% load humanize %}
 {% load uni_form_tags %}
 {% load baljan_extras %}
+{% load cache %}
+
+{% get_current_language as LANGUAGE_CODE %}
 
 {% block head_title %}{{group.name}}{% endblock %}
 
 {% block body_class %}group{% endblock %}
 {% block body %}
+
+{% cache 43200 group_and_pseudo group.name LANGUAGE_CODE %}
+
 <h1>{% trans "Group" %}: {{group.name}}</h1>
 <div class="grid_7 alpha main">
     <div class="members">
@@ -22,24 +28,26 @@
     </div>
 
     {% for pgroup in pseudo_groups %}
-    <div class="pseudo-group" id="{{pgroup.name}}">
-        <h2><a href="{{pgroup.link}}">{{pgroup.name}}</a> ({{pgroup.members|length}})</h2>
-        <ul>
-        {% if pgroup.titles %}
-            {% for member, title in pgroup.members_with_titles %}
-                <li>{{title|join:", "}} {{member|user_link}}</li>
-            {% empty %}
-                <li>{% trans "no members" %}</li>
-            {% endfor %}
-        {% else %}
-            {% for member in pgroup.members %}
-                <li>{{member|user_link}}</li>
-            {% empty %}
-                <li>{% trans "no members" %}</li>
-            {% endfor %}
+        {% if pgroup.members|length %}
+            <div class="pseudo-group" id="{{pgroup.name}}">
+                <h2><a href="{{pgroup.link}}">{{pgroup.name}}</a> ({{pgroup.members|length}})</h2>
+                <ul>
+                {% if pgroup.titles %}
+                    {% for member, title in pgroup.members_with_titles %}
+                        <li>{{title|join:", "}} {{member|user_link}}</li>
+                    {% empty %}
+                        <li>{% trans "no members" %}</li>
+                    {% endfor %}
+                {% else %}
+                    {% for member in pgroup.members %}
+                        <li>{{member|user_link}}</li>
+                    {% empty %}
+                        <li>{% trans "no members" %}</li>
+                    {% endfor %}
+                {% endif %}
+                </ul>
+            </div>
         {% endif %}
-        </ul>
-    </div>
     {% endfor %}
 </div><!--.main-->
 <div class="grid_3 omega secondary">
@@ -60,12 +68,16 @@
         <h2>{% trans "Jump To" %}</h2>
         <ul>
         {% for pgroup in pseudo_groups %}
-            <li><a href="#{{pgroup.name}}">{{pgroup.name}}</a></li>
+            {% if pgroup.members|length %}
+                <li><a href="#{{pgroup.name}}">{{pgroup.name}}</a></li>
+            {% endif %}
         {% endfor %}
         </li>
     </div>
 </div><!--.secondary-->
 <div class="clear"></div>
+
+{% endcache %}
 
 {% endblock %}
 
