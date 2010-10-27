@@ -11,6 +11,8 @@ import re
 
 log = get_logger('baljan.migration')
 
+manual_board = []
+
 def _assoc(cursor, data):
     desc = cursor.description
     d = {}
@@ -228,11 +230,22 @@ SELECT nummer FROM telefon WHERE persid=%d
 
         board_members = User.objects.filter(oncallduty__shift__semester=sem).distinct()
         for board_member in board_members:
+            board_member.is_staff = True
             if not bgroup in board_member.groups.all():
                 board_member.groups.add(bgroup)
+            board_member.save()
 
         log.info('found %d/%d board/worker member(s)' % (
             len(board_members), len(workers)))
+
+    def manual_board(self):
+        bgroup = Group.objects.get(name__exact=settings.BOARD_GROUP)
+        for uname in manual_board:
+            user = User.objects.get(username=uname)
+            user.is_staff = True
+            if not bgroup in user.groups.all():
+                user.groups.add(bgroup)
+            user.save()
 
 
 class Command(BaseCommand):
@@ -245,5 +258,6 @@ server. See OLD_SYSTEM_* settings.
         imp = Import()
         #imp.setup_users()
         #imp.setup_shifts()
-        imp.setup_oncallduties()
-        imp.setup_current_workers_and_board()
+        #imp.setup_oncallduties()
+        #imp.setup_current_workers_and_board()
+        #imp.manual_board()
