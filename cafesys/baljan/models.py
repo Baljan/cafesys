@@ -741,8 +741,7 @@ class GoodCost(Made):
     cost = models.PositiveIntegerField(_("cost"), 
         help_text=_("the cost of goods change over time"))
     from_date = models.DateField(_("from date"), default=date.today)
-    currency = models.CharField(_("currency"), max_length=5, default=u"SEK", 
-            help_text=_("in case Sweden changes currency"))
+    currency = models.CharField(_("currency"), max_length=5, default=u"SEK")
 
     class Meta:
         verbose_name = _("good cost")
