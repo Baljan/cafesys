@@ -1089,6 +1089,11 @@ msgid ""
 "                href=\"mailto:%(CONTACT_EMAIL)s\">send us an email</a>. \n"
 "            "
 msgstr ""
+"\n"
+"                <strong><a href=\"%(profile_link)s\">Du</a> är\n"
+"                en jobbare.</strong> Om du vill sluta att vara en, <a\n"
+"                href=\"mailto:%(CONTACT_EMAIL)s\">maila oss</a>. \n"
+"            "
 
 #: templates/baljan/become_worker.html:47
 msgid "recall pending request"
