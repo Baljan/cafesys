@@ -55,7 +55,7 @@ msgstr "%d SEK"
 #: _liu/pdf.py:47 baljan/pdf.py:48
 #, python-format
 msgid "expires no sooner than %s"
-msgstr "går ej ut tidigare än %s"
+msgstr "minst giltig till %s"
 
 #: accounting/views.py:28
 #, python-format
