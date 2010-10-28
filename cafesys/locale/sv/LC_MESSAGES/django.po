@@ -1261,7 +1261,7 @@ msgstr "inga medlemmar"
 
 #: templates/baljan/group.html:34
 msgid "↑ back to top"
-msgstr ""
+msgstr "↑ till toppen"
 
 #: templates/baljan/group.html:59
 msgid "Other Groups"
