@@ -12,7 +12,11 @@ urlpatterns = patterns("baljan.views",
     url(r"^semester/$", 'current_semester'),
     url(r"^day/(?P<day>[0-9-]+)$", 'day_shifts'),
     url(r"^semester/(?P<name>\w+)$", 'semester'),
+
     url(r"^profile$", 'profile'),
+    url(r"^credits$", 'credits'),
+    url(r"^orders$", 'orders'),
+
     url(r"^user/(.*)$", 'see_user'),
     url(r"^group/(.*)$", 'see_group', name='group'),
     url(r"^friend-request/toggle/([a-zA-Z0-9_]+)/(.*)$", 'toggle_friend_request'),

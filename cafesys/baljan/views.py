@@ -14,6 +14,7 @@ import baljan.forms
 import baljan.models
 import baljan.search
 from baljan import pseudogroups
+from baljan import credits as creditsmodule
 from baljan import friendrequests
 from baljan import trades
 from django.contrib.auth.models import User, Permission, Group
@@ -184,6 +185,39 @@ def callduties_for(user):
 def profile(request):
     u = request.user
     return see_user(request, who=u.username)
+
+
+@login_required
+def credits(request):
+    user = request.user
+    profile = user.get_profile()
+    tpl = {}
+    form = baljan.forms.RefillForm()
+    if request.method == 'POST':
+        form = baljan.forms.RefillForm(request.POST)
+        if form.is_valid():
+            entered_code = form.cleaned_data['code']
+            creditsmodule.is_used(entered_code, user) # for logging
+            try:
+                creditsmodule.manual_refill(entered_code, user)
+                tpl['used_card'] = True
+            except creditsmodule.BadCode, e:
+                tpl['invalid_card'] = True
+
+    tpl['refill_form'] = form 
+    tpl['currently_available'] = profile.balcur()
+    tpl['used_cards'] = used_cards = creditsmodule.used_by(user)
+
+    return render_to_response('baljan/credits.html', tpl,
+            context_instance=RequestContext(request))
+
+
+@login_required
+def orders(request):
+    user = request.user
+    tpl = {}
+    return render_to_response('baljan/credits.html', tpl,
+            context_instance=RequestContext(request))
 
 
 def see_user(request, who):

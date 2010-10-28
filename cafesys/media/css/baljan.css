@@ -356,7 +356,7 @@ body .main div h2, body .secondary div h2 {
     padding: 0;
     margin-bottom: .5em;
 }
-body .undo-highlight {
+body .undo-highlight, .invalid {
     background: #fee !important;
     border: 1px solid #f00 !important;
 }
@@ -375,11 +375,11 @@ body .confirmed-highlight, .saved {
 .confirmed-highlight, .saved {
     color: #090;
 }
-.saved {
-    text-align: center;
-}
-.undo-highlight {
+.undo-highlight, .invalid {
     color: #f00;
+}
+.saved, .invalid {
+    text-align: center;
 }
 
 body.semester .day-name, body.semester .week {
@@ -472,6 +472,14 @@ body.become-worker .toggle-request {
     text-align: center;
 }
 
+body.credits .credits {
+    border: 1px solid #ccc;
+    background-color: #eee;
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+}
+
 .admin-link {
     background: inherit !important;
     border: none !important;
@@ -479,3 +487,4 @@ body.become-worker .toggle-request {
     padding: 0 !important;
     text-align: right;
 }
+

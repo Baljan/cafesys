@@ -36,6 +36,9 @@ class Profile(Made):
     balance_currency = models.CharField(_("balance currency"), max_length=5, default=u"SEK", 
             help_text=_("currency"))
 
+    def balcur(self):
+        return u"%s %s" % (self.balance, self.balance_currency)
+
     def get_absolute_url(self):
         return self.user.get_absolute_url()
 
@@ -896,24 +899,14 @@ class BalanceCode(Made):
             verbose_name=_("used by"))
     used_at = models.DateField(_("used at"), blank=True, null=True)
 
-    def __str__(self):
-        fmt = "%d.%d" % (self.refill_series.id, self.id)
+    def serid(self):
+        return u"%d.%d" % (self.refill_series.id, self.id)
 
-        if self.used_by:
-            try:
-                usedpart = _('used by %(user)s %(at)s') % {
-                        'user': self.used_by.username, 
-                        'at': self.used_at.strftime('%Y-%m-%d')}
-            except:
-                usedpart = _('used by %s') % self.used_by.username
-        else:
-            usedpart = _('unused')
+    def __unicode__(self):
+        return self.serid()
 
-        series = self.refill_series
-        fmt = _("%(fmt)s (%(usedpart)s)") % {
-                'fmt': fmt, 
-                'usedpart': usedpart}
-        return smart_str(fmt)
+    def valcur(self):
+        return u"%s %s" % (self.value, self.currency)
 
     class Meta:
         verbose_name = _('balance code')

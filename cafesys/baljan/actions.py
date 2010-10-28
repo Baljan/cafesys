@@ -36,9 +36,10 @@ def categories_and_actions(request):
             #Action(_('schedule'), 'cal.views.worker_calendar'),
             #Action(_('swaps'), 'cal.views.swappable'),
             )),
-        ('regulars', _('students'), (
-            #Action(_('recharge card'), 'accounting.views.index'),
-            #Action(_('card order history'), 'accounting.views.order_history'),
+        ('regulars', _('your account'), (
+            Action(_('profile'), 'baljan.views.profile'),
+            Action(_('credits'), 'baljan.views.credits'),
+            Action(_('orders'), 'baljan.views.orders'),
             )),
         ('anyone', _('users'), (
             Action(_('work planning'), 'baljan.views.current_semester'),
