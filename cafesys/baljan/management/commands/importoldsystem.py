@@ -227,8 +227,8 @@ SELECT nummer FROM telefon WHERE persid=%d
         if sem is None:
             return
 
-        wgroup = Group.objects.get(name__exact=settings.WORKER_GROUP)
-        bgroup = Group.objects.get(name__exact=settings.BOARD_GROUP)
+        wgroup, wcreat = Group.objects.get_or_create(name=settings.WORKER_GROUP)
+        bgroup, bcreat = Group.objects.get_or_create(name=settings.BOARD_GROUP)
 
         workers = User.objects.filter(shiftsignup__shift__semester=sem).distinct()
         for worker in workers:
@@ -375,7 +375,7 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
 
 
     def manual_board(self):
-        bgroup = Group.objects.get(name__exact=settings.BOARD_GROUP)
+        bgroup, bcreat = Group.objects.get_or_create(name=settings.BOARD_GROUP)
         for uname in manual_board:
             user = User.objects.get(username=uname)
             user.is_staff = True
@@ -392,9 +392,9 @@ server. See OLD_SYSTEM_* settings.
 
     def handle(self, *args, **options):
         imp = Import()
-        #imp.setup_users()
-        #imp.setup_shifts()
-        #imp.setup_oncallduties()
-        #imp.setup_current_workers_and_board()
-        #imp.manual_board()
+        imp.setup_users()
+        imp.setup_shifts()
+        imp.setup_oncallduties()
+        imp.setup_current_workers_and_board()
+        imp.manual_board()
         imp.setup_board_groups()
