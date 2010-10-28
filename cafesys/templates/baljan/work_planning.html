@@ -12,7 +12,7 @@
 {% block body_class %}semester{% endblock %}
 {% block body %}
 
-{% if perms.baljan.change_semester %}
+{% if perms.baljan.change_semester and selected_semester %}
 <div class="admin-link">
     <a href="{% url admin:baljan_semester_change selected_semester.id %}">{% trans "admin" %}</a>
 </div>
