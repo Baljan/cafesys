@@ -29,7 +29,7 @@ class Made(models.Model):
 
 
 class Profile(Made):
-    user = models.ForeignKey('auth.User', verbose_name=_("user"))
+    user = models.OneToOneField('auth.User', verbose_name=_("user"), editable=False)
     friend_profiles = models.ManyToManyField('self', verbose_name=_("friend profiles"), null=True, blank=True)
     mobile_phone = models.CharField(_("mobile phone number"), max_length=10, blank=True, null=True)
     balance = models.IntegerField(default=0)
