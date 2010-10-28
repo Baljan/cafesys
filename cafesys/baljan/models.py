@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext as _nl
 from django.utils.translation import string_concat
 from django.conf import settings
-from datetime import date
+from datetime import date, datetime
 import random
 import string
 from dateutil.relativedelta import relativedelta
@@ -759,6 +759,7 @@ class GoodCost(Made):
 
 
 class Order(Made):
+    put_at = models.DateTimeField(_("put at"), default=datetime.now)
     user = models.ForeignKey('auth.User', verbose_name=_("user"))
     paid = models.PositiveIntegerField(_("paid"))
     currency = models.CharField(_("currency"), max_length=5, default=u"SEK")
