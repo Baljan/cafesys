@@ -22,6 +22,9 @@ def categories_and_actions(request):
         student = None
 
     levels = (
+        ('superusers', _('superusers'), (
+            # nil
+            )),
         (settings.BOARD_GROUP, _('the board'), (
             #Action(_('semesters'), 'baljan.views.current_semester'),
             #Action(_('work applications'), '#', resolve_func=None),
@@ -57,7 +60,10 @@ def categories_and_actions(request):
                 group = real_group
                 break
         else:
-            group = 'regulars'
+            if user.is_superuser:
+                group = 'superusers'
+            else:
+                group = 'regulars'
     else:
         group = 'anyone'
 
