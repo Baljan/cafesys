@@ -760,6 +760,9 @@ class GoodCost(Made):
 
 class Order(Made):
     user = models.ForeignKey('auth.User', verbose_name=_("user"))
+    paid = models.PositiveIntegerField(_("paid"))
+    currency = models.CharField(_("currency"), max_length=5, default=u"SEK")
+    accepted = models.BooleanField(_("accepted"), default=True)
 
     class Meta:
         verbose_name = _("order")
