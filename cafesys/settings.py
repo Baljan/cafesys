@@ -206,6 +206,7 @@ INSTALLED_APPS = [
     #"stats",
     "baljan",
 
+    "djcelery",
     "gunicorn",
     "indexer",
     "paging",
@@ -217,7 +218,7 @@ INSTALLED_APPS = [
 ]
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 SENTRY_THRASHING_TIMEOUT = 0
 SENTRY_TESTING = True
@@ -289,6 +290,23 @@ PRICE_LIST_ROW_HEIGHT = 40 # px
 #OLD_SYSTEM_MYSQL_PASSWORD = 'foo'
 #OLD_SYSTEM_MYSQL_DB = 'foo'
 #OLD_SYSTEM_MYSQL_HOST = 'localhost'
+
+SOUND_DIR = os.path.join(PROJECT_ROOT, "media", "sounds")
+SOUND_CMD = 'play'
+SOUND_SUCCESS_NORMAL = 'smb3_coin.wav'
+SOUND_SUCCESS_REBATE = 'smb3_jump.wav'
+SOUND_NO_FUNDS = 'mk64_mario04.wav'
+SOUND_ERROR = 'mk64_bowser02.wav'
+SOUND_START = 'mk64_countdown.wav'
+SOUND_LEADER = 'mk64_mario03.wav'
+
+import djcelery
+djcelery.setup_loader()
+BROKER_HOST = "localhost"
+BROKER_PORT = 5672
+BROKER_USER = "guest"
+BROKER_PASSWORd = "guest"
+BROKER_VHOST = "/"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = ''
