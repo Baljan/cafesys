@@ -53,8 +53,8 @@ def invalidate_template_cache(fragment_name, *variables):
 class Logger(object):
     """Wrapper around regular loggers.
 
-    'exc_auto=True' can be added to calls to add 'exc_info=sys.exc_info()' to
-    the delegate.
+    Provide 'exc_auto=True' to add 'exc_info=sys.exc_info()' to the delegate
+    call.
     """
     def __init__(self, delegate_logger):
         self.delegate = delegate_logger
