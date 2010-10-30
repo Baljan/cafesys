@@ -13,3 +13,5 @@ python-ldap
 #Geraldo
 numpy
 django-sentry
+
+django-celery
