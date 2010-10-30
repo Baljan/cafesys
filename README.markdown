@@ -55,3 +55,6 @@ please let someone know so that we can update this readme.
 
 ## LDAP
  * The `python-ldap` module needs (in yum): `openldap openldap-devel`
+
+## RabbitMQ
+ * For IPC. In yum: `rabbitmq-server`
