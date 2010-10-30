@@ -40,7 +40,7 @@ def available_for_call_duty():
     users = User.objects.filter( # FIXME: make permission-based
             Q(groups__name=settings.BOARD_GROUP) |
             Q(is_staff=True) |
-            Q(is_superuser=True))
+            Q(is_superuser=True)).order_by('first_name', 'last_name').distinct()
     return users
 
 def invalidate_template_cache(fragment_name, *variables):
