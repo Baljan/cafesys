@@ -34,6 +34,15 @@ SOUND_FUNCS_AND_DESCS = [
     (play_leader, "leader"),
 ]
 
+SOUND_FUNCS_AND_LIKELINESS = [
+    (play_start, 0.01),
+    (play_error, 0.02),
+    (play_leader, 0.05),
+    (play_no_funds, 0.1),
+    (play_success_rebate, 0.5),
+    (play_success_normal, 0.8),
+]
+
 def test_play_all():
     for (func, msg) in SOUND_FUNCS_AND_DESCS:
         log.debug(msg)
