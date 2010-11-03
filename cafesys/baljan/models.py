@@ -495,7 +495,7 @@ class Shift(Made):
     def worker_timedesc(self):
         """Description of the working hours."""
         if self.span == 0:
-            return _("7:30 am to ca 12.30 pm")
+            return _("7:30 am to ca 12:30 pm")
         if self.span == 1:
             return _("for people on call only")
         if self.span == 2:
@@ -505,7 +505,7 @@ class Shift(Made):
     def oncall_timedesc(self):
         """Description of the working hours."""
         if self.span == 0:
-            return _("7:30 am to ca 8.00 am")
+            return _("7:30 am to ca 8:00 am")
         if self.span == 1:
             return _("12:00 pm to ca 12:30 pm")
         if self.span == 2:

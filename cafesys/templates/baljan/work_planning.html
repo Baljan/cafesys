@@ -101,7 +101,7 @@
                         <span class="{% if su.can_trade %}tradable{% endif %}">{{su.user|name_link}}</span>{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                         {% if sh.span == 1 %}
-                            {% trans "overlap" %}
+                            ↕ {% trans "overlap" %} ↕
                         {% endif %}
                     </td>
                     <td class="on-call{%if sh.accepts_callduty%} accepts{%endif%}">
