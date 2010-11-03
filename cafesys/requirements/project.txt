@@ -15,3 +15,6 @@ numpy
 django-sentry
 
 django-celery
+
+# Linear programming
+PuLP
