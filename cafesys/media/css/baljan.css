@@ -418,6 +418,9 @@ body.semester .today {
 body.semester ul.users {
     padding: 1em;
 }
+body.semester .overlap {
+    color: #aaa;
+}
 
 .top-nav {
     margin-bottom: 1em;
