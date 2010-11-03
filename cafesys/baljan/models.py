@@ -514,19 +514,12 @@ class Shift(Made):
 
 
     def ampm(self, i18n=True):
-        if i18n:
-            transl = _
-        else:
-            def transl(s):
-                return s
-
-        if self.span == 0:
-            return transl("am")
-        if self.span == 1:
-            return transl("lunch")
-        if self.span == 2:
-            return transl("pm")
-        assert False
+        lookup = {
+            0: (_("am"), "am"),
+            1: (_("lunch"), "lunch"),
+            2: (_("pm"), "pm"),
+        }
+        return lookup[self.span][0 if i18n else 1]
 
     def name(self):
         return string_concat(self.timeofday(), ' ', self.when.strftime('%Y-%m-%d'))
