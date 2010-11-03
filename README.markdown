@@ -58,3 +58,6 @@ please let someone know so that we can update this readme.
 
 ## RabbitMQ
  * For IPC. In yum: `rabbitmq-server`
+
+## Linear Programming
+ * For distributing work shifts. In yum: `glpk glpk-utils`
