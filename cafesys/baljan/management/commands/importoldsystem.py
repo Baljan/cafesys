@@ -5,9 +5,10 @@ import MySQLdb
 import MySQLdb.cursors
 from datetime import date
 from baljan.models import Profile, Semester, ShiftSignup, Shift, BoardPost
-from baljan.models import OnCallDuty
+from baljan.models import OnCallDuty, Good, Order
 from baljan.util import get_logger
 from baljan import pseudogroups
+from baljan import orders
 from dateutil.relativedelta import relativedelta
 import re
 
@@ -61,12 +62,14 @@ SELECT user.*, person.* FROM user INNER JOIN person ON person.id=user.id
 ''')
 
             fetched = c.fetchall()
+            c.close()
             return fetched
         else:
             c.execute('''
 SELECT user.*, person.* FROM user INNER JOIN person ON person.id=user.id WHERE person.id=%d
 ''' % user_id)
             fetched = c.fetchone()
+            c.close()
             return fetched
 
     def _get_phone(self, user_dict):
@@ -373,7 +376,6 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
             self._add_to_board_groups(persid)
 
 
-
     def manual_board(self):
         bgroup, bcreat = Group.objects.get_or_create(name=settings.BOARD_GROUP)
         for uname in manual_board:
@@ -383,6 +385,80 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
                 user.groups.add(bgroup)
             user.save()
 
+
+    def _get_logkort(self):
+        c = self._cursor()
+        c.execute('''SELECT * FROM logkort''')
+        return c.fetchall()
+
+
+    def setup_orders(self):
+        logkort = self._get_logkort()
+        created_count, existing_count, skipped = 0, 0, []
+        decode = self._decode
+        clerk = orders.Clerk()
+        coffee = Good.objects.get(
+            title__exact='kaffe/te', 
+            description__exact='pappersmugg'
+        )
+
+        users = {}
+        goods = [(coffee, 1),]
+        start_adding = False
+        start_at = Order.objects.all().order_by('-put_at')[0].put_at
+        for lk in logkort:
+            daytime = lk['ts'].strftime('%Y-%m-%d %H:%M')
+            print daytime
+
+            if lk['ts'] < start_at:
+                continue
+
+            if not lk['persid']:
+                skipped.append(lk)
+                log.warning('no persid')
+                continue
+
+            ud = self.get_user_dicts(user_id=lk['persid'])
+            if ud is None:
+                log.warning('bad user %d' % lk['persid'])
+                skipped.append(lk)
+                continue
+
+            if lk['felid'] != 0:
+                log.warning('error %d' % lk['felid'])
+                skipped.append(lk)
+                continue
+            
+            uname = decode(ud['login']).lower()
+            if users.has_key(uname):
+                user = users[uname]
+            else:
+                try:
+                    user = User.objects.get(username__exact=uname)
+                    users[uname] = user
+                except:
+                    log.warning('bad username %s' % uname)
+                    continue
+
+            if not start_adding:
+                if Order.objects.filter(user=user, put_at=lk['ts']).count():
+                    skipped.append(lk)
+                    log.debug('skipped, already imported (%s)' % daytime)
+                    continue
+                else:
+                    start_adding = True
+
+            preorder = orders.FreePreOrder(user, goods, lk['ts'])
+            processed = clerk.process(preorder)
+            if processed.accepted():
+                log.info('accepted order for %r (%s)' % (user, daytime))
+            else:
+                log.info('denied order for %r (%s)' % (user, daytime))
+
+        log.info('%d/%d/%d order(s) created/existing/skipped' % (
+            created_count, existing_count, len(skipped)))
+        if len(skipped):
+            log.warning('skipped: %s' % ", ".join(skipped))
 
 class Command(BaseCommand):
     args = ''
@@ -398,3 +474,4 @@ server. See OLD_SYSTEM_* settings.
         imp.setup_current_workers_and_board()
         imp.manual_board()
         imp.setup_board_groups()
+        imp.setup_orders()
