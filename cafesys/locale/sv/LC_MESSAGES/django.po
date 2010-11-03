@@ -1277,7 +1277,7 @@ msgstr "gör bytbar"
 
 #: templates/baljan/day.html:76
 msgid "The morning and afternoon shifts for workers overlap here."
-msgstr "Morgon- och eftermiddagspassen överlappar för jobbare här."
+msgstr "För- och eftermiddagspassen för jobbare överlappar varandra här."
 
 #: templates/baljan/day.html:78
 msgid "No workers have signed up."
