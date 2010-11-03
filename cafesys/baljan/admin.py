@@ -108,14 +108,15 @@ class GoodCostInline(admin.TabularInline):
     extra = 1
 
 def good_cost(g):
-    cost, cur = g.current_cost_tuple()
+    cost, cur = g.current_costcur()
     if cost is None:
         return _(u"unset")
-    return u"%d %s" % g.current_cost_tuple()
+    return u"%d %s" % (cost, cur)
 good_cost.short_description = _('cost')
 
 class GoodAdmin(admin.ModelAdmin):
-    search_fields = ('title', 'description', 'goodcost__cost', 'goodcost__currency')
+    search_fields = ('title', 'description', 'goodcost__cost', 
+            'goodcost__currency',)
     list_display = ('__unicode__', good_cost, )
     list_filter = ('title', )
     inlines = (GoodCostInline, )
@@ -126,8 +127,20 @@ class GoodCostAdmin(admin.ModelAdmin):
     list_display = ('good', 'cost', 'currency')
 admin.site.register(baljan.models.GoodCost, GoodCostAdmin)
 
-admin.site.register(baljan.models.Order)
-admin.site.register(baljan.models.OrderGood)
+
+class OrderGoodInline(admin.TabularInline):
+    model = baljan.models.OrderGood
+    extra = 1
+#admin.site.register(baljan.models.OrderGood)
+
+class OrderAdmin(admin.ModelAdmin):
+    search_fields = ('user__username', 'ordergood__good__title', 
+            'ordergood__good__description')
+    list_display = ('user', 'put_at', 'paid', 'currency', 'accepted')
+    list_filter = ('put_at', 'accepted')
+    inlines = (OrderGoodInline, )
+admin.site.register(baljan.models.Order, OrderAdmin)
+
 
 class BalanceCodeAdmin(admin.ModelAdmin):
     search_fields = ('code', 'used_by__username', 'id', 'refill_series__id')

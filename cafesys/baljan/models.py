@@ -712,21 +712,25 @@ class Good(Made):
     position = models.PositiveIntegerField(_("position"), default=0,
         help_text=_("when listing goods, this value tells at what position this good should be put"))
 
-    def current_cost(self):
-        today = date.today()
+    def cost(self, day):
         try:
-            gc = self.goodcost_set.filter(from_date__gte=today).order_by('from_date')[0]
+            gc = self.goodcost_set.filter(from_date__lt=day).order_by('-from_date')[0]
             return gc
         except IndexError:
             return None
 
-    def current_cost_tuple(self):
+    def current_cost(self):
+        return self.cost(date.today())
+
+    def costcur(self, day):
         """Returns a two-tuple like (5, 'SEK')."""
-        gc = self.current_cost()
+        gc = self.cost(day)
         if gc is None:
             return (None, None)
         return (gc.cost, gc.currency)
 
+    def current_costcur(self):
+        return self.costcur(date.today())
 
     class Meta:
         verbose_name = _("good")
@@ -765,10 +769,28 @@ class Order(Made):
     currency = models.CharField(_("currency"), max_length=5, default=u"SEK")
     accepted = models.BooleanField(_("accepted"), default=True)
 
+    def raw_costcur(self):
+        ordergoods = self.ordergood_set.all()
+        if len(ordergoods) == 0:
+            raise Exception('no order goods')
+
+        first_og = ordergoods[0]
+        cost = 0
+        cur = first_og.good.costcur(self.put_at)[1]
+        for og in ordergoods:
+            this_cost, this_cur = og.good.costcur()
+            if cur != this_cur:
+                raise Exception('order goods must have the same currency') 
+            cost += this_cost * og.count
+        return cost, cur
+
     class Meta:
         verbose_name = _("order")
         verbose_name_plural = _("orders")
-        ordering = ['-made']
+        ordering = ['-put_at']
+
+    def __unicode__(self):
+        return u"order by %s" % self.user.username
 
 
 class OrderGood(Made):
@@ -779,6 +801,12 @@ class OrderGood(Made):
     class Meta:
         verbose_name = _("order good")
         verbose_name_plural = _("order goods")
+
+    def __unicode__(self):
+        return _(u"%(count)dx %(good)s") % {
+                'count': self.count,
+                'good': self.good, 
+                }
 
 
 BALANCE_CODE_LENGTH = 8
