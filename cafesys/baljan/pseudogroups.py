@@ -40,6 +40,34 @@ def manual_group(base_group, is_spring, year):
     return group
 
 
+def _was_in(user, day, cls, base_group_name):
+    res = False
+    if day == date.today():
+        base = Group.objects.get(name__exact=base_group_name)
+        res = base in user.groups.all()
+    else:
+        sem = Semester.objects.for_date(day)
+        if sem is None:
+            res = False
+        else:
+            semgroup = cls(sem)
+            res = user in semgroup.members()
+    if res:
+        msg = "%r was in group %s on date %s"
+    else:
+        msg = "%r was not in group %s on date %s"
+    log.debug(msg % (user, base_group_name, day.strftime('%Y-%m-%d')))
+    return res
+
+
+def was_worker(user, day):
+    return _was_in(user, day, WorkerSemesterGroup, settings.WORKER_GROUP)
+
+
+def was_board(user, day):
+    return _was_in(user, day, BoardSemesterGroup, settings.BOARD_GROUP)
+
+
 class PseudoGroup(object):
     def members(self):
         raise NotImplementerError()
