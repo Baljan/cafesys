@@ -95,7 +95,7 @@ class JoinGroupRequest(Made):
                 )
 
     def __unicode__(self):
-        return _(u"%(user)s wants to be in %(group)s") % {
+        return u"%(user)s wants to be in %(group)s" % {
                 'user': self.user, 
                 'group': self.group,
                 }
@@ -116,7 +116,7 @@ class FriendRequest(Made):
         verbose_name_plural = _("friend requests")
 
     def __unicode__(self):
-        return _(u"%(sent_by)s wants to be friends with %(sent_to)s") % {
+        return u"%(sent_by)s wants to be friends with %(sent_to)s" % {
                 'sent_by': self.sent_by,
                 'sent_to': self.sent_to,
                 }
@@ -227,7 +227,7 @@ class TradeRequest(Made):
         verbose_name_plural = _("trade requests")
 
     def __unicode__(self):
-        return _(u"%(requester)s wants %(shift)s") % {
+        return u"%(requester)s wants %(shift)s" % {
                 'requester': self.offered_signup.user,
                 'shift': self.wanted_signup.shift,
                 }
@@ -918,13 +918,7 @@ class RefillSeries(Made):
         return curs[0]
 
     def __str__(self):
-        used = self.used()
-        codes = self.codes()
-        value = self.value()
-
-        fmt = "%(id)d"  % {
-                'id': self.pk, 
-                }
+        fmt = "%(id)d"  % { 'id': self.pk, }
         return smart_str(fmt)
 
     def clean(self):
