@@ -97,7 +97,7 @@ class OnCallDutyInline(admin.TabularInline):
 
 class ShiftAdmin(admin.ModelAdmin):
     search_fields = ('when',)
-    list_display = ('when', 'early', 'enabled', 'semester')
+    list_display = ('when', 'span', 'enabled', 'semester')
     list_filter = ('enabled', 'semester')
     inlines = (ShiftSignupInline, OnCallDutyInline)
 admin.site.register(baljan.models.Shift, ShiftAdmin)

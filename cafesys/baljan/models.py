@@ -455,10 +455,10 @@ def semester_post_save(sender, instance, **kwargs):
     for day in sem.date_range():
         if day.weekday() in weekdays:
             continue 
-        for early_or_late in (True, False):
+        for early_or_lunch_or_late in (0, 1, 2):
             obj, created = Shift.objects.get_or_create(
                     semester=sem,
-                    early=early_or_late,
+                    span=early_or_lunch_or_late,
                     when=day)
             if created:
                 created_count += 1
@@ -475,18 +475,58 @@ def semester_post_delete(sender, instance, **kwargs):
     logger.info('%s: deleted' % sem.name)
 signals.post_delete.connect(semester_post_delete, sender=Semester)
 
+SPAN_NAMES = {
+    0: _('morning'),
+    1: _('lunch'),
+    2: _('afternoon'),
+}
 
 class Shift(Made):
     semester = models.ForeignKey(Semester, verbose_name=_("semester"))
-    early = models.BooleanField(_("early shift"), help_text=_('if the shift is early or late'), default=True)
+    span = models.PositiveSmallIntegerField(
+            _("time span"), help_text=_('0=morning, 1=lunch, 2=afternoon'), 
+            default=True)
     when = models.DateField(_("what day the shift is on"))
     enabled = models.BooleanField(help_text=_('shifts can be disabled on special days'), default=True)
 
     def timeofday(self):
-        return _("morning") if self.early else _("afternoon")
+        return SPAN_NAMES[self.span]
 
-    def ampm(self):
-        return _("am") if self.early else _("pm")
+    def worker_timedesc(self):
+        """Description of the working hours."""
+        if self.span == 0:
+            return _("7:30 am to ca 12.30 pm")
+        if self.span == 1:
+            return _("for people on call only")
+        if self.span == 2:
+            return _("12:00 pm to ca 4:45 pm")
+        assert False
+
+    def oncall_timedesc(self):
+        """Description of the working hours."""
+        if self.span == 0:
+            return _("7:30 am to ca 8.00 am")
+        if self.span == 1:
+            return _("12:00 pm to ca 12:30 pm")
+        if self.span == 2:
+            return _("ca 4:00 pm to ca 4:45 pm")
+        assert False
+
+
+    def ampm(self, i18n=True):
+        if i18n:
+            transl = _
+        else:
+            def transl(s):
+                return s
+
+        if self.span == 0:
+            return transl("am")
+        if self.span == 1:
+            return transl("lunch")
+        if self.span == 2:
+            return transl("pm")
+        assert False
 
     def name(self):
         return string_concat(self.timeofday(), ' ', self.when.strftime('%Y-%m-%d'))
@@ -504,10 +544,10 @@ class Shift(Made):
         return self.when == date.today()
 
     def accepts_signups(self):
-        return self.upcoming() and self.semester.signup_possible and self.signups().count() < 2
+        return self.upcoming() and self.semester.signup_possible and self.signups().count() < 2 and self.span != 1
 
     def accepts_callduty(self):
-        return self.upcoming() and self.callduties().count() < 1
+        return self.upcoming() 
 
     def signed_up(self):
         return [su.user for su in self.signups()]
@@ -542,7 +582,7 @@ class Shift(Made):
     class Meta:
         verbose_name = _("shift")
         verbose_name_plural = _("shifts")
-        ordering = ('when', 'early')
+        ordering = ('-when', 'span')
 
     @models.permalink
     def get_absolute_url(self):
@@ -553,7 +593,7 @@ class Shift(Made):
                 {'day': baljan.util.to_iso8601(self.when)})
 
     def __unicode__(self):
-        return u"%s(%s)" % (self.when.strftime('%Y-%m-%d'), '-' if self.early else '+')
+        return u"%s %s" % (self.ampm(i18n=False), self.when.strftime('%Y-%m-%d'))
 
 
 class ShiftSignup(Made):
@@ -570,7 +610,7 @@ class ShiftSignup(Made):
     class Meta:
         verbose_name = _("shift sign-up")
         verbose_name_plural = _("shift sign-ups")
-        ordering = ('shift__when',)
+        ordering = ('-shift__when',)
         permissions = (
                 ('self_and_friend_signup', _("Can sign up self and friends")), # for workers
                 )
@@ -580,7 +620,7 @@ class ShiftSignup(Made):
         return self.shift._url()
 
     def __unicode__(self):
-        return _(u"%(user)s on %(shift)s") % {
+        return u"%(user)s on %(shift)s" % {
                 'user': self.user, 
                 'shift': self.shift,
                 }
@@ -671,14 +711,14 @@ class OnCallDuty(Made):
     class Meta:
         verbose_name = _("on call duty")
         verbose_name_plural = _("on call duties")
-        ordering = ('shift__when',)
+        ordering = ('-shift__when', 'shift__span')
 
     @models.permalink
     def get_absolute_url(self):
         return self.shift._url()
 
     def __unicode__(self):
-        return _(u"%(user)s on %(shift)s") % {
+        return u"%(user)s on %(shift)s" % {
                 'user': self.user, 
                 'shift': self.shift,
                 }

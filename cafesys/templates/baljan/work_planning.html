@@ -94,16 +94,15 @@
                         {% endspaceless %}
                     </td>
                     <td class="early-or-late">
-                        {% if sh.early %}
-                            {% trans "am" %}
-                        {% else %}
-                            {% trans "pm" %}
-                        {% endif %}
+                        {{ sh.ampm }}
                     </td>
                     <td class="workers{%if sh.accepts_signups%} accepts{%endif%}">
                         {% for su in sh.signups %}
                         <span class="{% if su.can_trade %}tradable{% endif %}">{{su.user|name_link}}</span>{% if not forloop.last %}, {% endif %}
                         {% endfor %}
+                        {% if sh.span == 1 %}
+                            {% trans "overlap" %}
+                        {% endif %}
                     </td>
                     <td class="on-call{%if sh.accepts_callduty%} accepts{%endif%}">
                         {% for u in sh.on_callduty %}

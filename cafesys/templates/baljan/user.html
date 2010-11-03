@@ -289,7 +289,7 @@
                                 <a href="{{shift.get_absolute_url}}">{{shift.when|naturalday}}</a>
                             </td>
                             <td>
-                                {% if shift.early %}{% trans "am" %}{%else%}{% trans "pm" %}{% endif %}
+                                {{ shift.ampm }}
                             </td>
                             {% endwith %}
                         </tr>

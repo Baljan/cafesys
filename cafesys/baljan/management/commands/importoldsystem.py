@@ -165,9 +165,13 @@ SELECT nummer FROM telefon WHERE persid=%d
                 continue
 
             uname = decode(ud['login']).lower()
+
+            span = 2 if sd['em'] == 1 else 0
+
+
             shift = Shift.objects.get(
                     when=day,
-                    early=sd['em'] == 1,
+                    span=span,
                     semester=sem)
             signup, created = ShiftSignup.objects.get_or_create(
                     shift=shift,
@@ -206,7 +210,7 @@ SELECT nummer FROM telefon WHERE persid=%d
             uname = decode(ud['login']).lower()
             shift = Shift.objects.get(
                     when=day,
-                    early=oc['pass'] == 0,
+                    span=oc['pass'], # uses the same integers
                     semester=sem)
             oncall, created = OnCallDuty.objects.get_or_create(
                     shift=shift,
@@ -468,10 +472,10 @@ server. See OLD_SYSTEM_* settings.
 
     def handle(self, *args, **options):
         imp = Import()
-        imp.setup_users()
+        #imp.setup_users()
         imp.setup_shifts()
         imp.setup_oncallduties()
         imp.setup_current_workers_and_board()
         imp.manual_board()
         imp.setup_board_groups()
-        imp.setup_orders()
+        #imp.setup_orders()

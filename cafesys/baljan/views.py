@@ -62,7 +62,7 @@ def _semester(request, sem):
     tpl['worker_group_name'] = settings.WORKER_GROUP
     tpl['board_group_name'] = settings.BOARD_GROUP
     if sem:
-        tpl['shifts'] = shifts = sem.shift_set.order_by('when', '-early').filter(enabled=True).iterator()
+        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span').filter(enabled=True).iterator()
         # Do not use iterator() on workers and oncall because the template is
         # unable to count() them. Last tested in Django 1.2.3.
         tpl['workers'] = workers = User.objects.filter(shiftsignup__shift__semester=sem).order_by('first_name').distinct()
@@ -111,7 +111,7 @@ def toggle_become_worker_request(request, redir):
 def day_shifts(request, day):
     tpl = {}
     tpl['day'] = day = baljan.util.from_iso8601(day)
-    tpl['shifts'] = shifts = baljan.models.Shift.objects.filter(when=day, enabled=True).order_by('-early')
+    tpl['shifts'] = shifts = baljan.models.Shift.objects.filter(when=day, enabled=True).order_by('span')
     tpl['available_for_call_duty'] = avail_call_duty = baljan.util.available_for_call_duty()
 
     worker_friends = []
@@ -122,8 +122,9 @@ def day_shifts(request, day):
 
     if request.method == 'POST':
         assert request.user.is_authenticated()
-        early = request.POST['early'] == str(True)
-        shift = baljan.models.Shift.objects.get(when__exact=day, early=early)
+        span = int(request.POST['span'])
+        assert span in (0, 1, 2)
+        shift = baljan.models.Shift.objects.get(when__exact=day, span=span)
         assert shift.enabled
 
         uid = int(request.POST['user'])
@@ -131,7 +132,6 @@ def day_shifts(request, day):
 
         signup_for = request.POST['signup-for']
         if signup_for == 'call-duty':
-            assert shift.oncallduty_set.all().count() < 1
             assert signup_user not in shift.on_callduty()
             assert signup_user in avail_call_duty
             signup = baljan.models.OnCallDuty(user=signup_user, shift=shift)
@@ -170,7 +170,7 @@ def _su_or_oc_for(s):
             order = col
             pref = u'↑ '
 
-        in_group = s.filter(**shfilt).order_by(order, '-shift__early')
+        in_group = s.filter(**shfilt).order_by(order, 'shift__span')
         if in_group.count():
             grouped_signups += [(pref + shgroup, shclass, in_group)]
     return grouped_signups

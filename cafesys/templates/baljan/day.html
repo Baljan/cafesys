@@ -20,11 +20,7 @@
 {% for sh in shifts %}
     <div class="shift-top">
         <h2 style="float:left" class="early-or-late">
-            {% if sh.early %}
-                {% trans "morning"|title %}
-            {% else %}
-                {% trans "afternoon"|title %}
-            {% endif %}
+            {{ sh.timeofday|title }}
         </h2>
         {% if perms.baljan.change_shift %}
             <div style="float:right" class="admin-link">
@@ -71,11 +67,17 @@
                             {% endif %}
                         {% endif %}
                     {% endif %}
+                    <p>{{ sh.worker_timedesc }}</p>
                 </div>
             </div>
         {% empty %}
             <div class="worker person empty">
-                {% trans "No workers have signed up." %}
+                {% if sh.span == 1 %}
+                    {% trans "The morning and afternoon shifts for workers overlap here." %}
+                {% else %}
+                    {% trans "No workers have signed up." %}
+                    {% trans "The working hours are" %} {{ sh.worker_timedesc }}.
+                {% endif %}
             </div>
         {% endfor %}
         <div class="clear"></div>
@@ -83,7 +85,7 @@
             <div class="sign-up person worker">
                 <form method="post" class="init-hidden">{% csrf_token %}
                     <input type="hidden" name="signup-for" value="work"/>
-                    <input type="hidden" name="early" value="{{sh.early}}"/>
+                    <input type="hidden" name="span" value="{{sh.span}}"/>
                     <select id="sign-worker-{{sh.pk}}" name="user">
                         {% for friend in worker_friends %}
                             {% if not friend in sh.signed_up %}
@@ -114,10 +116,12 @@
                     <a class="delete" title="{% trans "remove from this shift" %}" 
                         href="{% url baljan.views.delete_callduty oncall.id request.path %}">&#x2715;</a>
                 {% endif %}
+                <p>{{ sh.oncall_timedesc }}</p>
             </div>
         {% empty %}
             <div class="on-call person empty">
                 {% trans "Nobody has signed up to be on call." %}
+                {% trans "The working hours are" %} {{ sh.oncall_timedesc }}.
             </div>
         {% endfor %}
         <div class="clear"></div>
@@ -125,12 +129,14 @@
             <div class="sign-up person call-duty">
                 <form method="post" class="init-hidden">{% csrf_token %}
                     <input type="hidden" name="signup-for" value="call-duty"/>
-                    <input type="hidden" name="early" value="{{sh.early}}"/>
+                    <input type="hidden" name="span" value="{{sh.span}}"/>
                     <select name="user">
                         {% for avail in available_for_call_duty %}
+                            {% if not avail in sh.on_callduty %}
                             <option value="{{avail.pk}}" {% if avail == user %}selected="selected"{% endif %}>
                                 {{ avail.get_full_name }}
                             </option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                     <input type="submit" value="{% trans "sign up" %}"/>
