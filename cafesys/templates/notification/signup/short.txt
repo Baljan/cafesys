@@ -1,0 +1,1 @@
+{% load i18n %}{% load baljan_extras %}{% blocktrans with shift_name as shift_name and mail_msg as msg %}{{msg}} {{shift_name}}{% endblocktrans %}

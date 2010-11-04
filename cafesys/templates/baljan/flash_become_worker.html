@@ -1,0 +1,4 @@
+{% load i18n %}
+{% if not perms.baljan.self_and_friend_signup %}
+<div style="float:right"><a href="{% url become_worker %}">{% trans "want free coffee? become a worker!" %}</a></div>
+{% endif %}

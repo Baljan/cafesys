@@ -12,3 +12,9 @@ pyPdf
 python-ldap
 #Geraldo
 numpy
+django-sentry
+
+django-celery
+
+# Linear programming
+PuLP

@@ -1,1 +1,0 @@
-[{"pk": 1, "model": "terminal.item", "fields": {"img": "img/items/msn_owl.jpg", "cost": 4, "description": "pappersmugg", "initial_count": 1, "title": "Kaffe/Te"}}, {"pk": 2, "model": "terminal.item", "fields": {"img": "img/items/msn_owl_1.jpg", "cost": 3, "description": "egen mugg", "initial_count": 0, "title": "Kaffe/Te"}}]

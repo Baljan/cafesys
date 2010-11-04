@@ -36,7 +36,6 @@ def orders_per_day_and_hour(request, start_date=None, end_date=None):
     each value is the number of orders taken on that hour and weekday. The
     values are the totals for the range specified.
     """
-    assert is_board_member(request)
     f = day_hour_order_func()
     days_and_hours = numpy.zeros((5, 9), int)
     maxval = 0

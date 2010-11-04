@@ -1,0 +1,116 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+{% load baljan_extras %}
+
+{% block head_title %}{% trans "Trade Shifts" %}{% endblock %}
+
+{% block body_class %}trade{% endblock %}
+{% block body %}
+
+{% if redir %}
+<div class="top-nav">
+    <a href="{{redir}}">&laquo; {% trans "return" %}</a>
+</div>
+{% endif %}
+
+<h1>{% trans "Trade Shifts" %}</h1>
+<div class="grid_5 alpha main">
+    {% if take %}
+    <div class="take-shift">
+        <h2>{% trans "Wanted Shift" %}</h2>
+        <dl>
+            <dt>
+                {% trans "when" %}
+            </dt>
+            <dd>
+            <a href="{{take.shift.get_absolute_url}}">{{take.signup.shift.timeofday}} {{take.shift.when|date}}</a>
+            </dd>
+            <dt>
+                {% trans "from user" %}
+            </dt>
+            <dd>
+                {{take.signup|user_link}}
+            </dd>
+        </dl>
+    </div>
+
+    <div class="can-offer">
+        <h2>{% trans "You Can Offer" %}</h2>
+        <ul>
+            {% for su in take.can_offer %}
+                <li>
+                <a href="{{su.shift.get_absolute_url}}">
+                {{su.shift.timeofday}}
+                {{su.shift.when|date}}
+                </a>
+                </li>
+            {% empty %}
+                <li>
+                {% trans "you have no shifts to offer" %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% endif %}
+</div><!--.main-->
+<div class="grid_5 omega secondary">
+    {% if take %}
+    <div class="send">
+        <p> 
+        {% blocktrans with take.signup.user.first_name as first_name %}
+        Check the shifts you would like to offer. {{first_name}} will be able to
+        pick one of them. You can add and remove offers whenever you want to.
+        {% endblocktrans %}
+        </p>
+        <form name="take-request" method="POST" action="">{% csrf_token %}
+            <p>
+            {% for su in take.can_offer %}
+            <input {%if su in take.offered_signups%} checked="checked"{%endif%} 
+                type="checkbox" name="signup_{{su.pk}}" 
+                    value="{{su.pk}}"
+                    id="id_signup_{{su.pk}}" />
+                <label for="id_signup_{{su.pk}}">
+                {{su.shift.timeofday}}
+                {{su.shift.when|date}}
+                </label><br/>
+            {% empty %}
+                {% trans "You have no shifts to offer." %}
+            {% endfor %}
+            </p>
+            <div class="submit">
+                <input type="submit" value="{%if take.offered_signups%}{% trans "update trade request" %}{%else%}{% trans "send trade request" %}{%endif%}"/>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if saved %}
+    <div class="saved">
+        <h2>{% trans "changes saved" %}</h2>
+        {% if redir %}
+        <p>
+            <a href="{{redir}}">{% trans "return to previous page" %}</a>
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {# TODO: add instructions #}
+</div><!--.secondary-->
+<div class="clean"></div>
+
+{% endblock %}
+
+{% block extra_body %}
+{% endblock %}
+
+{% comment %}
+    <!-- flickr image -->
+    <a href="">
+        <img title=""
+            src="" />
+    </a>
+{% endcomment %}

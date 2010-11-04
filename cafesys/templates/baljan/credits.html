@@ -1,0 +1,82 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+{% load baljan_extras %}
+
+{% block head_title %}{% trans "Credits" %}{% endblock %}
+
+{% block body_class %}credits{% endblock %}
+{% block body %}
+
+<h1>{% trans "Credits" %}</h1>
+<div class="grid_5 alpha main">
+    <div class="available">
+        <h2>{% trans "Available" %}</h2>
+        <div class="credits">
+            <span>{{currently_available}}</span>
+        </div>
+    </div>
+
+    <div class="refill">
+        <h2>{% trans "Refill" %}</h2>
+        <p>
+        {% blocktrans %}
+        Value cards can be purchased at the café. If you have questions or run
+        into problems, <a href="mailto:{{CONTACT_EMAIL}}">contact us</a>. Abuse
+        will be logged.
+        {% endblocktrans %}
+        </p>
+        <form autocomplete="off" method="POST" action="" class="uniForm">{% csrf_token %}
+            <fieldset class="inlineLabels">
+                {{refill_form|as_uni_form}}
+                <div class="form_block submit">
+                    <input type="submit" value="{% trans "refill" %}"/>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div><!--.main-->
+
+<div class="grid_5 omega secondary">
+    {% if used_card %}
+        <div class="saved">
+            {% trans "code was successfully used to refill your account" %}
+        </div>
+    {% endif %}
+
+    {% if invalid_card %}
+        <div class="invalid">
+            {% trans "invalid or used code" %}
+        </div>
+    {% endif %}
+
+    <div class="history">
+        <h2>{% trans "Used Value Cards" %}</h2>
+        <ul>
+            {% for card in used_cards %}
+                <li>
+                {% blocktrans with card.used_at|date as used_at and card.valcur as worth and card.serid as serid %}
+                card {{serid}} worth {{worth}} used at {{used_at}}
+                {% endblocktrans %}
+                </li>
+            {% empty %}
+                <li>{% trans "you have not used any value cards" %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div><!--.secondary-->
+<div class="clean"></div>
+
+{% endblock %}
+
+{% block extra_body %}
+{% endblock %}
+
+{% comment %}
+    <!-- flickr image -->
+    <a href="">
+        <img title=""
+            src="" />
+    </a>
+{% endcomment %}

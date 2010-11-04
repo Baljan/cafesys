@@ -1,0 +1,833 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-10-08 19:24+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: accounting/views.py:28
+#, python-format
+msgid "Refilled %d SEK."
+msgstr ""
+
+#: baljan/actions.py:24
+msgid "board"
+msgstr ""
+
+#: baljan/actions.py:28
+msgid "sysadmin"
+msgstr ""
+
+#: baljan/actions.py:33
+msgid "worker"
+msgstr ""
+
+#: baljan/actions.py:37
+msgid "student"
+msgstr ""
+
+#: baljan/actions.py:41
+msgid "anyone"
+msgstr ""
+
+#: baljan/models.py:15
+msgid "made at"
+msgstr ""
+
+#: baljan/models.py:15
+msgid "when the object was created"
+msgstr ""
+
+#: baljan/models.py:22 baljan/models.py:50 baljan/models.py:106
+msgid "user"
+msgstr ""
+
+#: baljan/models.py:23
+msgid "mobile phone number"
+msgstr ""
+
+#: baljan/models.py:25
+msgid "balance currency"
+msgstr ""
+
+#: baljan/models.py:26 baljan/models.py:98
+msgid "in case Sweden changes currency"
+msgstr ""
+
+#: baljan/models.py:29
+msgid "profile"
+msgstr ""
+
+#: baljan/models.py:30
+msgid "profiles"
+msgstr ""
+
+#: baljan/models.py:34
+msgid "first day"
+msgstr ""
+
+#: baljan/models.py:35
+msgid "last day"
+msgstr ""
+
+#: baljan/models.py:36
+msgid "name"
+msgstr ""
+
+#: baljan/models.py:37
+msgid "should be something like HT2010"
+msgstr ""
+
+#: baljan/models.py:38
+msgid "accepts sign-ups"
+msgstr ""
+
+#: baljan/models.py:39
+msgid "tells if workers can sign-up to work on this semester"
+msgstr ""
+
+#: baljan/models.py:42
+msgid "semester"
+msgstr ""
+
+#: baljan/models.py:43
+msgid "semesters"
+msgstr ""
+
+#: baljan/models.py:51
+msgid "group"
+msgstr ""
+
+#: baljan/models.py:52
+msgid "group that the user was a member of this semester"
+msgstr ""
+
+#: baljan/models.py:55
+msgid "semester membership"
+msgstr ""
+
+#: baljan/models.py:56
+msgid "semester memberships"
+msgstr ""
+
+#: baljan/models.py:60
+msgid "early shift"
+msgstr ""
+
+#: baljan/models.py:60
+msgid "tells if the shift is early or late"
+msgstr ""
+
+#: baljan/models.py:61
+msgid "tells what day the shift is on"
+msgstr ""
+
+#: baljan/models.py:62
+msgid "shifts can be disabled on special days"
+msgstr ""
+
+#: baljan/models.py:65
+msgid "shift"
+msgstr ""
+
+#: baljan/models.py:66
+msgid "shifts"
+msgstr ""
+
+#: baljan/models.py:70
+msgid "the shift"
+msgstr ""
+
+#: baljan/models.py:71
+msgid "the worker"
+msgstr ""
+
+#: baljan/models.py:72
+msgid "the user wants to switch this shift for some other"
+msgstr ""
+
+#: baljan/models.py:75
+msgid "shift sign-up"
+msgstr ""
+
+#: baljan/models.py:76
+msgid "shift sign-ups"
+msgstr ""
+
+#: baljan/models.py:81
+msgid "title"
+msgstr ""
+
+#: baljan/models.py:82
+msgid "short description"
+msgstr ""
+
+#: baljan/models.py:83
+msgid "image"
+msgstr ""
+
+#: baljan/models.py:84
+msgid "position"
+msgstr ""
+
+#: baljan/models.py:85
+msgid ""
+"when listing goods, this value tells at what position this good should be put"
+msgstr ""
+
+#: baljan/models.py:88 baljan/models.py:116
+msgid "good"
+msgstr ""
+
+#: baljan/models.py:89
+msgid "goods"
+msgstr ""
+
+#: baljan/models.py:93 baljan/models.py:101
+msgid "good cost"
+msgstr ""
+
+#: baljan/models.py:94
+msgid "cost"
+msgstr ""
+
+#: baljan/models.py:95
+msgid "the cost of goods change over time"
+msgstr ""
+
+#: baljan/models.py:96
+msgid "from date"
+msgstr ""
+
+#: baljan/models.py:97
+msgid "currency"
+msgstr ""
+
+#: baljan/models.py:102
+msgid "good costs"
+msgstr ""
+
+#: baljan/models.py:109 baljan/models.py:115
+msgid "order"
+msgstr ""
+
+#: baljan/models.py:110
+msgid "orders"
+msgstr ""
+
+#: baljan/models.py:119
+msgid "order good"
+msgstr ""
+
+#: baljan/models.py:120
+msgid "order goods"
+msgstr ""
+
+#: cal/ajax.py:66
+msgid "Morning"
+msgstr ""
+
+#: cal/ajax.py:67
+msgid "Afternoon"
+msgstr ""
+
+#: cal/ajax.py:83
+#, python-format
+msgid "Sign up for this %s!"
+msgstr ""
+
+#: cal/ajax.py:113
+msgid "Shift has enough workers already."
+msgstr ""
+
+#: cal/ajax.py:197
+msgid "Offers"
+msgstr ""
+
+#: cal/ajax.py:205
+msgid "Click on the shifts you would like to offer in the swap request."
+msgstr ""
+
+#: cal/ajax.py:245
+msgid "Click on the shift you would like to have instead."
+msgstr ""
+
+#: liu/pdf.py:40
+#, python-format
+msgid "%d SEK"
+msgstr ""
+
+#: liu/pdf.py:47
+#, python-format
+msgid "expires no sooner than %s"
+msgstr ""
+
+#: templates/base.html:36
+msgid "Hide announcement"
+msgstr ""
+
+#: templates/base.html:56
+msgid "clear"
+msgstr ""
+
+#: templates/homepage.html:6
+msgid "Welcome"
+msgstr ""
+
+#: templates/homepage.html:12
+msgid "Welcome to Pinax"
+msgstr ""
+
+#: templates/homepage.html:15
+msgid ""
+"\n"
+"        <b>Pinax</b> is a <a href=\"http://djangoproject.com/\">Django</a>\n"
+"        project intended to provide a starting point for websites. By\n"
+"        integrating numerous reusable Django apps to take care of the\n"
+"        things that many sites have in common, it lets you focus on what\n"
+"        makes your site different.\n"
+"        "
+msgstr ""
+
+#: templates/homepage.html:25
+msgid ""
+"\n"
+"        For more information about Pinax, see\n"
+"        <a href=\"http://pinaxproject.com/\">http://pinaxproject.com/</a>.\n"
+"        "
+msgstr ""
+
+#: templates/homepage.html:31
+msgid "About this project"
+msgstr ""
+
+#: templates/homepage.html:34
+msgid ""
+"\n"
+"        This project comes with the bare minimum set of applications and\n"
+"        templates to get you started. It includes no extra tabs, only the\n"
+"        profile and notices tabs are included by default. From here you can\n"
+"        add any extra functionality and applications that you would like.\n"
+"        "
+msgstr ""
+
+#: templates/homepage.html:45
+#, python-format
+msgid "Wondering <a href=\"%(what_next_url)s\">What Next</a>?"
+msgstr ""
+
+#: templates/homepage.html:50
+#, python-format
+msgid ""
+"You can <a href=\"%(signup_url)s\">Sign up</a> and <a href=\"%(login_url)s"
+"\">Log in</a> to try out the site."
+msgstr ""
+
+#: templates/homepage.html:52
+#, python-format
+msgid "You can <a href=\"%(login_url)s\">Log in</a> to try out the site."
+msgstr ""
+
+#: templates/site_base.html:22
+msgid "logout"
+msgstr ""
+
+#: templates/site_base.html:24
+msgid "login"
+msgstr ""
+
+#: templates/about/what_next.html:6 templates/about/what_next.html.py:9
+msgid "What Next?"
+msgstr ""
+
+#: templates/about/what_next.html:35
+#, python-format
+msgid ""
+"Start by <a href=\"%(signup_url)s\">signing up</a> and <a href=\"%(login_url)"
+"s\">logging in</a>."
+msgstr ""
+
+#: templates/about/what_next.html:37
+#, python-format
+msgid "Start by <a href=\"%(login_url)s\">logging in</a>."
+msgstr ""
+
+#: templates/account/base.html:10
+msgid "E-Mail Addresses"
+msgstr ""
+
+#: templates/account/base.html:12
+msgid "Change Password"
+msgstr ""
+
+#: templates/account/base.html:14
+msgid "Set Password"
+msgstr ""
+
+#: templates/account/base.html:17
+msgid "Delete Password"
+msgstr ""
+
+#: templates/account/base.html:19
+msgid "Language"
+msgstr ""
+
+#: templates/account/login.html:8
+msgid "Login"
+msgstr ""
+
+#: templates/account/login.html:16
+msgid "Log In"
+msgstr ""
+
+#: templates/account/login.html:20
+msgid "Note"
+msgstr ""
+
+#: templates/account/login.html:20
+#, python-format
+msgid "you are already logged in as %(user_display)s."
+msgstr ""
+
+#: templates/account/login.html:24
+#, python-format
+msgid "Don't have an account? <a href=\"%(signup_url)s\">Sign up</a>!"
+msgstr ""
+
+#: templates/account/login.html:32
+msgid "Forgot password?"
+msgstr ""
+
+#: templates/account/login.html:39
+msgid "Log in &raquo;"
+msgstr ""
+
+#: templates/account/login.html:44
+#, python-format
+msgid ""
+"If you have any trouble logging in to your account, contact us at <a href="
+"\"mailto:%(CONTACT_EMAIL)s\">%(CONTACT_EMAIL)s</a>."
+msgstr ""
+
+#: templates/accounting/accounting.html:6
+msgid "Accounting"
+msgstr ""
+
+#: templates/accounting/accounting.html:13
+msgid "My Status"
+msgstr ""
+
+#: templates/accounting/accounting.html:15
+msgid "Price List"
+msgstr ""
+
+#: templates/accounting/accounting.html:17
+msgid "Statistics"
+msgstr ""
+
+#: templates/accounting/accounting.html:47
+msgid "Status for"
+msgstr ""
+
+#: templates/accounting/accounting.html:51
+msgid "Balance"
+msgstr ""
+
+#: templates/accounting/accounting.html:57
+msgid "+ board member privileges"
+msgstr ""
+
+#: templates/accounting/accounting.html:63
+msgid "+ worker privileges"
+msgstr ""
+
+#: templates/accounting/accounting.html:70
+msgid "Refill"
+msgstr ""
+
+#: templates/accounting/accounting.html:74
+msgid "Value cards are sold at the café."
+msgstr ""
+
+#: templates/accounting/accounting.html:80
+msgid "Orders"
+msgstr ""
+
+#: templates/accounting/accounting.html:83
+msgid "show all"
+msgstr ""
+
+#: templates/accounting/history_widget.html:12
+msgid "pcs."
+msgstr ""
+
+#: templates/accounting/order_history.html:5
+#: templates/accounting/order_history.html:8
+msgid "Order History"
+msgstr ""
+
+#: templates/accounting/price_list.html:5
+#: templates/accounting/price_list.html:8
+msgid "Price List"
+msgstr ""
+
+#: templates/accounting/price_list_widget.html:5
+msgid "Item"
+msgstr ""
+
+#: templates/accounting/price_list_widget.html:6
+msgid "Cost"
+msgstr ""
+
+#: templates/accounting/stats.html:5 templates/accounting/stats.html.py:8
+msgid "Statistics"
+msgstr ""
+
+#: templates/accounting/stats.html:11
+msgid "from"
+msgstr ""
+
+#: templates/accounting/stats.html:12
+msgid "to"
+msgstr ""
+
+#: templates/accounting/stats.html:13
+msgid "auto-update"
+msgstr ""
+
+#: templates/accounting/stats.html:14
+msgid "Update now"
+msgstr ""
+
+#: templates/accounting/stats.html:17
+msgid "Orders per Day and Hour"
+msgstr ""
+
+#: templates/admin/base.html:35
+msgid "logout"
+msgstr ""
+
+#: templates/admin/base.html:37
+msgid "login"
+msgstr ""
+
+#: templates/admin/base.html:67
+msgid "Home"
+msgstr ""
+
+#: templates/baljan/baljan.html:6
+msgid "Dashboard"
+msgstr ""
+
+#: templates/baljan/semesters.html:5
+msgid "Semesters"
+msgstr ""
+
+#: templates/baljan/semesters.html:13
+msgid "Name"
+msgstr ""
+
+#: templates/baljan/semesters.html:14
+msgid "Start"
+msgstr ""
+
+#: templates/baljan/semesters.html:15
+msgid "End"
+msgstr ""
+
+#: templates/baljan/semesters.html:16
+msgid "Sign-Ups"
+msgstr ""
+
+#: templates/baljan/semesters.html:27
+msgid "No semesters available."
+msgstr ""
+
+#: templates/baljan/semesters.html:37
+msgid "Add"
+msgstr ""
+
+#: templates/baljan/semesters.html:41
+msgid "manage on admin site"
+msgstr ""
+
+#: templates/baljan/stats.html:5 templates/baljan/stats.html.py:8
+msgid "Statistics"
+msgstr ""
+
+#: templates/baljan/stats.html:11
+msgid "from"
+msgstr ""
+
+#: templates/baljan/stats.html:12
+msgid "to"
+msgstr ""
+
+#: templates/baljan/stats.html:13
+msgid "auto-update"
+msgstr ""
+
+#: templates/baljan/stats.html:14
+msgid "Update now"
+msgstr ""
+
+#: templates/baljan/stats.html:17
+msgid "Orders per Day and Hour"
+msgstr ""
+
+#: templates/calendar/calendar.html:11
+#: templates/calendar/calendar.html:43
+#: templates/calendar/calendar.html:46
+msgid "Calendar"
+msgstr ""
+
+#: templates/calendar/calendar.html:13
+msgid "Shift Swaps"
+msgstr ""
+
+#: templates/calendar/calendar.html:50
+msgid "add or remove shifts"
+msgstr ""
+
+#: templates/calendar/calendar.html:51
+msgid "worker mode"
+msgstr ""
+
+#: templates/calendar/calendar.html:55
+msgid "With selection"
+msgstr ""
+
+#: templates/calendar/calendar.html:57
+msgid "add shifts"
+msgstr ""
+
+#: templates/calendar/calendar.html:58
+msgid "remove shifts"
+msgstr ""
+
+#: templates/calendar/calendar.html:61
+msgid "Hint"
+msgstr ""
+
+#: templates/calendar/calendar.html:62
+msgid "Hold the <code>Ctrl</code> key for multi-select mode."
+msgstr ""
+
+#: templates/calendar/calendar.html:65
+msgid "Note"
+msgstr ""
+
+#: templates/calendar/calendar.html:66
+msgid "Shifts will be removed even if workers have signed up for them."
+msgstr ""
+
+#: templates/calendar/calendar.html:69
+msgid "confirm"
+msgstr ""
+
+#: templates/calendar/calendar.html:77
+msgid "Remove request to become a worker"
+msgstr ""
+
+#: templates/calendar/calendar.html:79
+msgid "Request to become a worker"
+msgstr ""
+
+#: templates/calendar/calendar.html:86
+msgid "My Shifts"
+msgstr ""
+
+#: templates/calendar/calendar.html:90
+msgid "date"
+msgstr ""
+
+#: templates/calendar/calendar.html:91
+msgid "when"
+msgstr ""
+
+#: templates/calendar/calendar.html:92
+msgid "swappable"
+msgstr ""
+
+#: templates/calendar/calendar.html:93
+msgid "tasks"
+msgstr ""
+
+#: templates/calendar/calendar.html:100
+msgid "go to this month"
+msgstr ""
+
+#: templates/calendar/calendar.html:105
+msgid "toggle swappability"
+msgstr ""
+
+#: templates/calendar/calendar.html:116
+msgid "remove"
+msgstr ""
+
+#: templates/calendar/calendar.html:127
+msgid "month view"
+msgstr ""
+
+#: templates/calendar/calendar.html:142
+msgid "year view"
+msgstr ""
+
+#: templates/calendar/calendar.html:162
+msgid "week"
+msgstr ""
+
+#: templates/calendar/calendar.html:163
+msgid "Mon"
+msgstr ""
+
+#: templates/calendar/calendar.html:164
+msgid "Tue"
+msgstr ""
+
+#: templates/calendar/calendar.html:165
+msgid "Wed"
+msgstr ""
+
+#: templates/calendar/calendar.html:166
+msgid "Thu"
+msgstr ""
+
+#: templates/calendar/calendar.html:167
+msgid "Fri"
+msgstr ""
+
+#: templates/calendar/calendar.html:168
+msgid "Sat"
+msgstr ""
+
+#: templates/calendar/calendar.html:169
+msgid "Sun"
+msgstr ""
+
+#: templates/calendar/calendar.html:185
+msgid "Morning workers"
+msgstr ""
+
+#: templates/calendar/calendar.html:191
+msgid "Afternoon workers"
+msgstr ""
+
+#: templates/calendar/swappable.html:5
+msgid "Swappable"
+msgstr ""
+
+#: templates/calendar/swappable.html:9
+msgid "Shift Swaps"
+msgstr ""
+
+#: templates/calendar/swappable.html:12
+msgid "Sent Requests"
+msgstr ""
+
+#: templates/calendar/swappable.html:16
+msgid "you want"
+msgstr ""
+
+#: templates/calendar/swappable.html:17
+#: templates/calendar/swappable.html:33
+#: templates/calendar/swappable.html:72
+msgid "go to this month"
+msgstr ""
+
+#: templates/calendar/swappable.html:18
+msgid "from"
+msgstr ""
+
+#: templates/calendar/swappable.html:20
+msgid "remove"
+msgstr ""
+
+#: templates/calendar/swappable.html:24
+msgid "You have no pending requests "
+msgstr ""
+
+#: templates/calendar/swappable.html:28
+msgid "Received Requests"
+msgstr ""
+
+#: templates/calendar/swappable.html:32
+msgid "wants"
+msgstr ""
+
+#: templates/calendar/swappable.html:34
+msgid "from you"
+msgstr ""
+
+#: templates/calendar/swappable.html:36
+msgid "respond"
+msgstr ""
+
+#: templates/calendar/swappable.html:41
+msgid "You have no pending requests"
+msgstr ""
+
+#: templates/calendar/swappable.html:48
+msgid "Swappable Shifts"
+msgstr ""
+
+#: templates/calendar/swappable.html:53
+msgid ""
+"\n"
+"                Workers on these shifts would like to swap. You may send "
+"swap requests\n"
+"                to them if you would rather work on one of these shifts.\n"
+"                "
+msgstr ""
+
+#: templates/calendar/swappable.html:63
+msgid "date"
+msgstr ""
+
+#: templates/calendar/swappable.html:64
+msgid "when"
+msgstr ""
+
+#: templates/calendar/swappable.html:65
+msgid "who"
+msgstr ""
+
+#: templates/calendar/swappable.html:79
+msgid "send request"
+msgstr ""
+
+#: templates/calendar/swappable.html:88
+msgid "Currently, no workers want to swap shifts."
+msgstr ""
+
+#: templates/calendar/swappable.html:94
+msgid "You are not a worker."
+msgstr ""
+
+#: templates/terminal/what_next.html:6
+#: templates/terminal/what_next.html:9
+msgid "What Next?"
+msgstr ""
+
+#: templates/terminal/what_next.html:35
+#, python-format
+msgid ""
+"Start by <a href=\"%(signup_url)s\">signing up</a> and <a href=\"%(login_url)"
+"s\">logging in</a>."
+msgstr ""
+
+#: templates/terminal/what_next.html:37
+#, python-format
+msgid "Start by <a href=\"%(login_url)s\">logging in</a>."
+msgstr ""
