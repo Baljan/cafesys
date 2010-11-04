@@ -2,6 +2,7 @@
 Run (you are recommended to do this inside a virtualenv):
 
     $ pip install -r requirements.txt
+    $ sudo yum -y install $(cat yum-packages.txt) # external deps
     $ cd cafesys
     $ python manage.py syncdb
 
@@ -15,7 +16,6 @@ Run:
 Here is a crash course on how to get started with virtualenv and
 virtualenvwrapper in Fedora:
 
-    $ sudo yum -y install python-pip
     $ sudo pip install virtualenv
     $ sudo pip install virtualenvwrapper
     $ cd ~
@@ -27,8 +27,10 @@ virtualenvwrapper in Fedora:
     $ cd envs
     $ git clone git@github.com:pilt/cafesys.git
     $ mkvirtualenv --no-site-packages cafesys
-    $ cd cafesys
-    $ pip install -r requirements.txt
+    (cafesys) $ cd cafesys
+    (cafesys) $ sudo yum -y install $(cat yum-packages.txt) # external deps
+    (cafesys) $ easy_install pip
+    (cafesys) $ pip install -r requirements.txt
 
 ## On Windows
 ### Using VirtualBox (recommended)
@@ -43,7 +45,8 @@ please let someone know so that we can update this readme.
 
 # External Dependencies
 ## Base dependencies
- * Run `yum -y install gcc python-reportlab python-devel postgresql-devel zlib-devel jpeg-devel tk-devel swig openldap-devel` to install the yum packages required.
+ * See `yum-packages.txt`. You can install them all by running 
+   `yum -y install $(cat yum-packages.txt)`.
 
 ## Kiosk Mode
  * Opera browser
