@@ -11,6 +11,8 @@ glibc
 glibc-common
 glibc-devel
 glibc-headers
+glpk
+glpk-utils
 gpm-libs
 kernel-devel
 kernel-headers
@@ -25,6 +27,7 @@ libpng
 libpng-devel
 libselinux-devel
 libsepol-devel
+memcached
 mysql
 mysql-devel
 mysql-libs
@@ -49,7 +52,9 @@ postgresql-libs
 ppl
 python-devel
 python-setuptools
+rabbitmq-server
 ruby-libs
+sqlite
 swig
 tk-devel
 vim-common
