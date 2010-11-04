@@ -199,6 +199,10 @@ div.right_panel {
 }
 
 /* BALJAN */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Yanone Kaffeesatz', Arial, sans-serif;
+    font-weight: bold;
+}
 form table th {
     font-weight: normal;
 }
