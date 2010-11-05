@@ -359,6 +359,9 @@ class SemesterManager(models.Manager):
         except Semester.DoesNotExist:
             return None
 
+    def upcoming(self):
+        return self.filter(start__gte=date.today()).order_by('start')
+
     def current(self):
         return self.for_date(date.today())
 
@@ -438,6 +441,9 @@ class Semester(Made):
     class Meta:
         verbose_name = _("semester")
         verbose_name_plural = _("semesters")
+        permissions = (
+                ('manage_job_openings', _("Can manage job openings")),
+                )
 
     def __unicode__(self):
         return self.name
