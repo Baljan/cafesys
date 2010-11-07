@@ -426,7 +426,6 @@ def job_opening(request, semester_name):
 
     sched = workdist.Scheduler(sem)
     pairs = sched.pairs()
-    print "shifts", len(sched.shifts)
 
     col_count = 10
     row_count = len(pairs) // col_count
@@ -437,6 +436,13 @@ def job_opening(request, semester_name):
     for i, pair in enumerate(pairs):
         row_idx, col_idx = i // col_count, i % col_count
         slots[row_idx][col_idx] = pair
+
+    pair_javascript = {}
+    for pair in pairs:
+        pair_javascript[pair.label] = {
+            'shifts': [unicode(sh.name()) for sh in pair.shifts],
+            'ids': [sh.pk for sh in pair.shifts],
+        }
 
     found_user = None
     if request.method == 'POST':
@@ -478,6 +484,7 @@ def job_opening(request, semester_name):
             return HttpResponse(simplejson.dumps(info))
 
     tpl['slots'] = slots
+    tpl['pair_javascript'] = simplejson.dumps(pair_javascript)
     tpl['slots_empty'] = slots_empty = 53
     tpl['slots_filled'] = slots_filled = 17
     tpl['slots_total'] = slots_total = slots_empty + slots_filled

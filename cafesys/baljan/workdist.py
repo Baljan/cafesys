@@ -33,7 +33,7 @@ class PairAlloc(object):
         pass
 
     def __init__(self, solution):
-        self.assigned_to = []
+        self.shifts = []
         for pos, name in enumerate(SHIFTS):
             setattr(self, name, solution[pos])
 
@@ -71,7 +71,7 @@ class PairAlloc(object):
                             setattr(self, field, avail - 1)
 
             if not dry:
-                self.assigned_to.append(shift)
+                self.shifts.append(shift)
             return self
         except self.Empty:
             return None
@@ -79,12 +79,12 @@ class PairAlloc(object):
     def distance_to(self, shift):
         if not self.can_take(shift):
             return self.CANNOT_TAKE
-        if len(self.assigned_to) == 0:
+        if len(self.shifts) == 0:
             return self.NOTHING_ASSIGNED
 
         tigered = flatten(zip(
-            self.assigned_to, 
-            [shift] * len(self.assigned_to)
+            self.shifts, 
+            [shift] * len(self.shifts)
         ))
         handicap = 0
         return handicap + abs(min(shift_distances(tigered)).days)

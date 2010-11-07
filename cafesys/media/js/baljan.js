@@ -212,15 +212,29 @@ $(document).ready(function () {
             addButton = $('#add-to-group'),
             foundUser = false,
             addedUsers = {},
-            addedList = $('.work-pair ul');
+            addedList = $('.work-pair ul'),
+            currentComb = $('.shifts-in-combination'),
+            currentCombLabel = false,
+            currentCombShiftIds = [];
 
         $('.combination-progress').progressbar({
             value: COMBINATION_PROGRESS
         });
         slots.unselectable();
         slots.click(function() {
+            currentCombLabel = $.trim($(this).text());
+            var pair = PAIRS[currentCombLabel];
+            var shifts = pair.shifts,
+                ids = pair.ids;
+            currentCombShiftIds = ids;
+
             slots.removeClass('active');
             $(this).toggleClass('active');
+            currentComb.html('');
+            for (i in shifts) {
+                currentComb.append('<li/>');
+                currentComb.find('li:last').text(shifts[i]);
+            }
         });
 
         var addUser = function() {
@@ -279,7 +293,6 @@ $(document).ready(function () {
                         addButton.attr('disabled', 'disabled');
                         foundUser = false;
                     }
-                    console.log(foundUser);
                 }
             });
         }
