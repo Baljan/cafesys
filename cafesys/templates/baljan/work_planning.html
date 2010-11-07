@@ -73,7 +73,7 @@
                         </td>
                     {% endwith %}
                     {% with sh.when|date:'D' as day %}
-                        <td class="day-name{% ifchanged day %} show{% endifchanged %}">
+                        <td class="{%if sh.exam_period%}exam-period{%endif%} day-name{% ifchanged day %} show{% endifchanged %}">
                             {{day}}
                         </td>
                     {% endwith %}
