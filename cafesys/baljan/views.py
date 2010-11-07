@@ -424,25 +424,6 @@ def job_opening(request, semester_name):
     tpl['semester'] = sem = baljan.models.Semester.objects.get(name__exact=semester_name)
     user = request.user
 
-    sched = workdist.Scheduler(sem)
-    pairs = sched.pairs()
-
-    col_count = 10
-    row_count = len(pairs) // col_count
-    if len(pairs) % col_count != 0:
-        row_count += 1
-
-    slots = [[None for c in range(col_count)] for r in range(row_count)]
-    for i, pair in enumerate(pairs):
-        row_idx, col_idx = i // col_count, i % col_count
-        slots[row_idx][col_idx] = pair
-
-    pair_javascript = {}
-    for pair in pairs:
-        pair_javascript[pair.label] = {
-            'shifts': [unicode(sh.name()) for sh in pair.shifts],
-            'ids': [sh.pk for sh in pair.shifts],
-        }
 
     found_user = None
     if request.method == 'POST':
@@ -482,6 +463,26 @@ def job_opening(request, semester_name):
                     info['msg_class'] = 'invalid'
 
             return HttpResponse(simplejson.dumps(info))
+    else:
+        sched = workdist.Scheduler(sem)
+        pairs = sched.pairs()
+
+        col_count = 10
+        row_count = len(pairs) // col_count
+        if len(pairs) % col_count != 0:
+            row_count += 1
+
+        slots = [[None for c in range(col_count)] for r in range(row_count)]
+        for i, pair in enumerate(pairs):
+            row_idx, col_idx = i // col_count, i % col_count
+            slots[row_idx][col_idx] = pair
+
+        pair_javascript = {}
+        for pair in pairs:
+            pair_javascript[pair.label] = {
+                'shifts': [unicode(sh.name()) for sh in pair.shifts],
+                'ids': [sh.pk for sh in pair.shifts],
+            }
 
     tpl['slots'] = slots
     tpl['pair_javascript'] = simplejson.dumps(pair_javascript)

@@ -57,11 +57,9 @@
         </div>
         <div class="clear"></div>
 
-        <div class="message need-workers pending">
-            {% trans "need one more worker" %}<br/>
-            {% trans "a combination must be selected" %}
+        <div class="submit-wrap init-hidden">
             <div class="submit layout">
-                <input disabled="disabled" type="submit" value="{% trans "save" %}" />
+                <input disabled="disabled" type="submit"/>
             </div>
         </div>
     </div>
@@ -94,6 +92,8 @@
     CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
     CONFIRM_DELETE = CONFIRM_MSG;
 
+    SUBMIT_HELP = "{% trans "need two workers and one combination" %}";
+    SUBMIT_OK = "{% trans "save" %}";
     PAIRS = {% autoescape off %}{{pair_javascript}}{%endautoescape%};
 // ]]>
 </script>

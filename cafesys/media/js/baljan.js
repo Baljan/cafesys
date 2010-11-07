@@ -215,7 +215,31 @@ $(document).ready(function () {
             addedList = $('.work-pair ul'),
             currentComb = $('.shifts-in-combination'),
             currentCombLabel = false,
-            currentCombShiftIds = [];
+            currentCombShiftIds = [],
+            submitBox = $('.submit-wrap');
+
+        var refreshSave = function() {
+            var addedUsersCount = 0,
+                submitButton = submitBox.find('input[type=submit]');
+
+            for (k in addedUsers) {
+                addedUsersCount += 1;
+            }
+            if (currentCombShiftIds.length == 0 ||
+                addedUsersCount != 2) {
+                submitBox.removeClass('saved');
+                submitBox.addClass('pending');
+                submitButton.attr('disabled', 'disabled');
+                submitButton.attr('value', SUBMIT_HELP);
+            }
+            else {
+                submitBox.addClass('saved');
+                submitBox.removeClass('pending');
+                submitButton.removeAttr('disabled');
+                submitButton.attr('value', SUBMIT_OK);
+            }
+        }
+        refreshSave();
 
         $('.combination-progress').progressbar({
             value: COMBINATION_PROGRESS
@@ -235,6 +259,8 @@ $(document).ready(function () {
                 currentComb.append('<li/>');
                 currentComb.find('li:last').text(shifts[i]);
             }
+
+            refreshSave();
         });
 
         var addUser = function() {
@@ -268,6 +294,7 @@ $(document).ready(function () {
             addedList.find('li .remove').click(function() {
                 removeUser($(this).parent().data('username'));
             });
+            refreshSave();
         }
 
         var refreshSearch = function() {
