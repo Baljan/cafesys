@@ -55,6 +55,9 @@ td, th {
 .even .week, .even .day-name {
     background-color: transparent; /* to keep the vertical alignment */
 }
+.exam-period {
+    color: #a33;
+}
 h1 {
     margin: 0;
     color: #FF0084;
@@ -373,7 +376,7 @@ body .undo-highlight, .invalid {
     background: #fee !important;
     border: 1px solid #f00 !important;
 }
-body .pending-highlight {
+body .pending-highlight, .pending {
     background: #ffc !important;
     border: 1px solid #aa0 !important;
     color: #990;
@@ -391,8 +394,12 @@ body .confirmed-highlight, .saved {
 .undo-highlight, .invalid {
     color: #f00;
 }
-.saved, .invalid {
+.saved, .invalid, .pending {
     text-align: center;
+}
+span.invalid, span.pending-highlight, span.confirmed-highlight, span.saved, span.pending {
+    padding-left: .5em;
+    padding-right: .5em;
 }
 
 body.semester .day-name, body.semester .week {
@@ -494,6 +501,54 @@ body.credits .credits {
     text-align: center;
     font-size: 2em;
     font-weight: bold;
+}
+
+body.job-opening .user-adder input[type=text] {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+body.job-opening .user-adder input[type=button] {
+    height: 100%;
+}
+body.job-opening .user-adder .message span {
+    display: block;
+    padding: 0;
+    width: 100%;
+    border-top: none !important;
+}
+body.job-opening .user-action, body .job-opening .user-action-info {
+    display: none;
+}
+body.job-opening .user-adder {
+}
+body.job-opening #add-to-group {
+    display: inline;
+}
+body.job-opening .work-pair {
+    text-align: left;
+}
+body.job-opening .work-pair ul, body.job-opening .work-pair ul li {
+    margin-top: 0;
+    padding-top: 0;
+}
+body.job-opening .slots {
+}
+body.job-opening .slots td {
+    padding: .3em;
+    border: 1px solid rgba(151, 192, 234, 1.0);
+    cursor: pointer;
+    text-align: center;
+}
+body.job-opening .slots td:hover {
+    background: rgba(151, 192, 234, 0.2);
+}
+body.job-opening .slots td.padding:hover {
+    background: inherit;
+    cursor: default;
+}
+body.job-opening .slots td.active {
+    background: rgba(151, 192, 234, 0.4);
 }
 
 .admin-link {

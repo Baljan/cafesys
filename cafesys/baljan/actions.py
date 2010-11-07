@@ -3,6 +3,7 @@
 from django.utils.translation import ugettext as _ 
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from baljan.models import Semester
 
 class Action(object):
     def __init__(self, link_text, path, args=None, kwargs=None, resolve_func=reverse):
@@ -21,14 +22,27 @@ def categories_and_actions(request):
     else:
         student = None
 
+    # FIXME: Upcoming semesters should be fetched lazily.
+    upcoming_sems = Semester.objects.upcoming()
+    upcoming_sem_actions = []
+    for upc in upcoming_sems:
+        name = upc.name
+        action = Action(
+            _('job opening %s') % name,
+            'baljan.views.job_opening',
+            args=(name,)
+        )
+        upcoming_sem_actions.append(action)
+        
+
     levels = (
         ('superusers', _('superusers'), (
             # nil
             )),
-        (settings.BOARD_GROUP, _('the board'), (
-            #Action(_('semesters'), 'baljan.views.current_semester'),
+        (settings.BOARD_GROUP, _('board tasks'), (
             #Action(_('work applications'), '#', resolve_func=None),
-            )),
+            ) + tuple(upcoming_sem_actions)
+        ),
         ('sysadmins', _('sysadmins'), (
             Action(_('django admin site'), 'admin:index'),
             Action(_('sentry'), 'sentry'),

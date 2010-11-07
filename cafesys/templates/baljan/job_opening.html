@@ -1,0 +1,101 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+
+{% block head_title %}{% trans "Job Opening" %} {{semester.name}}{% endblock %}
+
+{% block body_class %}job-opening{% endblock %}
+{% block body %}
+<h1>{% trans "Job Opening" %} {{semester.name}}</h1>
+
+<div class="grid_7 alpha main">
+    <div>
+        <div class="layout" style="float:left;width:50%">
+            <div class="user-adder layout">
+                <h2>{% trans "Choose Workers" %}</h2>
+                <table>
+                    <tr>
+                        <td>
+                            <input type="text" id="id_liu_id" name="liu_id" maxlength="8" />
+                        </td>
+                        <td rowspan="2">
+                            <input disabled="disabled" id="add-to-group" type="button" value="{% trans "add" %}"/>
+                        </td>
+                   </tr>
+                   <tr>
+                       <td class="message">
+                           <span class="pending">{% trans "enter liu id" %}</span>
+                       </td>
+                   </tr>
+                </table>
+            </div><!--.user-adder-->
+
+            <div class="work-pair">
+                <ul>
+                </ul>
+            </div>
+        </div>
+
+        <div class="layout" style="float:left;width:50%">
+            <h2>{% trans "Choose Combination" %}</h2>
+            <table class="slots">
+            {% for row in slots %}
+                <tr>
+                {% for pair in row %}
+                    <td class="{% if pair %}pair{%else%}padding{%endif%} {{pair.classes|join:" "}}">
+                    {% if pair %}
+                        {{pair.label}}
+                    {% endif %}
+                    </td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+            <ul class="shifts-in-combination">
+                <li>em 2011-01-23</li>
+                <li>fm 2011-03-14</li>
+                <li>em 2011-05-01</li>
+            </ul>
+        </div>
+        <div class="clear"></div>
+
+        <div class="message need-workers pending">
+            {% trans "need one more worker" %}<br/>
+            {% trans "a combination must be selected" %}
+            <div class="submit layout">
+                <input disabled="disabled" type="submit" value="{% trans "save" %}" />
+            </div>
+        </div>
+    </div>
+
+</div><!--.main-->
+<div class="grid_3 omega secondary">
+    <div>
+    {% blocktrans with slots_filled_percent as done_percent and slots_empty as empty and slots_filled as filled %}
+        <h2>
+            {{done_percent}}% Done
+        </h2>
+        <dl>
+            <dt>combinations available</dt>
+            <dd>{{empty}}</dd>
+            <dt>combinations taken</dt>
+            <dd>{{filled}}</dd>
+        </dl>
+    {% endblocktrans %}
+    </div>
+</div><!--.secondary-->
+<div class="clear"></div>
+{% endblock %}
+
+{% block extra_body %}
+<script type="text/javascript">
+// <![CDATA[
+    COMBINATION_PROGRESS = {{slots_filled_percent}};
+
+    CONFIRM_MSG = "{% trans "Are you sure?" %}";
+    CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
+    CONFIRM_DELETE = CONFIRM_MSG;
+// ]]>
+</script>
+{% endblock %}
