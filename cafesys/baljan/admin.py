@@ -97,9 +97,23 @@ class OnCallDutyInline(admin.TabularInline):
 
 class ShiftAdmin(admin.ModelAdmin):
     search_fields = ('when',)
-    list_display = ('when', 'span', 'enabled', 'semester')
-    list_filter = ('enabled', 'semester')
+    list_display = ('when', 'span', 'exam_period', 'enabled', 'semester')
+    list_filter = ('enabled', 'semester', 'exam_period')
     inlines = (ShiftSignupInline, OnCallDutyInline)
+
+    def toggle_exam_period(self, request, queryset):
+        for shift in queryset:
+            shift.exam_period = not shift.exam_period
+            shift.save()
+    toggle_exam_period.short_description = _("Toggle exam period")
+
+    def toggle_enabled(self, request, queryset):
+        for shift in queryset:
+            shift.enabled = not shift.enabled
+            shift.save()
+    toggle_enabled.short_description = _("Toggle enabled")
+
+    actions = ['toggle_exam_period', 'toggle_enabled']
 admin.site.register(baljan.models.Shift, ShiftAdmin)
 
 

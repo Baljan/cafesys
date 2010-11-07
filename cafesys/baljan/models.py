@@ -493,7 +493,11 @@ class Shift(Made):
             _("time span"), help_text=_('0=morning, 1=lunch, 2=afternoon'), 
             default=True)
     when = models.DateField(_("what day the shift is on"))
-    enabled = models.BooleanField(help_text=_('shifts can be disabled on special days'), default=True)
+    exam_period = models.BooleanField(_("exam period"), 
+            help_text=_('the work scheduler takes this field into account'), 
+            default=False)
+    enabled = models.BooleanField(_("enabled"), 
+            help_text=_('shifts can be disabled on special days'), default=True)
 
     def timeofday(self):
         return SPAN_NAMES[self.span]
