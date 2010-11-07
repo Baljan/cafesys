@@ -4,7 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django.core.cache import cache
 
-def for_person(terms):
+def for_person(terms, use_cache=True):
     cache_minutes = 30
 
     # Each term is cached. 
@@ -12,7 +12,8 @@ def for_person(terms):
     all_term_hits = [] # will be a list of lists
     for term in term_list:
         k = 'baljan.search.%s' % term
-        c = cache.get(k)
+
+        c = cache.get(k) if use_cache else None
         if c is None:
             term_ids = [u.id for u in User.objects.filter(
                     Q(first_name__icontains=term) |
