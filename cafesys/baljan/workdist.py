@@ -5,11 +5,11 @@ from math import floor, ceil
 
 work_pairs = range(20)
 
-SHIFTS = ['MORNING', 'AFTERNOON', 'EXAM']
+SHIFTS = ['morning', 'afternoon', 'exam']
 COSTS = {
-    'MORNING': 5.0,
-    'AFTERNOON': 4.75,
-    'EXAM': 1.5 * 5.0,
+    'morning': 5.0,
+    'afternoon': 4.75,
+    'exam': 1.5 * 5.0,
 }
 
 def allocate_shifts_for_one_pair(work_pairs, avail_mornings, avail_afternoons, avail_exams):
@@ -22,9 +22,9 @@ def allocate_shifts_for_one_pair(work_pairs, avail_mornings, avail_afternoons, a
         req = grace or 1.0
 
         demands = {
-            'MORNING': mae[0],
-            'AFTERNOON': mae[1],
-            'EXAM': mae[2],
+            'morning': mae[0],
+            'afternoon': mae[1],
+            'exam': mae[2],
         }
         total_avg = float(sum([demands[i] for i in SHIFTS])) / work_pairs
         total_low, total_high = floor(total_avg), ceil(total_avg)
@@ -56,9 +56,9 @@ def allocate_shifts_for_one_pair(work_pairs, avail_mornings, avail_afternoons, a
         new_mae = [0, 0, 0]
         for v in prob.variables():
             for pos, name in [
-                    (0, 'MORNING'),
-                    (1, 'AFTERNOON'),
-                    (2, 'EXAM'),
+                    (0, 'morning'),
+                    (1, 'afternoon'),
+                    (2, 'exam'),
                     ]:
                 if v.name == 'Shift_' + name:
                     new_mae[pos] = mae[pos] - v.varValue
