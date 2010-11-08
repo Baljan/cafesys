@@ -1414,7 +1414,7 @@ msgstr "Gå till"
 
 #: templates/baljan/job_opening.html:6 templates/baljan/job_opening.html:10
 msgid "Job Opening"
-msgstr ""
+msgstr "Jobbsläpp"
 
 #: templates/baljan/job_opening.html:16
 msgid "Choose Workers"
