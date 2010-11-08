@@ -443,7 +443,7 @@ def job_opening(request, semester_name):
             info = {}
             info['user'] = None
             info['msg'] = _('enter liu id')
-            info['msg_class'] = _('pending')
+            info['msg_class'] = 'pending'
             info['all_ok'] = False
             if found_user:
                 info['user'] = {
