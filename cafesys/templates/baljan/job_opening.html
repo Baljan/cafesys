@@ -31,10 +31,11 @@
                 </table>
             </div><!--.user-adder-->
 
-            <div class="work-pair">
-                <ul>
-                </ul>
-            </div>
+            <ul class="work-pair">
+            </ul>
+
+            <ul class="shifts-in-combination">
+            </ul>
         </div>
 
         <div class="layout" style="float:left;width:50%">
@@ -52,8 +53,6 @@
                 </tr>
             {% endfor %}
             </table>
-            <ul class="shifts-in-combination">
-            </ul>
         </div>
         <div class="clear"></div>
 
@@ -92,8 +91,8 @@
     CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
     CONFIRM_DELETE = CONFIRM_MSG;
 
-    SUBMIT_HELP = "{% trans "need two workers and one combination" %}";
-    SUBMIT_OK = "{% trans "save" %}";
+    SUBMIT_HELP = "{% trans "select two workers and one combination" %}";
+    SUBMIT_OK = "{% trans "sign up" %}";
     PAIRS = {% autoescape off %}{{pair_javascript}}{%endautoescape%};
 // ]]>
 </script>

@@ -212,7 +212,7 @@ $(document).ready(function () {
             addButton = $('#add-to-group'),
             foundUser = false,
             addedUsers = {},
-            addedList = $('.work-pair ul'),
+            addedList = $('.work-pair'),
             currentComb = $('.shifts-in-combination'),
             currentCombLabel = false,
             currentCombShiftIds = [],
@@ -315,6 +315,7 @@ $(document).ready(function () {
                     if (result.all_ok) {
                         addButton.removeAttr('disabled');
                         foundUser = result.user;
+                        addButton.click();
                     }
                     else {
                         addButton.attr('disabled', 'disabled');
