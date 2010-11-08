@@ -241,26 +241,29 @@ $(document).ready(function () {
         }
         refreshSave();
 
-        $('.combination-progress').progressbar({
-            value: COMBINATION_PROGRESS
-        });
-        slots.unselectable();
-        slots.click(function() {
-            currentCombLabel = $.trim($(this).text());
+        var setActiveComb = function(cell) {
+            currentCombLabel = $.trim($(cell).text());
             var pair = PAIRS[currentCombLabel];
             var shifts = pair.shifts,
                 ids = pair.ids;
             currentCombShiftIds = ids;
-
-            slots.removeClass('active');
-            $(this).toggleClass('active');
             currentComb.html('');
             for (i in shifts) {
                 currentComb.append('<li/>');
                 currentComb.find('li:last').text(shifts[i]);
             }
 
+            slots.removeClass('active');
+            $(cell).toggleClass('active');
             refreshSave();
+        }
+
+        $('.combination-progress').progressbar({
+            value: COMBINATION_PROGRESS
+        });
+        slots.unselectable();
+        slots.click(function() {
+            setActiveComb(this);
         });
 
         var addUser = function() {
@@ -306,6 +309,8 @@ $(document).ready(function () {
                 type: 'post',
                 dataType: 'json',
                 success: function(result) {
+                    if (!result) return;
+
                     for (i in msgClasses) {
                         if (result.msg_class == msgClasses[i])
                             msg.addClass(msgClasses[i]);
