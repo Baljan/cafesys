@@ -9,3 +9,10 @@ div#body {
     margin: 1em;
     text-align: center;
 }
+
+body.job-opening .slots td:hover {
+    background: rgb(151, 192, 234);
+}
+body.job-opening .slots td.active {
+    background: rgb(151, 192, 234);
+}

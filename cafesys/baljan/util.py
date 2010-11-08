@@ -10,6 +10,7 @@ from django.conf import settings
 import logging
 from sentry.client.handlers import SentryHandler
 import sys
+import itertools
 
 def date_range(start_date, end_date):
     """
@@ -125,3 +126,35 @@ class Logging(Borg):
 def get_logger(name='baljan'):
     return Logging().get_logger(name)
 
+
+class Ring(object):
+    """http://code.activestate.com/recipes/52246-implementing-a-circular-data-structure-using-lists/
+    """
+
+    def __init__(self, l):
+        if not len(l):
+            raise "ring must have at least one element"
+        self._data = l
+
+    def __repr__(self):
+        return repr(self._data)
+
+    def __len__(self):
+        return len(self._data)
+
+    def __getitem__(self, i):
+        return self._data[i]
+
+    def turn(self):
+        old_first = self._data.pop(0)
+        self._data.append(old_first)
+
+    def first(self):
+        return self._data[0]
+
+    def last(self):
+        return self._data[-1]
+
+
+def flatten(lol):
+    return list(itertools.chain.from_iterable(lol))

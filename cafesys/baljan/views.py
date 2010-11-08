@@ -13,6 +13,9 @@ from datetime import date
 import baljan.forms
 import baljan.models
 import baljan.search
+from baljan import workdist
+from baljan.util import get_logger
+from baljan.ldapbackend import valid_username
 from baljan import pseudogroups
 from baljan import credits as creditsmodule
 from baljan import friendrequests
@@ -21,6 +24,9 @@ from django.contrib.auth.models import User, Permission, Group
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
 from notification import models as notification
+import simplejson
+import re
+from math import ceil
 
 def index(request):
     return render_to_response('baljan/baljan.html', {}, context_instance=RequestContext(request))
@@ -409,3 +415,80 @@ def trade_accept(request, request_pk, redir):
 @permission_required('baljan.self_and_friend_signup')
 def trade_deny(request, request_pk, redir):
     return _trade_answer(request, request_pk, redir, accept=False)
+
+
+@permission_required('baljan.manage_job_openings')
+def job_opening(request, semester_name):
+    opening_log = get_logger('baljan.jobopening')
+    tpl = {}
+    tpl['semester'] = sem = baljan.models.Semester.objects.get(name__exact=semester_name)
+    user = request.user
+
+
+    found_user = None
+    if request.method == 'POST':
+        searched_for = request.POST['liu_id']
+        valid_search = valid_username(searched_for)
+
+        if valid_search or re.match('^[a-z]{5,5}[0-9]{0,3}$', searched_for):
+            results = baljan.search.for_person(searched_for, use_cache=False)
+            if len(results) == 1:
+                valid_search = True # when matching alphabetic part only
+                found_user = results[0]
+
+        if valid_search and found_user is None:
+            pass # TODO: perform LDAP lookup
+
+        if request.is_ajax():
+            info = {}
+            info['user'] = None
+            info['msg'] = _('enter liu id')
+            info['msg_class'] = 'pending'
+            info['all_ok'] = False
+            if found_user:
+                info['user'] = {
+                        'username': found_user.username,
+                        'text': "%s (%s)" % (
+                            found_user.get_full_name(), 
+                            found_user.username
+                        ),
+                        'url': found_user.get_absolute_url(),
+                        }
+                info['msg'] = _('OK')
+                info['msg_class'] = 'saved'
+                info['all_ok'] = True
+            else:
+                if valid_search:
+                    info['msg'] = _('liu id unfound')
+                    info['msg_class'] = 'invalid'
+
+            return HttpResponse(simplejson.dumps(info))
+    else:
+        sched = workdist.Scheduler(sem)
+        pairs = sched.pairs()
+
+        col_count = 10
+        row_count = len(pairs) // col_count
+        if len(pairs) % col_count != 0:
+            row_count += 1
+
+        slots = [[None for c in range(col_count)] for r in range(row_count)]
+        for i, pair in enumerate(pairs):
+            row_idx, col_idx = i // col_count, i % col_count
+            slots[row_idx][col_idx] = pair
+
+        pair_javascript = {}
+        for pair in pairs:
+            pair_javascript[pair.label] = {
+                'shifts': [unicode(sh.name()) for sh in pair.shifts],
+                'ids': [sh.pk for sh in pair.shifts],
+            }
+
+    tpl['slots'] = slots
+    tpl['pair_javascript'] = simplejson.dumps(pair_javascript)
+    tpl['slots_empty'] = slots_empty = 53
+    tpl['slots_filled'] = slots_filled = 17
+    tpl['slots_total'] = slots_total = slots_empty + slots_filled
+    tpl['slots_filled_percent'] = int(round(slots_filled * 100.0 / slots_total))
+    return render_to_response('baljan/job_opening.html', tpl, 
+            context_instance=RequestContext(request))

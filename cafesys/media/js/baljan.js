@@ -201,4 +201,137 @@ $(document).ready(function () {
     $('body.user .show-profile-dialog').click(function() {
         profileDialog.dialog('open');
     });
+
+    /* Job Opening View */
+    if ($("body").hasClass('job-opening')) {
+        var slots = $('.slots td.pair'),
+            curSearch = false,
+            idInput = $('#id_liu_id'),
+            msg = $('.user-adder .message span'),
+            msgClasses = ['pending', 'saved', 'invalid'],
+            addButton = $('#add-to-group'),
+            foundUser = false,
+            addedUsers = {},
+            addedList = $('.work-pair'),
+            currentComb = $('.shifts-in-combination'),
+            currentCombLabel = false,
+            currentCombShiftIds = [],
+            submitBox = $('.submit-wrap');
+
+        var refreshSave = function() {
+            var addedUsersCount = 0,
+                submitButton = submitBox.find('input[type=submit]');
+
+            for (k in addedUsers) {
+                addedUsersCount += 1;
+            }
+            if (currentCombShiftIds.length == 0 ||
+                addedUsersCount != 2) {
+                submitBox.removeClass('saved');
+                submitBox.addClass('pending');
+                submitButton.attr('disabled', 'disabled');
+                submitButton.attr('value', SUBMIT_HELP);
+            }
+            else {
+                submitBox.addClass('saved');
+                submitBox.removeClass('pending');
+                submitButton.removeAttr('disabled');
+                submitButton.attr('value', SUBMIT_OK);
+            }
+        }
+        refreshSave();
+
+        var setActiveComb = function(cell) {
+            currentCombLabel = $.trim($(cell).text());
+            var pair = PAIRS[currentCombLabel];
+            var shifts = pair.shifts,
+                ids = pair.ids;
+            currentCombShiftIds = ids;
+            currentComb.html('');
+            for (i in shifts) {
+                currentComb.append('<li/>');
+                currentComb.find('li:last').text(shifts[i]);
+            }
+
+            slots.removeClass('active');
+            $(cell).toggleClass('active');
+            refreshSave();
+        }
+
+        $('.combination-progress').progressbar({
+            value: COMBINATION_PROGRESS
+        });
+        slots.unselectable();
+        slots.click(function() {
+            setActiveComb(this);
+        });
+
+        var addUser = function() {
+            if (!foundUser) return;
+
+            idInput.attr('value', '');
+            refreshSearch();
+
+            addedUsers[foundUser.username] = foundUser;
+            refreshAdded();
+        }
+
+        var removeUser = function(id) {
+            delete addedUsers[id];
+            refreshAdded();
+        }
+
+        var refreshAdded = function() {
+            addedList.find('li').remove();
+            for (i in addedUsers) {
+                var user = addedUsers[i];
+                addedList.append('<li><a/></li>');
+                var last = addedList.find('li:last');
+                last.data('username', i);
+                var link = last.find('a');
+                link.attr('href', user.url);
+                link.text(user.text);
+                last.append(' <span class="remove link">&#x2715;</span>');
+            }
+
+            addedList.find('li .remove').click(function() {
+                removeUser($(this).parent().data('username'));
+            });
+            refreshSave();
+        }
+
+        var refreshSearch = function() {
+            var term = idInput.attr('value');
+            if (0 < term.length && term.length < 5) return;
+            if (curSearch) curSearch.abort();
+
+            curSearch = $.ajax({
+                data: {'liu_id': term},
+                type: 'post',
+                dataType: 'json',
+                success: function(result) {
+                    if (!result) return;
+
+                    for (i in msgClasses) {
+                        if (result.msg_class == msgClasses[i])
+                            msg.addClass(msgClasses[i]);
+                        else msg.removeClass(msgClasses[i]);
+                    }
+                    msg.text(result.msg);
+                    if (result.all_ok) {
+                        addButton.removeAttr('disabled');
+                        foundUser = result.user;
+                        addButton.click();
+                    }
+                    else {
+                        addButton.attr('disabled', 'disabled');
+                        foundUser = false;
+                    }
+                }
+            });
+        }
+
+        addButton.click(addUser);
+        idInput.bind('keyup', refreshSearch);
+    }
 });

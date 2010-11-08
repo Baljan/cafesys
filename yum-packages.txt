@@ -55,6 +55,7 @@ python-setuptools
 rabbitmq-server
 ruby-libs
 sqlite
+supervisor
 swig
 tk-devel
 vim-common
