@@ -302,6 +302,7 @@ $(document).ready(function () {
 
         var refreshSearch = function() {
             var term = idInput.attr('value');
+            if (0 < term.length && term.length < 5) return;
             if (curSearch) curSearch.abort();
 
             curSearch = $.ajax({
