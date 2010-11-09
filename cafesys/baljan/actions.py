@@ -40,6 +40,7 @@ def categories_and_actions(request):
             # nil
             )),
         (settings.BOARD_GROUP, _('board tasks'), (
+            Action(_('week planning'), 'baljan.views.call_duty_week'),
             #Action(_('work applications'), '#', resolve_func=None),
             ) + tuple(upcoming_sem_actions)
         ),

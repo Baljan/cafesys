@@ -559,3 +559,78 @@ body.job-opening .slots td.active {
     text-align: right;
 }
 
+body.board-week table {
+    width: 100%;
+    font-size: 2.5em;
+    border-collapse: collapse;
+}
+body.board-week th {
+    border-bottom: 3px solid;
+}
+body.board-week .day, body.board-week .week {
+    border-right: 3px solid;
+    text-align: right;
+}
+body.board-week h2 {
+    padding: 0;
+    margin-bottom: .2em;
+    font-size: 1.8em;
+    border-bottom: 3px solid;
+}
+body.board-week h2, body.board-week .day, 
+body.board-week .chalkboard .link,
+body.board-week .chalkboard a,
+body.board-week .week, body.board-week th {
+    color: #faa;
+    border-color: #faa;
+}
+body.board-week .week .num {
+    color: #fff;
+}
+body.board-week p {
+    margin: .5em 0;
+    margin-top: 0;
+    padding-top: 0;
+}
+body.board-week table td {
+    margin: 1px;
+    width: 20%;
+}
+body.board-week .available-users {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+body.board-week .chalkboard .link,
+body.board-week .chalkboard a {
+    font-size: 2.5em;
+    margin-left: .5em;
+}
+body.board-week .droppable span.active, body.board-week .available-users .active {
+    color: #ffc;
+}
+body.board-week .available-users span,
+body.board-week table td span {
+    cursor: pointer;
+}
+body.board-week .available-users .active,
+body.board-week .droppable.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+body.board-week .droppable.hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+body.board-week .chalkboard {
+    cursor: default;
+}
+
+.chalkboard {
+    color: #fff;
+    background-color: #222;
+    background-image: url(../img/chalkboard-bg.png);
+    font-family: 'Yanone Kaffeesatz', Arial, sans-serif;
+    font-weight: bold;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
+    padding: 10px;
+}

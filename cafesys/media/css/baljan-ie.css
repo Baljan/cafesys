@@ -16,3 +16,11 @@ body.job-opening .slots td:hover {
 body.job-opening .slots td.active {
     background: rgb(151, 192, 234);
 }
+
+body.board-week .available-users .active,
+body.board-week .droppable.active {
+    background-color: #444;
+}
+body.board-week .droppable.hover {
+    background-color: #777;
+}

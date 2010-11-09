@@ -28,6 +28,8 @@ urlpatterns = patterns("baljan.views",
     url(r"^become-worker/toggle/(.*)$", 'toggle_become_worker_request'),
     url(r'search-person', 'search_person'),
     url(r'job-opening/(.+)', 'job_opening'),
+    url(r'call-duty/(\d+)/(\d+)', 'call_duty_week'),
+    url(r'call-duty', 'call_duty_week'),
 
     url(r'trade/take/(\d+)/(.*)', 'trade_take', name='take_signup'),
     url(r'trade/accept/(\d+)/(.*)', 'trade_accept', name='accept_trade'),

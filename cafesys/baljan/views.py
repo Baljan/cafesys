@@ -13,13 +13,10 @@ from datetime import date
 import baljan.forms
 import baljan.models
 import baljan.search
-from baljan import workdist
-from baljan.util import get_logger
+from baljan.util import get_logger, year_and_week, all_initials
 from baljan.ldapbackend import valid_username
-from baljan import pseudogroups
 from baljan import credits as creditsmodule
-from baljan import friendrequests
-from baljan import trades
+from baljan import friendrequests, trades, planning, pseudogroups, workdist
 from django.contrib.auth.models import User, Permission, Group
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
@@ -491,4 +488,57 @@ def job_opening(request, semester_name):
     tpl['slots_total'] = slots_total = slots_empty + slots_filled
     tpl['slots_filled_percent'] = int(round(slots_filled * 100.0 / slots_total))
     return render_to_response('baljan/job_opening.html', tpl, 
+            context_instance=RequestContext(request))
+
+
+@permission_required('baljan.delete_oncallduty')
+@permission_required('baljan.add_oncallduty')
+@permission_required('baljan.change_oncallduty')
+def call_duty_week(request, year=None, week=None):
+    user = request.user
+    if year is None or week is None:
+        year, week = year_and_week()
+        plan = planning.BoardWeek.current_week()
+    else:
+        year = int(year)
+        week = int(week)
+        plan = planning.BoardWeek(year, week)
+
+
+    oncall_ids = [[oc.id for oc in sh] for sh in plan.oncall()]
+    dom_ids = plan.dom_ids()
+    real_ids = dict(zip(dom_ids, plan.shift_ids()))
+    oncall = dict(zip(dom_ids, oncall_ids))
+
+    avails = plan.available()
+    uids = [str(u.id) for u in avails]
+
+    names = [u.get_full_name() for u in avails]
+    id_names = zip(uids, names)
+
+    initials = all_initials(avails)
+    id_initials = zip(uids, initials)
+
+    disp_names = ["%s (%s)" % (name, inits) for name, inits in zip(names, initials)]
+    disp_names = ["&nbsp;".join(dn.split()) for dn in disp_names]
+    id_disp_names = dict(zip(uids, disp_names))
+
+    drag_ids = ['drag-%s' % i for i in initials]
+    drags = ["<span id='%s'>%s</span>" % (id, n) for 
+            id, n in zip(drag_ids, disp_names)]
+    id_drags = dict(zip(uids, drags))
+
+    tpl = {}
+    #tpl['plan'] = plan
+    tpl['grid'] = plan.grid(request)
+    tpl['week'] = week
+    tpl['year'] = year
+    tpl['available'] = avails
+    tpl['real_ids'] = simplejson.dumps(real_ids)
+    tpl['oncall'] = simplejson.dumps(oncall)
+    tpl['disp_names'] = simplejson.dumps(id_disp_names)
+    tpl['drags'] = simplejson.dumps(id_drags)
+    tpl['initials'] = simplejson.dumps(id_initials)
+    tpl['uids'] = simplejson.dumps(uids)
+    return render_to_response('baljan/call_duty_week.html', tpl, 
             context_instance=RequestContext(request))

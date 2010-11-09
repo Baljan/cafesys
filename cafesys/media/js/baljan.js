@@ -334,4 +334,108 @@ $(document).ready(function () {
         addButton.click(addUser);
         idInput.bind('keyup', refreshSearch);
     }
+
+
+    /* Board Week Planning */
+    if ($("body").hasClass('board-week')) {
+        var availUsers = $('.available-users'),
+            names = [];
+
+        $('.chalkboard').unselectable();
+
+        for (i in USER_IDS) {
+            names.push(DRAGS[USER_IDS[i]]);
+        }
+        availUsers.html(names.join(', '));
+
+        var redrawContained = function(cell) {
+            var listed = [],
+                containedInits = $(cell).data('initials');
+            for (i in containedInits) {
+                listed.push([
+                    '<span class="drag-',containedInits[i],'">',
+                    containedInits[i],'</span>'
+                ].join(''));
+            }
+            $(cell).html(listed.join(', '));
+            $(cell).children().each(function() {
+                $(this).click(function() { 
+                    var newContained = [];
+                    for (j in containedInits) {
+                        if (containedInits[j] != $(this).text()) {
+                            newContained.push(containedInits[j]);
+                        }
+                        $(cell).data('initials', newContained);
+                    }
+                    $(this).trigger('mouseleave').remove();
+                    redrawContained(cell);
+                });
+            });
+
+            $(containedInits).each(function() {
+                var cls = $('.drag-' + this),
+                    id = $("#drag-" + this);
+                cls.hover(
+                    function() {
+                        cls.addClass('active')
+                           .parent().addClass('active');
+                        id.addClass('active')
+                    },
+                    function() {
+                        cls.removeClass('active')
+                           .parent().removeClass('active');
+                        id.removeClass('active')
+                    }
+                );
+            });
+        }
+
+        $('.droppable').each(function() {
+            var drop = this;
+            $(this).droppable({
+                accept: function(drag) {
+                    return $(drop).find('.'+drag.attr('id')).length == 0;
+                },
+                activeClass: 'active',
+                hoverClass: 'hover',
+                drop: function(ev, ui) {
+                    var dragId = $(ui.draggable).attr('id');
+                    var droppedInit = dragId.split('-')[1],
+                        containedInits = $(this).data('initials'),
+                        cell = this;
+                    if (!containedInits) containedInits = [droppedInit];
+                    else containedInits.push(droppedInit);
+                    $(this).data('initials', containedInits);
+                    redrawContained(cell);
+                }
+            });
+        });
+
+        $('.available-users span').each(function() {
+            var initials = $(this).attr('id').split('-')[1]
+                cls = 'drag-' + $(this).attr('id').split('-')[1],
+                drag = this;
+
+            $(this).draggable({
+                cursorAt: {right: 3, bottom: 3},
+                helper: function(ev) { 
+                    var ui = $("<span class='drag "+cls+"'>"+initials+"</span>"); 
+                    return ui;
+                },
+                opacity: 0.7
+            });
+
+            $(this).hover(function() {
+                var ui = $('.'+$(this).attr('id'));
+                ui.addClass('active')
+                  .parent().addClass('active');
+                $(this).addClass('active');
+            }, function() {
+                var ui = $('.'+$(this).attr('id'));
+                ui.removeClass('active')
+                  .parent().removeClass('active');
+                $(this).removeClass('active');
+            });
+        });
+    }
 });
