@@ -14,7 +14,7 @@ import random
 import string
 from dateutil.relativedelta import relativedelta
 import baljan.util
-from baljan.util import get_logger
+from baljan.util import get_logger, week_dates
 import itertools
 from django.core.cache import cache
 from notification import models as notification
@@ -380,7 +380,12 @@ class Semester(Made):
             help_text=_('if workers can sign up to work on this semester'))
 
     def date_range(self):
+        """Uses `baljan.util.date_range` internally."""
         return baljan.util.date_range(self.start, self.end)
+
+    def week_range(self):
+        """Uses `baljan.util.week_range` internally."""
+        return baljan.util.week_range(self.start, self.end)
 
     def range(self):
         return (self.start, self.end)
@@ -487,7 +492,19 @@ SPAN_NAMES = {
     2: _('afternoon'),
 }
 
+
+class ShiftManager(models.Manager):
+    def current_week(self):
+        return self.for_week(*baljan.util.year_and_week())
+
+    def for_week(self, year, week_number):
+        dates = week_dates(year, week_number)
+        return self.filter(when__in=dates).order_by('when', 'span')
+
+
 class Shift(Made):
+    objects = ShiftManager()
+
     semester = models.ForeignKey(Semester, verbose_name=_("semester"))
     span = models.PositiveSmallIntegerField(
             _("time span"), help_text=_('0=morning, 1=lunch, 2=afternoon'), 
