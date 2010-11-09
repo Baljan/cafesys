@@ -18,3 +18,5 @@ django-celery
 
 # Linear programming
 PuLP
+
+django-datagrid
