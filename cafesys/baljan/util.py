@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
-from datetime import datetime
+from datetime import datetime, date
 from django.contrib.auth.models import User, Permission
 from django.db.models import Q
 from django.core.cache import cache
@@ -11,6 +11,67 @@ import logging
 from sentry.client.handlers import SentryHandler
 import sys
 import itertools
+from dateutil.relativedelta import relativedelta
+
+
+def year_and_week(some_date=None): 
+    """Returns a two-tuple (YEAR, WEEK). `some_date` defaults to 
+    `date.today()`."""
+    if some_date is None:
+        some_date = date.today()
+    return (int(x) for x in some_date.strftime('%Y %W').split())
+
+
+def week_dates(year, week_number):
+    dates = []
+    for daynum in [1, 2, 3, 4, 5, 6, 0]:
+        date_str = "%d %d %d" % (year, week_number, daynum)
+        fmt = '%Y %W %w'
+        dates.append(date(*datetime.strptime(date_str, fmt).timetuple()[0:3]))
+    return dates
+
+
+def week_range(start_date, end_date):
+    """
+    Returns a list of two-tuples like
+
+        [(2010, 10), (2010, 11), (2010, 12), ...]
+    """
+    weeks = []
+    got = {}
+    for d in date_range(start_date, end_date):
+        yw = year_and_week(d)
+        if not got.has_key(yw):
+            weeks.append(yw)
+        got[yw] = True
+    return weeks
+
+def initials(user, from_first_name=1, from_last_name=1, num=None):
+    first_name = user.first_name
+    last_name = user.last_name
+    inits = "%s%s" % (
+        first_name[0:from_first_name], 
+        last_name[0:from_last_name]
+    )
+    if num is None:
+        return inits
+    return "%s%d" % (inits, num)
+
+
+def all_initials(users):
+    """Returns a list of unique initials for the users."""
+    dupfixed = []
+    used_inits = {}
+    for user in users:
+        inits = initials(user)
+        if used_inits.has_key(inits):
+            used_inits[inits] += 1
+            inits = initials(user, num=used_inits[inits]) # start at 2
+        else:
+            used_inits[inits] = 1
+        dupfixed.append(inits)
+    return dupfixed
+
 
 def date_range(start_date, end_date):
     """
