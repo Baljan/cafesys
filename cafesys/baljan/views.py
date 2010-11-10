@@ -14,6 +14,7 @@ import baljan.forms
 import baljan.models
 import baljan.search
 from baljan.util import get_logger, year_and_week, all_initials
+from baljan.util import adjacent_weeks, week_dates
 from baljan.ldapbackend import valid_username
 from baljan import credits as creditsmodule
 from baljan import friendrequests, trades, planning, pseudogroups, workdist
@@ -504,7 +505,6 @@ def call_duty_week(request, year=None, week=None):
         week = int(week)
         plan = planning.BoardWeek(year, week)
 
-
     oncall_ids = [[str(oc.id) for oc in sh] for sh in plan.oncall()]
     dom_ids = plan.dom_ids()
     real_ids = dict(zip(dom_ids, plan.shift_ids()))
@@ -528,11 +528,16 @@ def call_duty_week(request, year=None, week=None):
             id, n in zip(drag_ids, disp_names)]
     id_drags = dict(zip(uids, drags))
 
+    adjacent = adjacent_weeks(week_dates(year, week)[0])
     tpl = {}
     #tpl['plan'] = plan
     tpl['grid'] = plan.grid(request)
     tpl['week'] = week
     tpl['year'] = year
+    tpl['prev_y'] = adjacent[0][0]
+    tpl['prev_w'] = adjacent[0][1]
+    tpl['next_y'] = adjacent[1][0]
+    tpl['next_w'] = adjacent[1][1]
     tpl['available'] = avails
     tpl['real_ids'] = simplejson.dumps(real_ids)
     tpl['oncall'] = simplejson.dumps(oncall)

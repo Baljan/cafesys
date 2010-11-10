@@ -13,9 +13,15 @@
         <thead>
         <tr>
             <th class="week">
+                <a href="{% url baljan.views.call_duty_week prev_y prev_w %}">
+                    &laquo;
+                </a>
                 <span class="num">{{year}}</span> 
-                {%trans "wk."%} 
+                    {%trans "wk."%} 
                 <span class="num">{{week}}</span>
+                <a href="{% url baljan.views.call_duty_week next_y next_w %}">
+                    &raquo;
+                </a>
             </th>
             <th>{% trans "morning" %}</th>
             <th>{% trans "lunch" %}</th>
