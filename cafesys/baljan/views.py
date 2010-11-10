@@ -553,15 +553,12 @@ def call_duty_week(request, year=None, week=None):
 
     adjacent = adjacent_weeks(week_dates(year, week)[0])
     tpl = {}
-    #tpl['plan'] = plan
-    tpl['grid'] = plan.grid(request)
     tpl['week'] = week
     tpl['year'] = year
     tpl['prev_y'] = adjacent[0][0]
     tpl['prev_w'] = adjacent[0][1]
     tpl['next_y'] = adjacent[1][0]
     tpl['next_w'] = adjacent[1][1]
-    tpl['available'] = avails
     tpl['real_ids'] = simplejson.dumps(real_ids)
     tpl['oncall'] = simplejson.dumps(oncall)
     tpl['drags'] = simplejson.dumps(id_drags)
