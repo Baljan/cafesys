@@ -453,5 +453,26 @@ $(document).ready(function () {
                 $(this).removeClass('active');
             });
         });
+
+        $('.submit .save').click(function() {
+            var postData = {};
+            $('.droppable').each(function() {
+                var containedInits = $(this).data('initials');
+                if (!containedInits || containedInits.length == 0) return;
+
+                postData[$(this).attr('id')] = containedInits.join('|');
+            });
+            curSearch = $.ajax({
+                data: postData,
+                type: 'post',
+                dataType: 'json',
+                success: function(result) {
+                    location.replace(document.location.pathname);
+                },
+                error: function() {
+                    location.replace(document.location.pathname);
+                }
+            });
+        });
     }
 });
