@@ -19,7 +19,13 @@ def year_and_week(some_date=None):
     `date.today()`."""
     if some_date is None:
         some_date = date.today()
-    return (int(x) for x in some_date.strftime('%Y %W').split())
+    return tuple(int(x) for x in some_date.strftime('%Y %W').split())
+
+
+def adjacent_weeks(some_date=None):
+    if some_date is None:
+        some_date = date.today()
+    return tuple(year_and_week(some_date+relativedelta(weeks=dw)) for dw in (-1, +1))
 
 
 def week_dates(year, week_number):
