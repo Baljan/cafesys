@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-10 01:16+0100\n"
+"POT-Creation-Date: 2010-11-10 02:54+0100\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -414,16 +414,16 @@ msgstr "terminer"
 msgid "Can manage job openings"
 msgstr "Kan administrea jobbsläpp"
 
-#: baljan/models.py:490 templates/baljan/call_duty_week.html:20
+#: baljan/models.py:490 templates/baljan/call_duty_week.html:26
 msgid "morning"
 msgstr "förmiddag"
 
 #: baljan/models.py:491 baljan/models.py:546
-#: templates/baljan/call_duty_week.html:21
+#: templates/baljan/call_duty_week.html:27
 msgid "lunch"
 msgstr "lunch"
 
-#: baljan/models.py:492 templates/baljan/call_duty_week.html:22
+#: baljan/models.py:492 templates/baljan/call_duty_week.html:28
 msgid "afternoon"
 msgstr "eftermiddag"
 
@@ -749,50 +749,54 @@ msgstr "Olika valutor."
 msgid "Insufficient funds."
 msgstr "Otillräckligt med pengar."
 
-#: baljan/views.py:44
+#: baljan/views.py:45
 #, python-format
 msgid "%s was added successfully."
 msgstr "%s lades till utan problem"
 
-#: baljan/views.py:153
+#: baljan/views.py:154
 msgid "Nothing scheduled for this shift (yet)."
 msgstr "Ingenting schemalagt för detta shift (än)."
 
-#: baljan/views.py:166
+#: baljan/views.py:167
 msgid "upcoming"
 msgstr "kommande"
 
-#: baljan/views.py:167
+#: baljan/views.py:168
 msgid "past"
 msgstr "gångna"
 
-#: baljan/views.py:286 templates/baljan/work_planning.html:47
+#: baljan/views.py:287 templates/baljan/work_planning.html:47
 msgid "work shifts"
 msgstr "jobbpass"
 
-#: baljan/views.py:287
+#: baljan/views.py:288
 msgid "call duties"
 msgstr "jourpass"
 
-#: baljan/views.py:390
+#: baljan/views.py:391
 msgid "This would result in a double booking."
 msgstr "Detta skulle resultera i en dubbelbokning."
 
-#: baljan/views.py:393
+#: baljan/views.py:394
 msgid "Invalid trade request."
 msgstr "Ogiltig bytesförfrågan."
 
-#: baljan/views.py:442 templates/baljan/job_opening.html:28
+#: baljan/views.py:443 templates/baljan/job_opening.html:28
 msgid "enter liu id"
 msgstr "skriv in liu-id"
 
-#: baljan/views.py:454
+#: baljan/views.py:455
 msgid "OK"
 msgstr "OK"
 
-#: baljan/views.py:459
+#: baljan/views.py:460
 msgid "liu id unfound"
 msgstr "liu-id hittades inte"
+
+#: baljan/views.py:551
+msgid "Your changes were saved."
+msgstr "Dina ändringar sparades."
 
 #: baljan/management/__init__.py:12
 msgid "Trade Request"
@@ -1243,54 +1247,54 @@ msgstr "admin"
 msgid "Parties are regularly arranged for our hard-working personnel."
 msgstr "Fester anordnas regelbundet för vår hårt arbetande personal."
 
-#: templates/baljan/call_duty_week.html:17
+#: templates/baljan/call_duty_week.html:20
 msgid "wk."
 msgstr "v."
 
-#: templates/baljan/call_duty_week.html:27
+#: templates/baljan/call_duty_week.html:33
 msgid "Monday"
 msgstr "måndag"
 
-#: templates/baljan/call_duty_week.html:33
+#: templates/baljan/call_duty_week.html:39
 msgid "Tuesday"
 msgstr "tisdag"
 
-#: templates/baljan/call_duty_week.html:39
+#: templates/baljan/call_duty_week.html:45
 msgid "Wednesday"
 msgstr "onsdag"
 
-#: templates/baljan/call_duty_week.html:45
+#: templates/baljan/call_duty_week.html:51
 msgid "Thursday"
 msgstr "torsdag"
 
-#: templates/baljan/call_duty_week.html:51
+#: templates/baljan/call_duty_week.html:57
 msgid "Friday"
 msgstr "fredag"
 
-#: templates/baljan/call_duty_week.html:58
+#: templates/baljan/call_duty_week.html:64
 msgid "Available Users"
 msgstr "Tillgängliga personer"
 
-#: templates/baljan/call_duty_week.html:58
+#: templates/baljan/call_duty_week.html:64
 msgid "drag and drop"
 msgstr "dra och släpp"
 
-#: templates/baljan/call_duty_week.html:61
+#: templates/baljan/call_duty_week.html:67
 msgid "revert"
 msgstr "ångra"
 
-#: templates/baljan/call_duty_week.html:62 templates/baljan/user.html:322
+#: templates/baljan/call_duty_week.html:68 templates/baljan/user.html:322
 msgid "save"
 msgstr "spara"
 
-#: templates/baljan/call_duty_week.html:70 templates/baljan/day.html:155
+#: templates/baljan/call_duty_week.html:76 templates/baljan/day.html:155
 #: templates/baljan/group.html:92 templates/baljan/job_opening.html:90
 #: templates/baljan/search_person.html:62 templates/baljan/template.html:23
 #: templates/baljan/user.html:324
 msgid "Are you sure?"
 msgstr "Är du säker?"
 
-#: templates/baljan/call_duty_week.html:71 templates/baljan/day.html:156
+#: templates/baljan/call_duty_week.html:77 templates/baljan/day.html:156
 #: templates/baljan/group.html:93 templates/baljan/job_opening.html:91
 #: templates/baljan/search_person.html:63 templates/baljan/template.html:24
 #: templates/baljan/user.html:325
