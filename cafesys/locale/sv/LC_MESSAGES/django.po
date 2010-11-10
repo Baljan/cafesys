@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-10 02:54+0100\n"
+"POT-Creation-Date: 2010-11-10 03:04+0100\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -545,8 +545,8 @@ msgstr "jourande"
 msgid "on call duties"
 msgstr "jourande"
 
-#: baljan/models.py:769 templates/baljan/call_duty_week.html:7
-#: templates/baljan/template.html:6 templates/baljan/template.html.py:10
+#: baljan/models.py:769 templates/baljan/template.html:6
+#: templates/baljan/template.html.py:10
 msgid "title"
 msgstr "rubrik"
 
@@ -1247,6 +1247,7 @@ msgstr "admin"
 msgid "Parties are regularly arranged for our hard-working personnel."
 msgstr "Fester anordnas regelbundet för vår hårt arbetande personal."
 
+#: templates/baljan/call_duty_week.html:7
 #: templates/baljan/call_duty_week.html:20
 msgid "wk."
 msgstr "v."
@@ -1280,8 +1281,8 @@ msgid "drag and drop"
 msgstr "dra och släpp"
 
 #: templates/baljan/call_duty_week.html:67
-msgid "revert"
-msgstr "ångra"
+msgid "revert unsaved changes"
+msgstr "ångra osparade ändringar"
 
 #: templates/baljan/call_duty_week.html:68 templates/baljan/user.html:322
 msgid "save"
@@ -2102,6 +2103,9 @@ msgstr "ändrad för jobbare"
 #: terminal/views.py:46
 msgid "adjusted for board member"
 msgstr "ändrad för styrelsemedlem"
+
+#~ msgid "revert"
+#~ msgstr "ångra"
 
 #~ msgid "the board"
 #~ msgstr "styrelsen"
