@@ -389,11 +389,27 @@ $(document).ready(function () {
                 );
             });
         }
+        
+        /* Load initial data. */
+        $('.droppable').each(function() {
+            var id = $(this).attr('id');
+            if (!REAL_IDS[id]) {
+                $(this).addClass('disabled');
+            }
+            var onCallUids = ON_CALL[id],
+                inits = [];
+            for (i in onCallUids) {
+                inits.push(INITIALS[onCallUids[i]]);
+            }
+            $(this).data('initials', inits);
+            redrawContained(this);
+        });
 
         $('.droppable').each(function() {
             var drop = this;
             $(this).droppable({
                 accept: function(drag) {
+                    if ($(this).hasClass('disabled')) return false;
                     return $(drop).find('.'+drag.attr('id')).length == 0;
                 },
                 activeClass: 'active',
