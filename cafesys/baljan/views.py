@@ -528,6 +528,29 @@ def call_duty_week(request, year=None, week=None):
             id, n in zip(drag_ids, disp_names)]
     id_drags = dict(zip(uids, drags))
 
+    if request.method == 'POST' and request.is_ajax():
+        initial_users = dict(zip(initials, avails))
+        dom_id_shifts = dict(zip(dom_ids, plan.shifts))
+        for dom_id, shift in zip(dom_ids, plan.shifts):
+            old_users = User.objects.filter(oncallduty__shift=shift).distinct()
+            new_users = []
+            if request.POST.has_key(dom_id):
+                new_users = [initial_users[x] for x 
+                        in request.POST[dom_id].split('|')]
+            for old_user in old_users:
+                if not old_user in new_users:
+                    shift.oncallduty_set.filter(user=old_user).delete()
+            for new_user in new_users:
+                if not new_user in old_users:
+                    o, created = baljan.models.OnCallDuty.objects.get_or_create(
+                        shift=shift,
+                        user=new_user
+                    )
+                    assert created
+        messages.add_message(request, messages.SUCCESS, 
+                _("Your changes were saved."))
+        return HttpResponse(simplejson.dumps({'OK':True}))
+
     adjacent = adjacent_weeks(week_dates(year, week)[0])
     tpl = {}
     #tpl['plan'] = plan
@@ -541,7 +564,6 @@ def call_duty_week(request, year=None, week=None):
     tpl['available'] = avails
     tpl['real_ids'] = simplejson.dumps(real_ids)
     tpl['oncall'] = simplejson.dumps(oncall)
-    tpl['disp_names'] = simplejson.dumps(id_disp_names)
     tpl['drags'] = simplejson.dumps(id_drags)
     tpl['initials'] = simplejson.dumps(id_initials)
     tpl['uids'] = simplejson.dumps(uids)
