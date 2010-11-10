@@ -53,11 +53,19 @@ def week_range(start_date, end_date):
     return weeks
 
 def initials(user, from_first_name=1, from_last_name=1, num=None):
-    first_name = user.first_name
-    last_name = user.last_name
-    inits = "%s%s" % (
-        first_name[0:from_first_name], 
-        last_name[0:from_last_name]
+    first_name = user.first_name.replace('-', ' ')
+    last_name = user.last_name.replace('-', ' ')
+
+    first_name_first = first_name.split()[0]
+    fmids = ''.join([m[0] for m in first_name.split()[1:]])
+
+    last_name_last = last_name.split()[-1]
+    lmids = ''.join([m[0] for m in last_name.split()[:-1]])
+
+    inits = "%s%s%s%s" % (
+        first_name_first[0:from_first_name], 
+        fmids, lmids,
+        last_name_last[0:from_last_name]
     )
     if num is None:
         return inits
