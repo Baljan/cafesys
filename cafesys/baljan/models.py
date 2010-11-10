@@ -14,7 +14,7 @@ import random
 import string
 from dateutil.relativedelta import relativedelta
 import baljan.util
-from baljan.util import get_logger, week_dates
+from baljan.util import get_logger, week_dates, year_and_week
 import itertools
 from django.core.cache import cache
 from notification import models as notification
@@ -562,6 +562,11 @@ class Shift(Made):
 
     def today(self):
         return self.when == date.today()
+
+    def week_url(self):
+        return reverse('baljan.views.call_duty_week',
+            args=year_and_week(self.when)
+        )
 
     def accepts_signups(self):
         return self.upcoming() and self.semester.signup_possible and self.signups().count() < 2 and self.span != 1
