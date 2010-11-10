@@ -67,9 +67,15 @@
                     {%if sh.today%} today{%endif%} 
                     {%if sh.upcoming%} upcoming{%endif%} 
                     {% cycle "odd" "even" %}">
-                    {% with sh.when|date:'W' as week %}
+                    {% with sh.when|week as week %}
                         <td class="week{% ifchanged week %} show{% endifchanged %}">
-                            {{week}}
+                            {% if perms.baljan.change_oncallduty %}
+                                <a href="{{sh.week_url}}">
+                                    {{week}}
+                                </a>
+                            {% else %}
+                                {{week}}
+                            {% endif %}
                         </td>
                     {% endwith %}
                     {% with sh.when|date:'D' as day %}
