@@ -505,7 +505,7 @@ def call_duty_week(request, year=None, week=None):
         plan = planning.BoardWeek(year, week)
 
 
-    oncall_ids = [[oc.id for oc in sh] for sh in plan.oncall()]
+    oncall_ids = [[str(oc.id) for oc in sh] for sh in plan.oncall()]
     dom_ids = plan.dom_ids()
     real_ids = dict(zip(dom_ids, plan.shift_ids()))
     oncall = dict(zip(dom_ids, oncall_ids))
@@ -517,7 +517,7 @@ def call_duty_week(request, year=None, week=None):
     id_names = zip(uids, names)
 
     initials = all_initials(avails)
-    id_initials = zip(uids, initials)
+    id_initials = dict(zip(uids, initials))
 
     disp_names = ["%s (%s)" % (name, inits) for name, inits in zip(names, initials)]
     disp_names = ["&nbsp;".join(dn.split()) for dn in disp_names]
