@@ -4,7 +4,7 @@
 {% load uni_form_tags %}
 {% load baljan_extras %}
 
-{% block head_title %}{% trans "title" %}{% endblock %}
+{% block head_title %}{{year}} {% trans "wk." %} {{week}}{% endblock %}
 
 {% block body_class %}board-week{% endblock %}
 {% block body %}
@@ -81,7 +81,6 @@
     REAL_IDS = {{real_ids}};
     ON_CALL = {{oncall}};
     USER_IDS = {{uids}};
-    DISPLAY_NAMES = {{disp_names}};
     DRAGS = {{drags}};
     INITIALS = {{initials}};
 {% endautoescape %}
