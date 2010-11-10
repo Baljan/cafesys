@@ -38,7 +38,10 @@ class BoardWeek(object):
         return [sh.id for sh in self.shifts]
 
     def available(self):
-        return available_for_call_duty()
+        oncall = User.objects.filter(oncallduty__shift__in=self.shifts).distinct()
+        avails = available_for_call_duty()
+        all = oncall | avails
+        return all.distinct()
 
     def grid(self, request):
         """Rows are Monday through Friday. Columns are morning, lunch, and
