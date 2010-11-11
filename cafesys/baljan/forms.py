@@ -22,6 +22,7 @@ class ProfileForm(forms.ModelForm):
         model = baljan.models.Profile
         fields = (
                 'mobile_phone',
+                'picture',
                 )
 
 
