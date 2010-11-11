@@ -35,6 +35,7 @@ class Profile(Made):
     balance = models.IntegerField(default=0)
     balance_currency = models.CharField(_("balance currency"), max_length=5, default=u"SEK", 
             help_text=_("currency"))
+    picture = models.ImageField(_("picture"), upload_to='profile_pics', null=True, blank=True)
 
     def balcur(self):
         return u"%s %s" % (self.balance, self.balance_currency)
