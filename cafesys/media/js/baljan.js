@@ -475,4 +475,9 @@ $(document).ready(function () {
             });
         });
     }
+
+    /* Semester Administration */
+    if ($("body").hasClass('admin-semester')) {
+        $('table').unselectable();
+    }
 });
