@@ -631,6 +631,56 @@ body.search-person .results li {
     margin-right: 2.5%;
 }
 
+body.admin-semester .month {
+    width: 29.83%;
+    margin-right: 1.5%;
+    padding: .5em 1%;
+    float: left;
+    background: #fff;
+    margin-bottom: 8px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
+}
+body.admin-semester .month h2 {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+body.admin-semester .month table {
+    width: 100%;
+    font-size: .8em;
+    cursor: default;
+}
+body.admin-semester .month th.am-lunch-pm {
+    text-align: center;
+}
+body.admin-semester .month tr.even {
+    background: #eee;
+}
+body.admin-semester .month td {
+    margin: 0;
+    padding: 0;
+}
+body.admin-semester .month .day {
+    width: 10%;
+    text-align: right;
+}
+body.admin-semester .month .shift {
+    width: 35%;
+    text-align: center;
+}
+body.admin-semester .month .span-1 {
+    width: 20%;
+    border-left: 1px solid #fff;
+    border-right: 1px solid #fff;
+    background-image: url(../img/disabled-bg.png);
+}
+body.admin-semester .month .shift div {
+    width: 100%;
+    background: rgba(255, 0, 0, 0.1);
+}
+
 .chalkboard {
     color: #fff;
     background-color: #222;
@@ -642,4 +692,5 @@ body.search-person .results li {
     border-radius: 7px;
     padding: 10px;
 }
+
 
