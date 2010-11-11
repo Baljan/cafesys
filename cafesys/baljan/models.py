@@ -503,13 +503,18 @@ class ShiftManager(models.Manager):
 
 
 class Shift(Made):
+    SPAN_CHOICES = (
+        (0, _('morning')),
+        (1, _('lunch')),
+        (2, _('afternoon')),
+    )
+
     objects = ShiftManager()
 
     semester = models.ForeignKey(Semester, verbose_name=_("semester"))
-    span = models.PositiveSmallIntegerField(
-            _("time span"), help_text=_('0=morning, 1=lunch, 2=afternoon'), 
-            default=True)
     when = models.DateField(_("what day the shift is on"))
+    span = models.PositiveSmallIntegerField(_("time span"), 
+            default=True, choices=SPAN_CHOICES)
     exam_period = models.BooleanField(_("exam period"), 
             help_text=_('the work scheduler takes this field into account'), 
             default=False)
