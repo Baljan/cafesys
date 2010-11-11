@@ -5,6 +5,8 @@ from baljan.models import ShiftSignup, OnCallDuty, TradeRequest, Shift
 from baljan.util import year_and_week
 from django.contrib.auth.models import User
 from django.template.defaultfilters import escape
+from datetime import date
+from django.utils.translation import ugettext as _ 
 
 register = template.Library()
 
@@ -90,3 +92,9 @@ year.needs_autoescape = True
 def week(some_date, autoescape=None):
     return year_and_week(some_date)[1]
 week.needs_autoescape = True
+
+
+@register.filter
+def monthname(num, autoescape=None):
+    return _(date(2000, num, 1).strftime('%B'))
+monthname.needs_autoescape = True
