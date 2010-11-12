@@ -1247,7 +1247,7 @@ msgstr "Dashboard"
 #: templates/baljan/become_worker.html:6
 #: templates/baljan/become_worker.html:11
 msgid "Work for Baljan"
-msgstr "Jobba för Baljan"
+msgstr "Jobba i Baljan"
 
 #: templates/baljan/become_worker.html:34
 #, python-format
