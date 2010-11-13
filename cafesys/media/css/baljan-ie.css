@@ -24,3 +24,7 @@ body.board-week .droppable.active {
 body.board-week .droppable.hover {
     background-color: #777;
 }
+
+.ui-selected div, .ui-selecting div {
+    background: rgb(255, 0, 132);
+}

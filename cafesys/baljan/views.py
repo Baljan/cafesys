@@ -513,8 +513,15 @@ def call_duty_week(request, year=None, week=None):
     avails = plan.available()
     uids = [str(u.id) for u in avails]
 
+    pics = []
+    for pic in [u.get_profile().picture for u in avails]:
+        if pic:
+            pics.append("%s%s" % (settings.MEDIA_URL, pic))
+        else:
+            pics.append(False)
+    id_pics = dict(zip(uids, pics))
+
     names = [u.get_full_name() for u in avails]
-    id_names = zip(uids, names)
 
     initials = all_initials(avails)
     id_initials = dict(zip(uids, initials))
@@ -524,8 +531,12 @@ def call_duty_week(request, year=None, week=None):
     id_disp_names = dict(zip(uids, disp_names))
 
     drag_ids = ['drag-%s' % i for i in initials]
-    drags = ["<span id='%s'>%s</span>" % (id, n) for 
-            id, n in zip(drag_ids, disp_names)]
+    drags = []
+    for drag_id, disp_name, pic in zip(drag_ids, disp_names, pics):
+        if pic:
+            drags.append("<span id='%s'><img src='%s' title='%s'/></span>" % (drag_id, pic, disp_name))
+        else:
+            drags.append("<span id='%s'>%s</span>" % (drag_id, disp_name))
     id_drags = dict(zip(uids, drags))
 
     if request.method == 'POST' and request.is_ajax():
@@ -563,6 +574,76 @@ def call_duty_week(request, year=None, week=None):
     tpl['oncall'] = simplejson.dumps(oncall)
     tpl['drags'] = simplejson.dumps(id_drags)
     tpl['initials'] = simplejson.dumps(id_initials)
+    tpl['pictures'] = simplejson.dumps(id_pics)
     tpl['uids'] = simplejson.dumps(uids)
     return render_to_response('baljan/call_duty_week.html', tpl, 
+            context_instance=RequestContext(request))
+
+
+@permission_required('baljan.add_semester')
+@permission_required('baljan.change_semester')
+@permission_required('baljan.delete_semester')
+def admin_semester(request, name=None):
+    if name is None:
+        sem = baljan.models.Semester.objects.current()
+    else:
+        sem = baljan.models.Semester.objects.by_name(name)
+
+    user = request.user
+    
+    new_sem_form = baljan.forms.SemesterForm()
+    if request.method == 'POST':
+        if request.POST['task'] == 'new_semester':
+            new_sem_form = baljan.forms.SemesterForm(request.POST)
+        elif request.POST['task'] == 'edit_shifts':
+            raw_ids = request.POST['shift-ids'].strip()
+            edit_shift_ids = []
+            if len(raw_ids):
+                edit_shift_ids = [int(x) for x in raw_ids.split('|')]
+
+            make = request.POST['make']
+            shifts_to_edit = baljan.models.Shift.objects.filter(
+                id__in=edit_shift_ids).distinct()
+            if make == 'normal':
+                shifts_to_edit.update(exam_period=False, enabled=True)
+            elif make == 'disabled':
+                shifts_to_edit.update(exam_period=False, enabled=False)
+            elif make == 'exam-period':
+                shifts_to_edit.update(exam_period=True, enabled=True)
+            elif make == 'none':
+                pass
+            else:
+                get_logger('baljan.semesters').warning('unexpected task %r' % make)
+                assert False
+
+    new_sem_failed = False
+    if new_sem_form.is_bound:
+        if new_sem_form.is_valid():
+            new_sem = new_sem_form.save()
+            new_sem_url = reverse('baljan.views.admin_semester', 
+                args=(new_sem.name,)
+            )
+            messages.add_message(request, messages.SUCCESS, 
+                _("%s was added successfully.") % new_sem.name
+            )
+            return HttpResponseRedirect(new_sem_url)
+        else:
+            new_sem_failed = True
+
+    tpl = {}
+    if sem:
+        tpl['semester'] = sem
+        tpl['new_semester_form'] = new_sem_form
+        tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
+        tpl['admin_semester_base_url'] = reverse('baljan.views.admin_semester')
+        tpl['new_semester_failed'] = new_sem_failed
+
+        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span')
+        tpl['day_count'] = len(list(sem.date_range()))
+        
+        worker_shifts = shifts.exclude(enabled=False).exclude(span=1)
+        tpl['worker_shift_count'] = worker_shifts.count()
+        tpl['exam_period_count'] = worker_shifts.filter(exam_period=True).count()
+
+    return render_to_response('baljan/admin_semester.html', tpl, 
             context_instance=RequestContext(request))

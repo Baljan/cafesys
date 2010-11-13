@@ -12,6 +12,8 @@ urlpatterns = patterns("baljan.views",
     url(r"^semester/$", 'current_semester'),
     url(r"^day/(?P<day>[0-9-]+)$", 'day_shifts'),
     url(r"^semester/(?P<name>\w+)$", 'semester'),
+    url(r"^admin-semester$", 'admin_semester'),
+    url(r"^admin-semester/(\w+)$", 'admin_semester'),
 
     url(r"^profile$", 'profile'),
     url(r"^credits$", 'credits'),

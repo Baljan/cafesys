@@ -355,7 +355,6 @@ body .main img, body .secondary img {
     margin-left: auto;
     margin-right: auto;
     text-align: center;
-    width: 100%;
     max-width: 100%;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
@@ -487,6 +486,11 @@ body.user .signups .group td {
 body.user .friend-request {
     text-align: center;
 }
+body.user .profile .picture {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
 
 body.become-worker .toggle-request a {
     font-size: 1.5em;
@@ -614,6 +618,9 @@ body.board-week .available-users span,
 body.board-week table td span {
     cursor: pointer;
 }
+body.board-week .available-users span img {
+    max-height: 3em;
+}
 body.board-week .available-users .active,
 body.board-week .droppable.active {
     background-color: rgba(255, 255, 255, 0.2);
@@ -656,11 +663,14 @@ body.admin-semester .month th.am-lunch-pm {
     text-align: center;
 }
 body.admin-semester .month tr.even {
-    background: #eee;
 }
 body.admin-semester .month td {
     margin: 0;
     padding: 0;
+    border-bottom: 1px solid #eee;
+}
+body.admin-semester .month td.day {
+    border: none;
 }
 body.admin-semester .month .day {
     width: 10%;
@@ -672,13 +682,45 @@ body.admin-semester .month .shift {
 }
 body.admin-semester .month .span-1 {
     width: 20%;
-    border-left: 1px solid #fff;
-    border-right: 1px solid #fff;
-    background-image: url(../img/disabled-bg.png);
 }
-body.admin-semester .month .shift div {
-    width: 100%;
-    background: rgba(255, 0, 0, 0.1);
+body.admin-semester td.disabled {
+    border-bottom: 1px solid #222;
+}
+body.admin-semester .disabled {
+    background: #111;
+    color: #fff;
+}
+body.admin-semester td.exam-period {
+    border-bottom: 1px solid #5d8dc0;
+}
+body.admin-semester .exam-period {
+    background: #71acea;
+    color: #fff;
+}
+body.admin-semester .normal {
+    background: #fff;
+    color: #111;
+}
+body.admin-semester .box {
+    width: 1.2em;
+    display: block;
+    margin-right: .3em;
+    float: left;
+}
+body.admin-semester .selection input[disabled] {
+    background: #eee;
+    color: #666;
+}
+body.admin-semester .selection input {
+    width: 98%;
+    text-align: left;
+    font-weight: normal;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.ui-selected div, .ui-selecting div {
+    background: rgba(255, 0, 132, 0.5);
 }
 
 .chalkboard {

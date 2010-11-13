@@ -196,7 +196,7 @@ $(document).ready(function () {
         modal: true,
         autoOpen: false,
         buttons: profileDialogButtons,
-        width: 400
+        width: 500
     });
     $('body.user .show-profile-dialog').click(function() {
         profileDialog.dialog('open');
@@ -427,7 +427,7 @@ $(document).ready(function () {
             });
         });
 
-        $('.available-users span').each(function() {
+        $('.available-users').children().each(function() {
             var initials = $(this).attr('id').split('-')[1]
                 cls = 'drag-' + $(this).attr('id').split('-')[1],
                 drag = this;
@@ -478,6 +478,69 @@ $(document).ready(function () {
 
     /* Semester Administration */
     if ($("body").hasClass('admin-semester')) {
+        var editShiftsForm = $('form[name=edit-shifts]');
+
         $('table').unselectable();
+        $('.months').selectable({
+            filter: 'td.shift',
+            stop: function(ev, ui) {
+                var inputs = editShiftsForm.find('input[type=button]');
+                if ($('table td.ui-selected').length) {
+                    $(inputs).removeAttr('disabled');
+                }
+                else {
+                    $(inputs).attr('disabled', 'disabled');
+                }
+            }
+        });
+
+        $('input[name=start]').datepicker({ // TODO: i18n
+            dateFormat:"yy-mm-dd",
+            changeMonth: true,
+            changeYear: true
+        });
+        $('input[name=end]').datepicker({ // TODO: i18n
+            dateFormat:"yy-mm-dd",
+            changeMonth: true,
+            changeYear: true
+        });
+
+        var newSemDialogButtons = {};
+        newSemDialogButtons[SAVE_MSG] = function() {
+            $(this).find('form').submit();
+        }
+        newSemDialogButtons[CANCEL_MSG] = function() {
+            $(this).dialog('close');
+        }
+        var newSemDialog = $('#new-sem-dialog').dialog({
+            modal: true,
+            autoOpen: false,
+            buttons: newSemDialogButtons,
+            width: 500
+        });
+        $('.show-new-sem-dialog').click(function() {
+            newSemDialog.dialog('open');
+        });
+        if (NEW_SEMESTER_FAILED) {
+            $('.show-new-sem-dialog').click();
+        }
+        $('.selection input').click(function() {
+            editShiftsForm.find('input[name=make]').attr('value', $(this).attr('class'));
+            var shiftIds = [];
+            $('table td.ui-selected').each(function() {
+                shiftIds.push(parseInt($(this).attr('id').split('-')[1], 10));
+            });
+            editShiftsForm.find('input[name=shift-ids]')
+                          .attr('value', shiftIds.join('|'));
+
+            if (confirm(CONFIRM_MSG)) {
+                editShiftsForm.submit();
+            }
+        });
+
+        $('.choose-semester select').change(function() {
+            var name = $(this).children(':selected').html();
+            location.href = '' + BASE_URL + '/' + name;
+        });
     }
 });
