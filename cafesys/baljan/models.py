@@ -477,6 +477,12 @@ def semester_post_save(sender, instance, **kwargs):
     logger = get_logger('baljan.semesters')
     logger.info('%s: %d/%d shifts added/deleted, signups=%s' % (
         sem.name, created_count, deleted_count, sem.signup_possible))
+
+    # Create new shift combinations for job openings.
+    from baljan import workdist
+    sched = workdist.Scheduler(sem)
+    sched.save()
+
 signals.post_save.connect(semester_post_save, sender=Semester)
 
 def semester_post_delete(sender, instance, **kwargs):
@@ -492,6 +498,24 @@ SPAN_NAMES = {
     1: _('lunch'),
     2: _('afternoon'),
 }
+
+
+class ShiftCombination(Made):
+    semester = models.ForeignKey(Semester, verbose_name=_("semester"))
+    shifts = models.ManyToManyField('baljan.Shift', verbose_name=_("shifts"))
+    label = models.CharField(_("label"), max_length=10)
+
+    class Meta:
+        verbose_name = _("shift combination")
+        verbose_name_plural = _("shift combinations")
+        ordering = ('shifts__when', 'shifts__span')
+
+    def __unicode__(self):
+        return u"%s: %s (%s)" % (
+            self.label, 
+            ', '.join([str(sh) for sh in self.shifts.all().order_by('when', 'span')]),
+            self.semester,
+        )
 
 
 class ShiftManager(models.Manager):
@@ -534,6 +558,14 @@ class Shift(Made):
         if self.span == 2:
             return _("12:00 pm to ca 4:45 pm")
         assert False
+
+    def comb(self):
+        combs = self.shiftcombination_set.all()
+        comb_count = len(combs)
+        assert comb_count in (0, 1)
+        if comb_count:
+            return combs[0]
+        return None
 
     def oncall_timedesc(self):
         """Description of the working hours."""

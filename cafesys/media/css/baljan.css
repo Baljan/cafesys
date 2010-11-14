@@ -711,6 +711,10 @@ body.admin-semester .selection input[disabled] {
     background: #eee;
     color: #666;
 }
+body.admin-semester td.shift .highlight {
+    background: #ffa;
+    color: #330;
+}
 body.admin-semester .selection input {
     width: 98%;
     text-align: left;

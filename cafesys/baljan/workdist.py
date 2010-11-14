@@ -2,7 +2,7 @@
 from pulp import LpProblem, LpMinimize, lpSum, LpVariable, LpStatus, LpInteger
 from pulp import allcombinations, value
 from math import floor, ceil
-from baljan.models import Shift, Semester
+from baljan.models import Shift, Semester, ShiftCombination
 from baljan.util import Ring, get_logger, flatten
 from django.db.models import Count
 from math import ceil, floor
@@ -286,9 +286,41 @@ class LabeledPairAlloc(PairAlloc):
     def from_pairalloc(label, alloc):
         return LabeledPairAlloc(label, alloc.tolist())
 
+    @staticmethod
+    def from_db(comb):
+        solution = [0, 0, 0]
+        for i, span in ((0, AM), (1, PM)):
+            solution[i] = comb.shifts.filter(span=span, exam_period=False).count()
+        solution[2] = comb.shifts.filter(exam_period=True).count()
+        lpa = LabeledPairAlloc(comb.label, solution)
+        for sh in comb.shifts.order_by('when', 'span'):
+            assert lpa.assign_to(sh) is not None
+        return lpa
+
     def __init__(self, label, solution):
         super(LabeledPairAlloc, self).__init__(solution)
         self.label = label
+
+    def save(self):
+        shifts = self.shifts
+        if not len(shifts):
+            return
+
+        sem = shifts[0].semester
+        assert sum([1 if sh.semester == sem else 0 for sh in shifts]) \
+                == len(shifts)
+        
+        comb, created = ShiftCombination.objects.get_or_create(
+            semester=sem,
+            label=self.label,
+        )
+        comb.shifts = shifts
+        comb.save()
+
+        verb = "saved"
+        if created:
+            verb = "created"
+        log.info('%s %r' % (verb, comb))
 
     def __str__(self):
         return "%s=%s" % (self.label, super(LabeledPairAlloc, self).__str__())
@@ -334,3 +366,35 @@ class Scheduler(object):
     def pairs(self):
         alloc_ring = self.pair_alloc_ring()
         return alloc_ring.assign_all(self.shifts)
+
+    def _dbcombs(self):
+        return ShiftCombination.objects.filter(semester=self.sem).order_by('label')
+
+    def pairs_from_db(self):
+        combs = self._dbcombs()
+        if combs.count() == 0:
+            self.save()
+            combs = self._dbcombs()
+
+        pairs = []
+        for comb in combs:
+            pairs.append(LabeledPairAlloc.from_db(comb))
+
+        log.info('fetched %d pairs from db for %r' % (len(pairs), self.sem))
+        return pairs
+
+
+    def clear_db(self):
+        combs = self._dbcombs()
+        combs.delete()
+        log.info('cleared combinations for %r' % self.sem)
+
+
+    def save(self, clear_db=True):
+        sem = self.sem
+        pairs = self.pairs()
+        if clear_db:
+            self.clear_db()
+        for pair in pairs:
+            pair.save()
+        log.info('saved pairs for %r' % self.sem)

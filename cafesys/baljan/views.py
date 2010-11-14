@@ -463,7 +463,7 @@ def job_opening(request, semester_name):
             return HttpResponse(simplejson.dumps(info))
     else:
         sched = workdist.Scheduler(sem)
-        pairs = sched.pairs()
+        pairs = sched.pairs_from_db()
 
         col_count = 10
         row_count = len(pairs) // col_count
@@ -596,6 +596,7 @@ def admin_semester(request, name=None):
         if request.POST['task'] == 'new_semester':
             new_sem_form = baljan.forms.SemesterForm(request.POST)
         elif request.POST['task'] == 'edit_shifts':
+            assert sem is not None
             raw_ids = request.POST['shift-ids'].strip()
             edit_shift_ids = []
             if len(raw_ids):
@@ -604,12 +605,16 @@ def admin_semester(request, name=None):
             make = request.POST['make']
             shifts_to_edit = baljan.models.Shift.objects.filter(
                 id__in=edit_shift_ids).distinct()
+
             if make == 'normal':
                 shifts_to_edit.update(exam_period=False, enabled=True)
+                sem.save() # generates new shift combinations
             elif make == 'disabled':
                 shifts_to_edit.update(exam_period=False, enabled=False)
+                sem.save() # generates new shift combinations
             elif make == 'exam-period':
                 shifts_to_edit.update(exam_period=True, enabled=True)
+                sem.save() # generates new shift combinations
             elif make == 'none':
                 pass
             else:

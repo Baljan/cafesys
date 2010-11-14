@@ -117,6 +117,13 @@ class ShiftAdmin(admin.ModelAdmin):
 admin.site.register(baljan.models.Shift, ShiftAdmin)
 
 
+class ShiftCombinationAdmin(admin.ModelAdmin):
+    search_fields = ('semester__name', 'label')
+    list_display = ('label', 'semester',)
+    list_filter = ('semester',)
+admin.site.register(baljan.models.ShiftCombination, ShiftCombinationAdmin)
+
+
 class GoodCostInline(admin.TabularInline):
     model = baljan.models.GoodCost
     extra = 1

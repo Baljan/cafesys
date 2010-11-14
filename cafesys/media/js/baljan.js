@@ -478,7 +478,8 @@ $(document).ready(function () {
 
     /* Semester Administration */
     if ($("body").hasClass('admin-semester')) {
-        var editShiftsForm = $('form[name=edit-shifts]');
+        var editShiftsForm = $('form[name=edit-shifts]'),
+            shiftInners = $('table td.shift div');
 
         $('table').unselectable();
         $('.months').selectable({
@@ -492,6 +493,20 @@ $(document).ready(function () {
                     $(inputs).attr('disabled', 'disabled');
                 }
             }
+        });
+
+        $(shiftInners).hover(function() {
+            var comb = $(this).html();
+            if (comb == '&nbsp;') return;
+            $(shiftInners).filter(function() {
+                return $(this).html() == comb;
+            }).addClass('highlight');
+        }, function() {
+            var comb = $(this).html();
+            if (comb == '&nbsp;') return;
+            $(shiftInners).filter(function() {
+                return $(this).html() == comb;
+            }).removeClass('highlight');
         });
 
         $('input[name=start]').datepicker({ // TODO: i18n
