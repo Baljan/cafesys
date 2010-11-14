@@ -208,7 +208,7 @@ class Ring(object):
 
     def __init__(self, l):
         if not len(l):
-            raise "ring must have at least one element"
+            raise Exception("ring must have at least one element")
         self._data = l
 
     def __repr__(self):
