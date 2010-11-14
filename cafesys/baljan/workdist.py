@@ -345,7 +345,7 @@ class Scheduler(object):
 
     def needed_pairs(self):
         assert self.target_pair_shift_count != 0
-        return self.shifts.count() // self.target_pair_shift_count
+        return max(self.shifts.count() // self.target_pair_shift_count, 1)
     
     def pair_allocs(self):
         work_pairs = self.needed_pairs()
@@ -392,9 +392,12 @@ class Scheduler(object):
 
     def save(self, clear_db=True):
         sem = self.sem
-        pairs = self.pairs()
         if clear_db:
             self.clear_db()
-        for pair in pairs:
-            pair.save()
-        log.info('saved pairs for %r' % self.sem)
+        if len(self.shifts):
+            pairs = self.pairs()
+            for pair in pairs:
+                pair.save()
+            log.info('saved pairs for %r' % self.sem)
+        else:
+            log.info('no pairs to save for %r' % self.sem)
