@@ -44,11 +44,14 @@
             {% for row in slots %}
                 <tr>
                 {% for pair in row %}
-                    <td class="{% if pair %}pair{%else%}padding{%endif%} {{pair.classes|join:" "}}">
                     {% if pair %}
-                        {{pair.label}}
-                    {% endif %}
-                    </td>
+                        <td id="pair-{{pair.label}}" class="
+                            pair
+                            {% if pair.is_free %}free{%else%}taken{%endif%}
+                            ">{{pair.label}}</td>
+                    {%else%}
+                        <td class="padding"></td>
+                    {%endif%}
                 {% endfor %}
                 </tr>
             {% endfor %}
@@ -57,24 +60,28 @@
         <div class="clear"></div>
 
         <div class="submit-wrap init-hidden">
-            <div class="submit layout">
-                <input disabled="disabled" type="submit"/>
-            </div>
+            <form method="POST" action="">{% csrf_token %}
+                <input type="hidden" name="shift-ids" value="" />
+                <input type="hidden" name="user-ids" value="" />
+                <div class="submit layout">
+                    <input disabled="disabled" type="submit"/>
+                </div>
+            </form>
         </div>
     </div>
 
 </div><!--.main-->
 <div class="grid_3 omega secondary">
     <div>
-    {% blocktrans with slots_filled_percent as done_percent and slots_empty as empty and slots_filled as filled %}
+    {% blocktrans with pairs_taken_percent as done_percent and pairs_free as free and pairs_taken as taken %}
         <h2>
             {{done_percent}}% Done
         </h2>
         <dl>
             <dt>combinations available</dt>
-            <dd>{{empty}}</dd>
+            <dd>{{free}}</dd>
             <dt>combinations taken</dt>
-            <dd>{{filled}}</dd>
+            <dd>{{taken}}</dd>
         </dl>
     {% endblocktrans %}
     </div>
@@ -85,7 +92,7 @@
 {% block extra_body %}
 <script type="text/javascript">
 // <![CDATA[
-    COMBINATION_PROGRESS = {{slots_filled_percent}};
+    COMBINATION_PROGRESS = {{pairs_taken_percent}};
 
     CONFIRM_MSG = "{% trans "Are you sure?" %}";
     CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";

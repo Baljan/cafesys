@@ -76,6 +76,13 @@ class PairAlloc(object):
         except self.Empty:
             return None
 
+    def is_free(self):
+        """True if all shifts are totally free, not a single sign-up."""
+        return len([sh for sh in self.shifts if sh.signups().count() != 0]) == 0
+
+    def is_taken(self):
+        return not self.is_free()
+
     def distance_to(self, shift):
         if not self.can_take(shift):
             return self.CANNOT_TAKE

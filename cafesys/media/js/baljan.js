@@ -204,7 +204,7 @@ $(document).ready(function () {
 
     /* Job Opening View */
     if ($("body").hasClass('job-opening')) {
-        var slots = $('.slots td.pair'),
+        var slots = $('.slots td.pair.free'),
             curSearch = false,
             idInput = $('#id_liu_id'),
             msg = $('.user-adder .message span'),
@@ -216,6 +216,7 @@ $(document).ready(function () {
             currentComb = $('.shifts-in-combination'),
             currentCombLabel = false,
             currentCombShiftIds = [],
+            saveForm = $('.submit-wrap form'),
             submitBox = $('.submit-wrap');
 
         var refreshSave = function() {
@@ -227,12 +228,24 @@ $(document).ready(function () {
             }
             if (currentCombShiftIds.length == 0 ||
                 addedUsersCount != 2) {
+                saveForm.find('input[name=shift-ids]').attr('value', '');
+                saveForm.find('input[name=user-ids]').attr('value', '');
+
                 submitBox.removeClass('saved');
                 submitBox.addClass('pending');
                 submitButton.attr('disabled', 'disabled');
                 submitButton.attr('value', SUBMIT_HELP);
             }
             else {
+                var serialShiftIds = currentCombShiftIds.join('|'),
+                    serialUsernames = [];
+                for (i in addedUsers) serialUsernames.push(i);
+                serialUsernames = serialUsernames.join('|');
+                saveForm.find('input[name=shift-ids]')
+                        .attr('value', serialShiftIds);
+                saveForm.find('input[name=user-ids]')
+                        .attr('value', serialUsernames);
+
                 submitBox.addClass('saved');
                 submitBox.removeClass('pending');
                 submitButton.removeAttr('disabled');

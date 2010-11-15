@@ -425,19 +425,19 @@ def job_opening(request, semester_name):
 
     found_user = None
     if request.method == 'POST':
-        searched_for = request.POST['liu_id']
-        valid_search = valid_username(searched_for)
+        if request.is_ajax(): # find user
+            searched_for = request.POST['liu_id']
+            valid_search = valid_username(searched_for)
 
-        if valid_search or re.match('^[a-z]{5,5}[0-9]{0,3}$', searched_for):
-            results = baljan.search.for_person(searched_for, use_cache=False)
-            if len(results) == 1:
-                valid_search = True # when matching alphabetic part only
-                found_user = results[0]
+            if valid_search or re.match('^[a-z]{5,5}[0-9]{0,3}$', searched_for):
+                results = baljan.search.for_person(searched_for, use_cache=False)
+                if len(results) == 1:
+                    valid_search = True # when matching alphabetic part only
+                    found_user = results[0]
 
-        if valid_search and found_user is None:
-            pass # TODO: perform LDAP lookup
+            if valid_search and found_user is None:
+                pass # TODO: perform LDAP lookup
 
-        if request.is_ajax():
             info = {}
             info['user'] = None
             info['msg'] = _('enter liu id')
@@ -459,35 +459,45 @@ def job_opening(request, semester_name):
                 if valid_search:
                     info['msg'] = _('liu id unfound')
                     info['msg_class'] = 'invalid'
-
             return HttpResponse(simplejson.dumps(info))
-    else:
-        sched = workdist.Scheduler(sem)
-        pairs = sched.pairs_from_db()
+        else: # the user hit save, assign users to shifts
+            shift_ids = [int(x) for x in request.POST['shift-ids'].split('|')]
+            usernames = request.POST['user-ids'].split('|')
+            shifts_to_save = baljan.models.Shift.objects.filter(pk__in=shift_ids)
+            users_to_save = User.objects.filter(username__in=usernames)
+            for shift_to_save in shifts_to_save:
+                for user_to_save in users_to_save:
+                    signup, created = baljan.models.ShiftSignup.objects.get_or_create(
+                        user=user_to_save,
+                        shift=shift_to_save
+                    )
 
-        col_count = 10
-        row_count = len(pairs) // col_count
-        if len(pairs) % col_count != 0:
-            row_count += 1
+    sched = workdist.Scheduler(sem)
+    pairs = sched.pairs_from_db()
 
-        slots = [[None for c in range(col_count)] for r in range(row_count)]
-        for i, pair in enumerate(pairs):
-            row_idx, col_idx = i // col_count, i % col_count
-            slots[row_idx][col_idx] = pair
+    col_count = 10
+    row_count = len(pairs) // col_count
+    if len(pairs) % col_count != 0:
+        row_count += 1
 
-        pair_javascript = {}
-        for pair in pairs:
-            pair_javascript[pair.label] = {
-                'shifts': [unicode(sh.name()) for sh in pair.shifts],
-                'ids': [sh.pk for sh in pair.shifts],
-            }
+    slots = [[None for c in range(col_count)] for r in range(row_count)]
+    for i, pair in enumerate(pairs):
+        row_idx, col_idx = i // col_count, i % col_count
+        slots[row_idx][col_idx] = pair
+
+    pair_javascript = {}
+    for pair in pairs:
+        pair_javascript[pair.label] = {
+            'shifts': [unicode(sh.name()) for sh in pair.shifts],
+            'ids': [sh.pk for sh in pair.shifts],
+        }
 
     tpl['slots'] = slots
     tpl['pair_javascript'] = simplejson.dumps(pair_javascript)
-    tpl['slots_empty'] = slots_empty = 53
-    tpl['slots_filled'] = slots_filled = 17
-    tpl['slots_total'] = slots_total = slots_empty + slots_filled
-    tpl['slots_filled_percent'] = int(round(slots_filled * 100.0 / slots_total))
+    tpl['pairs_free'] = pairs_free = len([p for p in pairs if p.is_free()])
+    tpl['pairs_taken'] = pairs_taken = len([p for p in pairs if p.is_taken()])
+    tpl['pairs_total'] = pairs_total = pairs_free + pairs_taken
+    tpl['pairs_taken_percent'] = int(round(pairs_taken * 100.0 / pairs_total))
     return render_to_response('baljan/job_opening.html', tpl, 
             context_instance=RequestContext(request))
 

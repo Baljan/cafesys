@@ -554,6 +554,11 @@ body.job-opening .slots td.padding:hover {
 body.job-opening .slots td.active {
     background: rgba(151, 192, 234, 0.4);
 }
+body.job-opening .slots td.taken {
+    background: #ccc;
+    color: #666;
+    cursor: default;
+}
 
 .admin-link {
     background: inherit !important;
