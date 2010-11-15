@@ -3,6 +3,7 @@ from pulp import LpProblem, LpMinimize, lpSum, LpVariable, LpStatus, LpInteger
 from pulp import allcombinations, value
 from math import floor, ceil
 from baljan.models import Shift, Semester, ShiftCombination
+from django.contrib.auth.models import User, Permission, Group
 from baljan.util import Ring, get_logger, flatten
 from django.db.models import Count
 from math import ceil, floor
@@ -82,6 +83,12 @@ class PairAlloc(object):
 
     def is_taken(self):
         return not self.is_free()
+
+    def taken_by(self):
+        users = User.objects.filter(
+                shiftsignup__shift__in=self.shifts).distinct().order_by(
+                        'first_name', 'last_name')
+        return users
 
     def distance_to(self, shift):
         if not self.can_take(shift):
