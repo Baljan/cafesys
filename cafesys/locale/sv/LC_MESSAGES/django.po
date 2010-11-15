@@ -134,7 +134,7 @@ msgstr "jobbplanering"
 
 #: baljan/actions.py:66
 msgid "work for Baljan"
-msgstr "jobba för Baljan"
+msgstr "jobba i Baljan"
 
 #: baljan/actions.py:67
 msgid "people and groups"
