@@ -69,8 +69,11 @@ class SemesterAdmin(admin.ModelAdmin):
     #inlines = (ShiftInline,)
 admin.site.register(baljan.models.Semester, SemesterAdmin)
 
-signup_oncall_fields = ('shift__when', 'user__username', 'user__first_name', 'user__last_name')
-signup_oncall_display = ('shift', 'user')
+signup_oncall_fields = ('shift__when', 'user__username', 'user__first_name', 
+        'user__last_name',
+        'shift__semester__name',
+        )
+signup_oncall_display = ('shift', 'user', )
 
 class ShiftSignupInline(admin.TabularInline):
     model = baljan.models.ShiftSignup
@@ -80,7 +83,7 @@ class ShiftSignupInline(admin.TabularInline):
 class ShiftSignupAdmin(admin.ModelAdmin):
     search_fields = signup_oncall_fields
     list_display = signup_oncall_display + ('tradable',)
-    list_filter = ('tradable',)
+    list_filter = ('tradable', )
 admin.site.register(baljan.models.ShiftSignup, ShiftSignupAdmin)
 
 
