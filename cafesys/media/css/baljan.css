@@ -554,7 +554,8 @@ body.job-opening .slots td.padding:hover {
 body.job-opening .slots td.active {
     background: rgba(151, 192, 234, 0.4);
 }
-body.job-opening .slots td.taken {
+body.job-opening .slots td.taken,
+body.job-opening .slots td.taken:hover {
     background: #ccc;
     color: #666;
     cursor: default;
