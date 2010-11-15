@@ -471,6 +471,10 @@ def job_opening(request, semester_name):
                         user=user_to_save,
                         shift=shift_to_save
                     )
+                    if created:
+                        opening_log.info('%r created' % signup)
+                    else:
+                        opening_log.info('%r already existed' % signup)
 
     sched = workdist.Scheduler(sem)
     pairs = sched.pairs_from_db()
