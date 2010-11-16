@@ -994,7 +994,7 @@ class RefillSeries(Made):
     def clean(self):
         from django.core.exceptions import ValidationError
         if self.code_value * self.code_count > SERIES_MAX_VALUE:
-            raise ValidationError("Invalid total worth.")
+            raise ValidationError(_("Invalid total worth."))
         if self.code_value > BALANCE_CODE_MAX_VALUE:
             raise ValidationError(_("Code value too high."))
 
