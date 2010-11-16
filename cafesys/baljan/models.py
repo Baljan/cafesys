@@ -66,7 +66,7 @@ class Profile(Made):
         verbose_name = _("profile")
         verbose_name_plural = _("profiles")
         permissions = (
-                ('available_for_call_duty', _("Available for call duty")), # for workers
+                ('available_for_call_duty', _nl("Available for call duty")), # for workers
                 )
 
     def __unicode__(self):
@@ -92,7 +92,7 @@ class JoinGroupRequest(Made):
         verbose_name = _("join group request")
         verbose_name_plural = _("join group requests")
         permissions = (
-                ('can_request_group', _("Can request group")), # for workers
+                ('can_request_group', _nl("Can request group")), # for workers
                 )
 
     def __unicode__(self):
@@ -448,7 +448,7 @@ class Semester(Made):
         verbose_name = _("semester")
         verbose_name_plural = _("semesters")
         permissions = (
-                ('manage_job_openings', _("Can manage job openings")),
+                ('manage_job_openings', _nl("Can manage job openings")),
                 )
 
     def __unicode__(self):
@@ -675,7 +675,7 @@ class ShiftSignup(Made):
         verbose_name_plural = _("shift sign-ups")
         ordering = ('-shift__when',)
         permissions = (
-                ('self_and_friend_signup', _("Can sign up self and friends")), # for workers
+                ('self_and_friend_signup', _nl("Can sign up self and friends")), # for workers
                 )
 
     @models.permalink
