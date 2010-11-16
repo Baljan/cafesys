@@ -858,7 +858,7 @@ class GoodCost(Made):
         ordering = ['-from_date']
 
     def __unicode__(self):
-        return _(u"%(title)s %(cost)s %(currency)s") % {
+        return u"%(title)s %(cost)s %(currency)s" % {
                 'title': self.good.title, 
                 'cost': self.cost, 
                 'currency': self.currency,
@@ -906,7 +906,7 @@ class OrderGood(Made):
         verbose_name_plural = _("order goods")
 
     def __unicode__(self):
-        return _(u"%(count)dx %(good)s") % {
+        return u"%(count)dx %(good)s" % {
                 'count': self.count,
                 'good': self.good, 
                 }
@@ -1054,7 +1054,7 @@ class BoardPost(Made):
         ordering = ('-semester__start', 'user__first_name', 'user__last_name')
 
     def __unicode__(self):
-        return _(u"%(user)s %(post)s in %(sem)s") % {
+        return u"%(user)s %(post)s in %(sem)s" % {
             'user': self.user.username, 
             'post': self.post, 
             'sem': self.semester.name,
