@@ -150,5 +150,5 @@ def shift_combination_form(file_object, scheduler):
     pad = 30 # ugly way of getting enough room for text
     return shift_combinations(file_object, scheduler, 
             empty_cells=True,
-            cell_title=_(" "*pad + "liu ids" + " "*pad),
+            cell_title=u" "*pad + _("liu ids") + u" "*pad,
     )
