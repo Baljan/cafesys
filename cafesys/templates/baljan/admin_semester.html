@@ -80,6 +80,13 @@
         <p>
             <span class="exam-period box">&nbsp;</span> {% trans "exam period" %}
         </p>
+        <p>
+            {% trans "PDF" %}:
+            <a href="{% url baljan.views.shift_combinations_pdf semester%}">
+                {% trans "work shifts" %}</a>,
+            <a href="{% url baljan.views.shift_combination_form_pdf semester%}">
+                {% trans "form" %}</a>
+        </p>
     </div>
 
     <div class="selection">

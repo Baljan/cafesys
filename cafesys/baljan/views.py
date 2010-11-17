@@ -13,6 +13,7 @@ from datetime import date
 import baljan.forms
 import baljan.models
 import baljan.search
+from baljan import pdf
 from baljan.util import get_logger, year_and_week, all_initials
 from baljan.util import adjacent_weeks, week_dates
 from baljan.ldapbackend import valid_username
@@ -25,6 +26,7 @@ from notification import models as notification
 import simplejson
 import re
 from math import ceil
+from cStringIO import StringIO
 
 def index(request):
     return render_to_response('baljan/baljan.html', {}, context_instance=RequestContext(request))
@@ -666,3 +668,32 @@ def admin_semester(request, name=None):
 
     return render_to_response('baljan/admin_semester.html', tpl, 
             context_instance=RequestContext(request))
+
+
+@permission_required('baljan.change_semester')
+def shift_combinations_pdf(request, sem_name):
+    return _shift_combinations_pdf(request, sem_name, form=False)
+
+@permission_required('baljan.change_semester')
+def shift_combination_form_pdf(request, sem_name):
+    return _shift_combinations_pdf(request, sem_name, form=True)
+
+def _shift_combinations_pdf(request, sem_name, form):
+    buf = StringIO()
+    sem = baljan.models.Semester.objects.by_name(sem_name)
+    sched = workdist.Scheduler(sem)
+    pairs = sched.pairs_from_db()
+    if form:
+        pdf.shift_combination_form(buf, sched)
+    else:
+        pdf.shift_combinations(buf, sched)
+    buf.seek(0)
+    response = HttpResponse(buf.read(), mimetype="application/pdf")
+
+    if form:
+        name = 'semester_form_%s.pdf' % sem.name
+    else:
+        name = 'semester_shifts_%s.pdf' % sem.name
+
+    response['Content-Disposition'] = 'attachment; filename=%s' % name
+    return response

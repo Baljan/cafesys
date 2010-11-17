@@ -11,6 +11,7 @@ import logging
 from sentry.client.handlers import SentryHandler
 import sys
 import itertools
+from itertools import izip, chain, repeat
 from dateutil.relativedelta import relativedelta
 
 
@@ -233,3 +234,8 @@ class Ring(object):
 
 def flatten(lol):
     return list(itertools.chain.from_iterable(lol))
+
+
+def grouper(n, iterable, padvalue=None):
+    "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
+    return izip(*[chain(iterable, repeat(padvalue, n-1))]*n)
