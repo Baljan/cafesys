@@ -189,6 +189,9 @@ class PairAllocRing(object):
     class Empty(Exception):
         pass
 
+    class Unsolvable(Exception):
+        pass
+
     def __init__(self, allocs):
         self.ring = Ring(allocs)
         self._pair_pool = self.ring._data
@@ -282,7 +285,10 @@ class PairAllocRing(object):
                     untreated.append(shift)
             shifts_left = untreated
 
-        assert len(shifts_left) == 0
+        if len(shifts_left) != 0:
+            msg = "could not place all shifts"
+            log.error(msg)
+            raise self.Unsolvable(msg)
 
         listed = []
         for pair, shifts in pair_shifts.items():
@@ -341,6 +347,9 @@ class LabeledPairAlloc(PairAlloc):
 
 
 class Scheduler(object):
+    class Unsolvable(PairAllocRing.Unsolvable):
+        pass
+
     def __init__(self, sem, target_pair_shift_count=3):
         self.sem = sem
         self.shifts = shifts_for_semester(sem).order_by('when', 'span')
@@ -379,7 +388,10 @@ class Scheduler(object):
 
     def pairs(self):
         alloc_ring = self.pair_alloc_ring()
-        return alloc_ring.assign_all(self.shifts)
+        try:
+            return alloc_ring.assign_all(self.shifts)
+        except alloc_ring.Unsolvable:
+            raise self.Unsolvable("could not assign all shifts")
 
     def _dbcombs(self):
         return ShiftCombination.objects.filter(semester=self.sem).order_by('label')
