@@ -1,7 +1,5 @@
 $(document).ready(function () {
     $('.init-hidden').css('visibility', 'visible').show();
-    $('#links-for .accordion').accordion();
-    $('#links-for').css('visibility', 'visible');
     $('#nav .active').click();
 
     $('input.dateinput').datepicker({ // TODO: i18n

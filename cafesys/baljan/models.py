@@ -481,7 +481,11 @@ def semester_post_save(sender, instance, **kwargs):
     # Create new shift combinations for job openings.
     from baljan import workdist
     sched = workdist.Scheduler(sem)
-    sched.save()
+    try:
+        sched.save()
+    except workdist.Scheduler.Unsolvable:
+        logger.warning('could not save shift combs for %r' % sem)
+
 
 signals.post_save.connect(semester_post_save, sender=Semester)
 

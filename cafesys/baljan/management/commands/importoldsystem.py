@@ -144,9 +144,9 @@ SELECT nummer FROM telefon WHERE persid=%d
                 end = date(day.year, 12, 31)
 
             sem = Semester(name=name, start=start, end=end)
-            log.info('created %r' % sem)
             try:
                 sem.save()
+                log.info('created %r' % sem)
             except:
                 raise Exception("day=%s (m=%s), start=%s, end=%s" % (day, day.month, sem.start, sem.end))
         return sem
@@ -472,7 +472,7 @@ server. See OLD_SYSTEM_* settings.
 
     def handle(self, *args, **options):
         imp = Import()
-        #imp.setup_users()
+        imp.setup_users()
         imp.setup_shifts()
         imp.setup_oncallduties()
         imp.setup_current_workers_and_board()
