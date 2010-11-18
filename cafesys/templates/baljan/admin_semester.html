@@ -64,7 +64,7 @@
     </div>
 
     <div class="meta">
-        <h2>{{semester.name}}</h2>
+        <h2>{{semester.name|default:"-"}}</h2>
         <dl>
             <dt>{% trans "days" %}</dt>
             <dd>{{day_count}}</dd>
@@ -80,6 +80,7 @@
         <p>
             <span class="exam-period box">&nbsp;</span> {% trans "exam period" %}
         </p>
+        {% if semester %}
         <p>
             {% trans "PDF" %}:
             <a href="{% url baljan.views.shift_combinations_pdf semester%}">
@@ -87,6 +88,7 @@
             <a href="{% url baljan.views.shift_combination_form_pdf semester%}">
                 {% trans "form" %}</a>
         </p>
+        {% endif %}
     </div>
 
     <div class="selection">
@@ -103,12 +105,14 @@
                 class="exam-period" value="&laquo; {% trans "exam period" %}" /><br/>
         </form>
     </div>
-
+    
+    {% if semester %}
     <div class="admin-link">
         <a href="{% url admin:baljan_semester_change semester.id %}">
             {% trans "edit on admin site" %}
         </a>
     </div>
+    {% endif %}
 </div><!--.secondary-->
 <div class="clear"></div>
 
