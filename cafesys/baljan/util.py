@@ -70,7 +70,7 @@ def initials(user, from_first_name=1, from_last_name=1, num=None):
         last_name_last = ''
     lmids = ''.join([m[0] for m in last_name.split()[:-1]])
 
-    inits = "%s%s%s%s" % (
+    inits = "%s%s%s%s" % ( # FIXME: deuglify
         first_name_first[0:from_first_name], 
         fmids, lmids,
         last_name_last[0:from_last_name]
