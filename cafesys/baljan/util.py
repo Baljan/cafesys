@@ -57,10 +57,17 @@ def initials(user, from_first_name=1, from_last_name=1, num=None):
     first_name = user.first_name.replace('-', ' ')
     last_name = user.last_name.replace('-', ' ')
 
-    first_name_first = first_name.split()[0]
+    try:
+        first_name_first = first_name.split()[0]
+    except IndexError:
+        first_name_first = ''
+
     fmids = ''.join([m[0] for m in first_name.split()[1:]])
 
-    last_name_last = last_name.split()[-1]
+    try:
+        last_name_last = last_name.split()[-1]
+    except IndexError:
+        last_name_last = ''
     lmids = ''.join([m[0] for m in last_name.split()[:-1]])
 
     inits = "%s%s%s%s" % (
