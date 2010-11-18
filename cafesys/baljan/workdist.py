@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from pulp import LpProblem, LpMinimize, lpSum, LpVariable, LpStatus, LpInteger
+from pulp import GLPK
 from pulp import allcombinations, value
 from math import floor, ceil
 from baljan.models import Shift, Semester, ShiftCombination
@@ -142,7 +143,7 @@ def allocate_shifts_for_one_pair(work_pairs, avail_mornings, avail_afternoons, a
             prob += lpSum([shift_vars[shift]]) >= low, "low %s" % shift
             prob += lpSum([shift_vars[shift]]) <= high, "high %s" % shift
 
-        prob.solve()
+        prob.solve(GLPK()) # XXX: possibly GLPK(msg=0)
 
         if LpStatus[prob.status] == 'Undefined':
             next_grace = req - 0.1
