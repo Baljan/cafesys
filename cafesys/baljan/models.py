@@ -14,7 +14,7 @@ import random
 import string
 from dateutil.relativedelta import relativedelta
 import baljan.util
-from baljan.util import get_logger
+from baljan.util import get_logger, week_dates, year_and_week
 import itertools
 from django.core.cache import cache
 from notification import models as notification
@@ -35,6 +35,7 @@ class Profile(Made):
     balance = models.IntegerField(default=0)
     balance_currency = models.CharField(_("balance currency"), max_length=5, default=u"SEK", 
             help_text=_("currency"))
+    picture = models.ImageField(_("picture"), upload_to='profile_pics', null=True, blank=True)
 
     def balcur(self):
         return u"%s %s" % (self.balance, self.balance_currency)
@@ -65,7 +66,7 @@ class Profile(Made):
         verbose_name = _("profile")
         verbose_name_plural = _("profiles")
         permissions = (
-                ('available_for_call_duty', _("Available for call duty")), # for workers
+                ('available_for_call_duty', _nl("Available for call duty")), # for workers
                 )
 
     def __unicode__(self):
@@ -91,7 +92,7 @@ class JoinGroupRequest(Made):
         verbose_name = _("join group request")
         verbose_name_plural = _("join group requests")
         permissions = (
-                ('can_request_group', _("Can request group")), # for workers
+                ('can_request_group', _nl("Can request group")), # for workers
                 )
 
     def __unicode__(self):
@@ -380,7 +381,12 @@ class Semester(Made):
             help_text=_('if workers can sign up to work on this semester'))
 
     def date_range(self):
+        """Uses `baljan.util.date_range` internally."""
         return baljan.util.date_range(self.start, self.end)
+
+    def week_range(self):
+        """Uses `baljan.util.week_range` internally."""
+        return baljan.util.week_range(self.start, self.end)
 
     def range(self):
         return (self.start, self.end)
@@ -442,7 +448,7 @@ class Semester(Made):
         verbose_name = _("semester")
         verbose_name_plural = _("semesters")
         permissions = (
-                ('manage_job_openings', _("Can manage job openings")),
+                ('manage_job_openings', _nl("Can manage job openings")),
                 )
 
     def __unicode__(self):
@@ -471,6 +477,12 @@ def semester_post_save(sender, instance, **kwargs):
     logger = get_logger('baljan.semesters')
     logger.info('%s: %d/%d shifts added/deleted, signups=%s' % (
         sem.name, created_count, deleted_count, sem.signup_possible))
+
+    # Create new shift combinations for job openings.
+    from baljan import workdist
+    sched = workdist.Scheduler(sem)
+    sched.save()
+
 signals.post_save.connect(semester_post_save, sender=Semester)
 
 def semester_post_delete(sender, instance, **kwargs):
@@ -487,12 +499,47 @@ SPAN_NAMES = {
     2: _('afternoon'),
 }
 
-class Shift(Made):
+
+class ShiftCombination(Made):
     semester = models.ForeignKey(Semester, verbose_name=_("semester"))
-    span = models.PositiveSmallIntegerField(
-            _("time span"), help_text=_('0=morning, 1=lunch, 2=afternoon'), 
-            default=True)
+    shifts = models.ManyToManyField('baljan.Shift', verbose_name=_("shifts"))
+    label = models.CharField(_("label"), max_length=10)
+
+    class Meta:
+        verbose_name = _("shift combination")
+        verbose_name_plural = _("shift combinations")
+        ordering = ('shifts__when', 'shifts__span')
+
+    def __unicode__(self):
+        return u"%s: %s (%s)" % (
+            self.label, 
+            ', '.join([str(sh) for sh in self.shifts.all().order_by('when', 'span')]),
+            self.semester,
+        )
+
+
+class ShiftManager(models.Manager):
+    def current_week(self):
+        return self.for_week(*baljan.util.year_and_week())
+
+    def for_week(self, year, week_number):
+        dates = week_dates(year, week_number)
+        return self.filter(when__in=dates).order_by('when', 'span')
+
+
+class Shift(Made):
+    SPAN_CHOICES = (
+        (0, _('morning')),
+        (1, _('lunch')),
+        (2, _('afternoon')),
+    )
+
+    objects = ShiftManager()
+
+    semester = models.ForeignKey(Semester, verbose_name=_("semester"))
     when = models.DateField(_("what day the shift is on"))
+    span = models.PositiveSmallIntegerField(_("time span"), 
+            default=True, choices=SPAN_CHOICES)
     exam_period = models.BooleanField(_("exam period"), 
             help_text=_('the work scheduler takes this field into account'), 
             default=False)
@@ -511,6 +558,14 @@ class Shift(Made):
         if self.span == 2:
             return _("12:00 pm to ca 4:45 pm")
         assert False
+
+    def comb(self):
+        combs = self.shiftcombination_set.all()
+        comb_count = len(combs)
+        assert comb_count in (0, 1)
+        if comb_count:
+            return combs[0]
+        return None
 
     def oncall_timedesc(self):
         """Description of the working hours."""
@@ -545,6 +600,11 @@ class Shift(Made):
 
     def today(self):
         return self.when == date.today()
+
+    def week_url(self):
+        return reverse('baljan.views.call_duty_week',
+            args=year_and_week(self.when)
+        )
 
     def accepts_signups(self):
         return self.upcoming() and self.semester.signup_possible and self.signups().count() < 2 and self.span != 1
@@ -615,7 +675,7 @@ class ShiftSignup(Made):
         verbose_name_plural = _("shift sign-ups")
         ordering = ('-shift__when',)
         permissions = (
-                ('self_and_friend_signup', _("Can sign up self and friends")), # for workers
+                ('self_and_friend_signup', _nl("Can sign up self and friends")), # for workers
                 )
 
     @models.permalink
@@ -798,7 +858,7 @@ class GoodCost(Made):
         ordering = ['-from_date']
 
     def __unicode__(self):
-        return _(u"%(title)s %(cost)s %(currency)s") % {
+        return u"%(title)s %(cost)s %(currency)s" % {
                 'title': self.good.title, 
                 'cost': self.cost, 
                 'currency': self.currency,
@@ -846,7 +906,7 @@ class OrderGood(Made):
         verbose_name_plural = _("order goods")
 
     def __unicode__(self):
-        return _(u"%(count)dx %(good)s") % {
+        return u"%(count)dx %(good)s" % {
                 'count': self.count,
                 'good': self.good, 
                 }
@@ -934,7 +994,7 @@ class RefillSeries(Made):
     def clean(self):
         from django.core.exceptions import ValidationError
         if self.code_value * self.code_count > SERIES_MAX_VALUE:
-            raise ValidationError("Invalid total worth.")
+            raise ValidationError(_("Invalid total worth."))
         if self.code_value > BALANCE_CODE_MAX_VALUE:
             raise ValidationError(_("Code value too high."))
 
@@ -994,7 +1054,7 @@ class BoardPost(Made):
         ordering = ('-semester__start', 'user__first_name', 'user__last_name')
 
     def __unicode__(self):
-        return _(u"%(user)s %(post)s in %(sem)s") % {
+        return u"%(user)s %(post)s in %(sem)s" % {
             'user': self.user.username, 
             'post': self.post, 
             'sem': self.semester.name,

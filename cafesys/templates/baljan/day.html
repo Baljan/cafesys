@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load humanize %}
 {% load uni_form_tags %}
+{% load baljan_extras %}
 
 {% block head_title %}{{day|date}}{% endblock %}
 
@@ -16,7 +17,20 @@
 </div>
 {% endif %}
 
-<h1>{{day|naturalday}}: {{day|date:'l'}} {% trans "week" %} {{day|date:'W'}}</h1>
+<h1>
+    {{day|naturalday}}: {{day|date:'l'}}
+
+    {% if perms.baljan.change_oncallduty %}
+    <a href="{% url baljan.views.call_duty_week day|year day|week %}">
+        {% trans "week" %} 
+        {{day|week}}
+    </a>
+    {% else %}
+        {% trans "week" %} 
+        {{day|week}}
+    {% endif %}
+</h1>
+
 {% for sh in shifts %}
     <div class="shift-top">
         <h2 style="float:left" class="early-or-late">

@@ -8,7 +8,7 @@
 {% block body_class %}search-person{% endblock %}
 {% block body %}
 <h1>{% trans "Search Person" %}</h1>
-<div class="grid_6 alpha main">
+<div class="grid_8 alpha main">
     <div>
         <form class="search uniForm" method="POST" action="">
             {% csrf_token %}
@@ -37,9 +37,10 @@
             </li>
             {% endfor %}
         </ul>
+        <div class="clear"></div>
     </div>
 </div><!--.main-->
-<div class="grid_4 omega secondary">
+<div class="grid_2 omega secondary">
     {% if groups %}
     <div class="groups">
         <h2>{% trans "Groups" %}</h2>

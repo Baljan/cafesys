@@ -213,6 +213,7 @@ INSTALLED_APPS = [
     "sentry",
     "sentry.client",
     "sentry.plugins.sentry_urls",
+    "datagrid",
 
     #"johnny",
 ]

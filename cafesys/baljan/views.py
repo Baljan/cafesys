@@ -13,13 +13,12 @@ from datetime import date
 import baljan.forms
 import baljan.models
 import baljan.search
-from baljan import workdist
-from baljan.util import get_logger
+from baljan import pdf
+from baljan.util import get_logger, year_and_week, all_initials
+from baljan.util import adjacent_weeks, week_dates
 from baljan.ldapbackend import valid_username
-from baljan import pseudogroups
 from baljan import credits as creditsmodule
-from baljan import friendrequests
-from baljan import trades
+from baljan import friendrequests, trades, planning, pseudogroups, workdist
 from django.contrib.auth.models import User, Permission, Group
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
@@ -27,6 +26,7 @@ from notification import models as notification
 import simplejson
 import re
 from math import ceil
+from cStringIO import StringIO
 
 def index(request):
     return render_to_response('baljan/baljan.html', {}, context_instance=RequestContext(request))
@@ -427,19 +427,19 @@ def job_opening(request, semester_name):
 
     found_user = None
     if request.method == 'POST':
-        searched_for = request.POST['liu_id']
-        valid_search = valid_username(searched_for)
+        if request.is_ajax(): # find user
+            searched_for = request.POST['liu_id']
+            valid_search = valid_username(searched_for)
 
-        if valid_search or re.match('^[a-z]{5,5}[0-9]{0,3}$', searched_for):
-            results = baljan.search.for_person(searched_for, use_cache=False)
-            if len(results) == 1:
-                valid_search = True # when matching alphabetic part only
-                found_user = results[0]
+            if valid_search or re.match('^[a-z]{5,5}[0-9]{0,3}$', searched_for):
+                results = baljan.search.for_person(searched_for, use_cache=False)
+                if len(results) == 1:
+                    valid_search = True # when matching alphabetic part only
+                    found_user = results[0]
 
-        if valid_search and found_user is None:
-            pass # TODO: perform LDAP lookup
+            if valid_search and found_user is None:
+                pass # TODO: perform LDAP lookup
 
-        if request.is_ajax():
             info = {}
             info['user'] = None
             info['msg'] = _('enter liu id')
@@ -461,34 +461,239 @@ def job_opening(request, semester_name):
                 if valid_search:
                     info['msg'] = _('liu id unfound')
                     info['msg_class'] = 'invalid'
-
             return HttpResponse(simplejson.dumps(info))
-    else:
-        sched = workdist.Scheduler(sem)
-        pairs = sched.pairs()
+        else: # the user hit save, assign users to shifts
+            shift_ids = [int(x) for x in request.POST['shift-ids'].split('|')]
+            usernames = request.POST['user-ids'].split('|')
+            shifts_to_save = baljan.models.Shift.objects.filter(pk__in=shift_ids)
+            users_to_save = User.objects.filter(username__in=usernames)
+            for shift_to_save in shifts_to_save:
+                for user_to_save in users_to_save:
+                    signup, created = baljan.models.ShiftSignup.objects.get_or_create(
+                        user=user_to_save,
+                        shift=shift_to_save
+                    )
+                    if created:
+                        opening_log.info('%r created' % signup)
+                    else:
+                        opening_log.info('%r already existed' % signup)
 
-        col_count = 10
-        row_count = len(pairs) // col_count
-        if len(pairs) % col_count != 0:
-            row_count += 1
+    sched = workdist.Scheduler(sem)
+    pairs = sched.pairs_from_db()
 
-        slots = [[None for c in range(col_count)] for r in range(row_count)]
-        for i, pair in enumerate(pairs):
-            row_idx, col_idx = i // col_count, i % col_count
-            slots[row_idx][col_idx] = pair
+    col_count = 10
+    row_count = len(pairs) // col_count
+    if len(pairs) % col_count != 0:
+        row_count += 1
 
-        pair_javascript = {}
-        for pair in pairs:
-            pair_javascript[pair.label] = {
-                'shifts': [unicode(sh.name()) for sh in pair.shifts],
-                'ids': [sh.pk for sh in pair.shifts],
-            }
+    slots = [[None for c in range(col_count)] for r in range(row_count)]
+    for i, pair in enumerate(pairs):
+        row_idx, col_idx = i // col_count, i % col_count
+        slots[row_idx][col_idx] = pair
+
+    pair_javascript = {}
+    for pair in pairs:
+        pair_javascript[pair.label] = {
+            'shifts': [unicode(sh.name()) for sh in pair.shifts],
+            'ids': [sh.pk for sh in pair.shifts],
+        }
 
     tpl['slots'] = slots
     tpl['pair_javascript'] = simplejson.dumps(pair_javascript)
-    tpl['slots_empty'] = slots_empty = 53
-    tpl['slots_filled'] = slots_filled = 17
-    tpl['slots_total'] = slots_total = slots_empty + slots_filled
-    tpl['slots_filled_percent'] = int(round(slots_filled * 100.0 / slots_total))
+    tpl['pairs_free'] = pairs_free = len([p for p in pairs if p.is_free()])
+    tpl['pairs_taken'] = pairs_taken = len([p for p in pairs if p.is_taken()])
+    tpl['pairs_total'] = pairs_total = pairs_free + pairs_taken
+    tpl['pairs_taken_percent'] = int(round(pairs_taken * 100.0 / pairs_total))
     return render_to_response('baljan/job_opening.html', tpl, 
             context_instance=RequestContext(request))
+
+
+@permission_required('baljan.delete_oncallduty')
+@permission_required('baljan.add_oncallduty')
+@permission_required('baljan.change_oncallduty')
+def call_duty_week(request, year=None, week=None):
+    user = request.user
+    if year is None or week is None:
+        year, week = year_and_week()
+        plan = planning.BoardWeek.current_week()
+    else:
+        year = int(year)
+        week = int(week)
+        plan = planning.BoardWeek(year, week)
+
+    oncall_ids = [[str(oc.id) for oc in sh] for sh in plan.oncall()]
+    dom_ids = plan.dom_ids()
+    real_ids = dict(zip(dom_ids, plan.shift_ids()))
+    oncall = dict(zip(dom_ids, oncall_ids))
+
+    avails = plan.available()
+    uids = [str(u.id) for u in avails]
+
+    pics = []
+    for pic in [u.get_profile().picture for u in avails]:
+        if pic:
+            pics.append("%s%s" % (settings.MEDIA_URL, pic))
+        else:
+            pics.append(False)
+    id_pics = dict(zip(uids, pics))
+
+    names = [u.get_full_name() for u in avails]
+
+    initials = all_initials(avails)
+    id_initials = dict(zip(uids, initials))
+
+    disp_names = ["%s (%s)" % (name, inits) for name, inits in zip(names, initials)]
+    disp_names = ["&nbsp;".join(dn.split()) for dn in disp_names]
+    id_disp_names = dict(zip(uids, disp_names))
+
+    drag_ids = ['drag-%s' % i for i in initials]
+    drags = []
+    for drag_id, disp_name, pic in zip(drag_ids, disp_names, pics):
+        if pic:
+            drags.append("<span id='%s'><img src='%s' title='%s'/></span>" % (drag_id, pic, disp_name))
+        else:
+            drags.append("<span id='%s'>%s</span>" % (drag_id, disp_name))
+    id_drags = dict(zip(uids, drags))
+
+    if request.method == 'POST' and request.is_ajax():
+        initial_users = dict(zip(initials, avails))
+        dom_id_shifts = dict(zip(dom_ids, plan.shifts))
+        for dom_id, shift in zip(dom_ids, plan.shifts):
+            old_users = User.objects.filter(oncallduty__shift=shift).distinct()
+            new_users = []
+            if request.POST.has_key(dom_id):
+                new_users = [initial_users[x] for x 
+                        in request.POST[dom_id].split('|')]
+            for old_user in old_users:
+                if not old_user in new_users:
+                    shift.oncallduty_set.filter(user=old_user).delete()
+            for new_user in new_users:
+                if not new_user in old_users:
+                    o, created = baljan.models.OnCallDuty.objects.get_or_create(
+                        shift=shift,
+                        user=new_user
+                    )
+                    assert created
+        messages.add_message(request, messages.SUCCESS, 
+                _("Your changes were saved."))
+        return HttpResponse(simplejson.dumps({'OK':True}))
+
+    adjacent = adjacent_weeks(week_dates(year, week)[0])
+    tpl = {}
+    tpl['week'] = week
+    tpl['year'] = year
+    tpl['prev_y'] = adjacent[0][0]
+    tpl['prev_w'] = adjacent[0][1]
+    tpl['next_y'] = adjacent[1][0]
+    tpl['next_w'] = adjacent[1][1]
+    tpl['real_ids'] = simplejson.dumps(real_ids)
+    tpl['oncall'] = simplejson.dumps(oncall)
+    tpl['drags'] = simplejson.dumps(id_drags)
+    tpl['initials'] = simplejson.dumps(id_initials)
+    tpl['pictures'] = simplejson.dumps(id_pics)
+    tpl['uids'] = simplejson.dumps(uids)
+    return render_to_response('baljan/call_duty_week.html', tpl, 
+            context_instance=RequestContext(request))
+
+
+@permission_required('baljan.add_semester')
+@permission_required('baljan.change_semester')
+@permission_required('baljan.delete_semester')
+def admin_semester(request, name=None):
+    if name is None:
+        sem = baljan.models.Semester.objects.current()
+    else:
+        sem = baljan.models.Semester.objects.by_name(name)
+
+    user = request.user
+    
+    new_sem_form = baljan.forms.SemesterForm()
+    if request.method == 'POST':
+        if request.POST['task'] == 'new_semester':
+            new_sem_form = baljan.forms.SemesterForm(request.POST)
+        elif request.POST['task'] == 'edit_shifts':
+            assert sem is not None
+            raw_ids = request.POST['shift-ids'].strip()
+            edit_shift_ids = []
+            if len(raw_ids):
+                edit_shift_ids = [int(x) for x in raw_ids.split('|')]
+
+            make = request.POST['make']
+            shifts_to_edit = baljan.models.Shift.objects.filter(
+                id__in=edit_shift_ids).distinct()
+
+            if make == 'normal':
+                shifts_to_edit.update(exam_period=False, enabled=True)
+                sem.save() # generates new shift combinations
+            elif make == 'disabled':
+                shifts_to_edit.update(exam_period=False, enabled=False)
+                sem.save() # generates new shift combinations
+            elif make == 'exam-period':
+                shifts_to_edit.update(exam_period=True, enabled=True)
+                sem.save() # generates new shift combinations
+            elif make == 'none':
+                pass
+            else:
+                get_logger('baljan.semesters').warning('unexpected task %r' % make)
+                assert False
+
+    new_sem_failed = False
+    if new_sem_form.is_bound:
+        if new_sem_form.is_valid():
+            new_sem = new_sem_form.save()
+            new_sem_url = reverse('baljan.views.admin_semester', 
+                args=(new_sem.name,)
+            )
+            messages.add_message(request, messages.SUCCESS, 
+                _("%s was added successfully.") % new_sem.name
+            )
+            return HttpResponseRedirect(new_sem_url)
+        else:
+            new_sem_failed = True
+
+    tpl = {}
+    if sem:
+        tpl['semester'] = sem
+        tpl['new_semester_form'] = new_sem_form
+        tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
+        tpl['admin_semester_base_url'] = reverse('baljan.views.admin_semester')
+        tpl['new_semester_failed'] = new_sem_failed
+
+        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span')
+        tpl['day_count'] = len(list(sem.date_range()))
+        
+        worker_shifts = shifts.exclude(enabled=False).exclude(span=1)
+        tpl['worker_shift_count'] = worker_shifts.count()
+        tpl['exam_period_count'] = worker_shifts.filter(exam_period=True).count()
+
+    return render_to_response('baljan/admin_semester.html', tpl, 
+            context_instance=RequestContext(request))
+
+
+@permission_required('baljan.change_semester')
+def shift_combinations_pdf(request, sem_name):
+    return _shift_combinations_pdf(request, sem_name, form=False)
+
+@permission_required('baljan.change_semester')
+def shift_combination_form_pdf(request, sem_name):
+    return _shift_combinations_pdf(request, sem_name, form=True)
+
+def _shift_combinations_pdf(request, sem_name, form):
+    buf = StringIO()
+    sem = baljan.models.Semester.objects.by_name(sem_name)
+    sched = workdist.Scheduler(sem)
+    pairs = sched.pairs_from_db()
+    if form:
+        pdf.shift_combination_form(buf, sched)
+    else:
+        pdf.shift_combinations(buf, sched)
+    buf.seek(0)
+    response = HttpResponse(buf.read(), mimetype="application/pdf")
+
+    if form:
+        name = 'semester_form_%s.pdf' % sem.name
+    else:
+        name = 'semester_shifts_%s.pdf' % sem.name
+
+    response['Content-Disposition'] = 'attachment; filename=%s' % name
+    return response

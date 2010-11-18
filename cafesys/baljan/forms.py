@@ -22,6 +22,7 @@ class ProfileForm(forms.ModelForm):
         model = baljan.models.Profile
         fields = (
                 'mobile_phone',
+                'picture',
                 )
 
 
@@ -30,3 +31,15 @@ class RefillForm(forms.Form):
             label=_("code"),
             help_text=_(u"found on your value card"))
 
+
+class ShiftSelectionForm(forms.Form):
+    CHOICES = (
+        ('enabled', _('open')),
+        ('disabled', _('closed')),
+        ('exam_period', _('exam period')),
+    )
+
+    make = forms.ChoiceField(
+        label=_("make"),
+        choices=CHOICES,
+    )

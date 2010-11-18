@@ -1,0 +1,90 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+{% load baljan_extras %}
+
+{% block head_title %}{{year}} {% trans "wk." %} {{week}}{% endblock %}
+
+{% block body_class %}board-week{% endblock %}
+{% block body %}
+<div class="chalkboard">
+    <table>
+        <thead>
+        <tr>
+            <th class="week">
+                <a href="{% url baljan.views.call_duty_week prev_y prev_w %}">
+                    &laquo;
+                </a>
+                <span class="num">{{year}}</span> 
+                    {%trans "wk."%} 
+                <span class="num">{{week}}</span>
+                <a href="{% url baljan.views.call_duty_week next_y next_w %}">
+                    &raquo;
+                </a>
+            </th>
+            <th>{% trans "morning" %}</th>
+            <th>{% trans "lunch" %}</th>
+            <th>{% trans "afternoon" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="day">{% trans "Monday" %}</td>
+            <td class="droppable" id="shift-1-0"></td>
+            <td class="droppable" id="shift-1-1"></td>
+            <td class="droppable" id="shift-1-2"></td>
+        </tr>
+        <tr>
+            <td class="day">{% trans "Tuesday" %}</td>
+            <td class="droppable" id="shift-2-0"></td>
+            <td class="droppable" id="shift-2-1"></td>
+            <td class="droppable" id="shift-2-2"></td>
+        </tr>
+        <tr>
+            <td class="day">{% trans "Wednesday" %}</td>
+            <td class="droppable" id="shift-3-0"></td>
+            <td class="droppable" id="shift-3-1"></td>
+            <td class="droppable" id="shift-3-2"></td>
+        </tr>
+        <tr>
+            <td class="day">{% trans "Thursday" %}</td>
+            <td class="droppable" id="shift-4-0"></td>
+            <td class="droppable" id="shift-4-1"></td>
+            <td class="droppable" id="shift-4-2"></td>
+        </tr>
+        <tr>
+            <td class="day">{% trans "Friday" %}</td>
+            <td class="droppable" id="shift-5-0"></td>
+            <td class="droppable" id="shift-5-1"></td>
+            <td class="droppable" id="shift-5-2"></td>
+        </tr>
+        </tbody>
+    </table>
+    <h2>{% trans "Available Users" %} ({%trans "drag and drop"%})</h2>
+    <div class="available-users"></div>
+    <div class="submit">
+        <a href="">{% trans "revert unsaved changes" %}</a>
+        <span class="link save">{% trans "save" %}</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_body %}
+<script type="text/javascript">
+// <![CDATA[
+    CONFIRM_MSG = "{% trans "Are you sure?" %}";
+    CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
+    CONFIRM_DELETE = CONFIRM_MSG;
+    
+{% autoescape off %}
+    REAL_IDS = {{real_ids}};
+    ON_CALL = {{oncall}};
+    USER_IDS = {{uids}};
+    DRAGS = {{drags}};
+    INITIALS = {{initials}};
+    PICTURES = {{pictures}};
+{% endautoescape %}
+// ]]>
+</script>
+{% endblock %}

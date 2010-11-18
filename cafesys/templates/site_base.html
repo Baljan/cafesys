@@ -22,7 +22,7 @@
     {% if user.is_authenticated %}
         {% if notice_unseen_count != 0 %}
         <a href="/notices">
-            <span class="inbox">&#x2709; unread notifications</span>
+            <span class="inbox">&#x2709; {% trans "unread notifications" %}</span>
         </a>
         <span class="delim">|</span>
         {% endif %}

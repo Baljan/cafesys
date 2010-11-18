@@ -196,7 +196,7 @@ $(document).ready(function () {
         modal: true,
         autoOpen: false,
         buttons: profileDialogButtons,
-        width: 400
+        width: 500
     });
     $('body.user .show-profile-dialog').click(function() {
         profileDialog.dialog('open');
@@ -204,7 +204,7 @@ $(document).ready(function () {
 
     /* Job Opening View */
     if ($("body").hasClass('job-opening')) {
-        var slots = $('.slots td.pair'),
+        var slots = $('.slots td.pair.free'),
             curSearch = false,
             idInput = $('#id_liu_id'),
             msg = $('.user-adder .message span'),
@@ -216,6 +216,7 @@ $(document).ready(function () {
             currentComb = $('.shifts-in-combination'),
             currentCombLabel = false,
             currentCombShiftIds = [],
+            saveForm = $('.submit-wrap form'),
             submitBox = $('.submit-wrap');
 
         var refreshSave = function() {
@@ -227,12 +228,24 @@ $(document).ready(function () {
             }
             if (currentCombShiftIds.length == 0 ||
                 addedUsersCount != 2) {
+                saveForm.find('input[name=shift-ids]').attr('value', '');
+                saveForm.find('input[name=user-ids]').attr('value', '');
+
                 submitBox.removeClass('saved');
                 submitBox.addClass('pending');
                 submitButton.attr('disabled', 'disabled');
                 submitButton.attr('value', SUBMIT_HELP);
             }
             else {
+                var serialShiftIds = currentCombShiftIds.join('|'),
+                    serialUsernames = [];
+                for (i in addedUsers) serialUsernames.push(i);
+                serialUsernames = serialUsernames.join('|');
+                saveForm.find('input[name=shift-ids]')
+                        .attr('value', serialShiftIds);
+                saveForm.find('input[name=user-ids]')
+                        .attr('value', serialUsernames);
+
                 submitBox.addClass('saved');
                 submitBox.removeClass('pending');
                 submitButton.removeAttr('disabled');
@@ -333,5 +346,229 @@ $(document).ready(function () {
 
         addButton.click(addUser);
         idInput.bind('keyup', refreshSearch);
+    }
+
+
+    /* Board Week Planning */
+    if ($("body").hasClass('board-week')) {
+        var availUsers = $('.available-users'),
+            names = [];
+
+        $('.chalkboard').unselectable();
+
+        for (i in USER_IDS) {
+            names.push(DRAGS[USER_IDS[i]]);
+        }
+        availUsers.html(names.join(', '));
+
+        var redrawContained = function(cell) {
+            var listed = [],
+                containedInits = $(cell).data('initials');
+            for (i in containedInits) {
+                listed.push([
+                    '<span class="drag-',containedInits[i],'">',
+                    containedInits[i],'</span>'
+                ].join(''));
+            }
+            $(cell).html(listed.join(', '));
+            $(cell).children().each(function() {
+                $(this).click(function() { 
+                    var newContained = [];
+                    for (j in containedInits) {
+                        if (containedInits[j] != $(this).text()) {
+                            newContained.push(containedInits[j]);
+                        }
+                        $(cell).data('initials', newContained);
+                    }
+                    $(this).trigger('mouseleave').remove();
+                    redrawContained(cell);
+                });
+            });
+
+            $(containedInits).each(function() {
+                var cls = $('.drag-' + this),
+                    id = $("#drag-" + this);
+                cls.hover(
+                    function() {
+                        cls.addClass('active')
+                           .parent().addClass('active');
+                        id.addClass('active')
+                    },
+                    function() {
+                        cls.removeClass('active')
+                           .parent().removeClass('active');
+                        id.removeClass('active')
+                    }
+                );
+            });
+        }
+        
+        /* Load initial data. */
+        $('.droppable').each(function() {
+            var id = $(this).attr('id');
+            if (!REAL_IDS[id]) {
+                $(this).addClass('disabled');
+            }
+            var onCallUids = ON_CALL[id],
+                inits = [];
+            for (i in onCallUids) {
+                inits.push(INITIALS[onCallUids[i]]);
+            }
+            $(this).data('initials', inits);
+            redrawContained(this);
+        });
+
+        $('.droppable').each(function() {
+            var drop = this;
+            $(this).droppable({
+                accept: function(drag) {
+                    if ($(this).hasClass('disabled')) return false;
+                    return $(drop).find('.'+drag.attr('id')).length == 0;
+                },
+                activeClass: 'active',
+                hoverClass: 'hover',
+                drop: function(ev, ui) {
+                    var dragId = $(ui.draggable).attr('id');
+                    var droppedInit = dragId.split('-')[1],
+                        containedInits = $(this).data('initials'),
+                        cell = this;
+                    if (!containedInits) containedInits = [droppedInit];
+                    else containedInits.push(droppedInit);
+                    $(this).data('initials', containedInits);
+                    redrawContained(cell);
+                }
+            });
+        });
+
+        $('.available-users').children().each(function() {
+            var initials = $(this).attr('id').split('-')[1]
+                cls = 'drag-' + $(this).attr('id').split('-')[1],
+                drag = this;
+
+            $(this).draggable({
+                cursorAt: {right: 3, bottom: 3},
+                helper: function(ev) { 
+                    var ui = $("<span class='drag "+cls+"'>"+initials+"</span>"); 
+                    return ui;
+                },
+                opacity: 0.7
+            });
+
+            $(this).hover(function() {
+                var ui = $('.'+$(this).attr('id'));
+                ui.addClass('active')
+                  .parent().addClass('active');
+                $(this).addClass('active');
+            }, function() {
+                var ui = $('.'+$(this).attr('id'));
+                ui.removeClass('active')
+                  .parent().removeClass('active');
+                $(this).removeClass('active');
+            });
+        });
+
+        $('.submit .save').click(function() {
+            var postData = {};
+            $('.droppable').each(function() {
+                var containedInits = $(this).data('initials');
+                if (!containedInits || containedInits.length == 0) return;
+
+                postData[$(this).attr('id')] = containedInits.join('|');
+            });
+            curSearch = $.ajax({
+                data: postData,
+                type: 'post',
+                dataType: 'json',
+                success: function(result) {
+                    location.replace(document.location.pathname);
+                },
+                error: function() {
+                    location.replace(document.location.pathname);
+                }
+            });
+        });
+    }
+
+    /* Semester Administration */
+    if ($("body").hasClass('admin-semester')) {
+        var editShiftsForm = $('form[name=edit-shifts]'),
+            shiftInners = $('table td.shift div');
+
+        $('table').unselectable();
+        $('.months').selectable({
+            filter: 'td.shift',
+            stop: function(ev, ui) {
+                var inputs = editShiftsForm.find('input[type=button]');
+                if ($('table td.ui-selected').length) {
+                    $(inputs).removeAttr('disabled');
+                }
+                else {
+                    $(inputs).attr('disabled', 'disabled');
+                }
+            }
+        });
+
+        $(shiftInners).hover(function() {
+            var comb = $(this).html();
+            if (comb == '&nbsp;') return;
+            $(shiftInners).filter(function() {
+                return $(this).html() == comb;
+            }).addClass('highlight');
+        }, function() {
+            var comb = $(this).html();
+            if (comb == '&nbsp;') return;
+            $(shiftInners).filter(function() {
+                return $(this).html() == comb;
+            }).removeClass('highlight');
+        });
+
+        $('input[name=start]').datepicker({ // TODO: i18n
+            dateFormat:"yy-mm-dd",
+            changeMonth: true,
+            changeYear: true
+        });
+        $('input[name=end]').datepicker({ // TODO: i18n
+            dateFormat:"yy-mm-dd",
+            changeMonth: true,
+            changeYear: true
+        });
+
+        var newSemDialogButtons = {};
+        newSemDialogButtons[SAVE_MSG] = function() {
+            $(this).find('form').submit();
+        }
+        newSemDialogButtons[CANCEL_MSG] = function() {
+            $(this).dialog('close');
+        }
+        var newSemDialog = $('#new-sem-dialog').dialog({
+            modal: true,
+            autoOpen: false,
+            buttons: newSemDialogButtons,
+            width: 500
+        });
+        $('.show-new-sem-dialog').click(function() {
+            newSemDialog.dialog('open');
+        });
+        if (NEW_SEMESTER_FAILED) {
+            $('.show-new-sem-dialog').click();
+        }
+        $('.selection input').click(function() {
+            editShiftsForm.find('input[name=make]').attr('value', $(this).attr('class'));
+            var shiftIds = [];
+            $('table td.ui-selected').each(function() {
+                shiftIds.push(parseInt($(this).attr('id').split('-')[1], 10));
+            });
+            editShiftsForm.find('input[name=shift-ids]')
+                          .attr('value', shiftIds.join('|'));
+
+            if (confirm(CONFIRM_MSG)) {
+                editShiftsForm.submit();
+            }
+        });
+
+        $('.choose-semester select').change(function() {
+            var name = $(this).children(':selected').html();
+            location.href = '' + BASE_URL + '/' + name;
+        });
     }
 });

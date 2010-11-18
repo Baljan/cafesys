@@ -355,7 +355,6 @@ body .main img, body .secondary img {
     margin-left: auto;
     margin-right: auto;
     text-align: center;
-    width: 100%;
     max-width: 100%;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
@@ -487,6 +486,11 @@ body.user .signups .group td {
 body.user .friend-request {
     text-align: center;
 }
+body.user .profile .picture {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
 
 body.become-worker .toggle-request a {
     font-size: 1.5em;
@@ -550,6 +554,12 @@ body.job-opening .slots td.padding:hover {
 body.job-opening .slots td.active {
     background: rgba(151, 192, 234, 0.4);
 }
+body.job-opening .slots td.taken,
+body.job-opening .slots td.taken:hover {
+    background: #ccc;
+    color: #666;
+    cursor: default;
+}
 
 .admin-link {
     background: inherit !important;
@@ -558,4 +568,181 @@ body.job-opening .slots td.active {
     padding: 0 !important;
     text-align: right;
 }
+
+body.board-week table {
+    width: 100%;
+    font-size: 2.5em;
+    border-collapse: collapse;
+}
+body.board-week th {
+    border-bottom: 3px solid;
+}
+body.board-week .day, body.board-week .week {
+    border-right: 3px solid;
+    text-align: right;
+}
+body.board-week h2 {
+    padding: 0;
+    margin-bottom: .2em;
+    font-size: 1.8em;
+    border-bottom: 3px solid;
+}
+body.board-week h2, body.board-week .day, 
+body.board-week .chalkboard .link,
+body.board-week .chalkboard a,
+body.board-week .week, body.board-week th {
+    color: #faa;
+    border-color: #faa;
+}
+body.board-week .week .num {
+    color: #fff;
+}
+body.board-week p {
+    margin: .5em 0;
+    margin-top: 0;
+    padding-top: 0;
+}
+body.board-week table .week {
+    font-size: .8em;
+}
+body.board-week table td {
+    width: 25%;
+}
+body.board-week .available-users {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+body.board-week .chalkboard .submit .link,
+body.board-week .chalkboard .submit a {
+    font-size: 2.5em;
+    margin-left: .5em;
+}
+body.board-week .droppable span.active, body.board-week .available-users .active {
+    color: #ffc;
+}
+body.board-week .available-users span,
+body.board-week table td span {
+    cursor: pointer;
+}
+body.board-week .available-users span img {
+    max-height: 3em;
+}
+body.board-week .available-users .active,
+body.board-week .droppable.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+body.board-week .droppable.hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+body.board-week .chalkboard {
+    cursor: default;
+}
+
+body.search-person .results li {
+    float: left; 
+    width: 47.5%;
+    margin-right: 2.5%;
+}
+
+body.admin-semester .month {
+    width: 29.83%;
+    margin-right: 1.5%;
+    padding: .5em 1%;
+    float: left;
+    background: #fff;
+    margin-bottom: 8px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
+}
+body.admin-semester .month h2 {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+body.admin-semester .month table {
+    width: 100%;
+    font-size: .8em;
+    cursor: default;
+}
+body.admin-semester .month th.am-lunch-pm {
+    text-align: center;
+}
+body.admin-semester .month tr.even {
+}
+body.admin-semester .month td {
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid #eee;
+}
+body.admin-semester .month td.day {
+    border: none;
+}
+body.admin-semester .month .day {
+    width: 10%;
+    text-align: right;
+}
+body.admin-semester .month .shift {
+    width: 35%;
+    text-align: center;
+}
+body.admin-semester .month .span-1 {
+    width: 20%;
+}
+body.admin-semester td.disabled {
+    border-bottom: 1px solid #222;
+}
+body.admin-semester .disabled {
+    background: #111;
+    color: #fff;
+}
+body.admin-semester td.exam-period {
+    border-bottom: 1px solid #5d8dc0;
+}
+body.admin-semester .exam-period {
+    background: #71acea;
+    color: #fff;
+}
+body.admin-semester .normal {
+    background: #fff;
+    color: #111;
+}
+body.admin-semester .box {
+    width: 1.2em;
+    display: block;
+    margin-right: .3em;
+    float: left;
+}
+body.admin-semester .selection input[disabled] {
+    background: #eee;
+    color: #666;
+}
+body.admin-semester td.shift .highlight {
+    background: #ffa;
+    color: #330;
+}
+body.admin-semester .selection input {
+    width: 98%;
+    text-align: left;
+    font-weight: normal;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.ui-selected div, .ui-selecting div {
+    background: rgba(255, 0, 132, 0.5);
+}
+
+.chalkboard {
+    color: #fff;
+    background-color: #222;
+    background-image: url(../img/chalkboard-bg.png);
+    font-family: 'Yanone Kaffeesatz', Arial, sans-serif;
+    font-weight: bold;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
+    padding: 10px;
+}
+
 

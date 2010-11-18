@@ -55,10 +55,17 @@
             </div>
         {% endif %}
         <h2>{% trans "profile"|title %}</h2>
+        {% with watched.get_profile as prof %}
+
+        {% if prof.picture %}
+        <div class="picture">
+            <img src="{{MEDIA_URL}}{{prof.picture}}"/>
+        </div>
+        {% endif %}
+
         <dl>
             <dt>{% trans "name" %}</dt>
             <dd>{{watched.get_full_name}}</dd>
-            {% with watched.get_profile as prof %}
                 {% if watching_self or perms.baljan.self_and_friend_signup %}
                     <dt>{% trans "phone" %}</dt>
                     {% if prof.mobile_phone %}
@@ -67,10 +74,10 @@
                         <dd>{% trans "unset" %}</dd>
                     {% endif %}
                 {% endif %}
-            {% endwith %}
             <dt>{% trans "last login" %}</dt>
             <dd>{{watched.last_login|date}} {{watched.last_login|time}}</dd>
         </dl>
+        {% endwith %}
     </div>
 
     {% with watched_groups as groups %}

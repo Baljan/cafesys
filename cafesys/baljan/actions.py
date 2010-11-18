@@ -40,8 +40,11 @@ def categories_and_actions(request):
             # nil
             )),
         (settings.BOARD_GROUP, _('board tasks'), (
+            Action(_('week planning'), 'baljan.views.call_duty_week'),
             #Action(_('work applications'), '#', resolve_func=None),
-            ) + tuple(upcoming_sem_actions)
+            ) + tuple(upcoming_sem_actions) + (
+            Action(_('semesters'), 'baljan.views.admin_semester'),
+            )
         ),
         ('sysadmins', _('sysadmins'), (
             Action(_('django admin site'), 'admin:index'),
