@@ -16,7 +16,7 @@ import baljan.search
 from baljan import pdf
 from baljan.util import get_logger, year_and_week, all_initials
 from baljan.util import adjacent_weeks, week_dates
-from baljan.ldapbackend import valid_username
+from baljan.ldapbackend import valid_username, exists_in_ldap, fetch_user
 from baljan import credits as creditsmodule
 from baljan import friendrequests, trades, planning, pseudogroups, workdist
 from django.contrib.auth.models import User, Permission, Group
@@ -425,7 +425,6 @@ def job_opening(request, semester_name):
     tpl['semester'] = sem = baljan.models.Semester.objects.get(name__exact=semester_name)
     user = request.user
 
-
     found_user = None
     if request.method == 'POST':
         if request.is_ajax(): # find user
@@ -439,7 +438,14 @@ def job_opening(request, semester_name):
                     found_user = results[0]
 
             if valid_search and found_user is None:
-                pass # TODO: perform LDAP lookup
+                # FIXME: User should not be created immediately. First we 
+                # should tell whether or not he exists, then the operator
+                # may choose to import the user.
+                if exists_in_ldap(searched_for):
+                    opening_log.info('%s found in LDAP' % searched_for)
+                    found_user = fetch_user(searched_for)
+                else:
+                    opening_log.info('%s not found in LDAP' % searched_for)
 
             info = {}
             info['user'] = None
