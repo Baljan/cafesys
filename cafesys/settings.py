@@ -317,7 +317,7 @@ DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
 
 LDAP_SERVER = 'ldap://lukas-backend.unit.liu.se'
 MUNIN_PORT = 8800
-MUNIN_PATH = 'munin'
+MUNIN_PATH = 'munin/localhost/localhost/index.html'
 
 # URCHIN_ID = "ua-..."
 
