@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import User, Group
 import MySQLdb
 import MySQLdb.cursors
-from datetime import date
+from datetime import date, datetime
 from baljan.models import Profile, Semester, ShiftSignup, Shift, BoardPost
 from baljan.models import OnCallDuty, Good, Order
 from baljan.util import get_logger
@@ -409,7 +409,10 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
         users = {}
         goods = [(coffee, 1),]
         start_adding = False
-        start_at = Order.objects.all().order_by('-put_at')[0].put_at
+        try:
+            start_at = Order.objects.all().order_by('-put_at')[0].put_at
+        except:
+            start_at = datetime(1970, 1, 1)
         for lk in logkort:
             daytime = lk['ts'].strftime('%Y-%m-%d %H:%M')
             print daytime
@@ -455,14 +458,14 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
             preorder = orders.FreePreOrder(user, goods, lk['ts'])
             processed = clerk.process(preorder)
             if processed.accepted():
-                log.info('accepted order for %r (%s)' % (user, daytime))
+                log.debug('accepted order for %r (%s)' % (user, daytime))
             else:
-                log.info('denied order for %r (%s)' % (user, daytime))
+                log.debug('denied order for %r (%s)' % (user, daytime))
 
         log.info('%d/%d/%d order(s) created/existing/skipped' % (
             created_count, existing_count, len(skipped)))
         if len(skipped):
-            log.warning('skipped: %s' % ", ".join(skipped))
+            log.warning('skipped: %s' % ", ".join([str(s) for s in skipped]))
 
 class Command(BaseCommand):
     args = ''
@@ -472,10 +475,10 @@ server. See OLD_SYSTEM_* settings.
 
     def handle(self, *args, **options):
         imp = Import()
-        imp.setup_users()
-        imp.setup_shifts()
-        imp.setup_oncallduties()
-        imp.setup_current_workers_and_board()
-        imp.manual_board()
-        imp.setup_board_groups()
-        #imp.setup_orders()
+        #imp.setup_users()
+        #imp.setup_shifts()
+        #imp.setup_oncallduties()
+        #imp.setup_current_workers_and_board()
+        #imp.manual_board()
+        #imp.setup_board_groups()
+        imp.setup_orders()
