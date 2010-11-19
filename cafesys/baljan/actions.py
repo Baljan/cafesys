@@ -4,6 +4,7 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from baljan.models import Semester
+from django.contrib.sites.models import Site
 
 class Action(object):
     def __init__(self, link_text, path, args=None, kwargs=None, resolve_func=reverse):
@@ -21,6 +22,11 @@ def categories_and_actions(request):
         student = user.get_profile()
     else:
         student = None
+
+    current_site = Site.objects.get_current()
+    domain = current_site.domain
+    if domain.find(':') != -1:
+        domain = domain.split(':')[0]
 
     # FIXME: Upcoming semesters should be fetched lazily.
     upcoming_sems = Semester.objects.upcoming()
@@ -49,7 +55,7 @@ def categories_and_actions(request):
         ('sysadmins', _('sysadmins'), (
             Action(_('django admin site'), 'admin:index'),
             Action(_('sentry'), 'sentry'),
-            Action(_('munin'), '#', resolve_func=None),
+            Action(_('munin'), 'http://%s:%s/%s' % (domain, settings.MUNIN_PORT, settings.MUNIN_PATH), resolve_func=None),
             Action(_('github'), 'http://github.com/pilt/cafesys', resolve_func=None),
             )),
         (settings.WORKER_GROUP, _('workers'), (

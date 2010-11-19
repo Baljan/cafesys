@@ -239,7 +239,8 @@ def see_user(request, who):
                 )
 
     if watching_self and request.method == 'POST':
-        profile_forms = [c(request.POST, instance=i) for c, i in profile_form_cls_inst]
+        profile_forms = [c(request.POST, request.FILES, instance=i) 
+                for c, i in profile_form_cls_inst]
 
         # Make sure all forms are valid before saving.
         all_valid = True
@@ -652,13 +653,12 @@ def admin_semester(request, name=None):
             new_sem_failed = True
 
     tpl = {}
+    tpl['semester'] = sem
+    tpl['new_semester_form'] = new_sem_form
+    tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
+    tpl['admin_semester_base_url'] = reverse('baljan.views.admin_semester')
+    tpl['new_semester_failed'] = new_sem_failed
     if sem:
-        tpl['semester'] = sem
-        tpl['new_semester_form'] = new_sem_form
-        tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
-        tpl['admin_semester_base_url'] = reverse('baljan.views.admin_semester')
-        tpl['new_semester_failed'] = new_sem_failed
-
         tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span')
         tpl['day_count'] = len(list(sem.date_range()))
         
