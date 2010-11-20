@@ -13,6 +13,7 @@ import sys
 import itertools
 from itertools import izip, chain, repeat
 from dateutil.relativedelta import relativedelta
+from emailconfirmation.models import EmailAddress
 
 
 def year_and_week(some_date=None): 
@@ -246,3 +247,42 @@ def flatten(lol):
 def grouper(n, iterable, padvalue=None):
     "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
     return izip(*[chain(iterable, repeat(padvalue, n-1))]*n)
+
+
+def get_or_create_user(username, first_name=None, last_name=None, email=None, phone=None):
+    from baljan.ldapbackend import valid_username
+    kwargs = { 'username': username, }
+    u, created = User.objects.get_or_create(**kwargs)
+
+    if first_name:
+        u.first_name = first_name
+    if last_name:
+        u.last_name = last_name
+
+    u.set_unusable_password()
+    u.save()
+
+    if valid_username(username):
+        liu_email = u"%s@%s" % (username, settings.USER_EMAIL_DOMAIN)
+        liu_eaddr, liu_eaddr_created = EmailAddress.objects.get_or_create(
+            user=u,
+            email=liu_email,
+            verified=True,
+        )
+        liu_eaddr.set_as_primary()
+
+    if email:
+        eaddr, eaddr_created = EmailAddress.objects.get_or_create(
+            user=u,
+            email=email,
+            verified=True,
+        )
+        eaddr.set_as_primary()
+
+    p = u.get_profile()
+    if phone:
+        p.mobile_phone = phone
+
+    p.save()
+
+    return u, created
