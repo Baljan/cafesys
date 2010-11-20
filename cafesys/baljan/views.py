@@ -459,6 +459,7 @@ def job_opening(request, semester_name):
                             found_user.get_full_name(), 
                             found_user.username
                         ),
+                        'phone': found_user.get_profile().mobile_phone,
                         'url': found_user.get_absolute_url(),
                         }
                 info['msg'] = _('OK')
@@ -472,6 +473,20 @@ def job_opening(request, semester_name):
         else: # the user hit save, assign users to shifts
             shift_ids = [int(x) for x in request.POST['shift-ids'].split('|')]
             usernames = request.POST['user-ids'].split('|')
+            phones = request.POST['phones'].split('|')
+
+            # Update phone numbers.
+            for uname, phone in zip(usernames, phones):
+                try:
+                    to_update = baljan.models.Profile.objects.get(
+                        user__username__exact=uname
+                    )
+                    to_update.mobile_phone = phone
+                    to_update.save()
+                except:
+                    opening_log.error('invalid phone for %s: %r' % (uname, phone))
+
+            # Assign to shifts.
             shifts_to_save = baljan.models.Shift.objects.filter(pk__in=shift_ids)
             users_to_save = User.objects.filter(username__in=usernames)
             for shift_to_save in shifts_to_save:

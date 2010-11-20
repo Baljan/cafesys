@@ -228,6 +228,7 @@ $(document).ready(function () {
                 addedUsersCount != 2) {
                 saveForm.find('input[name=shift-ids]').attr('value', '');
                 saveForm.find('input[name=user-ids]').attr('value', '');
+                saveForm.find('input[name=phones]').attr('value', '');
 
                 submitBox.removeClass('saved');
                 submitBox.addClass('pending');
@@ -236,13 +237,21 @@ $(document).ready(function () {
             }
             else {
                 var serialShiftIds = currentCombShiftIds.join('|'),
-                    serialUsernames = [];
-                for (i in addedUsers) serialUsernames.push(i);
+                    serialUsernames = [],
+                    serialPhones = [];
+                for (i in addedUsers) {
+                    serialUsernames.push(i);
+                    serialPhones.push(addedUsers[i].phone);
+                }
                 serialUsernames = serialUsernames.join('|');
+                serialPhones = serialPhones.join('|');
+
                 saveForm.find('input[name=shift-ids]')
                         .attr('value', serialShiftIds);
                 saveForm.find('input[name=user-ids]')
                         .attr('value', serialUsernames);
+                saveForm.find('input[name=phones]')
+                        .attr('value', serialPhones);
 
                 submitBox.addClass('saved');
                 submitBox.removeClass('pending');
@@ -303,6 +312,15 @@ $(document).ready(function () {
                 link.attr('href', user.url);
                 link.text(user.text);
                 last.append(' <span class="remove link">&#x2715;</span>');
+                last.append('<br/>'+PHONE_TEXT+' <input type="text" maxlength="10" style="width:50%"/>');
+                var phone = last.find('input');
+                $(phone).attr('value', user.phone);
+                $(phone).keyfilter(/[\d]/);
+                $(phone).change(function() {
+                    var uName = $(this).parent().data('username'),
+                        phone = $.trim($(this).attr('value'));
+                    addedUsers[uName].phone = phone;
+                });
             }
 
             addedList.find('li .remove').click(function() {

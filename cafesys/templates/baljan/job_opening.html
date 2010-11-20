@@ -69,6 +69,7 @@
             <form method="POST" action="">{% csrf_token %}
                 <input type="hidden" name="shift-ids" value="" />
                 <input type="hidden" name="user-ids" value="" />
+                <input type="hidden" name="phones" value="" />
                 <div class="submit layout">
                     <input disabled="disabled" type="submit"/>
                 </div>
@@ -100,6 +101,7 @@
 // <![CDATA[
     COMBINATION_PROGRESS = {{pairs_taken_percent}};
 
+    PHONE_TEXT = "{% trans "mobile:" %}";
     CONFIRM_MSG = "{% trans "Are you sure?" %}";
     CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
     CONFIRM_DELETE = CONFIRM_MSG;
