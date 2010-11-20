@@ -431,10 +431,9 @@ def job_opening(request, semester_name):
             searched_for = request.POST['liu_id']
             valid_search = valid_username(searched_for)
 
-            if valid_search or re.match('^[a-z]{5,5}[0-9]{0,3}$', searched_for):
+            if valid_search:
                 results = baljan.search.for_person(searched_for, use_cache=False)
                 if len(results) == 1:
-                    valid_search = True # when matching alphabetic part only
                     found_user = results[0]
 
             if valid_search and found_user is None:
