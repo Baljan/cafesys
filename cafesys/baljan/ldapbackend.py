@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from django.contrib.auth.models import User, check_password
-from baljan.util import get_logger
+from baljan.util import get_logger, get_or_create_user
 import ldap
 import re
 
@@ -50,18 +50,18 @@ def fetch_user(username, password=None, bind=False, create=True):
         return None
 
     if create:
-        user, created = User.objects.get_or_create(username=username)
-
         # FIXME: DRY.
         enc = 'utf-8'
         if first_name is not None:
-            user.first_name = first_name.decode(enc)
-
+            first_name = first_name.decode(enc)
         if last_name is not None:
-            user.last_name = last_name.decode(enc)
+            last_name = last_name.decode(enc)
 
-        user.email = "%s@%s" % (username, settings.USER_EMAIL_DOMAIN )
-        user.save()
+        user, created = get_or_create_user(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+        )
 
         if created:
             log.info('created %r' % user)

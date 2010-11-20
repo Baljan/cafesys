@@ -6,7 +6,7 @@ import MySQLdb.cursors
 from datetime import date, datetime
 from baljan.models import Profile, Semester, ShiftSignup, Shift, BoardPost
 from baljan.models import OnCallDuty, Good, Order
-from baljan.util import get_logger
+from baljan.util import get_logger, get_or_create_user
 from baljan import pseudogroups
 from baljan import orders
 from dateutil.relativedelta import relativedelta
@@ -97,36 +97,21 @@ SELECT nummer FROM telefon WHERE persid=%d
                 skipped.append(uname)
                 continue
 
-            u, created = User.objects.get_or_create(
-                    username=uname,
-                    first_name=decode(ud['fnamn']),
-                    last_name=decode(ud['enamn']))
+            phone = self._get_phone(ud)
 
-
-            u.set_unusable_password()
-            u.save()
-
-            liu_email = u"%s@%s" % (
-                decode(ud['login']).lower(), settings.USER_EMAIL_DOMAIN)
-            liu_eaddr, liu_eaddr_created = EmailAddress.objects.get_or_create(
-                user=u,
-                email=liu_email,
-                verified=True,
-            )
-
+            eaddr_custom = None
             if ud['epost']:
-                eaddr, eaddr_created = EmailAddress.objects.get_or_create(
-                    user=u,
-                    email=ud['epost'],
-                    verified=True,
-                )
-                eaddr.set_as_primary()
-            else:
-                liu_eaddr.set_as_primary()
+                eaddr_custom = decode(ud['epost'])
 
+            u, created = get_or_create_user(
+                username=uname, 
+                first_name=decode(ud['fnamn']),
+                last_name=decode(ud['enamn']),
+                email=eaddr_custom,
+                phone=phone,
+            )
             p = u.get_profile()
-            p.mobile_phone = self._get_phone(ud)
-            p.save()
+
             if created:
                 log.info('created: %r %r' % (u, p))
                 created_count += 1
