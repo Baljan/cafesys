@@ -8,10 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-17 22:30+0100\n"
+"POT-Creation-Date: 2010-11-20 16:42+0100\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -62,90 +63,90 @@ msgstr "minst giltig till %s"
 msgid "Refilled %d SEK."
 msgstr "Fyllde på %d SEK"
 
-#: baljan/actions.py:31
+#: baljan/actions.py:37
 #, python-format
 msgid "job opening %s"
 msgstr "jobbsläpp %s"
 
-#: baljan/actions.py:39
+#: baljan/actions.py:45
 msgid "superusers"
 msgstr "superanvändare"
 
-#: baljan/actions.py:42
+#: baljan/actions.py:48
 msgid "board tasks"
 msgstr "för styrelsen"
 
-#: baljan/actions.py:43
+#: baljan/actions.py:49
 msgid "week planning"
 msgstr "veckoplanering"
 
-#: baljan/actions.py:46 baljan/models.py:449
+#: baljan/actions.py:52 baljan/models.py:449
 msgid "semesters"
 msgstr "terminer"
 
-#: baljan/actions.py:49
+#: baljan/actions.py:55
 msgid "sysadmins"
 msgstr "sysadmins"
 
-#: baljan/actions.py:50
+#: baljan/actions.py:56
 msgid "django admin site"
 msgstr "djangos adminsida"
 
-#: baljan/actions.py:51
+#: baljan/actions.py:57
 msgid "sentry"
 msgstr "sentry"
 
-#: baljan/actions.py:52
+#: baljan/actions.py:58
 msgid "munin"
 msgstr "munin"
 
-#: baljan/actions.py:53
+#: baljan/actions.py:59
 msgid "github"
 msgstr "github"
 
-#: baljan/actions.py:55 templates/baljan/work_planning.html:59
+#: baljan/actions.py:61 templates/baljan/work_planning.html:59
 msgid "workers"
 msgstr "jobbare"
 
-#: baljan/actions.py:59
+#: baljan/actions.py:65
 msgid "your account"
 msgstr "ditt konto"
 
-#: baljan/actions.py:60 baljan/models.py:66 templates/baljan/user.html:57
+#: baljan/actions.py:66 baljan/models.py:66 templates/baljan/user.html:57
 #: templates/baljan/user.html.py:122
 msgid "profile"
 msgstr "profil"
 
-#: baljan/actions.py:61
+#: baljan/actions.py:67
 msgid "credits"
 msgstr "konto"
 
-#: baljan/actions.py:62 baljan/models.py:892
+#: baljan/actions.py:68 baljan/models.py:896
 msgid "orders"
 msgstr "köp"
 
-#: baljan/actions.py:64
+#: baljan/actions.py:70
 msgid "users"
 msgstr "användare"
 
-#: baljan/actions.py:65
+#: baljan/actions.py:71
 msgid "work planning"
 msgstr "jobbplanering"
 
-#: baljan/actions.py:66
+#: baljan/actions.py:72
 msgid "work for Baljan"
 msgstr "jobba i Baljan"
 
-#: baljan/actions.py:67
+#: baljan/actions.py:73
 msgid "people and groups"
 msgstr "personer och grupper"
 
-#: baljan/actions.py:70 templates/site_base.html:34
+#: baljan/actions.py:76 templates/site_base.html:34
 #: templates/admin/base.html:43
 msgid "login"
 msgstr "logga in"
 
-#: baljan/actions.py:70 templates/site_base.html:32
+#: baljan/actions.py:76 templates/site_base.html:32
 #: templates/admin/base.html:41
 msgid "logout"
 msgstr "logga ut"
@@ -166,7 +167,7 @@ msgstr "Växla aktiv"
 msgid "unset"
 msgstr "ej angett"
 
-#: baljan/admin.py:139 baljan/models.py:851
+#: baljan/admin.py:139 baljan/models.py:855
 msgid "cost"
 msgstr "pris"
 
@@ -178,7 +179,7 @@ msgstr "Värde och identifikation"
 msgid "Code"
 msgstr "Kod"
 
-#: baljan/admin.py:212 baljan/models.py:1003
+#: baljan/admin.py:212 baljan/models.py:1007
 msgid "series"
 msgstr "serie"
 
@@ -194,8 +195,8 @@ msgstr "# oanvända"
 msgid "codes"
 msgstr "koder"
 
-#: baljan/admin.py:237 baljan/models.py:37 baljan/models.py:852
-#: baljan/models.py:872 baljan/models.py:1024 baljan/models.py:1025
+#: baljan/admin.py:237 baljan/models.py:37 baljan/models.py:856
+#: baljan/models.py:876 baljan/models.py:1028 baljan/models.py:1029
 msgid "currency"
 msgstr "valuta"
 
@@ -215,7 +216,7 @@ msgstr "Det finns använda koder i serien/-erna."
 msgid "make PDF"
 msgstr "skapa PDF"
 
-#: baljan/forms.py:31 baljan/models.py:1021
+#: baljan/forms.py:31 baljan/models.py:1025
 msgid "code"
 msgstr "kod"
 
@@ -223,19 +224,19 @@ msgstr "kod"
 msgid "found on your value card"
 msgstr "står på ditt värdekort"
 
-#: baljan/forms.py:37 templates/baljan/admin_semester.html:99
+#: baljan/forms.py:37 templates/baljan/admin_semester.html:104
 msgid "open"
 msgstr "öppet"
 
-#: baljan/forms.py:38 templates/baljan/admin_semester.html:78
-#: templates/baljan/admin_semester.html:101
+#: baljan/forms.py:38 templates/baljan/admin_semester.html:83
+#: templates/baljan/admin_semester.html:106
 msgid "closed"
 msgstr "stängt"
 
-#: baljan/forms.py:39 baljan/models.py:543
-#: templates/baljan/admin_semester.html:71
-#: templates/baljan/admin_semester.html:81
-#: templates/baljan/admin_semester.html:103
+#: baljan/forms.py:39 baljan/models.py:547
+#: templates/baljan/admin_semester.html:76
+#: templates/baljan/admin_semester.html:86
+#: templates/baljan/admin_semester.html:108
 msgid "exam period"
 msgstr "tenta-p"
 
@@ -251,8 +252,8 @@ msgstr "skapad"
 msgid "when the object was created"
 msgstr "när objektet skapades"
 
-#: baljan/models.py:32 baljan/models.py:88 baljan/models.py:772
-#: baljan/models.py:870 baljan/models.py:1048 templates/baljan/user.html:121
+#: baljan/models.py:32 baljan/models.py:88 baljan/models.py:776
+#: baljan/models.py:874 baljan/models.py:1052 templates/baljan/user.html:121
 msgid "user"
 msgstr "användare"
 
@@ -296,7 +297,7 @@ msgstr "skickad av"
 msgid "sent to"
 msgstr "skickad till"
 
-#: baljan/models.py:112 baljan/models.py:222 baljan/models.py:873
+#: baljan/models.py:112 baljan/models.py:222 baljan/models.py:877
 msgid "accepted"
 msgstr "accepterad"
 
@@ -421,234 +422,234 @@ msgstr "dåligt terminnamn"
 msgid "semester overlaps with %s"
 msgstr "terminen överlappar med %s"
 
-#: baljan/models.py:448 baljan/models.py:504 baljan/models.py:539
-#: baljan/models.py:1047 templates/baljan/user.html:278
+#: baljan/models.py:448 baljan/models.py:508 baljan/models.py:543
+#: baljan/models.py:1051 templates/baljan/user.html:278
 msgid "semester"
 msgstr "termin"
 
-#: baljan/models.py:497 baljan/models.py:532
+#: baljan/models.py:501 baljan/models.py:536
 #: templates/baljan/call_duty_week.html:26
 msgid "morning"
 msgstr "förmiddag"
 
-#: baljan/models.py:498 baljan/models.py:533 baljan/models.py:584
+#: baljan/models.py:502 baljan/models.py:537 baljan/models.py:588
 #: templates/baljan/admin_semester.html:23
 #: templates/baljan/call_duty_week.html:27
 msgid "lunch"
 msgstr "lunch"
 
-#: baljan/models.py:499 baljan/models.py:534
+#: baljan/models.py:503 baljan/models.py:538
 #: templates/baljan/call_duty_week.html:28
 msgid "afternoon"
 msgstr "eftermiddag"
 
-#: baljan/models.py:505 baljan/models.py:647
+#: baljan/models.py:509 baljan/models.py:651
 msgid "shifts"
 msgstr "pass"
 
-#: baljan/models.py:506
+#: baljan/models.py:510
 msgid "label"
 msgstr "etikett"
 
-#: baljan/models.py:509
+#: baljan/models.py:513
 msgid "shift combination"
 msgstr "jobbpasskombination"
 
-#: baljan/models.py:510
+#: baljan/models.py:514
 msgid "shift combinations"
 msgstr "jobbpasskombinationer"
 
-#: baljan/models.py:540
+#: baljan/models.py:544
 msgid "what day the shift is on"
 msgstr "vilken dag passet är på"
 
-#: baljan/models.py:541
+#: baljan/models.py:545
 msgid "time span"
 msgstr "tidsintervall"
 
-#: baljan/models.py:544
+#: baljan/models.py:548
 msgid "the work scheduler takes this field into account"
 msgstr "jobbplaneraren tittar på detta fält"
 
-#: baljan/models.py:546
+#: baljan/models.py:550
 msgid "enabled"
 msgstr "aktiv"
 
-#: baljan/models.py:547
+#: baljan/models.py:551
 msgid "shifts can be disabled on special days"
 msgstr "pass kan inaktiveras på speciella dagar"
 
-#: baljan/models.py:555
+#: baljan/models.py:559
 msgid "7:30 am to ca 12:30 pm"
 msgstr "7:30 till ca 12:30"
 
-#: baljan/models.py:557
+#: baljan/models.py:561
 msgid "for people on call only"
 msgstr "endast för personer med jourtjänst"
 
-#: baljan/models.py:559
+#: baljan/models.py:563
 msgid "12:00 pm to ca 4:45 pm"
 msgstr "12:00 till ca 16:45"
 
-#: baljan/models.py:573
+#: baljan/models.py:577
 msgid "7:30 am to ca 8:00 am"
 msgstr "7:30 till ca 8:00"
 
-#: baljan/models.py:575
+#: baljan/models.py:579
 msgid "12:00 pm to ca 12:30 pm"
 msgstr "12:00 till ca 12:30"
 
-#: baljan/models.py:577
+#: baljan/models.py:581
 msgid "ca 4:00 pm to ca 4:45 pm"
 msgstr "ca 16:00 till ca 16:45"
 
-#: baljan/models.py:583 templates/baljan/admin_semester.html:22
+#: baljan/models.py:587 templates/baljan/admin_semester.html:22
 msgid "am"
 msgstr "fm"
 
-#: baljan/models.py:585 templates/baljan/admin_semester.html:24
+#: baljan/models.py:589 templates/baljan/admin_semester.html:24
 msgid "pm"
 msgstr "em"
 
-#: baljan/models.py:646 baljan/models.py:663 baljan/models.py:771
+#: baljan/models.py:650 baljan/models.py:667 baljan/models.py:775
 msgid "shift"
 msgstr "pass"
 
-#: baljan/models.py:664 templates/baljan/day.html:56
+#: baljan/models.py:668 templates/baljan/day.html:56
 msgid "worker"
 msgstr "jobbare"
 
-#: baljan/models.py:666
+#: baljan/models.py:670
 msgid "the user wants to switch this shift for some other"
 msgstr "jobbaren vill byta passet mot något annat"
 
-#: baljan/models.py:667
+#: baljan/models.py:671
 msgid ""
 "remember that trade requests of sign-ups are removed whenever the sign-up is "
 "altered"
 msgstr "kom ihåg att bytesförfrågningar tas bort när passanmälningar sparas"
 
-#: baljan/models.py:674
+#: baljan/models.py:678
 msgid "shift sign-up"
 msgstr "passanmälan"
 
-#: baljan/models.py:675
+#: baljan/models.py:679
 msgid "shift sign-ups"
 msgstr "passanmälningar"
 
-#: baljan/models.py:716
+#: baljan/models.py:720
 msgid "You were signed up for a shift on"
 msgstr "Du anmäldes till ett pass på"
 
-#: baljan/models.py:717
+#: baljan/models.py:721
 msgid "You were signed up for"
 msgstr "Du anmäldes till"
 
-#: baljan/models.py:730
+#: baljan/models.py:734
 msgid "You were removed from a shift on"
 msgstr "Du togs bort från ett pass på"
 
-#: baljan/models.py:731
+#: baljan/models.py:735
 msgid "You were removed from"
 msgstr "Du togs bort från"
 
-#: baljan/models.py:775
+#: baljan/models.py:779
 msgid "on call duty"
 msgstr "jourande"
 
-#: baljan/models.py:776
+#: baljan/models.py:780
 msgid "on call duties"
 msgstr "jourande"
 
-#: baljan/models.py:812 templates/baljan/template.html:7
+#: baljan/models.py:816 templates/baljan/template.html:7
 #: templates/baljan/template.html.py:11
 msgid "title"
 msgstr "rubrik"
 
-#: baljan/models.py:813
+#: baljan/models.py:817
 msgid "short description"
 msgstr "kort beskrivning"
 
-#: baljan/models.py:814
+#: baljan/models.py:818
 msgid "image"
 msgstr "bild"
 
-#: baljan/models.py:815
+#: baljan/models.py:819
 msgid "position"
 msgstr "position"
 
-#: baljan/models.py:816
+#: baljan/models.py:820
 msgid ""
 "when listing goods, this value tells at what position this good should be put"
 msgstr ""
 "när varor listas talar detta värde om på vilken position varan ska läggas"
 
-#: baljan/models.py:839 baljan/models.py:850 baljan/models.py:901
+#: baljan/models.py:843 baljan/models.py:854 baljan/models.py:905
 msgid "good"
 msgstr "vara"
 
-#: baljan/models.py:840
+#: baljan/models.py:844
 msgid "goods"
 msgstr "varor"
 
-#: baljan/models.py:843
+#: baljan/models.py:847
 #, python-format
 msgid "%(title)s (%(desc)s)"
 msgstr "%(title)s (%(desc)s)"
 
-#: baljan/models.py:853
+#: baljan/models.py:857
 msgid "from date"
 msgstr "från datum"
 
-#: baljan/models.py:856
+#: baljan/models.py:860
 msgid "good cost"
 msgstr "varupris"
 
-#: baljan/models.py:857
+#: baljan/models.py:861
 msgid "good costs"
 msgstr "varupriser"
 
-#: baljan/models.py:869
+#: baljan/models.py:873
 msgid "put at"
 msgstr "lagd"
 
-#: baljan/models.py:871
+#: baljan/models.py:875
 msgid "paid"
 msgstr "betalat"
 
-#: baljan/models.py:891 baljan/models.py:900
+#: baljan/models.py:895 baljan/models.py:904
 msgid "order"
 msgstr "köp"
 
-#: baljan/models.py:902
+#: baljan/models.py:906
 msgid "count"
 msgstr "antal"
 
-#: baljan/models.py:905
+#: baljan/models.py:909
 msgid "order good"
 msgstr "köpvara"
 
-#: baljan/models.py:906
+#: baljan/models.py:910
 msgid "order goods"
 msgstr "köpvaror"
 
-#: baljan/models.py:942
+#: baljan/models.py:946
 msgid "issued"
 msgstr "skapad"
 
-#: baljan/models.py:943
+#: baljan/models.py:947
 msgid "least valid until"
 msgstr "minst giltig till"
 
-#: baljan/models.py:945
+#: baljan/models.py:949
 msgid "made by"
 msgstr "skapad av"
 
-#: baljan/models.py:947
+#: baljan/models.py:951
 msgid "code count"
 msgstr "antal koder"
 
-#: baljan/models.py:949
+#: baljan/models.py:953
 #, python-format
 msgid ""
 "multiple of 16 recommended (4x4 on A4 paper), total value can be at most %d "
@@ -656,44 +657,44 @@ msgid ""
 msgstr ""
 "multipel av 16 rekommenderas (4x4 på A4-papper), totalt maxvärde är %d SEK"
 
-#: baljan/models.py:950
+#: baljan/models.py:954
 msgid "code value"
 msgstr "kodvärde"
 
-#: baljan/models.py:952
+#: baljan/models.py:956
 #, python-format
 msgid "maximum value is %d SEK"
 msgstr "maxvärde är %d SEK"
 
-#: baljan/models.py:953
+#: baljan/models.py:957
 msgid "code currency"
 msgstr "kodvaluta"
 
-#: baljan/models.py:956 baljan/models.py:957 baljan/models.py:1026
+#: baljan/models.py:960 baljan/models.py:961 baljan/models.py:1030
 msgid "refill series"
 msgstr "kodserie"
 
-#: baljan/models.py:997
+#: baljan/models.py:1001
 msgid "Invalid total worth."
 msgstr "Ogiltigt totalvärde."
 
-#: baljan/models.py:999
+#: baljan/models.py:1003
 msgid "Code value too high."
 msgstr "Kodvärde för högt."
 
-#: baljan/models.py:1005
+#: baljan/models.py:1009
 msgid "generated by"
 msgstr "genererad av"
 
-#: baljan/models.py:1013
+#: baljan/models.py:1017
 msgid "generated refill series PDF"
 msgstr "genererad PDF"
 
-#: baljan/models.py:1014
+#: baljan/models.py:1018
 msgid "generated refill series PDFs"
 msgstr "genererade PDF:er"
 
-#: baljan/models.py:1018
+#: baljan/models.py:1022
 msgid ""
 "To create a bulk of codes, <a href='../../refillseries/add'>create a new "
 "refill series</a> instead."
@@ -701,35 +702,35 @@ msgstr ""
 "För att skapa många koder, <a href='../../refillseries/add'>skapa en "
 "nyserie</a> istället."
 
-#: baljan/models.py:1023
+#: baljan/models.py:1027
 msgid "value"
 msgstr "värde"
 
-#: baljan/models.py:1028
+#: baljan/models.py:1032
 msgid "used by"
 msgstr "använd av"
 
-#: baljan/models.py:1029
+#: baljan/models.py:1033
 msgid "used at"
 msgstr "använd den"
 
-#: baljan/models.py:1041
+#: baljan/models.py:1045
 msgid "balance code"
 msgstr "kod"
 
-#: baljan/models.py:1042
+#: baljan/models.py:1046
 msgid "balance codes"
 msgstr "koder"
 
-#: baljan/models.py:1049
+#: baljan/models.py:1053
 msgid "post"
 msgstr "post"
 
-#: baljan/models.py:1052
+#: baljan/models.py:1056
 msgid "board post"
 msgstr "styrelsepost"
 
-#: baljan/models.py:1053
+#: baljan/models.py:1057
 msgid "board posts"
 msgstr "styrelseposter"
 
@@ -753,8 +754,8 @@ msgstr "Olika valutor."
 msgid "Insufficient funds."
 msgstr "Otillräckligt med pengar."
 
-#: baljan/pdf.py:82 baljan/views.py:289
-#: templates/baljan/admin_semester.html:86
+#: baljan/pdf.py:82 baljan/views.py:290
+#: templates/baljan/admin_semester.html:91
 #: templates/baljan/work_planning.html:47
 msgid "work shifts"
 msgstr "jobbpass"
@@ -773,7 +774,7 @@ msgstr "dokument genererat %s"
 msgid "liu ids"
 msgstr "liu-idn"
 
-#: baljan/views.py:47 baljan/views.py:648
+#: baljan/views.py:47 baljan/views.py:670
 #, python-format
 msgid "%s was added successfully."
 msgstr "%s lades till utan problem"
@@ -790,31 +791,31 @@ msgstr "kommande"
 msgid "past"
 msgstr "gångna"
 
-#: baljan/views.py:290
+#: baljan/views.py:291
 msgid "call duties"
 msgstr "jourpass"
 
-#: baljan/views.py:393
+#: baljan/views.py:394
 msgid "This would result in a double booking."
 msgstr "Detta skulle resultera i en dubbelbokning."
 
-#: baljan/views.py:396
+#: baljan/views.py:397
 msgid "Invalid trade request."
 msgstr "Ogiltig bytesförfrågan."
 
-#: baljan/views.py:445 templates/baljan/job_opening.html:29
+#: baljan/views.py:452 templates/baljan/job_opening.html:29
 msgid "enter liu id"
 msgstr "skriv in liu-id"
 
-#: baljan/views.py:457
+#: baljan/views.py:465
 msgid "OK"
 msgstr "OK"
 
-#: baljan/views.py:462
+#: baljan/views.py:470
 msgid "liu id unfound"
 msgstr "liu-id hittades inte"
 
-#: baljan/views.py:578
+#: baljan/views.py:600
 msgid "Your changes were saved."
 msgstr "Dina ändringar sparades."
 
@@ -854,6 +855,11 @@ msgstr ""
 #, python-format
 msgid "bad command %r"
 msgstr ""
+
+#: baljan/templatetags/baljan_extras.py:37
+#: baljan/templatetags/baljan_extras.py:53
+msgid "unnamed"
+msgstr "ej namngiven"
 
 #: templates/base.html:39
 msgid "Hide announcement"
@@ -946,8 +952,8 @@ msgstr ""
 #: templates/about/what_next.html:35 templates/terminal/what_next.html:35
 #, python-format
 msgid ""
-"Start by <a href=\"%(signup_url)s\">signing up</a> and <a href=\"%(login_url)"
-"s\">logging in</a>."
+"Start by <a href=\"%(signup_url)s\">signing up</a> and <a href="
+"\"%(login_url)s\">logging in</a>."
 msgstr ""
 
 #: templates/about/what_next.html:37 templates/terminal/what_next.html:37
@@ -1227,57 +1233,61 @@ msgstr ""
 msgid "Admin Semester"
 msgstr "Administrera termin"
 
-#: templates/baljan/admin_semester.html:63
+#: templates/baljan/admin_semester.html:55
+msgid "No semester selected."
+msgstr "Ingen termin vald."
+
+#: templates/baljan/admin_semester.html:67
 msgid "create new"
 msgstr "skapa ny"
 
-#: templates/baljan/admin_semester.html:69
+#: templates/baljan/admin_semester.html:74
 msgid "days"
 msgstr "dagar"
 
-#: templates/baljan/admin_semester.html:71
+#: templates/baljan/admin_semester.html:76
 msgid "worker shifts"
 msgstr "jobbarpass"
 
-#: templates/baljan/admin_semester.html:84
+#: templates/baljan/admin_semester.html:89
 msgid "PDF"
 msgstr ""
 
-#: templates/baljan/admin_semester.html:88
+#: templates/baljan/admin_semester.html:93
 msgid "form"
 msgstr "fomulär"
 
-#: templates/baljan/admin_semester.html:93
+#: templates/baljan/admin_semester.html:98
 msgid "Make Selection"
 msgstr "Gör markering"
 
-#: templates/baljan/admin_semester.html:109
+#: templates/baljan/admin_semester.html:114
 msgid "edit on admin site"
 msgstr "hantera på adminsidan"
 
-#: templates/baljan/admin_semester.html:115
+#: templates/baljan/admin_semester.html:121
 msgid "New Semester"
 msgstr "Ny termin"
 
-#: templates/baljan/admin_semester.html:128
+#: templates/baljan/admin_semester.html:134
 msgid "Are you sure? Shift combinations for job openings will also be updated."
 msgstr ""
 "Är du säker? Passkombinationer för jobbsläpp kommer också att uppdateras."
 
-#: templates/baljan/admin_semester.html:129
+#: templates/baljan/admin_semester.html:135
 #: templates/baljan/call_duty_week.html:77 templates/baljan/day.html:170
-#: templates/baljan/group.html:93 templates/baljan/job_opening.html:104
+#: templates/baljan/group.html:93 templates/baljan/job_opening.html:106
 #: templates/baljan/search_person.html:64 templates/baljan/template.html:25
 #: templates/baljan/user.html:332
 msgid "This cannot be undone. Are you sure?"
 msgstr "Det här är permanent. Är du säker?"
 
-#: templates/baljan/admin_semester.html:135
+#: templates/baljan/admin_semester.html:141
 #: templates/baljan/call_duty_week.html:68 templates/baljan/user.html:329
 msgid "save"
 msgstr "spara"
 
-#: templates/baljan/admin_semester.html:136 templates/baljan/user.html:264
+#: templates/baljan/admin_semester.html:142 templates/baljan/user.html:264
 #: templates/baljan/user.html.py:330
 msgid "cancel"
 msgstr "avbryt"
@@ -1369,7 +1379,7 @@ msgid "revert unsaved changes"
 msgstr "ångra osparade ändringar"
 
 #: templates/baljan/call_duty_week.html:76 templates/baljan/day.html:169
-#: templates/baljan/group.html:92 templates/baljan/job_opening.html:103
+#: templates/baljan/group.html:92 templates/baljan/job_opening.html:105
 #: templates/baljan/search_person.html:63 templates/baljan/template.html:24
 #: templates/baljan/user.html:331
 msgid "Are you sure?"
@@ -1487,7 +1497,7 @@ msgid "The working hours are"
 msgstr "Arbetstiden är"
 
 #: templates/baljan/day.html:112 templates/baljan/day.html.py:156
-#: templates/baljan/job_opening.html:108
+#: templates/baljan/job_opening.html:110
 msgid "sign up"
 msgstr "anmäl"
 
@@ -1552,7 +1562,7 @@ msgstr "lägg till"
 msgid "Choose Combination"
 msgstr "Välj kombination"
 
-#: templates/baljan/job_opening.html:82
+#: templates/baljan/job_opening.html:83
 msgid ""
 "\n"
 "        <h2>\n"
@@ -1578,7 +1588,11 @@ msgstr ""
 "        </dl>\n"
 "    "
 
-#: templates/baljan/job_opening.html:107
+#: templates/baljan/job_opening.html:104
+msgid "mobile:"
+msgstr "mobil:"
+
+#: templates/baljan/job_opening.html:109
 msgid "select two workers and one combination"
 msgstr "välj två jobbare och en kombination"
 
@@ -1654,7 +1668,7 @@ msgid "Wanted Shift"
 msgstr "Begärt pass"
 
 #: templates/baljan/trade.html:25 templates/calendar/calendar.html:91
-#: templates/calendar/swappable.html:64
+#: templates/calendar/swappable.html:54
 msgid "when"
 msgstr "när"
 
@@ -1768,8 +1782,8 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"        Inga. För att jobba för Baljan måste man <a href=\"%"
-"(become_worker_link)s\">gå med i jobbargruppen</a>.\n"
+"        Inga. För att jobba för Baljan måste man <a href="
+"\"%(become_worker_link)s\">gå med i jobbargruppen</a>.\n"
 "        "
 
 #: templates/baljan/user.html:107
@@ -1821,7 +1835,7 @@ msgid "Awaiting Friend Confirmations From"
 msgstr "Väntar på vänbekräftelser från"
 
 #: templates/baljan/user.html:279 templates/baljan/work_planning.html:57
-#: templates/calendar/calendar.html:90 templates/calendar/swappable.html:63
+#: templates/calendar/calendar.html:90 templates/calendar/swappable.html:53
 msgid "date"
 msgstr "datum"
 
@@ -1993,7 +2007,7 @@ msgid "tasks"
 msgstr "åtgärder"
 
 #: templates/calendar/calendar.html:100 templates/calendar/swappable.html:17
-#: templates/calendar/swappable.html:33 templates/calendar/swappable.html:72
+#: templates/calendar/swappable.html:33 templates/calendar/swappable.html:62
 msgid "go to this month"
 msgstr "gå till den här månaden"
 
@@ -2089,31 +2103,19 @@ msgstr "Du har inga förfrågningar som väntar."
 msgid "Swappable Shifts"
 msgstr "Bytbara skift"
 
-#: templates/calendar/swappable.html:53
-msgid ""
-"\n"
-"                Workers on these shifts would like to swap. You may send "
-"swap requests\n"
-"                to them if you would rather work on one of these shifts.\n"
-"                "
-msgstr ""
-"\n"
-"Jobbare på de här skiften vill gärna byta. Du kan skicka bytesförfrågningar "
-"till dem om du hellre skulle vilja jobba på något av de här skiften."
-
-#: templates/calendar/swappable.html:65
+#: templates/calendar/swappable.html:55
 msgid "who"
 msgstr "vem"
 
-#: templates/calendar/swappable.html:79
+#: templates/calendar/swappable.html:69
 msgid "send request"
 msgstr "skicka förfrågan"
 
-#: templates/calendar/swappable.html:88
+#: templates/calendar/swappable.html:78
 msgid "Currently, no workers want to swap shifts."
 msgstr "För tillfället vill inga jobbare byta skift."
 
-#: templates/calendar/swappable.html:94
+#: templates/calendar/swappable.html:84
 msgid "You are not a worker."
 msgstr ""
 
@@ -2135,8 +2137,8 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"    %(requester)s wants %(wanted)s from %(responder)s in exchange for %"
-"(offered)s.\n"
+"    %(requester)s wants %(wanted)s from %(responder)s in exchange for "
+"%(offered)s.\n"
 "    \n"
 "    You can answer to or cancel requests on your <a href=\"%(profile_page)s"
 "\">profile page</a>.\n"
@@ -2144,11 +2146,11 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"    %(requester)s vill ha %(wanted)s från %(responder)s i utbyte mot %"
-"(offered)s.\n"
+"    %(requester)s vill ha %(wanted)s från %(responder)s i utbyte mot "
+"%(offered)s.\n"
 "    \n"
-"    Du kan svara på eller ångra förfrågningar på din <a href=\"%"
-"(profile_page)s\">profilsida</a>.\n"
+"    Du kan svara på eller ångra förfrågningar på din <a href="
+"\"%(profile_page)s\">profilsida</a>.\n"
 "\n"
 "    "
 
@@ -2156,13 +2158,13 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"    Your request to trade %(offered)s for %(wanted)s %(happening)s by %"
-"(answerer)s.\n"
+"    Your request to trade %(offered)s for %(wanted)s %(happening)s by "
+"%(answerer)s.\n"
 "    "
 msgstr ""
 "\n"
-"    Din förfrågan att byta %(offered)s mot %(wanted)s %(happening)s av %"
-"(answerer)s.\n"
+"    Din förfrågan att byta %(offered)s mot %(wanted)s %(happening)s av "
+"%(answerer)s.\n"
 "    "
 
 #: terminal/views.py:44
@@ -2172,6 +2174,18 @@ msgstr "ändrad för jobbare"
 #: terminal/views.py:46
 msgid "adjusted for board member"
 msgstr "ändrad för styrelsemedlem"
+
+#~ msgid ""
+#~ "\n"
+#~ "                Workers on these shifts would like to swap. You may send "
+#~ "swap requests\n"
+#~ "                to them if you would rather work on one of these shifts.\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "Jobbare på de här skiften vill gärna byta. Du kan skicka "
+#~ "bytesförfrågningar till dem om du hellre skulle vilja jobba på något av "
+#~ "de här skiften."
 
 #~ msgid "Available for call duty"
 #~ msgstr "Tillgäng för jour"

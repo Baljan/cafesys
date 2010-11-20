@@ -16,7 +16,7 @@ import baljan.search
 from baljan import pdf
 from baljan.util import get_logger, year_and_week, all_initials
 from baljan.util import adjacent_weeks, week_dates
-from baljan.ldapbackend import valid_username
+from baljan.ldapbackend import valid_username, exists_in_ldap, fetch_user
 from baljan import credits as creditsmodule
 from baljan import friendrequests, trades, planning, pseudogroups, workdist
 from django.contrib.auth.models import User, Permission, Group
@@ -239,7 +239,8 @@ def see_user(request, who):
                 )
 
     if watching_self and request.method == 'POST':
-        profile_forms = [c(request.POST, instance=i) for c, i in profile_form_cls_inst]
+        profile_forms = [c(request.POST, request.FILES, instance=i) 
+                for c, i in profile_form_cls_inst]
 
         # Make sure all forms are valid before saving.
         all_valid = True
@@ -424,7 +425,6 @@ def job_opening(request, semester_name):
     tpl['semester'] = sem = baljan.models.Semester.objects.get(name__exact=semester_name)
     user = request.user
 
-
     found_user = None
     if request.method == 'POST':
         if request.is_ajax(): # find user
@@ -438,7 +438,14 @@ def job_opening(request, semester_name):
                     found_user = results[0]
 
             if valid_search and found_user is None:
-                pass # TODO: perform LDAP lookup
+                # FIXME: User should not be created immediately. First we 
+                # should tell whether or not he exists, then the operator
+                # may choose to import the user.
+                if exists_in_ldap(searched_for):
+                    opening_log.info('%s found in LDAP' % searched_for)
+                    found_user = fetch_user(searched_for)
+                else:
+                    opening_log.info('%s not found in LDAP' % searched_for)
 
             info = {}
             info['user'] = None
@@ -452,6 +459,7 @@ def job_opening(request, semester_name):
                             found_user.get_full_name(), 
                             found_user.username
                         ),
+                        'phone': found_user.get_profile().mobile_phone,
                         'url': found_user.get_absolute_url(),
                         }
                 info['msg'] = _('OK')
@@ -465,6 +473,20 @@ def job_opening(request, semester_name):
         else: # the user hit save, assign users to shifts
             shift_ids = [int(x) for x in request.POST['shift-ids'].split('|')]
             usernames = request.POST['user-ids'].split('|')
+            phones = request.POST['phones'].split('|')
+
+            # Update phone numbers.
+            for uname, phone in zip(usernames, phones):
+                try:
+                    to_update = baljan.models.Profile.objects.get(
+                        user__username__exact=uname
+                    )
+                    to_update.mobile_phone = phone
+                    to_update.save()
+                except:
+                    opening_log.error('invalid phone for %s: %r' % (uname, phone))
+
+            # Assign to shifts.
             shifts_to_save = baljan.models.Shift.objects.filter(pk__in=shift_ids)
             users_to_save = User.objects.filter(username__in=usernames)
             for shift_to_save in shifts_to_save:
@@ -652,13 +674,12 @@ def admin_semester(request, name=None):
             new_sem_failed = True
 
     tpl = {}
+    tpl['semester'] = sem
+    tpl['new_semester_form'] = new_sem_form
+    tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
+    tpl['admin_semester_base_url'] = reverse('baljan.views.admin_semester')
+    tpl['new_semester_failed'] = new_sem_failed
     if sem:
-        tpl['semester'] = sem
-        tpl['new_semester_form'] = new_sem_form
-        tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
-        tpl['admin_semester_base_url'] = reverse('baljan.views.admin_semester')
-        tpl['new_semester_failed'] = new_sem_failed
-
         tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span')
         tpl['day_count'] = len(list(sem.date_range()))
         

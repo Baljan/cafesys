@@ -28,11 +28,13 @@ def user_link(user, autoescape=None):
     Also see `name_link`.
     """
     user = _find_user(user)
-    full_name = escape(user.get_full_name())
-    return mark_safe(u'<a href="%s">%s (%s)</a>' % (
-            user.get_absolute_url(),
-            full_name,
-            user.username))
+    if user:
+        full_name = escape(user.get_full_name())
+        return mark_safe(u'<a href="%s">%s (%s)</a>' % (
+                user.get_absolute_url(),
+                full_name,
+                user.username))
+    return mark_safe(_("unnamed"))
 user_link.needs_autoescape = True
 
 
@@ -43,10 +45,12 @@ def name_link(user, autoescape=None):
     See its bro' `user_link`.
     """
     user = _find_user(user)
-    full_name = escape(user.get_full_name())
-    return mark_safe(u'<a href="%s">%s</a>' % (
-            user.get_absolute_url(),
-            full_name))
+    if user:
+        full_name = escape(user.get_full_name())
+        return mark_safe(u'<a href="%s">%s</a>' % (
+                user.get_absolute_url(),
+                full_name))
+    return mark_safe(_("unnamed"))
 name_link.needs_autoescape = True
 
 def _find_shift(obj):
