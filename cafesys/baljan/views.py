@@ -16,7 +16,7 @@ import baljan.search
 from baljan import pdf
 from baljan.util import get_logger, year_and_week, all_initials
 from baljan.util import adjacent_weeks, week_dates
-from baljan.ldapbackend import valid_username
+from baljan.ldapbackend import valid_username, exists_in_ldap, fetch_user
 from baljan import credits as creditsmodule
 from baljan import friendrequests, trades, planning, pseudogroups, workdist
 from django.contrib.auth.models import User, Permission, Group
@@ -425,7 +425,6 @@ def job_opening(request, semester_name):
     tpl['semester'] = sem = baljan.models.Semester.objects.get(name__exact=semester_name)
     user = request.user
 
-
     found_user = None
     if request.method == 'POST':
         if request.is_ajax(): # find user
@@ -439,7 +438,14 @@ def job_opening(request, semester_name):
                     found_user = results[0]
 
             if valid_search and found_user is None:
-                pass # TODO: perform LDAP lookup
+                # FIXME: User should not be created immediately. First we 
+                # should tell whether or not he exists, then the operator
+                # may choose to import the user.
+                if exists_in_ldap(searched_for):
+                    opening_log.info('%s found in LDAP' % searched_for)
+                    found_user = fetch_user(searched_for)
+                else:
+                    opening_log.info('%s not found in LDAP' % searched_for)
 
             info = {}
             info['user'] = None
@@ -453,6 +459,7 @@ def job_opening(request, semester_name):
                             found_user.get_full_name(), 
                             found_user.username
                         ),
+                        'phone': found_user.get_profile().mobile_phone,
                         'url': found_user.get_absolute_url(),
                         }
                 info['msg'] = _('OK')
@@ -466,6 +473,20 @@ def job_opening(request, semester_name):
         else: # the user hit save, assign users to shifts
             shift_ids = [int(x) for x in request.POST['shift-ids'].split('|')]
             usernames = request.POST['user-ids'].split('|')
+            phones = request.POST['phones'].split('|')
+
+            # Update phone numbers.
+            for uname, phone in zip(usernames, phones):
+                try:
+                    to_update = baljan.models.Profile.objects.get(
+                        user__username__exact=uname
+                    )
+                    to_update.mobile_phone = phone
+                    to_update.save()
+                except:
+                    opening_log.error('invalid phone for %s: %r' % (uname, phone))
+
+            # Assign to shifts.
             shifts_to_save = baljan.models.Shift.objects.filter(pk__in=shift_ids)
             users_to_save = User.objects.filter(username__in=usernames)
             for shift_to_save in shifts_to_save:
