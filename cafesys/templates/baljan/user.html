@@ -310,7 +310,7 @@
         
 {% if profile_forms %}
 <div class="init-hidden" id="profile-dialog" title="{% trans "Edit Profile" %}">
-    <form method="POST" action="">{% csrf_token %}
+    <form enctype="multipart/form-data" method="POST" action="">{% csrf_token %}
         <table>
         {% for profile_form in profile_forms %}
             {{profile_form.as_table}}

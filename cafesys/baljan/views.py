@@ -239,7 +239,8 @@ def see_user(request, who):
                 )
 
     if watching_self and request.method == 'POST':
-        profile_forms = [c(request.POST, instance=i) for c, i in profile_form_cls_inst]
+        profile_forms = [c(request.POST, request.FILES, instance=i) 
+                for c, i in profile_form_cls_inst]
 
         # Make sure all forms are valid before saving.
         all_valid = True
