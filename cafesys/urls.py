@@ -53,5 +53,5 @@ urlpatterns = patterns("",
 
 if settings.SERVE_MEDIA:
     urlpatterns += patterns("",
-        (r"", include("staticfiles.urls"), {'show_indexes':True}),
+        (r"", include("staticfiles.urls"), {'show_indexes':settings.DEBUG}),
     )
