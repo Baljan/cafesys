@@ -11,6 +11,7 @@ from baljan import pseudogroups
 from baljan import orders
 from dateutil.relativedelta import relativedelta
 import re
+from emailconfirmation.models import EmailAddress
 
 log = get_logger('baljan.migration')
 
