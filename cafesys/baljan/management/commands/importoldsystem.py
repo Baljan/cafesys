@@ -11,6 +11,7 @@ from baljan import pseudogroups
 from baljan import orders
 from dateutil.relativedelta import relativedelta
 import re
+from emailconfirmation.models import EmailAddress
 
 log = get_logger('baljan.migration')
 
@@ -101,10 +102,27 @@ SELECT nummer FROM telefon WHERE persid=%d
                     first_name=decode(ud['fnamn']),
                     last_name=decode(ud['enamn']))
 
-            u.email = u"%s@%s" % (
-                decode(ud['login']).lower(), settings.USER_EMAIL_DOMAIN)
+
             u.set_unusable_password()
             u.save()
+
+            liu_email = u"%s@%s" % (
+                decode(ud['login']).lower(), settings.USER_EMAIL_DOMAIN)
+            liu_eaddr, liu_eaddr_created = EmailAddress.objects.get_or_create(
+                user=u,
+                email=liu_email,
+                verified=True,
+            )
+
+            if ud['epost']:
+                eaddr, eaddr_created = EmailAddress.objects.get_or_create(
+                    user=u,
+                    email=ud['epost'],
+                    verified=True,
+                )
+                eaddr.set_as_primary()
+            else:
+                liu_eaddr.set_as_primary()
 
             p = u.get_profile()
             p.mobile_phone = self._get_phone(ud)
@@ -475,10 +493,10 @@ server. See OLD_SYSTEM_* settings.
 
     def handle(self, *args, **options):
         imp = Import()
-        #imp.setup_users()
+        imp.setup_users()
         #imp.setup_shifts()
         #imp.setup_oncallduties()
         #imp.setup_current_workers_and_board()
         #imp.manual_board()
         #imp.setup_board_groups()
-        imp.setup_orders()
+        #imp.setup_orders()

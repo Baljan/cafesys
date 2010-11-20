@@ -646,18 +646,18 @@ def admin_semester(request, name=None):
 
             if make == 'normal':
                 shifts_to_edit.update(exam_period=False, enabled=True)
-                sem.save() # generates new shift combinations
             elif make == 'disabled':
                 shifts_to_edit.update(exam_period=False, enabled=False)
-                sem.save() # generates new shift combinations
             elif make == 'exam-period':
                 shifts_to_edit.update(exam_period=True, enabled=True)
-                sem.save() # generates new shift combinations
             elif make == 'none':
                 pass
             else:
                 get_logger('baljan.semesters').warning('unexpected task %r' % make)
                 assert False
+
+            if make != 'none':
+                sem.save() # generates new shift combinations
 
     new_sem_failed = False
     if new_sem_form.is_bound:
