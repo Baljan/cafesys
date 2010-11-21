@@ -109,6 +109,8 @@ SELECT nummer FROM telefon WHERE persid=%d
                 last_name=decode(ud['enamn']),
                 email=eaddr_custom,
                 phone=phone,
+                show_email=ud['ejepost'] == 0,
+                show_profile=ud['dold'] == 0,
             )
             p = u.get_profile()
 
