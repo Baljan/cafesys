@@ -261,9 +261,9 @@ def get_or_create_user(
     kwargs = { 'username': username, }
     u, created = User.objects.get_or_create(**kwargs)
 
-    if first_name:
+    if first_name is not None:
         u.first_name = first_name
-    if last_name:
+    if last_name is not None:
         u.last_name = last_name
     u.set_unusable_password()
     u.save()
