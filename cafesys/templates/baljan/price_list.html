@@ -1,0 +1,50 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+{% load baljan_extras %}
+
+{% block head_title %}{% trans "Price List" %}{% endblock %}
+
+{% block body_class %}price-list{% endblock %}
+{% block body %}
+<h1>{% trans "Price List" %}</h1>
+<div class="grid_6 alpha main">
+    <div>
+        <h2>{% trans "Assortment" %}</h2>
+        {{ datagrid.render_listview }}
+    </div>
+</div><!--.main-->
+<div class="grid_4 omega secondary">
+    <div>{# FIXME: Translate. #}
+        <h2>{% trans "Ordering From Us" %}</h2>
+        <p>
+        Sektioner och andra studentföreningar har möjligheten att beställa
+        fika från oss mot faktura. Vi vill ha er beställning senast klockan 12
+        två veckodagar innan för att kunna garantera att ni får det ni vill
+        ha. Detta gäller särskilt om ni vill beställa baguetter eller större
+        mängder kaffe.
+        </p>
+        <p>
+        För att göra en beställning eller hämta ut beställda varor måste
+        ni kontakta någon ur styrelsen. Tider då det säkert finns någon i
+        styrelserummet som kan ta emot och lämna ut beställningar är vardagar
+        07.30-08.00, 12.00-12.30 och 16.15-16.45. Om ni vill hämta ut ert fika
+        vid någon annan tid kan ni alltid fråga jourhavande styrelsemedlem,
+        men vi lovar inte att det går att ordna.
+        </p>
+        <p>
+        Observera att personalen <strong>inte</strong> har möjlighet att ta
+        emot eller lämna ut beställningar!
+        </p>
+        <p>
+        Termosar, mjölk, socker och plastskedar ingår vid beställning av
+        kaffe/te/choklad.
+        </p>
+    </div>
+</div><!--.secondary-->
+<div class="clear"></div>
+{% endblock %}
+
+{% block extra_body %}
+{% endblock %}

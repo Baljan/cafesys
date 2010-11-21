@@ -22,6 +22,7 @@ from baljan import friendrequests, trades, planning, pseudogroups, workdist
 from django.contrib.auth.models import User, Permission, Group
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
+from baljan.grids import PriceListGrid
 from notification import models as notification
 import simplejson
 import re
@@ -717,3 +718,8 @@ def _shift_combinations_pdf(request, sem_name, form):
 
     response['Content-Disposition'] = 'attachment; filename=%s' % name
     return response
+
+
+def price_list(request):
+    goods = baljan.models.Good.objects.order_by('position', 'title').all()
+    return PriceListGrid(request, goods).render_to_response('baljan/price_list.html')

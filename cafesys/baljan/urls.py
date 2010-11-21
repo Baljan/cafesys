@@ -33,6 +33,8 @@ urlpatterns = patterns("baljan.views",
     url(r'call-duty/(\d+)/(\d+)', 'call_duty_week'),
     url(r'call-duty', 'call_duty_week'),
 
+    url(r'price-list', 'price_list'),
+
     url(r'pdf/shift-combinations/(\w+)', 'shift_combinations_pdf'),
     url(r'pdf/shift-combinations-form/(\w+)', 'shift_combination_form_pdf'),
 
