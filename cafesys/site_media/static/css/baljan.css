@@ -1,3 +1,12 @@
+
+/* For high-quality open fonts, see http://code.google.com/webfonts */
+
+
+
+
+
+/******************************************************************************/
+
 /* GENERAL */
 
 html, body {
@@ -46,6 +55,9 @@ td, th {
 .even .week, .even .day-name {
     background-color: transparent; /* to keep the vertical alignment */
 }
+.exam-period {
+    color: #a33;
+}
 h1 {
     margin: 0;
     color: #FF0084;
@@ -55,11 +67,12 @@ div.admin h1 {
     text-shadow: none;
 }
 
-a:link, a:active, a:hover, a:visited {
+a:link, a:active, a:hover, a:visited, .link {
+    cursor: pointer;
     color: #0073EA;
     text-decoration: none;
 }
-a:hover {
+a:hover, .link:hover {
     text-decoration: underline;
 }
 
@@ -198,6 +211,18 @@ div.right_panel {
 }
 
 /* BALJAN */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Yanone Kaffeesatz', Arial, sans-serif;
+    font-weight: bold;
+}
+form table th {
+    font-weight: normal;
+}
+
+#logo {
+    text-align: center;
+    margin-top: -1.2em;
+}
 .init-hidden {
     visibility: hidden;
     display: none;
@@ -221,11 +246,6 @@ div.right_panel {
 }
 div.submit {
     text-align: right;
-}
-
-.link {
-    text-decoration: underline;
-    cursor: pointer;
 }
 
 li.selected {
@@ -319,6 +339,12 @@ body.admin #container {
     -moz-border-radius: 10px;
     border-radius: 10px;
 }
+.box-actions {
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: right;
+    float: right;
+}
 .main div.layout, .secondary div.layout {
     padding: 0;
     margin: 0;
@@ -329,7 +355,6 @@ body .main img, body .secondary img {
     margin-left: auto;
     margin-right: auto;
     text-align: center;
-    width: 100%;
     max-width: 100%;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
@@ -346,11 +371,11 @@ body .main div h2, body .secondary div h2 {
     padding: 0;
     margin-bottom: .5em;
 }
-body .undo-highlight {
+body .undo-highlight, .invalid {
     background: #fee !important;
     border: 1px solid #f00 !important;
 }
-body .pending-highlight {
+body .pending-highlight, .pending {
     background: #ffc !important;
     border: 1px solid #aa0 !important;
     color: #990;
@@ -365,11 +390,15 @@ body .confirmed-highlight, .saved {
 .confirmed-highlight, .saved {
     color: #090;
 }
-.saved {
+.undo-highlight, .invalid {
+    color: #f00;
+}
+.saved, .invalid, .pending {
     text-align: center;
 }
-.undo-highlight {
-    color: #f00;
+span.invalid, span.pending-highlight, span.confirmed-highlight, span.saved, span.pending {
+    padding-left: .5em;
+    padding-right: .5em;
 }
 
 body.semester .day-name, body.semester .week {
@@ -407,6 +436,9 @@ body.semester .today {
 }
 body.semester ul.users {
     padding: 1em;
+}
+body.semester .overlap {
+    color: #aaa;
 }
 
 .top-nav {
@@ -454,12 +486,79 @@ body.user .signups .group td {
 body.user .friend-request {
     text-align: center;
 }
+body.user .profile .picture {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
 
 body.become-worker .toggle-request a {
     font-size: 1.5em;
 }
 body.become-worker .toggle-request {
     text-align: center;
+}
+
+body.credits .credits {
+    border: 1px solid #ccc;
+    background-color: #eee;
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+body.job-opening .user-adder input[type=text] {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+body.job-opening .user-adder input[type=button] {
+    height: 100%;
+}
+body.job-opening .user-adder .message span {
+    display: block;
+    padding: 0;
+    width: 100%;
+    border-top: none !important;
+}
+body.job-opening .user-action, body .job-opening .user-action-info {
+    display: none;
+}
+body.job-opening .user-adder {
+}
+body.job-opening #add-to-group {
+    display: inline;
+}
+body.job-opening .work-pair {
+    text-align: left;
+}
+body.job-opening .work-pair ul, body.job-opening .work-pair ul li {
+    margin-top: 0;
+    padding-top: 0;
+}
+body.job-opening .slots {
+}
+body.job-opening .slots td {
+    padding: .3em;
+    border: 1px solid rgb(151, 192, 234);
+    cursor: pointer;
+    text-align: center;
+}
+body.job-opening .slots td:hover {
+    background: rgba(151, 192, 234, 0.2);
+}
+body.job-opening .slots td.padding:hover {
+    background: inherit;
+    cursor: default;
+}
+body.job-opening .slots td.active {
+    background: rgba(151, 192, 234, 0.4);
+}
+body.job-opening .slots td.taken,
+body.job-opening .slots td.taken:hover {
+    background: #ccc;
+    color: #666;
+    cursor: default;
 }
 
 .admin-link {
@@ -469,4 +568,181 @@ body.become-worker .toggle-request {
     padding: 0 !important;
     text-align: right;
 }
+
+body.board-week table {
+    width: 100%;
+    font-size: 2.5em;
+    border-collapse: collapse;
+}
+body.board-week th {
+    border-bottom: 3px solid;
+}
+body.board-week .day, body.board-week .week {
+    border-right: 3px solid;
+    text-align: right;
+}
+body.board-week h2 {
+    padding: 0;
+    margin-bottom: .2em;
+    font-size: 1.8em;
+    border-bottom: 3px solid;
+}
+body.board-week h2, body.board-week .day, 
+body.board-week .chalkboard .link,
+body.board-week .chalkboard a,
+body.board-week .week, body.board-week th {
+    color: #faa;
+    border-color: #faa;
+}
+body.board-week .week .num {
+    color: #fff;
+}
+body.board-week p {
+    margin: .5em 0;
+    margin-top: 0;
+    padding-top: 0;
+}
+body.board-week table .week {
+    font-size: .8em;
+}
+body.board-week table td {
+    width: 25%;
+}
+body.board-week .available-users {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+body.board-week .chalkboard .submit .link,
+body.board-week .chalkboard .submit a {
+    font-size: 2.5em;
+    margin-left: .5em;
+}
+body.board-week .droppable span.active, body.board-week .available-users .active {
+    color: #ffc;
+}
+body.board-week .available-users span,
+body.board-week table td span {
+    cursor: pointer;
+}
+body.board-week .available-users span img {
+    max-height: 3em;
+}
+body.board-week .available-users .active,
+body.board-week .droppable.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+body.board-week .droppable.hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+body.board-week .chalkboard {
+    cursor: default;
+}
+
+body.search-person .results li {
+    float: left; 
+    width: 47.5%;
+    margin-right: 2.5%;
+}
+
+body.admin-semester .month {
+    width: 29.83%;
+    margin-right: 1.5%;
+    padding: .5em 1%;
+    float: left;
+    background: #fff;
+    margin-bottom: 8px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
+}
+body.admin-semester .month h2 {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+body.admin-semester .month table {
+    width: 100%;
+    font-size: .8em;
+    cursor: default;
+}
+body.admin-semester .month th.am-lunch-pm {
+    text-align: center;
+}
+body.admin-semester .month tr.even {
+}
+body.admin-semester .month td {
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid #eee;
+}
+body.admin-semester .month td.day {
+    border: none;
+}
+body.admin-semester .month .day {
+    width: 10%;
+    text-align: right;
+}
+body.admin-semester .month .shift {
+    width: 35%;
+    text-align: center;
+}
+body.admin-semester .month .span-1 {
+    width: 20%;
+}
+body.admin-semester td.disabled {
+    border-bottom: 1px solid #222;
+}
+body.admin-semester .disabled {
+    background: #111;
+    color: #fff;
+}
+body.admin-semester td.exam-period {
+    border-bottom: 1px solid #5d8dc0;
+}
+body.admin-semester .exam-period {
+    background: #71acea;
+    color: #fff;
+}
+body.admin-semester .normal {
+    background: #fff;
+    color: #111;
+}
+body.admin-semester .box {
+    width: 1.2em;
+    display: block;
+    margin-right: .3em;
+    float: left;
+}
+body.admin-semester .selection input[disabled] {
+    background: #eee;
+    color: #666;
+}
+body.admin-semester td.shift .highlight {
+    background: #ffa;
+    color: #330;
+}
+body.admin-semester .selection input {
+    width: 98%;
+    text-align: left;
+    font-weight: normal;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.ui-selected div, .ui-selecting div {
+    background: rgba(255, 0, 132, 0.5);
+}
+
+.chalkboard {
+    color: #fff;
+    background-color: #222;
+    background-image: url(../img/chalkboard-bg.png);
+    font-family: 'Yanone Kaffeesatz', Arial, sans-serif;
+    font-weight: bold;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
+    padding: 10px;
+}
+
 

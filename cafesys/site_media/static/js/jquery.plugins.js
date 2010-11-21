@@ -173,3 +173,83 @@ jQuery(window).bind("unload", function() {
 		jQuery.timer.remove(item);
 	});
 });
+
+/*
+ * jQuery Asynchronous Plugin 1.0 RC1
+ *
+ * Copyright (c) 2008 Vincent Robert (genezys.net)
+ * Dual licensed under the MIT (MIT-LICENSE.txt)
+ * and GPL (GPL-LICENSE.txt) licenses.
+ *
+ */
+(function($){
+
+// opts.delay : (default 10) delay between async call in ms
+// opts.bulk : (default 500) delay during which the loop can continue synchronously without yielding the CPU
+// opts.test : (default true) function to test in the while test part
+// opts.loop : (default empty) function to call in the while loop part
+// opts.end : (default empty) function to call at the end of the while loop
+$.whileAsync = function(opts)
+{
+    var delay = Math.abs(opts.delay) || 10,
+        bulk = isNaN(opts.bulk) ? 500 : Math.abs(opts.bulk),
+        test = opts.test || function(){ return true; },
+        loop = opts.loop || function(){},
+        end  = opts.end  || function(){};
+    
+    (function(){
+
+        var t = false, 
+            begin = new Date();
+            
+        while( t = test() )
+        {
+            loop();
+            if( bulk === 0 || (new Date() - begin) > bulk )
+            {
+                break;
+            }
+        }
+        if( t ) 
+        {
+            setTimeout(arguments.callee, delay);
+        }
+        else
+        {
+            end();
+        }
+        
+    })();
+}
+
+// opts.delay : (default 10) delay between async call in ms
+// opts.bulk : (default 500) delay during which the loop can continue synchronously without yielding the CPU
+// opts.loop : (default empty) function to call in the each loop part, signature: function(index, value) this = value
+// opts.end : (default empty) function to call at the end of the each loop
+$.eachAsync = function(array, opts)
+{
+    var i = 0, 
+        l = array.length, 
+        loop = opts.loop || function(){};
+    
+    $.whileAsync(
+        $.extend(opts, {
+            test: function(){ return i < l; },
+            loop: function()
+            { 
+                var val = array[i];
+                return loop.call(val, i++, val);
+            }
+        })
+    );
+}
+
+$.fn.eachAsync = function(opts)
+{
+    $.eachAsync(this, opts);
+    return this;
+}
+
+})(jQuery);
+
+(function(h){var f={pint:/[\d]/,"int":/[\d\-]/,pnum:/[\d\.]/,money:/[\d\.\s,]/,num:/[\d\-\.]/,hex:/[0-9a-f]/i,email:/[a-z0-9_\.\-@]/i,alpha:/[a-z_]/i,alphanum:/[a-z0-9_]/i};var c={TAB:9,RETURN:13,ESC:27,BACKSPACE:8,DELETE:46};var a={63234:37,63235:39,63232:38,63233:40,63276:33,63277:34,63272:46,63273:36,63275:35};var e=function(j){var i=j.keyCode;i=h.browser.safari?(a[i]||i):i;return(i>=33&&i<=40)||i==c.RETURN||i==c.TAB||i==c.ESC};var d=function(j){var i=j.keyCode;var l=j.charCode;return i==9||i==13||(i==40&&(!h.browser.opera||!j.shiftKey))||i==27||i==16||i==17||(i>=18&&i<=20)||(h.browser.opera&&!j.shiftKey&&(i==8||(i>=33&&i<=35)||(i>=36&&i<=39)||(i>=44&&i<=45)))};var b=function(j){var i=j.keyCode||j.charCode;return h.browser.safari?(a[i]||i):i};var g=function(i){return i.charCode||i.keyCode||i.which};h.fn.keyfilter=function(i){return this.keypress(function(m){if(m.ctrlKey||m.altKey){return}var j=b(m);if(h.browser.mozilla&&(e(m)||j==c.BACKSPACE||(j==c.DELETE&&m.charCode==0))){return}var o=g(m),n=String.fromCharCode(o),l=true;if(!h.browser.mozilla&&(d(m)||!n)){return}if(h.isFunction(i)){l=i.call(this,n)}else{l=i.test(n)}if(!l){m.preventDefault()}})};h.extend(h.fn.keyfilter,{defaults:{masks:f},version:1.7});h(document).ready(function(){var i=h("input[class*=mask],textarea[class*=mask]");for(var j in h.fn.keyfilter.defaults.masks){i.filter(".mask-"+j).keyfilter(h.fn.keyfilter.defaults.masks[j])}})})(jQuery);
