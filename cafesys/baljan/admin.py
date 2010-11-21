@@ -314,7 +314,14 @@ class BoardPostAdmin(admin.ModelAdmin):
 admin.site.register(baljan.models.BoardPost, BoardPostAdmin)
 
 
+class OldCoffeeCardInline(admin.TabularInline):
+    fields = ('card_id', 'user', 'time_stamp', 'count', 'left', 'imported')
+    model = baljan.models.OldCoffeeCard
+    extra = 0
+    can_delete = False
+
 class OldCoffeeCardSetAdmin(admin.ModelAdmin):
+    inlines = (OldCoffeeCardInline,)
     search_fields = (
             'made_by__first_name',
             'made_by__last_name',
