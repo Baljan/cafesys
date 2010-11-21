@@ -424,8 +424,12 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
         if self._users.has_key(uname):
             user = self._users[uname]
         else:
-            user = User.objects.get(username__exact=uname)
-            self._users[uname] = user
+            try:
+                user = User.objects.get(username__exact=uname)
+                self._users[uname] = user
+            except:
+                log.error('user unfound: %s' % uname)
+                return None
         return user
 
 
@@ -543,7 +547,6 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
         created_count, existing_count, skipped = 0, 0, []
         cards = self._get_cards()
         for c in cards:
-            print c
             ud = self.get_user_dicts(user_id=c['persid'])
             user = self._user(ud)
 

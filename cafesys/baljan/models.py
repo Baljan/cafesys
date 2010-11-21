@@ -1089,7 +1089,7 @@ class OldCoffeeCard(models.Model):
     card_id = models.IntegerField(_("card_id"))
     user = models.ForeignKey('auth.User', verbose_name=_("user"), blank=True, null=True)
 
-    created = models.DateTimeField(_("created"))
+    created = models.DateTimeField(_("created"), blank=True, null=True)
     time_stamp = models.DateTimeField(_("time stamp"), blank=True, null=True)
 
     code = models.IntegerField(_("code"))
