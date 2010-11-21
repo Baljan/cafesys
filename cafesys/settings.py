@@ -216,6 +216,9 @@ INSTALLED_APPS = [
     "datagrid",
 
     #"johnny",
+
+    # Migrations
+    "south",
 ]
 
 import logging
