@@ -98,6 +98,16 @@ SELECT nummer FROM telefon WHERE persid=%d
                 continue
 
             phone = self._get_phone(ud)
+            first_name = decode(ud['fnamn'])
+            last_name = decode(ud['enamn'])
+
+            # Do not update the phone or name of an already imported users, we
+            # risk overwriting updated credentials.
+            user_exists = User.objects.filter(username__exact=uname).count() != 0
+            if user_exists:
+                phone = None
+                first_name = None
+                last_name = None
 
             eaddr_custom = None
             if ud['epost']:
@@ -105,8 +115,8 @@ SELECT nummer FROM telefon WHERE persid=%d
 
             u, created = get_or_create_user(
                 username=uname, 
-                first_name=decode(ud['fnamn']),
-                last_name=decode(ud['enamn']),
+                first_name=first_name,
+                last_name=last_name,
                 email=eaddr_custom,
                 phone=phone,
                 show_email=ud['ejepost'] == 0,
