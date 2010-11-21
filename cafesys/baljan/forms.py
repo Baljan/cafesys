@@ -23,6 +23,8 @@ class ProfileForm(forms.ModelForm):
         fields = (
                 'mobile_phone',
                 'picture',
+                'show_profile',
+                'show_email',
                 )
 
 
