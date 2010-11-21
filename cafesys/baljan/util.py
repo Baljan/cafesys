@@ -123,9 +123,8 @@ def available_for_call_duty():
     #perm = Permission.objects.get(codename='add_oncallduty')
     #users = User.objects.filter(Q(groups__permissions=perm)|Q(user_permissions=perm)).distinct()
     users = User.objects.filter( # FIXME: make permission-based
-            Q(groups__name=settings.BOARD_GROUP) |
-            Q(is_staff=True) |
-            Q(is_superuser=True)).order_by('first_name', 'last_name').distinct()
+        groups__name=settings.BOARD_GROUP,
+    ).order_by('first_name', 'last_name').distinct()
     return users
 
 def invalidate_template_cache(fragment_name, *variables):
