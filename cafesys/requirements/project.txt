@@ -20,3 +20,6 @@ django-celery
 PuLP
 
 django-datagrid
+
+# Database migrations
+South

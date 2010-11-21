@@ -249,7 +249,15 @@ def grouper(n, iterable, padvalue=None):
     return izip(*[chain(iterable, repeat(padvalue, n-1))]*n)
 
 
-def get_or_create_user(username, first_name=None, last_name=None, email=None, phone=None):
+def get_or_create_user(
+        username, 
+        first_name=None, 
+        last_name=None, 
+        email=None, 
+        phone=None,
+        show_email=None,
+        show_profile=None,
+        ):
     from baljan.ldapbackend import valid_username
     kwargs = { 'username': username, }
     u, created = User.objects.get_or_create(**kwargs)
@@ -258,7 +266,6 @@ def get_or_create_user(username, first_name=None, last_name=None, email=None, ph
         u.first_name = first_name
     if last_name:
         u.last_name = last_name
-
     u.set_unusable_password()
     u.save()
 
@@ -280,7 +287,11 @@ def get_or_create_user(username, first_name=None, last_name=None, email=None, ph
         eaddr.set_as_primary()
 
     p = u.get_profile()
-    if phone:
+    if show_email is not None:
+        p.show_email = show_email
+    if show_profile is not None:
+        p.show_profile = show_profile
+    if phone is not None:
         p.mobile_phone = phone
 
     p.save()
