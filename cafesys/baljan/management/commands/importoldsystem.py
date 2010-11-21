@@ -476,6 +476,7 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
             user = self._user(ud)
             if user is None:
                 skipped.append(lk)
+                continue
 
             if not start_adding:
                 if Order.objects.filter(user=user, put_at=lk['ts']).count():

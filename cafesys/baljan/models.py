@@ -1086,7 +1086,7 @@ class OldCoffeeCardSet(models.Model):
 
 class OldCoffeeCard(models.Model):
     set = models.ForeignKey(OldCoffeeCardSet, verbose_name=_("set"))
-    card_id = models.IntegerField(_("card_id"))
+    card_id = models.IntegerField(_("card id"))
     user = models.ForeignKey('auth.User', verbose_name=_("user"), blank=True, null=True)
 
     created = models.DateTimeField(_("created"), blank=True, null=True)
