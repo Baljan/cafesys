@@ -6,6 +6,7 @@ import MySQLdb.cursors
 from datetime import date, datetime
 from baljan.models import Profile, Semester, ShiftSignup, Shift, BoardPost
 from baljan.models import OnCallDuty, Good, Order
+from baljan.models import OldCoffeeCard, OldCoffeeCardSet
 from baljan.util import get_logger, get_or_create_user
 from baljan import pseudogroups
 from baljan import orders
@@ -19,6 +20,8 @@ manual_board = []
 
 class Import(object):
     def __init__(self):
+        self._users = {}
+
         # Make sure that all needed settings and such are configured.
         settingfmt = 'OLD_SYSTEM_MYSQL_%s'
         valid = True
@@ -411,6 +414,21 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
         return c.fetchall()
 
 
+    def _user(self, ud):
+        if ud is None:
+            return None
+        if isinstance(ud, tuple):
+            return None
+        decode = self._decode
+        uname = decode(ud['login']).lower()
+        if self._users.has_key(uname):
+            user = self._users[uname]
+        else:
+            user = User.objects.get(username__exact=uname)
+            self._users[uname] = user
+        return user
+
+
     def setup_orders(self):
         logkort = self._get_logkort()
         created_count, existing_count, skipped = 0, 0, []
@@ -451,16 +469,9 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
                 skipped.append(lk)
                 continue
             
-            uname = decode(ud['login']).lower()
-            if users.has_key(uname):
-                user = users[uname]
-            else:
-                try:
-                    user = User.objects.get(username__exact=uname)
-                    users[uname] = user
-                except:
-                    log.warning('bad username %s' % uname)
-                    continue
+            user = self._user(ud)
+            if user is None:
+                skipped.append(lk)
 
             if not start_adding:
                 if Order.objects.filter(user=user, put_at=lk['ts']).count():
@@ -482,6 +493,89 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
         if len(skipped):
             log.warning('skipped: %s' % ", ".join([str(s) for s in skipped]))
 
+
+    def _get_sets(self):
+        c = self._cursor()
+        c.execute('''SELECT * FROM kortset''')
+        return c.fetchall()
+
+
+    def _get_cards(self):
+        c = self._cursor()
+        c.execute('''SELECT * FROM kaffekort''')
+        return c.fetchall()
+
+
+    def setup_cards_and_sets(self):
+        sets = self._get_sets()
+
+        created_count, existing_count, skipped = 0, 0, []
+        for s in sets:
+            ud = self.get_user_dicts(user_id=s['persid'])
+            user = self._user(ud)
+            if user is None:
+                skipped.append(s)
+                continue
+            
+            try:
+                obj, created = OldCoffeeCardSet.objects.get_or_create(
+                    set_id=s['id'],
+                    made_by=user,
+                    file=s['filnamn'],
+                    created=s['skapad'],
+                )
+            except:
+                print "skipped %s" % s
+                skipped.append(s)
+            else:
+                obj.time_stamp = s['ts']
+                obj.save()
+                if created:
+                    created_count += 1
+                else:
+                    existing_count += 1
+
+        log.info('%d/%d/%d old set(s) created/existing/skipped' % (
+            created_count, existing_count, len(skipped)))
+        if len(skipped):
+            log.warning('skipped: %s' % ", ".join([str(s) for s in skipped]))
+
+        created_count, existing_count, skipped = 0, 0, []
+        cards = self._get_cards()
+        for c in cards:
+            print c
+            ud = self.get_user_dicts(user_id=c['persid'])
+            user = self._user(ud)
+
+            set = OldCoffeeCardSet.objects.get(set_id=c['setid'])
+
+            try:
+                obj, created = OldCoffeeCard.objects.get_or_create(
+                    set=set,
+                    user=user,
+                    card_id=c['id'],
+                    created=c['skapad'],
+                    code=c['kod'],
+                )
+            except:
+                print "skipped %s" % c
+                skipped.append(c)
+            else:
+                obj.time_stamp = c['ts']
+                obj.count = c['klipp']
+                obj.left = c['kvar']
+                obj.save()
+
+                if created:
+                    created_count += 1
+                else:
+                    existing_count += 1
+
+        log.info('%d/%d/%d old card(s) created/existing/skipped' % (
+            created_count, existing_count, len(skipped)))
+        if len(skipped):
+            log.warning('skipped: %s' % ", ".join([str(s) for s in skipped]))
+
 class Command(BaseCommand):
     args = ''
     help = """Import data from the old version of the system. There must be a running MySQL 
@@ -490,10 +584,11 @@ server. See OLD_SYSTEM_* settings.
 
     def handle(self, *args, **options):
         imp = Import()
-        imp.setup_users()
+        #imp.setup_users()
         #imp.setup_shifts()
         #imp.setup_oncallduties()
         #imp.setup_current_workers_and_board()
         #imp.manual_board()
         #imp.setup_board_groups()
         #imp.setup_orders()
+        imp.setup_cards_and_sets()

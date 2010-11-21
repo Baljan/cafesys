@@ -313,3 +313,13 @@ class BoardPostAdmin(admin.ModelAdmin):
 
 admin.site.register(baljan.models.BoardPost, BoardPostAdmin)
 
+
+class OldCoffeeCardSetAdmin(admin.ModelAdmin):
+    list_display = ('set_id', 'made_by', 'file', 'created')
+admin.site.register(baljan.models.OldCoffeeCardSet, OldCoffeeCardSetAdmin)
+
+
+class OldCoffeeCardAdmin(admin.ModelAdmin):
+    list_display = ('card_id', 'set', 'created', 'count', 'left', 
+            'user', 'imported')
+admin.site.register(baljan.models.OldCoffeeCard, OldCoffeeCardAdmin)

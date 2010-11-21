@@ -1065,3 +1065,47 @@ class BoardPost(Made):
             'post': self.post, 
             'sem': self.semester.name,
         }
+
+
+class OldCoffeeCardSet(models.Model):
+    set_id = models.IntegerField(_("set id"))
+    made_by = models.ForeignKey('auth.User', verbose_name=_("made by"))
+    file = models.CharField(_("file"), max_length=100, blank=True, null=True)
+
+    created = models.DateTimeField(_("created"))
+    time_stamp = models.DateTimeField(_("time stamp"), blank=True, null=True)
+
+    class Meta:
+        verbose_name = _('old coffee card set')
+        verbose_name_plural = _('old coffee card sets')
+        ordering = ('-set_id',)
+
+    def __unicode__(self):
+        return u"%d" % self.set_id
+
+
+class OldCoffeeCard(models.Model):
+    set = models.ForeignKey(OldCoffeeCardSet, verbose_name=_("set"))
+    card_id = models.IntegerField(_("card_id"))
+    user = models.ForeignKey('auth.User', verbose_name=_("user"), blank=True, null=True)
+
+    created = models.DateTimeField(_("created"))
+    time_stamp = models.DateTimeField(_("time stamp"), blank=True, null=True)
+
+    code = models.IntegerField(_("code"))
+    count = models.IntegerField(_("count"), blank=True, null=True)
+    left = models.IntegerField(_("left"), blank=True, null=True)
+
+    user = models.ForeignKey('auth.User', verbose_name=_("user"), blank=True, null=True)
+
+    imported = models.BooleanField(_("imported"), default=False)
+
+    class Meta:
+        verbose_name = _('old coffee card')
+        verbose_name_plural = _('old coffee cards')
+        ordering = ('-card_id',)
+
+    def __unicode__(self):
+        return u"%d" % self.card_id
+
+
