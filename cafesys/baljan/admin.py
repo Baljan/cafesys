@@ -315,11 +315,25 @@ admin.site.register(baljan.models.BoardPost, BoardPostAdmin)
 
 
 class OldCoffeeCardSetAdmin(admin.ModelAdmin):
+    search_fields = (
+            'made_by__first_name',
+            'made_by__last_name',
+            'made_by__username', 
+            'set_id', 
+            )
     list_display = ('set_id', 'made_by', 'file', 'created')
 admin.site.register(baljan.models.OldCoffeeCardSet, OldCoffeeCardSetAdmin)
 
 
 class OldCoffeeCardAdmin(admin.ModelAdmin):
+    search_fields = (
+            'user__first_name',
+            'user__last_name',
+            'user__username', 
+            'card_id', 
+            'code', 
+            'set__set_id', 
+            )
     list_display = ('card_id', 'set', 'created', 'count', 'left', 
             'user', 'imported')
 admin.site.register(baljan.models.OldCoffeeCard, OldCoffeeCardAdmin)
