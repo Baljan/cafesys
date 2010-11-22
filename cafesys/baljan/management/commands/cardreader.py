@@ -154,7 +154,20 @@ class OrderObserver(CardObserver):
 
     def _handle_added(self, cards):
         for card in cards:
+            if card is None:
+                log.debug('ignoring None in _handle_added')
+                continue
+
             print "+Inserted: %s", toHexString(card.atr)
+
+            conn = card.createConnection()
+            conn.connect()
+            log.debug('connected to card')
+            response, sw1, sw2 = conn.transmit(APDU_GET_CARD_ID)
+            log.info('response=%r, sw1=%r, sw2=%r' % (response, sw1, sw2))
+            conn.disconnect()
+            log.debug('disconnected from card')
+
 
     def _handle_removed(self, cards):
         for card in cards:
