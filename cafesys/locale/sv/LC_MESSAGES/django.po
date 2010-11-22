@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-21 22:55+0100\n"
+"POT-Creation-Date: 2010-11-22 10:32+0100\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -843,7 +843,7 @@ msgstr "dokument genererat %s"
 msgid "liu ids"
 msgstr "liu-idn"
 
-#: baljan/views.py:48 baljan/views.py:670
+#: baljan/views.py:48 baljan/views.py:700
 #, python-format
 msgid "%s was added successfully."
 msgstr "%s lades till utan problem"
@@ -872,19 +872,19 @@ msgstr "Detta skulle resultera i en dubbelbokning."
 msgid "Invalid trade request."
 msgstr "Ogiltig bytesförfrågan."
 
-#: baljan/views.py:452 templates/baljan/job_opening.html:29
+#: baljan/views.py:491 templates/baljan/job_opening.html:29
 msgid "enter liu id"
 msgstr "skriv in liu-id"
 
-#: baljan/views.py:465
+#: baljan/views.py:504
 msgid "OK"
 msgstr "OK"
 
-#: baljan/views.py:470
+#: baljan/views.py:509
 msgid "liu id unfound"
 msgstr "liu-id hittades inte"
 
-#: baljan/views.py:600
+#: baljan/views.py:630
 msgid "Your changes were saved."
 msgstr "Dina ändringar sparades."
 
@@ -930,21 +930,20 @@ msgstr ""
 msgid "unnamed"
 msgstr "ej namngiven"
 
-#: templates/base.html:39
+#: templates/common.html:11
 msgid "Hide announcement"
 msgstr "Dölj meddelande"
 
-#: templates/base.html:64
+#: templates/common.html:36
 msgid "hide"
 msgstr "dölj"
 
-#: templates/base.html:77
+#: templates/common.html:49
 msgid ""
 "\n"
-"                Basic functionality is tested in IE 8. You are encouraged "
-"to\n"
-"                switch to a browser with support for transparency.\n"
-"                "
+"            Basic functionality is tested in IE 8. You are encouraged to\n"
+"            switch to a browser with support for transparency.\n"
+"            "
 msgstr ""
 "\n"
 "                Grundläggande funktionalitet testat i IE. Du uppmanas att\n"
@@ -1346,7 +1345,7 @@ msgstr ""
 
 #: templates/baljan/admin_semester.html:135
 #: templates/baljan/call_duty_week.html:77 templates/baljan/day.html:170
-#: templates/baljan/group.html:93 templates/baljan/job_opening.html:106
+#: templates/baljan/group.html:93 templates/baljan/job_opening.html:119
 #: templates/baljan/search_person.html:64 templates/baljan/template.html:25
 #: templates/baljan/user.html:332
 msgid "This cannot be undone. Are you sure?"
@@ -1449,7 +1448,7 @@ msgid "revert unsaved changes"
 msgstr "ångra osparade ändringar"
 
 #: templates/baljan/call_duty_week.html:76 templates/baljan/day.html:169
-#: templates/baljan/group.html:92 templates/baljan/job_opening.html:105
+#: templates/baljan/group.html:92 templates/baljan/job_opening.html:118
 #: templates/baljan/search_person.html:63 templates/baljan/template.html:24
 #: templates/baljan/user.html:331
 msgid "Are you sure?"
@@ -1567,7 +1566,7 @@ msgid "The working hours are"
 msgstr "Arbetstiden är"
 
 #: templates/baljan/day.html:112 templates/baljan/day.html.py:156
-#: templates/baljan/job_opening.html:110
+#: templates/baljan/job_opening.html:123
 msgid "sign up"
 msgstr "anmäl"
 
@@ -1658,13 +1657,38 @@ msgstr ""
 "        </dl>\n"
 "    "
 
-#: templates/baljan/job_opening.html:104
+#: templates/baljan/job_opening.html:97
+msgid "Projector"
+msgstr ""
+
+#: templates/baljan/job_opening.html:99
+msgid ""
+"\n"
+"            This view is suitable for showing to people queueing during the "
+"job\n"
+"            opening.\n"
+"        "
+msgstr ""
+
+#: templates/baljan/job_opening.html:105
+msgid "open view"
+msgstr "öppna vy"
+
+#: templates/baljan/job_opening.html:117
 msgid "mobile:"
 msgstr "mobil:"
 
-#: templates/baljan/job_opening.html:109
+#: templates/baljan/job_opening.html:122
 msgid "select two workers and one combination"
 msgstr "välj två jobbare och en kombination"
+
+#: templates/baljan/job_opening_projector.html:5
+msgid "Job Opening Projector"
+msgstr "Jobbsläpp på projektor"
+
+#: templates/baljan/job_opening_projector.html:42
+msgid "updated "
+msgstr "uppdaterad"
 
 #: templates/baljan/price_list.html:14
 msgid "Assortment"
