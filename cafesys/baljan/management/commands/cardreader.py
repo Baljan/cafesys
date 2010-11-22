@@ -258,15 +258,14 @@ class Command(BaseCommand):
         self.reader_observer = None
 
     def _enter_waiting_for_reader(self):
-        observer = self.reader_observer
-        while len(observer.get_readers()) == 0:
+        while len(self.reader_observer.get_readers()) == 0:
             log.debug('waiting for reader heartbeat')
             sleep(1)
         self._enter_state(STATE_READING_CARDS)
 
     def _enter_reading_cards(self):
         self._setup_card_monitor_and_observer()
-        while len(observer.get_readers()) != 0:
+        while len(self.reader_observer.get_readers()) != 0:
             log.debug('reading cards heartbeat')
             sleep(1)
         self._tear_down_card_monitor_and_observer()
