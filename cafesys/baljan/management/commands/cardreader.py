@@ -247,13 +247,15 @@ class Command(BaseCommand):
 
     def _tear_down_card_monitor_and_observer(self):
         log.info('card observer detaching from monitor')
-        self.card_monitor.deleteObserver(self.card_observer)
+        if self.card_observer is not None and self.card_monitor is not None:
+            self.card_monitor.deleteObserver(self.card_observer)
         self.card_monitor = None
         self.card_observer = None
 
     def _tear_down_reader_monitor_and_observer(self):
         log.info('reader observer detaching from monitor')
-        self.reader_monitor.deleteObserver(self.reader_observer)
+        if self.reader_observer is not None and self.reader_monitor is not None:
+            self.reader_monitor.deleteObserver(self.reader_observer)
         self.reader_monitor = None
         self.reader_observer = None
 
@@ -297,5 +299,6 @@ class Command(BaseCommand):
         except KeyboardInterrupt:
             log.info('user keyboard exit')
 
+        self._tear_down_card_monitor_and_observer()
         self._tear_down_reader_monitor_and_observer()
         log.info('finished program, normal exit')
