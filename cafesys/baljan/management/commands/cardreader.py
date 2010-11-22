@@ -265,7 +265,7 @@ class Command(BaseCommand):
 
     def _enter_reading_cards(self):
         self._setup_card_monitor_and_observer()
-        while len(self.reader_observer.get_readers()) != 0:
+        while len(scsystem.readers()) != 0:
             log.debug('reading cards heartbeat')
             sleep(1)
         self._tear_down_card_monitor_and_observer()
