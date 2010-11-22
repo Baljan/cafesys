@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.translation import ugettext as _ 
 from django.contrib import messages
 from django.conf import settings
-from datetime import date
+from datetime import date, datetime
 import baljan.forms
 import baljan.models
 import baljan.search
@@ -419,6 +419,45 @@ def trade_deny(request, request_pk, redir):
     return _trade_answer(request, request_pk, redir, accept=False)
 
 
+def _pair_matrix(pairs):
+    col_count = 10
+    row_count = len(pairs) // col_count
+    if len(pairs) % col_count != 0:
+        row_count += 1
+
+    slots = [[None for c in range(col_count)] for r in range(row_count)]
+    for i, pair in enumerate(pairs):
+        row_idx, col_idx = i // col_count, i % col_count
+        slots[row_idx][col_idx] = pair
+    return slots
+
+
+@permission_required('baljan.manage_job_openings')
+def job_opening_projector(request, semester_name):
+    opening_log = get_logger('baljan.jobopening')
+    tpl = {}
+    tpl['semester'] = sem = baljan.models.Semester.objects.get(name__exact=semester_name)
+    user = request.user
+
+    sched = workdist.Scheduler(sem)
+    pairs = sched.pairs_from_db()
+    slots = _pair_matrix(pairs)
+    tpl['now'] = now = datetime.now().strftime('%H:%M:%S')
+
+    if request.is_ajax(): 
+        pair_info = []
+        for pair in pairs:
+            pair_info.append({
+                'label': pair.label,
+                'free': pair.is_free(),
+            })
+        return HttpResponse(simplejson.dumps({'now': now, 'pairs': pair_info}))
+
+    tpl['slots'] = slots
+    return render_to_response('baljan/job_opening_projector.html', tpl, 
+            context_instance=RequestContext(request))
+
+
 @permission_required('baljan.manage_job_openings')
 def job_opening(request, semester_name):
     opening_log = get_logger('baljan.jobopening')
@@ -502,16 +541,7 @@ def job_opening(request, semester_name):
 
     sched = workdist.Scheduler(sem)
     pairs = sched.pairs_from_db()
-
-    col_count = 10
-    row_count = len(pairs) // col_count
-    if len(pairs) % col_count != 0:
-        row_count += 1
-
-    slots = [[None for c in range(col_count)] for r in range(row_count)]
-    for i, pair in enumerate(pairs):
-        row_idx, col_idx = i // col_count, i % col_count
-        slots[row_idx][col_idx] = pair
+    slots = _pair_matrix(pairs)
 
     pair_javascript = {}
     for pair in pairs:
