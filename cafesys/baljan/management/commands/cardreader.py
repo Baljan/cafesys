@@ -13,6 +13,7 @@ import time
 from urllib2 import urlopen, HTTPError
 from smartcard.CardMonitoring import CardMonitor, CardObserver
 from smartcard.ReaderMonitoring import ReaderMonitor, ReaderObserver
+from smartcard import System as scsystem
 from smartcard.util import *
 from smartcard.ATR import ATR
 
@@ -186,7 +187,10 @@ class OrderObserver(CardObserver):
                     msg = "%s finished (returned %r)" % (desc, ret)
                 log.info(msg)
 
-class StateChangeError(Exception):
+class CardReaderError(Exception):
+    pass
+
+class StateChangeError(CardReaderError):
     pass
 
 
@@ -279,9 +283,18 @@ class Command(BaseCommand):
         self.card_observer = None
 
         self._setup_reader_monitor_and_observer()
-
+        initial_readers = scsystem.readers()
+        log.info('connected readers: %r' % initial_readers)
         try:
-            self._enter_state(STATE_WAITING_FOR_READER)
+            if len(initial_readers) == 0:
+                initial_state = STATE_WAITING_FOR_READER
+            elif len(initial_readers) == 1:
+                initial_state = STATE_READING_CARDS
+            else:
+                err_msg = '%d readers connected' % len(initial_readers)
+                raise CardReaderError(err_msg)
+
+            self._enter_state(initial_state)
         except KeyboardInterrupt:
             log.info('user keyboard exit')
 
