@@ -203,6 +203,7 @@ $(document).ready(function () {
     /* Job Opening View */
     if ($("body").hasClass('job-opening')) {
         var slots = $('.slots td.pair.free'),
+            takenSlots = $('.slots td.pair.taken'),
             curSearch = false,
             idInput = $('#id_liu_id'),
             msg = $('.user-adder .message span'),
@@ -262,19 +263,22 @@ $(document).ready(function () {
         refreshSave();
 
         var setActiveComb = function(cell) {
+            slots.removeClass('active');
             currentCombLabel = $.trim($(cell).text());
             var pair = PAIRS[currentCombLabel];
-            var shifts = pair.shifts,
-                ids = pair.ids;
-            currentCombShiftIds = ids;
+            var shifts = pair.shifts;
+            if ($(cell).hasClass('free')) {
+                currentCombShiftIds = pair.ids;
+                $(cell).toggleClass('active');
+            }
+            else {
+                currentCombShiftIds = [];
+            }
             currentComb.html('');
             for (i in shifts) {
                 currentComb.append('<li/>');
                 currentComb.find('li:last').text(shifts[i]);
             }
-
-            slots.removeClass('active');
-            $(cell).toggleClass('active');
             refreshSave();
         }
 
@@ -283,6 +287,10 @@ $(document).ready(function () {
         });
         slots.unselectable();
         slots.click(function() {
+            setActiveComb(this);
+        });
+        takenSlots.unselectable();
+        takenSlots.click(function() {
             setActiveComb(this);
         });
 
