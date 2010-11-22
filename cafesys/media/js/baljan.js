@@ -587,4 +587,39 @@ $(document).ready(function () {
             location.href = '' + BASE_URL + '/' + name;
         });
     }
+
+    /* Job Opening Projector View */
+    if ($('body').hasClass('job-opening-projector')) {
+        var curRequest = false,
+            updateFreq = 5, // seconds
+            lastUpdate = $('.last-updated span');
+
+        $(document).everyTime(updateFreq * 1000, function(i) {
+            if (curRequest) curRequest.abort();
+            curRequest = $.ajax({
+                url: document.location.pathname,
+                dataType: 'json',
+                success: function(data) {
+                    $(data.pairs).each(function() {
+                        var slot = $('#pair-' + this.label);
+                        if (this.free) {
+                            $(slot).removeClass('taken');
+                            $(slot).fadeTo('slow', 1.0, function() {
+                                $(slot).addClass('free');
+                            });
+                        }
+                        else {
+                            if ($(slot).hasClass('free')) {
+                                $(slot).fadeTo('slow', 0.0, function() {
+                                    $(slot).removeClass('free');
+                                    $(slot).addClass('taken');
+                                });
+                            }
+                        }
+                        $(lastUpdate).html(data.now);
+                    });
+                }
+            });
+        });
+    }
 });

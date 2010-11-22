@@ -729,6 +729,44 @@ body.admin-semester .selection input {
     margin-bottom: 0px;
 }
 
+/* Job Opening Projector View */
+body.job-opening-projector {
+    font-size: 2.2em;
+    margin: 0;
+    padding: 0;
+    font-family: 'Yanone Kaffeesatz', Arial, sans-serif;
+    font-weight: bold;
+    color: #FF0084;
+    text-shadow: 1px -1px 0px #903;
+}
+body.job-opening-projector .slots td.taken {
+    visibility: hidden;
+}
+body.job-opening-projector div.container {
+    width: 95%;
+    margin: 0 auto;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.5);
+    padding-bottom: .5em;
+    -webkit-border-bottom-right-radius: 15px;
+    -webkit-border-bottom-left-radius: 15px;
+    -moz-border-radius-bottomright: 15px;
+    -moz-border-radius-bottomleft: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+body.job-opening-projector div.container .last-updated {
+    text-align: center;
+}
+body.job-opening-projector table {
+    width: 100%;
+    padding: 0;
+}
+body.job-opening-projector table td {
+    text-align: center;
+    padding: .8em 0;
+}
+
 .ui-selected div, .ui-selecting div {
     background: rgba(255, 0, 132, 0.5);
 }
@@ -744,5 +782,3 @@ body.admin-semester .selection input {
     border-radius: 7px;
     padding: 10px;
 }
-
-

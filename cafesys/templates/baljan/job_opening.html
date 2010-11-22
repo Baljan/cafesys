@@ -92,6 +92,19 @@
         </dl>
     {% endblocktrans %}
     </div>
+
+    <div>
+        <h2>{% trans "Projector" %}</h2>
+        <p>
+        {% blocktrans %}
+            This view is suitable for showing to people queueing during the job
+            opening.
+        {% endblocktrans %}
+        </p>
+        <p>
+            <a href="{% url baljan.views.job_opening_projector semester.name %}">{% trans "open view" %}</a>
+        </p>
+    </div>
 </div><!--.secondary-->
 <div class="clear"></div>
 {% endblock %}
