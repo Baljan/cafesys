@@ -5,33 +5,34 @@ python_dirs="
 cardreader 
 cafesys/baljan
 "
+template_dirs='
+cafesys/templates/baljan
+'
+css_files='
+cafesys/media/css/baljan.css
+'
+js_files='
+cafesys/media/js/baljan.js
+'
+
 python_lines=0
 for d in $python_dirs; do
     python_lines=$(($python_lines + $(find $d -type f -name '*.py' | xargs cat | wc -l )))
 done
 total_lines=$(($total_lines + $python_lines))
 
-template_dirs='
-cafesys/templates/baljan
-'
 templates_lines=0
 for d in $template_dirs; do
     templates_lines=$(($templates_lines + $(find $d -type f -name '*.html' | xargs cat | wc -l )))
 done
 total_lines=$(($total_lines + $templates_lines))
 
-css_files='
-cafesys/media/css/baljan.css
-'
 css_lines=0
 for f in $css_files; do
     css_lines=$(($css_lines + $(cat $f | wc -l)))
 done
 total_lines=$(($total_lines + $css_lines))
 
-js_files='
-cafesys/media/js/baljan.js
-'
 js_lines=0
 for f in $js_files; do
     js_lines=$(($js_lines + $(cat $f | wc -l)))
