@@ -515,6 +515,13 @@ class ShiftCombination(Made):
     shifts = models.ManyToManyField('baljan.Shift', verbose_name=_("shifts"))
     label = models.CharField(_("label"), max_length=10)
 
+    def is_free(self):
+        """True if all shifts are totally free, not a single sign-up."""
+        return len([sh for sh in self.shifts.all() if sh.signups().count() != 0]) == 0
+
+    def is_taken(self):
+        return not self.is_free()
+
     class Meta:
         verbose_name = _("shift combination")
         verbose_name_plural = _("shift combinations")
