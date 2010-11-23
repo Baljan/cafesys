@@ -39,7 +39,7 @@
                             disabled 
                             {%endif%}
                             ">
-                            <div>{{sh.comb.label|default:"&nbsp;"}}</div>
+                            <div class="{% if sh.comb.is_taken %}taken{%endif%}">{{sh.comb.label|default:"&nbsp;"}}</div>
                         </td>
                     {% endfor %}
                 </tr>

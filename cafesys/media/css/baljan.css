@@ -689,6 +689,9 @@ body.admin-semester .month .shift {
 body.admin-semester .month .span-1 {
     width: 20%;
 }
+body.admin-semester .month .shift .taken {
+    color: #ccc;
+}
 body.admin-semester td.disabled {
     border-bottom: 1px solid #222;
 }
