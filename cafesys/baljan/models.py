@@ -39,6 +39,9 @@ class Profile(Made):
     show_email = models.BooleanField(_("show email address"), default=False)
     show_profile = models.BooleanField(_("show profile"), default=True)
 
+    card_id = models.BigIntegerField(_("card id"), blank=True, null=True, 
+            help_text=_("card ids can be manually set"))
+
     def balcur(self):
         return u"%s %s" % (self.balance, self.balance_currency)
 
