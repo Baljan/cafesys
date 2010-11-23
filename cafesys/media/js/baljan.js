@@ -325,8 +325,11 @@ $(document).ready(function () {
                 var phone = last.find('input');
                 $(phone).addClass('phone-' + i);
                 $(phone).attr('value', user.phone);
+                $(phone).data('username', i);
                 $(phone).keyfilter(/[\d]/);
                 $(phone).change(function() {
+                    var uName =$(this).data('username');
+                    addedUsers[uName].phone = $(this).attr('value');
                     refreshSave();
                 });
             }
