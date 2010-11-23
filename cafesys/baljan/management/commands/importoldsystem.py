@@ -565,6 +565,7 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
                 obj.time_stamp = c['ts']
                 obj.count = c['klipp']
                 obj.left = c['kvar']
+                obj.expires = c['exp']
                 obj.save()
 
                 if created:

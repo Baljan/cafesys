@@ -1098,6 +1098,7 @@ class OldCoffeeCard(models.Model):
 
     created = models.DateTimeField(_("created"), blank=True, null=True)
     time_stamp = models.DateTimeField(_("time stamp"), blank=True, null=True)
+    expires = models.DateTimeField(_("expires"), blank=True, null=True)
 
     code = models.IntegerField(_("code"))
     count = models.IntegerField(_("count"), blank=True, null=True)
