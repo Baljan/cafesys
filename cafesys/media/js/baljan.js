@@ -240,9 +240,10 @@ $(document).ready(function () {
                 var serialShiftIds = currentCombShiftIds.join('|'),
                     serialUsernames = [],
                     serialPhones = [];
+
                 for (i in addedUsers) {
                     serialUsernames.push(i);
-                    serialPhones.push(addedUsers[i].phone);
+                    serialPhones.push($('.phone-' + i).attr('value'));
                 }
                 serialUsernames = serialUsernames.join('|');
                 serialPhones = serialPhones.join('|');
@@ -322,12 +323,11 @@ $(document).ready(function () {
                 last.append(' <span class="remove link">&#x2715;</span>');
                 last.append('<br/>'+PHONE_TEXT+' <input type="text" maxlength="10" style="width:50%"/>');
                 var phone = last.find('input');
+                $(phone).addClass('phone-' + i);
                 $(phone).attr('value', user.phone);
                 $(phone).keyfilter(/[\d]/);
                 $(phone).change(function() {
-                    var uName = $(this).parent().data('username'),
-                        phone = $.trim($(this).attr('value'));
-                    addedUsers[uName].phone = phone;
+                    refreshSave();
                 });
             }
 
