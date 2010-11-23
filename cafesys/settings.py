@@ -283,8 +283,10 @@ SITE_NAME = "Sektionscafé Baljan"
 LOGIN_URL = "/account/login/"
 LOGIN_REDIRECT_URLNAME = "home"
 
-WORKER_COOLDOWN_SECONDS = 5
+WORKER_COOLDOWN_SECONDS = 5 * 60
 WORKER_MAX_COST_REDUCE = 5
+DEFAULT_ORDER_NAME = 'kaffe/te'
+DEFAULT_ORDER_DESC = 'pappersmugg'
 
 BOARD_GROUP = 'styrelsen'
 WORKER_GROUP = 'jobbare'
