@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
-from baljan.tasks import test_play_all, SOUND_FUNCS_AND_DESCS
-from baljan.tasks import SOUND_FUNCS_AND_LIKELINESS 
+from baljan import tasks
 from baljan import orders
 from baljan.util import get_logger
 from django.contrib.auth.models import User, Group
@@ -180,6 +179,7 @@ class OrderObserver(CardObserver):
                 ret = call(arg)
             except Exception, e:
                 log.error("%s exception: %r" % (desc, e), exc_auto=True)
+                tasks.play_error.delay()
             else:
                 if ret is None:
                     msg = "%s finished" % desc
