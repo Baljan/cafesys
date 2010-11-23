@@ -315,7 +315,7 @@ admin.site.register(baljan.models.BoardPost, BoardPostAdmin)
 
 
 class OldCoffeeCardInline(admin.TabularInline):
-    fields = ('card_id', 'user', 'time_stamp', 'count', 'left', 'imported')
+    fields = ('card_id', 'user', 'time_stamp', 'count', 'left', 'expires', 'imported')
     model = baljan.models.OldCoffeeCard
     extra = 0
     can_delete = False
@@ -341,6 +341,6 @@ class OldCoffeeCardAdmin(admin.ModelAdmin):
             'code', 
             'set__set_id', 
             )
-    list_display = ('card_id', 'set', 'created', 'count', 'left', 
+    list_display = ('card_id', 'set', 'created', 'count', 'left', 'expires',
             'user', 'imported')
 admin.site.register(baljan.models.OldCoffeeCard, OldCoffeeCardAdmin)
