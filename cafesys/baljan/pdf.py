@@ -130,8 +130,9 @@ def shift_combinations(file_object, scheduler,
         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
     ]
     for col, row in taken_indexes:
-        table_style += [('TEXTCOLOR', (col, row), (col, row), bg_color)]
-        table_style += [('TEXTCOLOR', (col+1, row), (col+1, row), colors.grey)]
+        incl_header = row + 1
+        table_style += [('TEXTCOLOR', (col, incl_header), (col, incl_header), bg_color)]
+        table_style += [('TEXTCOLOR', (col+1, incl_header), (col+1, incl_header), colors.grey)]
 
     table = Table(data, style=table_style)
     elems.append(table)

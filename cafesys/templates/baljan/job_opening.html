@@ -69,6 +69,7 @@
             <form method="POST" action="">{% csrf_token %}
                 <input type="hidden" name="shift-ids" value="" />
                 <input type="hidden" name="user-ids" value="" />
+                <input type="hidden" name="phones" value="" />
                 <div class="submit layout">
                     <input disabled="disabled" type="submit"/>
                 </div>
@@ -91,6 +92,19 @@
         </dl>
     {% endblocktrans %}
     </div>
+
+    <div>
+        <h2>{% trans "Projector" %}</h2>
+        <p>
+        {% blocktrans %}
+            This view is suitable for showing to people queueing during the job
+            opening.
+        {% endblocktrans %}
+        </p>
+        <p>
+            <a href="{% url baljan.views.job_opening_projector semester.name %}">{% trans "open view" %}</a>
+        </p>
+    </div>
 </div><!--.secondary-->
 <div class="clear"></div>
 {% endblock %}
@@ -100,6 +114,7 @@
 // <![CDATA[
     COMBINATION_PROGRESS = {{pairs_taken_percent}};
 
+    PHONE_TEXT = "{% trans "mobile:" %}";
     CONFIRM_MSG = "{% trans "Are you sure?" %}";
     CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
     CONFIRM_DELETE = CONFIRM_MSG;

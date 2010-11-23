@@ -51,64 +51,70 @@
     {% if forloop.counter|divisibleby:"3" %}
         <div class="clear"></div>
     {% endif %}
+    {% empty %}
+        <p>{% trans "No semester selected." %}</p>
     {% endfor %}
 </div><!--.main-->
 <div class="grid_3 omega secondary">
     <div class="choose-semester">
+        {% if semesters|length %}
         <select>
             {% for sem in semesters %}
             <option {% if sem == semester %}selected="selected" {% endif %}>{{ sem.name }}</option>
             {% endfor %}
         </select>
+        {% endif %}
         <span class="link show-new-sem-dialog">{% trans "create new" %}</span>
     </div>
 
-    <div class="meta">
-        <h2>{{semester.name}}</h2>
-        <dl>
-            <dt>{% trans "days" %}</dt>
-            <dd>{{day_count}}</dd>
-            <dt>{% trans "worker shifts" %} ({% trans "exam period" %})</dt>
-            <dd class="worker-shifts">
-                {{worker_shift_count}}
-                ({{exam_period_count}})
-            </dd>
-        </dl>
-        <p>
-            <span class="disabled box">&nbsp;</span> {% trans "closed" %}
-        </p>
-        <p>
-            <span class="exam-period box">&nbsp;</span> {% trans "exam period" %}
-        </p>
-        <p>
-            {% trans "PDF" %}:
-            <a href="{% url baljan.views.shift_combinations_pdf semester%}">
-                {% trans "work shifts" %}</a>,
-            <a href="{% url baljan.views.shift_combination_form_pdf semester%}">
-                {% trans "form" %}</a>
-        </p>
-    </div>
+    {% if semester %}
+        <div class="meta">
+            <h2>{{semester.name|default:"-"}}</h2>
+            <dl>
+                <dt>{% trans "days" %}</dt>
+                <dd>{{day_count}}</dd>
+                <dt>{% trans "worker shifts" %} ({% trans "exam period" %})</dt>
+                <dd class="worker-shifts">
+                    {{worker_shift_count}}
+                    ({{exam_period_count}})
+                </dd>
+            </dl>
+            <p>
+                <span class="disabled box">&nbsp;</span> {% trans "closed" %}
+            </p>
+            <p>
+                <span class="exam-period box">&nbsp;</span> {% trans "exam period" %}
+            </p>
+            <p>
+                {% trans "PDF" %}:
+                <a href="{% url baljan.views.shift_combinations_pdf semester%}">
+                    {% trans "work shifts" %}</a>,
+                <a href="{% url baljan.views.shift_combination_form_pdf semester%}">
+                    {% trans "form" %}</a>
+            </p>
+        </div>
 
-    <div class="selection">
-        <h2>{% trans "Make Selection" %}</h2>
-        <form method="POST" name="edit-shifts" action="" class="uniForm">{% csrf_token %}
-            <input type="hidden" name="task" value="edit_shifts" />
-            <input type="hidden" name="make" value="none" />
-            <input type="hidden" name="shift-ids" value="" />
-            <input disabled="disabled" type="button" 
-                class="normal" value="&laquo; {% trans "open" %}" /><br/>
-            <input disabled="disabled" type="button" 
-                class="disabled" value="&laquo; {% trans "closed" %}" /><br/>
-            <input disabled="disabled" type="button" 
-                class="exam-period" value="&laquo; {% trans "exam period" %}" /><br/>
-        </form>
-    </div>
-
-    <div class="admin-link">
-        <a href="{% url admin:baljan_semester_change semester.id %}">
-            {% trans "edit on admin site" %}
-        </a>
-    </div>
+        <div class="selection">
+            <h2>{% trans "Make Selection" %}</h2>
+            <form method="POST" name="edit-shifts" action="" class="uniForm">{% csrf_token %}
+                <input type="hidden" name="task" value="edit_shifts" />
+                <input type="hidden" name="make" value="none" />
+                <input type="hidden" name="shift-ids" value="" />
+                <input disabled="disabled" type="button" 
+                    class="normal" value="&laquo; {% trans "open" %}" /><br/>
+                <input disabled="disabled" type="button" 
+                    class="disabled" value="&laquo; {% trans "closed" %}" /><br/>
+                <input disabled="disabled" type="button" 
+                    class="exam-period" value="&laquo; {% trans "exam period" %}" /><br/>
+            </form>
+        </div>
+        
+        <div class="admin-link">
+            <a href="{% url admin:baljan_semester_change semester.id %}">
+                {% trans "edit on admin site" %}
+            </a>
+        </div>
+    {% endif %}
 </div><!--.secondary-->
 <div class="clear"></div>
 

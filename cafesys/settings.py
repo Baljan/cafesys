@@ -78,13 +78,17 @@ LANGUAGES = (
         ('en', u'English'),
         )
 
+# Bump when for example CSS or JS files change to force clients to download a
+# new version.
+MEDIA_AND_STATIC_VERSION = 1
+
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, "site_media", "media")
 
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"
-MEDIA_URL = "/site_media/media/"
+MEDIA_URL = "/site_media%d/media/" % MEDIA_AND_STATIC_VERSION
 
 # Absolute path to the directory that holds static files like app media.
 # Example: "/home/media/media.lawrence.com/apps/"
@@ -92,7 +96,7 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, "site_media", "static")
 
 # URL that handles the static files like app media.
 # Example: "http://media.lawrence.com"
-STATIC_URL = "/site_media/static/"
+STATIC_URL = "/site_media%d/static/" % MEDIA_AND_STATIC_VERSION
 
 # Additional directories which hold static files
 STATICFILES_DIRS = [
@@ -216,6 +220,9 @@ INSTALLED_APPS = [
     "datagrid",
 
     #"johnny",
+
+    # Migrations
+    "south",
 ]
 
 import logging
@@ -316,6 +323,8 @@ EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
 
 LDAP_SERVER = 'ldap://lukas-backend.unit.liu.se'
+MUNIN_PORT = 8800
+MUNIN_PATH = 'munin/localhost/localhost/index.html'
 
 # URCHIN_ID = "ua-..."
 

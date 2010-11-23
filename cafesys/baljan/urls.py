@@ -29,9 +29,14 @@ urlpatterns = patterns("baljan.views",
     }, name='become_worker'), 
     url(r"^become-worker/toggle/(.*)$", 'toggle_become_worker_request'),
     url(r'search-person', 'search_person'),
+
+    url(r'job-opening/(.+)/projector', 'job_opening_projector'),
     url(r'job-opening/(.+)', 'job_opening'),
+
     url(r'call-duty/(\d+)/(\d+)', 'call_duty_week'),
     url(r'call-duty', 'call_duty_week'),
+
+    url(r'price-list', 'price_list'),
 
     url(r'pdf/shift-combinations/(\w+)', 'shift_combinations_pdf'),
     url(r'pdf/shift-combinations-form/(\w+)', 'shift_combination_form_pdf'),

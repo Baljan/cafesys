@@ -3,14 +3,16 @@ from django.conf import settings
 from django.contrib.auth.models import User, Group
 import MySQLdb
 import MySQLdb.cursors
-from datetime import date
+from datetime import date, datetime
 from baljan.models import Profile, Semester, ShiftSignup, Shift, BoardPost
 from baljan.models import OnCallDuty, Good, Order
-from baljan.util import get_logger
+from baljan.models import OldCoffeeCard, OldCoffeeCardSet
+from baljan.util import get_logger, get_or_create_user
 from baljan import pseudogroups
 from baljan import orders
 from dateutil.relativedelta import relativedelta
 import re
+from emailconfirmation.models import EmailAddress
 
 log = get_logger('baljan.migration')
 
@@ -18,6 +20,8 @@ manual_board = []
 
 class Import(object):
     def __init__(self):
+        self._users = {}
+
         # Make sure that all needed settings and such are configured.
         settingfmt = 'OLD_SYSTEM_MYSQL_%s'
         valid = True
@@ -96,19 +100,33 @@ SELECT nummer FROM telefon WHERE persid=%d
                 skipped.append(uname)
                 continue
 
-            u, created = User.objects.get_or_create(
-                    username=uname,
-                    first_name=decode(ud['fnamn']),
-                    last_name=decode(ud['enamn']))
+            phone = self._get_phone(ud)
+            first_name = decode(ud['fnamn'])
+            last_name = decode(ud['enamn'])
 
-            u.email = u"%s@%s" % (
-                decode(ud['login']).lower(), settings.USER_EMAIL_DOMAIN)
-            u.set_unusable_password()
-            u.save()
+            # Do not update the phone or name of an already imported users, we
+            # risk overwriting updated credentials.
+            user_exists = User.objects.filter(username__exact=uname).count() != 0
+            if user_exists:
+                phone = None
+                first_name = None
+                last_name = None
 
+            eaddr_custom = None
+            if ud['epost']:
+                eaddr_custom = decode(ud['epost'])
+
+            u, created = get_or_create_user(
+                username=uname, 
+                first_name=first_name,
+                last_name=last_name,
+                email=eaddr_custom,
+                phone=phone,
+                show_email=ud['ejepost'] == 0,
+                show_profile=ud['dold'] == 0,
+            )
             p = u.get_profile()
-            p.mobile_phone = self._get_phone(ud)
-            p.save()
+
             if created:
                 log.info('created: %r %r' % (u, p))
                 created_count += 1
@@ -396,6 +414,25 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
         return c.fetchall()
 
 
+    def _user(self, ud):
+        if ud is None:
+            return None
+        if isinstance(ud, tuple):
+            return None
+        decode = self._decode
+        uname = decode(ud['login']).lower()
+        if self._users.has_key(uname):
+            user = self._users[uname]
+        else:
+            try:
+                user = User.objects.get(username__exact=uname)
+                self._users[uname] = user
+            except:
+                log.error('user unfound: %s' % uname)
+                return None
+        return user
+
+
     def setup_orders(self):
         logkort = self._get_logkort()
         created_count, existing_count, skipped = 0, 0, []
@@ -409,7 +446,10 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
         users = {}
         goods = [(coffee, 1),]
         start_adding = False
-        start_at = Order.objects.all().order_by('-put_at')[0].put_at
+        try:
+            start_at = Order.objects.all().order_by('-put_at')[0].put_at
+        except:
+            start_at = datetime(1970, 1, 1)
         for lk in logkort:
             daytime = lk['ts'].strftime('%Y-%m-%d %H:%M')
             print daytime
@@ -433,16 +473,10 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
                 skipped.append(lk)
                 continue
             
-            uname = decode(ud['login']).lower()
-            if users.has_key(uname):
-                user = users[uname]
-            else:
-                try:
-                    user = User.objects.get(username__exact=uname)
-                    users[uname] = user
-                except:
-                    log.warning('bad username %s' % uname)
-                    continue
+            user = self._user(ud)
+            if user is None:
+                skipped.append(lk)
+                continue
 
             if not start_adding:
                 if Order.objects.filter(user=user, put_at=lk['ts']).count():
@@ -455,14 +489,96 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
             preorder = orders.FreePreOrder(user, goods, lk['ts'])
             processed = clerk.process(preorder)
             if processed.accepted():
-                log.info('accepted order for %r (%s)' % (user, daytime))
+                log.debug('accepted order for %r (%s)' % (user, daytime))
             else:
-                log.info('denied order for %r (%s)' % (user, daytime))
+                log.debug('denied order for %r (%s)' % (user, daytime))
 
         log.info('%d/%d/%d order(s) created/existing/skipped' % (
             created_count, existing_count, len(skipped)))
         if len(skipped):
-            log.warning('skipped: %s' % ", ".join(skipped))
+            log.warning('skipped: %s' % ", ".join([str(s) for s in skipped]))
+
+
+    def _get_sets(self):
+        c = self._cursor()
+        c.execute('''SELECT * FROM kortset''')
+        return c.fetchall()
+
+
+    def _get_cards(self):
+        c = self._cursor()
+        c.execute('''SELECT * FROM kaffekort''')
+        return c.fetchall()
+
+
+    def setup_cards_and_sets(self):
+        sets = self._get_sets()
+
+        created_count, existing_count, skipped = 0, 0, []
+        for s in sets:
+            ud = self.get_user_dicts(user_id=s['persid'])
+            user = self._user(ud)
+            if user is None:
+                skipped.append(s)
+                continue
+            
+            try:
+                obj, created = OldCoffeeCardSet.objects.get_or_create(
+                    set_id=s['id'],
+                    made_by=user,
+                    file=s['filnamn'],
+                    created=s['skapad'],
+                )
+            except:
+                print "skipped %s" % s
+                skipped.append(s)
+            else:
+                obj.time_stamp = s['ts']
+                obj.save()
+                if created:
+                    created_count += 1
+                else:
+                    existing_count += 1
+
+        log.info('%d/%d/%d old set(s) created/existing/skipped' % (
+            created_count, existing_count, len(skipped)))
+        if len(skipped):
+            log.warning('skipped: %s' % ", ".join([str(s) for s in skipped]))
+
+        created_count, existing_count, skipped = 0, 0, []
+        cards = self._get_cards()
+        for c in cards:
+            ud = self.get_user_dicts(user_id=c['persid'])
+            user = self._user(ud)
+
+            set = OldCoffeeCardSet.objects.get(set_id=c['setid'])
+
+            try:
+                obj, created = OldCoffeeCard.objects.get_or_create(
+                    set=set,
+                    user=user,
+                    card_id=c['id'],
+                    created=c['skapad'],
+                    code=c['kod'],
+                )
+            except:
+                print "skipped %s" % c
+                skipped.append(c)
+            else:
+                obj.time_stamp = c['ts']
+                obj.count = c['klipp']
+                obj.left = c['kvar']
+                obj.save()
+
+                if created:
+                    created_count += 1
+                else:
+                    existing_count += 1
+
+        log.info('%d/%d/%d old card(s) created/existing/skipped' % (
+            created_count, existing_count, len(skipped)))
+        if len(skipped):
+            log.warning('skipped: %s' % ", ".join([str(s) for s in skipped]))
 
 class Command(BaseCommand):
     args = ''
@@ -472,10 +588,11 @@ server. See OLD_SYSTEM_* settings.
 
     def handle(self, *args, **options):
         imp = Import()
-        imp.setup_users()
-        imp.setup_shifts()
-        imp.setup_oncallduties()
-        imp.setup_current_workers_and_board()
-        imp.manual_board()
-        imp.setup_board_groups()
+        #imp.setup_users()
+        #imp.setup_shifts()
+        #imp.setup_oncallduties()
+        #imp.setup_current_workers_and_board()
+        #imp.manual_board()
+        #imp.setup_board_groups()
         #imp.setup_orders()
+        imp.setup_cards_and_sets()

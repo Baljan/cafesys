@@ -9,19 +9,20 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.translation import ugettext as _ 
 from django.contrib import messages
 from django.conf import settings
-from datetime import date
+from datetime import date, datetime
 import baljan.forms
 import baljan.models
 import baljan.search
 from baljan import pdf
 from baljan.util import get_logger, year_and_week, all_initials
 from baljan.util import adjacent_weeks, week_dates
-from baljan.ldapbackend import valid_username
+from baljan.ldapbackend import valid_username, exists_in_ldap, fetch_user
 from baljan import credits as creditsmodule
 from baljan import friendrequests, trades, planning, pseudogroups, workdist
 from django.contrib.auth.models import User, Permission, Group
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
+from baljan.grids import PriceListGrid
 from notification import models as notification
 import simplejson
 import re
@@ -239,7 +240,8 @@ def see_user(request, who):
                 )
 
     if watching_self and request.method == 'POST':
-        profile_forms = [c(request.POST, instance=i) for c, i in profile_form_cls_inst]
+        profile_forms = [c(request.POST, request.FILES, instance=i) 
+                for c, i in profile_form_cls_inst]
 
         # Make sure all forms are valid before saving.
         all_valid = True
@@ -417,6 +419,45 @@ def trade_deny(request, request_pk, redir):
     return _trade_answer(request, request_pk, redir, accept=False)
 
 
+def _pair_matrix(pairs):
+    col_count = 10
+    row_count = len(pairs) // col_count
+    if len(pairs) % col_count != 0:
+        row_count += 1
+
+    slots = [[None for c in range(col_count)] for r in range(row_count)]
+    for i, pair in enumerate(pairs):
+        row_idx, col_idx = i // col_count, i % col_count
+        slots[row_idx][col_idx] = pair
+    return slots
+
+
+@permission_required('baljan.manage_job_openings')
+def job_opening_projector(request, semester_name):
+    opening_log = get_logger('baljan.jobopening')
+    tpl = {}
+    tpl['semester'] = sem = baljan.models.Semester.objects.get(name__exact=semester_name)
+    user = request.user
+
+    sched = workdist.Scheduler(sem)
+    pairs = sched.pairs_from_db()
+    slots = _pair_matrix(pairs)
+    tpl['now'] = now = datetime.now().strftime('%H:%M:%S')
+
+    if request.is_ajax(): 
+        pair_info = []
+        for pair in pairs:
+            pair_info.append({
+                'label': pair.label,
+                'free': pair.is_free(),
+            })
+        return HttpResponse(simplejson.dumps({'now': now, 'pairs': pair_info}))
+
+    tpl['slots'] = slots
+    return render_to_response('baljan/job_opening_projector.html', tpl, 
+            context_instance=RequestContext(request))
+
+
 @permission_required('baljan.manage_job_openings')
 def job_opening(request, semester_name):
     opening_log = get_logger('baljan.jobopening')
@@ -424,21 +465,26 @@ def job_opening(request, semester_name):
     tpl['semester'] = sem = baljan.models.Semester.objects.get(name__exact=semester_name)
     user = request.user
 
-
     found_user = None
     if request.method == 'POST':
         if request.is_ajax(): # find user
             searched_for = request.POST['liu_id']
             valid_search = valid_username(searched_for)
 
-            if valid_search or re.match('^[a-z]{5,5}[0-9]{0,3}$', searched_for):
+            if valid_search:
                 results = baljan.search.for_person(searched_for, use_cache=False)
                 if len(results) == 1:
-                    valid_search = True # when matching alphabetic part only
                     found_user = results[0]
 
             if valid_search and found_user is None:
-                pass # TODO: perform LDAP lookup
+                # FIXME: User should not be created immediately. First we 
+                # should tell whether or not he exists, then the operator
+                # may choose to import the user.
+                if exists_in_ldap(searched_for):
+                    opening_log.info('%s found in LDAP' % searched_for)
+                    found_user = fetch_user(searched_for)
+                else:
+                    opening_log.info('%s not found in LDAP' % searched_for)
 
             info = {}
             info['user'] = None
@@ -452,6 +498,7 @@ def job_opening(request, semester_name):
                             found_user.get_full_name(), 
                             found_user.username
                         ),
+                        'phone': found_user.get_profile().mobile_phone,
                         'url': found_user.get_absolute_url(),
                         }
                 info['msg'] = _('OK')
@@ -465,6 +512,20 @@ def job_opening(request, semester_name):
         else: # the user hit save, assign users to shifts
             shift_ids = [int(x) for x in request.POST['shift-ids'].split('|')]
             usernames = request.POST['user-ids'].split('|')
+            phones = request.POST['phones'].split('|')
+
+            # Update phone numbers.
+            for uname, phone in zip(usernames, phones):
+                try:
+                    to_update = baljan.models.Profile.objects.get(
+                        user__username__exact=uname
+                    )
+                    to_update.mobile_phone = phone
+                    to_update.save()
+                except:
+                    opening_log.error('invalid phone for %s: %r' % (uname, phone))
+
+            # Assign to shifts.
             shifts_to_save = baljan.models.Shift.objects.filter(pk__in=shift_ids)
             users_to_save = User.objects.filter(username__in=usernames)
             for shift_to_save in shifts_to_save:
@@ -480,16 +541,7 @@ def job_opening(request, semester_name):
 
     sched = workdist.Scheduler(sem)
     pairs = sched.pairs_from_db()
-
-    col_count = 10
-    row_count = len(pairs) // col_count
-    if len(pairs) % col_count != 0:
-        row_count += 1
-
-    slots = [[None for c in range(col_count)] for r in range(row_count)]
-    for i, pair in enumerate(pairs):
-        row_idx, col_idx = i // col_count, i % col_count
-        slots[row_idx][col_idx] = pair
+    slots = _pair_matrix(pairs)
 
     pair_javascript = {}
     for pair in pairs:
@@ -624,18 +676,18 @@ def admin_semester(request, name=None):
 
             if make == 'normal':
                 shifts_to_edit.update(exam_period=False, enabled=True)
-                sem.save() # generates new shift combinations
             elif make == 'disabled':
                 shifts_to_edit.update(exam_period=False, enabled=False)
-                sem.save() # generates new shift combinations
             elif make == 'exam-period':
                 shifts_to_edit.update(exam_period=True, enabled=True)
-                sem.save() # generates new shift combinations
             elif make == 'none':
                 pass
             else:
                 get_logger('baljan.semesters').warning('unexpected task %r' % make)
                 assert False
+
+            if make != 'none':
+                sem.save() # generates new shift combinations
 
     new_sem_failed = False
     if new_sem_form.is_bound:
@@ -652,13 +704,12 @@ def admin_semester(request, name=None):
             new_sem_failed = True
 
     tpl = {}
+    tpl['semester'] = sem
+    tpl['new_semester_form'] = new_sem_form
+    tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
+    tpl['admin_semester_base_url'] = reverse('baljan.views.admin_semester')
+    tpl['new_semester_failed'] = new_sem_failed
     if sem:
-        tpl['semester'] = sem
-        tpl['new_semester_form'] = new_sem_form
-        tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
-        tpl['admin_semester_base_url'] = reverse('baljan.views.admin_semester')
-        tpl['new_semester_failed'] = new_sem_failed
-
         tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span')
         tpl['day_count'] = len(list(sem.date_range()))
         
@@ -697,3 +748,8 @@ def _shift_combinations_pdf(request, sem_name, form):
 
     response['Content-Disposition'] = 'attachment; filename=%s' % name
     return response
+
+
+def price_list(request):
+    goods = baljan.models.Good.objects.order_by('position', 'title').all()
+    return PriceListGrid(request, goods).render_to_response('baljan/price_list.html')
