@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from baljan.models import Order, OrderGood
+from baljan.models import OnCallDuty, Good
 from django.utils.translation import ugettext_lazy as _
 from datetime import date, datetime
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from baljan.util import get_logger
+from baljan import tasks
 from baljan.pseudogroups import was_worker, was_board
 from dateutil.relativedelta import relativedelta
 
@@ -16,6 +18,8 @@ class Processed(object):
     default_reason = _("The order was processed.") 
 
     def __init__(self, preorder, reason=None):
+        self.free = preorder.free
+        self.rebate = preorder.rebate
         self.preorder = preorder
         self.reason = self.default_reason if reason is None else reason
 
@@ -42,7 +46,7 @@ class Accepted(Processed):
     def create_order_and_update_balance(self):
         preorder = self.preorder
 
-        paid, cur = preorder.costcur()
+        paid, cur = preorder.costcur(silent=True)
         order = Order(
             put_at=preorder.put_date,
             user=preorder.user,
@@ -73,7 +77,7 @@ class PreOrder(object):
     @staticmethod
     def from_group(user, goods, put_date=None):
         if put_date is None:
-            put_date = date.today()
+            put_date = datetime.now()
 
         using_cls = DefaultPreOrder
         groups = user.groups.all()
@@ -95,15 +99,22 @@ class PreOrder(object):
              (<Good object>, 2),
              (<Good object>, 1)]
 
-            where the second value in the tuples are 
-            counts.
+        where the second value in the tuples are counts.
         """
         self.user = user
         self.goods = goods
+        self.rebate = 0
+        self.free = False
+
         if put_date is None:
-            self.put_date = date.today()
+            self.put_date = datetime.now()
         else:
             self.put_date = put_date
+
+        self._profilize()
+
+    def _profilize(self):
+        pass
 
     def _raw_costcur(self):
         if len(self.goods) == 0:
@@ -118,35 +129,47 @@ class PreOrder(object):
             cost += this_cost * count
         return cost, cur
 
-    def _polished_costcur(self):
+    def _polished_costcur(self, silent=False):
         """Override in subclasses to provide rebates for certain groups of
         users."""
         raise NotImplementedError()
 
-    def costcur(self):
-        return self._polished_costcur()
+    def costcur(self, silent=False):
+        return self._polished_costcur(silent)
 
 
 class FreePreOrder(PreOrder):
-    def _polished_costcur(self): 
+    def _profilize(self):
+        self.free = True
+
+    def _polished_costcur(self, silent=False): 
         raw_cost, cur = self._raw_costcur()
-        rebatelog.info('%d %s rebate for %r (free)' % (raw_cost, cur, self.user))
+        self.rebate = raw_cost
+        if not silent:
+            rebatelog.info('%d %s rebate for %r (free)' % (raw_cost, cur, self.user))
         return (0, cur)
 
 
 class BoardPreOrder(PreOrder):
-    def _polished_costcur(self): 
+    def _profilize(self):
+        self.free = True
+
+    def _polished_costcur(self, silent=False): 
         raw_cost, cur = self._raw_costcur()
-        rebatelog.info('%d %s rebate for %r (board)' % (raw_cost, cur, self.user))
+        self.rebate = raw_cost
+        if not silent:
+            rebatelog.info('%d %s rebate for %r (board)' % (raw_cost, cur, self.user))
         return (0, cur)
 
 
 class WorkerPreOrder(PreOrder):
-    def _polished_costcur(self): 
+    def _polished_costcur(self, silent=False): 
         raw_cost, cur = self._raw_costcur()
         cooldown = settings.WORKER_COOLDOWN_SECONDS
 
-        start, end = self.put_at - relativedelta(seconds=cooldown), self.put_at
+        start, end = self.put_date - relativedelta(seconds=cooldown), self.put_date
+        if not silent:
+            log.debug('recent in interval %s-%s' % (start, end))
         recent_orders = Order.objects.filter(
                 user=self.user,
                 put_at__gte=start,
@@ -154,35 +177,54 @@ class WorkerPreOrder(PreOrder):
         )
         if len(recent_orders):
             in_cooldown = False
+            if not silent:
+                log.debug('raw cost: %s %s' % (raw_cost, cur))
             for recent_order in recent_orders:
-                this_cost, this_cur = recent_order.costcur()
+                paid, this_cur = recent_order.paid_costcur()
                 if cur != this_cur:
+                    if not silent:
+                        log.error('not the same currency!!!')
                     in_cooldown = True
                     break
-                if this_cost < raw_cost:
+                if paid < raw_cost:
                     in_cooldown = True
                     break
         else:
             in_cooldown = False
 
         if in_cooldown:
-            rebatelog.info('no rebate because of cooldown for %r (worker)' % self.user)
+            if not silent:
+                rebatelog.info('no rebate because of cooldown for %r (worker)' % self.user)
             cost = raw_cost
+            rebate = 0
         else:
-            cost = max(0, raw_cost - settings.WORKER_MAX_COST_REDUCTION)
-            rebatelog.info('%d %s rebate for %r (worker)' % (
-                raw_cost - cost, cur, self.user))
+            cost = max(0, raw_cost - settings.WORKER_MAX_COST_REDUCE)
+            rebate = raw_cost - cost
+            if not silent:
+                rebatelog.info('%d %s rebate for %r (worker)' % (
+                    rebate, cur, self.user))
 
+        if rebate == raw_cost:
+            self.free = True
+        self.rebate = rebate
         return (cost, cur)
 
 
 class DefaultPreOrder(PreOrder):
-    def _polished_costcur(self):
-        rebatelog.debug('no rebate for %r' % self.user)
+    def _polished_costcur(self, silent=False):
+        if not silent:
+            rebatelog.debug('no rebate for %r' % self.user)
         return self._raw_costcur()
 
 
 class Clerk(object):
+    success_sound = tasks.play_success_normal
+    rebate_sound = tasks.play_success_rebate
+    free_sound = tasks.play_success_rebate
+    error_sound = tasks.play_error
+    no_funds_sound = tasks.play_no_funds
+    leader_sound = tasks.play_leader
+
     def process(self, preorder):
         user = preorder.user
         profile = user.get_profile()
@@ -190,12 +232,43 @@ class Clerk(object):
         balance_currency = profile.balance_currency
 
         cost, cur = preorder.costcur()
+
         if cur != balance_currency:
-            return Denied(preorder, _("Mixed currencies."))
+            self.error_sound.delay()
+            denied = Denied(preorder, _("Mixed currencies."))
+            return denied
         elif balance < cost:
+            self.no_funds_sound.delay()
             return Denied(preorder, _("Insufficient funds."))
         else:
             accepted =  Accepted(preorder)
             accepted.create_order_and_update_balance()
+
+            if preorder.free:
+                self.free_sound.delay()
+            elif preorder.rebate != 0:
+                self.rebate_sound.delay()
+            else:
+                self.success_sound.delay()
+
             return accepted
 
+
+def default_goods():
+    coffee = Good.objects.get(
+        title__exact=settings.DEFAULT_ORDER_NAME, 
+        description__exact=settings.DEFAULT_ORDER_DESC,
+    )
+    return [(coffee, 1)]
+
+
+def default_preorder(user, when=None):
+    """Return a default preorder for `user`. If `when` is ungiven, the current
+    time will be set as the order date. `default_goods` is called internally.
+    The type of the preorder is determined based on the user's group memberships
+    and the `when` value."""
+    if when is None:
+        when = datetime.now()
+    goods = default_goods()
+    preorder = PreOrder.from_group(user, goods, when)
+    return preorder

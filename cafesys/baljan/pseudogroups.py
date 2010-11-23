@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 from baljan.models import Semester, BoardPost
 from baljan.util import get_logger
 from django.db.models import Q
+from datetime import date, datetime
 
 log = get_logger('baljan.pseudogroups')
 
@@ -42,8 +43,12 @@ def manual_group(base_group, is_spring, year):
 
 def _was_in(user, day, cls, base_group_name):
     res = False
+    if hasattr(day, 'date'): # convert datetimes to date
+        day = day.date()
     if day == date.today():
-        base = Group.objects.get(name__exact=base_group_name)
+        base, created = Group.objects.get_or_create(name=base_group_name)
+        if created:
+            log.info('created group %r' % base)
         res = base in user.groups.all()
     else:
         sem = Semester.objects.for_date(day)
@@ -56,7 +61,7 @@ def _was_in(user, day, cls, base_group_name):
         msg = "%r was in group %s on date %s"
     else:
         msg = "%r was not in group %s on date %s"
-    log.debug(msg % (user, base_group_name, day.strftime('%Y-%m-%d')))
+    log.info(msg % (user, base_group_name, day.strftime('%Y-%m-%d')))
     return res
 
 

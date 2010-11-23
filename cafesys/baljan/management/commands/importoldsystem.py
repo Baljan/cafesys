@@ -438,13 +438,10 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
         created_count, existing_count, skipped = 0, 0, []
         decode = self._decode
         clerk = orders.Clerk()
-        coffee = Good.objects.get(
-            title__exact='kaffe/te', 
-            description__exact='pappersmugg'
-        )
 
         users = {}
-        goods = [(coffee, 1),]
+        goods = orders.default_goods()
+
         start_adding = False
         try:
             start_at = Order.objects.all().order_by('-put_at')[0].put_at

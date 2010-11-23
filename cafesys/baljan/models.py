@@ -40,6 +40,7 @@ class Profile(Made):
     show_profile = models.BooleanField(_("show profile"), default=True)
 
     card_id = models.BigIntegerField(_("card id"), blank=True, null=True, 
+            unique=True,
             help_text=_("card ids can be manually set"))
 
     def balcur(self):
@@ -881,6 +882,9 @@ class Order(Made):
     currency = models.CharField(_("currency"), max_length=5, default=u"SEK")
     accepted = models.BooleanField(_("accepted"), default=True)
 
+    def paid_costcur(self):
+        return self.paid, self.currency
+
     def raw_costcur(self):
         ordergoods = self.ordergood_set.all()
         if len(ordergoods) == 0:
@@ -890,7 +894,7 @@ class Order(Made):
         cost = 0
         cur = first_og.good.costcur(self.put_at)[1]
         for og in ordergoods:
-            this_cost, this_cur = og.good.costcur()
+            this_cost, this_cur = og.good.costcur(self.put_at)
             if cur != this_cur:
                 raise Exception('order goods must have the same currency') 
             cost += this_cost * og.count
