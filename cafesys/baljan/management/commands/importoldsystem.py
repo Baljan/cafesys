@@ -594,5 +594,5 @@ server. See OLD_SYSTEM_* settings.
         #imp.setup_current_workers_and_board()
         #imp.manual_board()
         #imp.setup_board_groups()
-        #imp.setup_orders()
-        imp.setup_cards_and_sets()
+        imp.setup_orders()
+        #imp.setup_cards_and_sets()
