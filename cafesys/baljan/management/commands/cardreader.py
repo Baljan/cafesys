@@ -3,7 +3,9 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from baljan.tasks import test_play_all, SOUND_FUNCS_AND_DESCS
 from baljan.tasks import SOUND_FUNCS_AND_LIKELINESS 
+from baljan import orders
 from baljan.util import get_logger
+from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext as _
 import os
 from time import sleep
@@ -95,29 +97,33 @@ def translate_atr(atr):
 
 log = get_logger('baljan.cardreader')
 
-# The new program
+# The new program.
 
-class ReaderAvailabilityObserver(ReaderObserver):
-    def initialize(self):
-        self._readers = {}
+class CardReaderError(Exception):
+    pass
 
-    def update(self, observable, (addedreaders, removedreaders)):
-        for reader in addedreaders:
-            if self._readers.has_key(reader):
-                log.warning('added already added reader: %r' % reader)
-            else:
-                log.info('adding reader: %r' % reader)
-            self._readers[reader] = True
+class StateChangeError(CardReaderError):
+    pass
 
-        for reader in removedreaders:
-            if self._readers.has_key(reader):
-                del self._readers[reader]
-                log.info('removed reader: %r' % reader)
-            else:
-                log.warning('tried to remove unadded reader: %r' % reader)
+# There are two states: 
+#   1) waiting for reader availability, and 
+#   2) reading cards and putting orders
+STATE_INITIAL = 0
+STATE_WAITING_FOR_READER = 1
+STATE_READING_CARDS = 2
+STATE_EXIT = 3
+STATE_NONE = 4
 
-    def get_readers(self):
-        return self._readers.values()
+import struct
+
+# XXX: Also evaluated 'i' as format, but that does not work. Unsigned ('I') is
+# the way to go.
+STRUCT = struct.Struct('I')
+_good_size = 4
+if STRUCT.size != _good_size:
+    err_msg = 'size of STRUCT not %d!!!' % _good_size
+    log.error(err_msg)
+    raise ValueError(err_msg)
 
 
 class OrderObserver(CardObserver):
@@ -126,31 +132,16 @@ class OrderObserver(CardObserver):
     accepted, and the user feedback is different for accepted and denied orders.
     """
     def initialize(self):
-        self._added = {}
-        self._removed = {}
+        self.clerk = orders.Clerk()
 
-    def _mark_added(self, cards):
-        for card in cards:
-            self._added[card] = True
-
-    def _mark_removed(self, cards):
-        for card in cards:
-            self._removed[card] = True
-
-    def _post_checks(self, ignored):
-        not_removed = []
-        for card in self._added.keys():
-            if self._removed.has_key(card):
-                pass
-            else:
-                not_removed.append(card)
-        feedback = "not removed: %s" % ", ".join([repr(c) for c in not_removed])
-        if len(not_removed):
-            log.warning(feedback)
-
-    def _reset_iter(self, ignored):
-        self._added = {}
-        self._removed = {}
+    def _put_order(self, card_id):
+        orderer = User.objects.get(profile__card_id=card_id)
+        preorder = orders.default_preorder(orderer)
+        processed = self.clerk.process(preorder)
+        if processed.accepted():
+            log.info('order was accepted')
+        else:
+            log.info('order was not accepted')
 
     def _handle_added(self, cards):
         for card in cards:
@@ -158,30 +149,27 @@ class OrderObserver(CardObserver):
                 log.debug('ignoring None in _handle_added')
                 continue
 
-            print "+Inserted: %s", toHexString(card.atr)
-
             conn = card.createConnection()
             conn.connect()
             log.debug('connected to card')
             response, sw1, sw2 = conn.transmit(APDU_GET_CARD_ID)
             log.info('response=%r, sw1=%r, sw2=%r' % (response, sw1, sw2))
+            card_id = to_id(response)
+            log.info('id=%r %r' % (card_id, type(card_id)))
+            self._put_order(card_id)
             conn.disconnect()
             log.debug('disconnected from card')
 
 
     def _handle_removed(self, cards):
         for card in cards:
-            print "-Removed: %s", toHexString(card.atr)
+            log.debug('removed %r' % toHexString(card.atr))
 
     def update(self, observable, (addedcards, removedcards)):
         card_tasks = [
             # callable             argument (cards)  description
-            (self._mark_added,     addedcards,       "mark added"),
             (self._handle_added,   addedcards,       "handle added"),
             (self._handle_removed, removedcards,     "handle removed"),
-            (self._mark_removed,   removedcards,     "mark removed"),
-            (self._post_checks,    [],               "post checks"),
-            (self._reset_iter,     [],               "reset iteration"),
         ]
         for call, arg, desc in card_tasks:
             try:
@@ -189,37 +177,43 @@ class OrderObserver(CardObserver):
                     call_msg = "%s (arg %r)" % (desc, arg)
                 else:
                     call_msg = "%s" % desc
-                log.info(call_msg)
                 ret = call(arg)
             except Exception, e:
-                log.error("%s exception: %r" % (desc, e))
+                log.error("%s exception: %r" % (desc, e), exc_auto=True)
             else:
                 if ret is None:
                     msg = "%s finished" % desc
                 else:
                     msg = "%s finished (returned %r)" % (desc, ret)
-                log.info(msg)
-
-class CardReaderError(Exception):
-    pass
-
-class StateChangeError(CardReaderError):
-    pass
+                log.debug(msg)
 
 
-# There are two states: 
-#   1) waiting for reader availability, and 
-#   2) reading cards and putting orders
-STATE_WAITING_FOR_READER = 1
-STATE_READING_CARDS = 2
+def to_id(card_bytes):
+    buf = "".join([chr(x) for x in card_bytes])
+    unpacked = STRUCT.unpack(buf)
+    if len(unpacked) != 1:
+        err_msg = 'unpack return more than one value!!!'
+        log.error(err_msg)
+        raise CardReaderError(err_msg)
+    # Some returned values are of integer type, we cast to long so that the
+    # return type will be the same for each card.
+    return long(unpacked[0])
+
 
 class Command(BaseCommand):
     args = ''
     help = 'This program puts a default order (one coffee or tea) when a card is read.'
 
-
     def _enter_state(self, state):
         states = {
+            STATE_NONE: {
+                'name': 'STATE_NONE',
+                # no call
+            },
+            STATE_INITIAL: {
+                'name': 'STATE_INITIAL',
+                'call': self._enter_initial, 
+            },
             STATE_WAITING_FOR_READER: {
                 'name': 'STATE_WAITING_FOR_READER',
                 'call': self._enter_waiting_for_reader, 
@@ -228,75 +222,62 @@ class Command(BaseCommand):
                 'name': 'STATE_READING_CARDS',
                 'call': self._enter_reading_cards, 
             },
+            STATE_EXIT: {
+                'name': 'STATE_EXIT',
+                'call': self._enter_exit, 
+            },
         }
 
         if states.has_key(state):
-            log.info('entering state: %s' % states[state]['name'])
+            state_msg = 'state change: %s -> %s' % (
+                states[self.state]['name'],
+                states[state]['name'],
+            )
+            log.info(state_msg)
         else:
             err_msg = 'bad state: %r' % state
             log.error(err_msg)
             raise StateChangeError(err_msg)
 
-        self.STATE = state
+        self.state = state
         states[state]['call']()
-
-    def _setup_reader_monitor_and_observer(self):
-        self.reader_monitor = ReaderMonitor()
-        log.info('reader monitor created: %r' % self.reader_monitor)
-        self.reader_observer = ReaderAvailabilityObserver()
-        self.reader_observer.initialize()
-        log.info('reader observer created: %r' % self.reader_observer)
-        self.reader_monitor.addObserver(self.reader_observer)
-        log.info('reader observer attached to monitor')
 
     def _setup_card_monitor_and_observer(self):
         self.card_monitor = CardMonitor()
-        log.info('card monitor created: %r' % self.card_monitor)
+        log.debug('card monitor created: %r' % self.card_monitor)
         self.card_observer = OrderObserver()
         self.card_observer.initialize()
-        log.info('card observer created: %r' % self.card_observer)
+        log.debug('card observer created: %r' % self.card_observer)
         self.card_monitor.addObserver(self.card_observer)
-        log.info('card observer attached to monitor')
+        log.debug('card observer attached to monitor')
 
     def _tear_down_card_monitor_and_observer(self):
-        log.info('card observer detaching from monitor')
+        log.debug('card observer detaching from monitor')
         if self.card_observer is not None and self.card_monitor is not None:
             self.card_monitor.deleteObserver(self.card_observer)
         self.card_monitor = None
         self.card_observer = None
 
-    def _tear_down_reader_monitor_and_observer(self):
-        log.info('reader observer detaching from monitor')
-        if self.reader_observer is not None and self.reader_monitor is not None:
-            self.reader_monitor.deleteObserver(self.reader_observer)
-        self.reader_monitor = None
-        self.reader_observer = None
-
     def _enter_waiting_for_reader(self):
-        while len(self.reader_observer.get_readers()) == 0:
-            log.debug('waiting for reader heartbeat')
-            sleep(1)
+        while len(scsystem.readers()) == 0:
+            sleep(0.2)
+        log.info('reader attached')
         self._enter_state(STATE_READING_CARDS)
 
     def _enter_reading_cards(self):
         self._setup_card_monitor_and_observer()
         while len(scsystem.readers()) != 0:
             log.debug('reading cards heartbeat')
-            sleep(1)
+            sleep(0.2)
+        log.info('reader detached')
         self._tear_down_card_monitor_and_observer()
         self._enter_state(STATE_WAITING_FOR_READER)
 
-    def handle(self, *args, **options):
-        valid = True 
-        if not valid:
-            raise CommandError('invalid config')
+    def _enter_exit(self):
+        self._tear_down_card_monitor_and_observer()
+        log.info('finished program, normal exit')
 
-        self.reader_monitor = None
-        self.reader_observer = None
-        self.card_monitor = None
-        self.card_observer = None
-
-        self._setup_reader_monitor_and_observer()
+    def _enter_initial(self):
         initial_readers = scsystem.readers()
         log.info('connected readers: %r' % initial_readers)
         try:
@@ -310,8 +291,15 @@ class Command(BaseCommand):
 
             self._enter_state(initial_state)
         except KeyboardInterrupt:
-            log.info('user keyboard exit')
+            log.info('user exit')
+        self._enter_state(STATE_EXIT)
 
-        self._tear_down_card_monitor_and_observer()
-        self._tear_down_reader_monitor_and_observer()
-        log.info('finished program, normal exit')
+    def handle(self, *args, **options):
+        valid = True 
+        if not valid:
+            raise CommandError('invalid config')
+
+        self.card_monitor = None
+        self.card_observer = None
+        self.state = STATE_NONE
+        self._enter_state(STATE_INITIAL)
