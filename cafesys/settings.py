@@ -161,6 +161,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "pinax.apps.account.context_processors.account",
 
     "baljan.ctx.actions",
+    "baljan.ctx.analytics",
 ]
 
 INSTALLED_APPS = [
@@ -337,6 +338,8 @@ DEBUG_TOOLBAR_CONFIG = {
 #CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
 #JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+
+ANALYTICS_KEY= ''
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
