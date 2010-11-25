@@ -24,6 +24,8 @@ SITE_ID=1
 # For importing data from the old system. There is a management command
 # that uses these settings (importoldsystem).
 OLD_SYSTEM_MYSQL_LOGIN = 'root'
-OLD_SYSTEM_MYSQL_PASSWORD = ''
+OLD_SYSTEM_MYSQL_PASSWORD = 'w1zard'
 OLD_SYSTEM_MYSQL_DB = 'baljan'
 OLD_SYSTEM_MYSQL_HOST = 'localhost'
+
+ANALYTICS_KEY= 'UA-19913928-1'
