@@ -71,7 +71,7 @@ def initials(user, from_first_name=1, from_last_name=1, num=None):
         last_name_last = ''
     lmids = ''.join([m[0] for m in last_name.split()[:-1]])
 
-    inits = "%s%s%s%s" % (
+    inits = "%s%s%s%s" % ( # FIXME: deuglify
         first_name_first[0:from_first_name], 
         fmids, lmids,
         last_name_last[0:from_last_name]
@@ -123,9 +123,8 @@ def available_for_call_duty():
     #perm = Permission.objects.get(codename='add_oncallduty')
     #users = User.objects.filter(Q(groups__permissions=perm)|Q(user_permissions=perm)).distinct()
     users = User.objects.filter( # FIXME: make permission-based
-            Q(groups__name=settings.BOARD_GROUP) |
-            Q(is_staff=True) |
-            Q(is_superuser=True)).order_by('first_name', 'last_name').distinct()
+        groups__name=settings.BOARD_GROUP,
+    ).order_by('first_name', 'last_name').distinct()
     return users
 
 def invalidate_template_cache(fragment_name, *variables):
@@ -262,9 +261,9 @@ def get_or_create_user(
     kwargs = { 'username': username, }
     u, created = User.objects.get_or_create(**kwargs)
 
-    if first_name:
+    if first_name is not None:
         u.first_name = first_name
-    if last_name:
+    if last_name is not None:
         u.last_name = last_name
     u.set_unusable_password()
     u.save()

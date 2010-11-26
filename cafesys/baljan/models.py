@@ -39,6 +39,10 @@ class Profile(Made):
     show_email = models.BooleanField(_("show email address"), default=False)
     show_profile = models.BooleanField(_("show profile"), default=True)
 
+    card_id = models.BigIntegerField(_("card id"), blank=True, null=True, 
+            unique=True,
+            help_text=_("card ids can be manually set"))
+
     def balcur(self):
         return u"%s %s" % (self.balance, self.balance_currency)
 
@@ -511,6 +515,13 @@ class ShiftCombination(Made):
     shifts = models.ManyToManyField('baljan.Shift', verbose_name=_("shifts"))
     label = models.CharField(_("label"), max_length=10)
 
+    def is_free(self):
+        """True if all shifts are totally free, not a single sign-up."""
+        return len([sh for sh in self.shifts.all() if sh.signups().count() != 0]) == 0
+
+    def is_taken(self):
+        return not self.is_free()
+
     class Meta:
         verbose_name = _("shift combination")
         verbose_name_plural = _("shift combinations")
@@ -878,6 +889,9 @@ class Order(Made):
     currency = models.CharField(_("currency"), max_length=5, default=u"SEK")
     accepted = models.BooleanField(_("accepted"), default=True)
 
+    def paid_costcur(self):
+        return self.paid, self.currency
+
     def raw_costcur(self):
         ordergoods = self.ordergood_set.all()
         if len(ordergoods) == 0:
@@ -887,7 +901,7 @@ class Order(Made):
         cost = 0
         cur = first_og.good.costcur(self.put_at)[1]
         for og in ordergoods:
-            this_cost, this_cur = og.good.costcur()
+            this_cost, this_cur = og.good.costcur(self.put_at)
             if cur != this_cur:
                 raise Exception('order goods must have the same currency') 
             cost += this_cost * og.count
@@ -1065,3 +1079,48 @@ class BoardPost(Made):
             'post': self.post, 
             'sem': self.semester.name,
         }
+
+
+class OldCoffeeCardSet(models.Model):
+    set_id = models.IntegerField(_("set id"))
+    made_by = models.ForeignKey('auth.User', verbose_name=_("made by"))
+    file = models.CharField(_("file"), max_length=100, blank=True, null=True)
+
+    created = models.DateTimeField(_("created"))
+    time_stamp = models.DateTimeField(_("time stamp"), blank=True, null=True)
+
+    class Meta:
+        verbose_name = _('old coffee card set')
+        verbose_name_plural = _('old coffee card sets')
+        ordering = ('-set_id',)
+
+    def __unicode__(self):
+        return u"%d" % self.set_id
+
+
+class OldCoffeeCard(models.Model):
+    set = models.ForeignKey(OldCoffeeCardSet, verbose_name=_("set"))
+    card_id = models.IntegerField(_("card id"))
+    user = models.ForeignKey('auth.User', verbose_name=_("user"), blank=True, null=True)
+
+    created = models.DateTimeField(_("created"), blank=True, null=True)
+    time_stamp = models.DateTimeField(_("time stamp"), blank=True, null=True)
+    expires = models.DateTimeField(_("expires"), blank=True, null=True)
+
+    code = models.IntegerField(_("code"))
+    count = models.IntegerField(_("count"), blank=True, null=True)
+    left = models.IntegerField(_("left"), blank=True, null=True)
+
+    user = models.ForeignKey('auth.User', verbose_name=_("user"), blank=True, null=True)
+
+    imported = models.BooleanField(_("imported"), default=False)
+
+    class Meta:
+        verbose_name = _('old coffee card')
+        verbose_name_plural = _('old coffee cards')
+        ordering = ('-card_id',)
+
+    def __unicode__(self):
+        return u"%d" % self.card_id
+
+

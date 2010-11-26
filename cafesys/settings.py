@@ -78,13 +78,17 @@ LANGUAGES = (
         ('en', u'English'),
         )
 
+# Bump when for example CSS or JS files change to force clients to download a
+# new version.
+MEDIA_AND_STATIC_VERSION = 3
+
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, "site_media", "media")
 
 # URL that handles the media served from MEDIA_ROOT.
 # Example: "http://media.lawrence.com"
-MEDIA_URL = "/site_media/media/"
+MEDIA_URL = "/site_media%d/media/" % MEDIA_AND_STATIC_VERSION
 
 # Absolute path to the directory that holds static files like app media.
 # Example: "/home/media/media.lawrence.com/apps/"
@@ -92,7 +96,7 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, "site_media", "static")
 
 # URL that handles the static files like app media.
 # Example: "http://media.lawrence.com"
-STATIC_URL = "/site_media/static/"
+STATIC_URL = "/site_media%d/static/" % MEDIA_AND_STATIC_VERSION
 
 # Additional directories which hold static files
 STATICFILES_DIRS = [
@@ -157,6 +161,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "pinax.apps.account.context_processors.account",
 
     "baljan.ctx.actions",
+    "baljan.ctx.analytics",
 ]
 
 INSTALLED_APPS = [
@@ -279,8 +284,10 @@ SITE_NAME = "Sektionscafé Baljan"
 LOGIN_URL = "/account/login/"
 LOGIN_REDIRECT_URLNAME = "home"
 
-WORKER_COOLDOWN_SECONDS = 5
+WORKER_COOLDOWN_SECONDS = 5 * 60
 WORKER_MAX_COST_REDUCE = 5
+DEFAULT_ORDER_NAME = 'kaffe/te'
+DEFAULT_ORDER_DESC = 'pappersmugg'
 
 BOARD_GROUP = 'styrelsen'
 WORKER_GROUP = 'jobbare'
@@ -331,6 +338,8 @@ DEBUG_TOOLBAR_CONFIG = {
 #CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
 #JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+
+ANALYTICS_KEY= ''
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
