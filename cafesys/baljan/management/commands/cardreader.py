@@ -260,7 +260,7 @@ class Command(BaseCommand):
 
     def _enter_waiting_for_reader(self):
         while len(scsystem.readers()) == 0:
-            sleep(0.2)
+            sleep(1)
         log.info('reader attached')
         self._enter_state(STATE_READING_CARDS)
 
@@ -268,7 +268,7 @@ class Command(BaseCommand):
         self._setup_card_monitor_and_observer()
         while len(scsystem.readers()) != 0:
             log.debug('reading cards heartbeat')
-            sleep(0.2)
+            sleep(1)
         log.info('reader detached')
         self._tear_down_card_monitor_and_observer()
         self._enter_state(STATE_WAITING_FOR_READER)

@@ -10,18 +10,14 @@ log = get_logger('baljan.ldap')
 def valid_username(username):
     return re.match('^[a-z]{2,5}[0-9]{3,3}$', username) is not None
 
+
 def exists_in_ldap(username):
     return fetch_user(username, bind=False, create=False)
 
-def fetch_user(username, password=None, bind=False, create=True):
-    """If the user does not exist in our own db, he or she will be added to it.
-    If `bind` is false the password argument is ignored and only a search is
-    performed inside this function, otherwise both bind and search are 
-    performed. If `create` is false, True is returned instead of the actual 
-    user if the search or bind+search finds a user (otherwise None)."""
 
+def search(username, password=None, bind=False):
     if not valid_username(username):
-        log.warning('invalid username %r' % username)
+        log.error('invalid username %r' % username)
         return None
 
     base = "ou=people,dc=student,dc=liu,dc=se"
@@ -38,7 +34,19 @@ def fetch_user(username, password=None, bind=False, create=True):
         result_id = l.search(base, scope, uid_kw, ret)
         result_type, result_data = l.result(result_id, 0)
     except ldap.LDAPError, e:
-        log.error("bind failed (%s)" % e)
+        log.error('bad LDAP request')
+        return None
+    return result_data
+
+
+def fetch_user(username, password=None, bind=False, create=True):
+    """If the user does not exist in our own db, he or she will be added to it.
+    If `bind` is false the password argument is ignored and only a search is
+    performed inside this function, otherwise both bind and search are 
+    performed. If `create` is false, True is returned instead of the actual 
+    user if the search or bind+search finds a user (otherwise None)."""
+    result_data = search(username, password, bind)
+    if result_data is None:
         return None
 
     first_name, last_name = None, None
