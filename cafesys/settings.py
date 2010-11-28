@@ -335,6 +335,18 @@ DEBUG_TOOLBAR_CONFIG = {
     "INTERCEPT_REDIRECTS": False,
 }
 
+CELERYD_PREFETCH_MULTIPLIER = 128
+CELERY_DISABLE_RATE_LIMITS = True
+CELERY_DEFAULT_RATE_LIMIT = None
+CELERY_RESULT_BACKEND = 'cache'
+CELERY_CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+CELERY_CACHE_BACKEND_OPTIONS = {
+    'binary': True,
+    'behaviors': {
+        'tcp_nodelay': True,
+    },
+}
+
 #CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
 #JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
