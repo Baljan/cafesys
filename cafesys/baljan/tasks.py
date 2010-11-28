@@ -6,22 +6,27 @@ from django.conf import settings
 
 log = get_logger('baljan.tasks')
 
-@task()
+@task(ignore_result=True)
 def play_success_normal():
     return play_sound(settings.SOUND_SUCCESS_NORMAL)
-@task()
+
+@task(ignore_result=True)
 def play_success_rebate():
     return play_sound(settings.SOUND_SUCCESS_REBATE)
-@task()
+
+@task(ignore_result=True)
 def play_no_funds():
     return play_sound(settings.SOUND_NO_FUNDS)
-@task()
+
+@task(ignore_result=True)
 def play_error():
     return play_sound(settings.SOUND_ERROR)
-@task()
+
+@task(ignore_result=True)
 def play_start():
     return play_sound(settings.SOUND_START)
-@task()
+
+@task(ignore_result=True)
 def play_leader():
     return play_sound(settings.SOUND_LEADER)
 
