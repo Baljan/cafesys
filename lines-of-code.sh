@@ -17,7 +17,7 @@ cafesys/media/js/baljan.js
 
 python_lines=0
 for d in $python_dirs; do
-    python_lines=$(($python_lines + $(find $d -type f -name '*.py' | xargs cat | wc -l )))
+    python_lines=$(($python_lines + $(find $d -type f -name '*.py' | grep -v migrations | xargs cat | wc -l )))
 done
 total_lines=$(($total_lines + $python_lines))
 
