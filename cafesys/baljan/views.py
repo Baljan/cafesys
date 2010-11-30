@@ -2,6 +2,7 @@
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.core.paginator import Paginator
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.serializers import serialize
@@ -220,10 +221,17 @@ def credits(request):
 
 
 @login_required
-def orders(request):
+def orders(request, page_no):
     user = request.user
+    page_no = int(page_no)
     tpl = {}
-    return render_to_response('baljan/credits.html', tpl,
+    tpl['orders'] = orders = baljan.models.Order.objects \
+        .filter(user=user).order_by('-put_at')
+    page_size = 50
+    pages = Paginator(orders, page_size)
+    page = pages.page(page_no)
+    tpl['order_page'] = page
+    return render_to_response('baljan/orders.html', tpl,
             context_instance=RequestContext(request))
 
 

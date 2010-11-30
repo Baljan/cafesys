@@ -17,7 +17,7 @@ urlpatterns = patterns("baljan.views",
 
     url(r"^profile$", 'profile'),
     url(r"^credits$", 'credits'),
-    url(r"^orders$", 'orders'),
+    url(r"^orders/(\d+)$", 'orders'),
 
     url(r"^user/(.*)$", 'see_user'),
     url(r"^group/(.*)$", 'see_group', name='group'),

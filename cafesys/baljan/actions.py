@@ -65,7 +65,7 @@ def categories_and_actions(request):
         ('regulars', _('your account'), (
             Action(_('profile'), 'baljan.views.profile'),
             Action(_('credits'), 'baljan.views.credits'),
-            Action(_('orders'), 'baljan.views.orders'),
+            Action(_('orders'), 'baljan.views.orders', args=(1,)),
             )),
         ('anyone', _('users'), (
             Action(_('work planning'), 'baljan.views.current_semester'),
