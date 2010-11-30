@@ -556,7 +556,7 @@ class Shift(Made):
     semester = models.ForeignKey(Semester, verbose_name=_("semester"))
     when = models.DateField(_("what day the shift is on"))
     span = models.PositiveSmallIntegerField(_("time span"), 
-            default=True, choices=SPAN_CHOICES)
+            default=0, choices=SPAN_CHOICES)
     exam_period = models.BooleanField(_("exam period"), 
             help_text=_('the work scheduler takes this field into account'), 
             default=False)
@@ -633,31 +633,13 @@ class Shift(Made):
         return [su.user for su in self.signups()]
 
     def signups(self):
-        return self._cache('signed_up', 
-                lambda: ShiftSignup.objects.filter(shift=self))
+        return ShiftSignup.objects.filter(shift=self)
 
     def on_callduty(self):
         return [oc.user for oc in self.callduties()]
 
     def callduties(self):
-        return self._cache('on_callduty', 
-                lambda: OnCallDuty.objects.filter(shift=self))
-
-    def _cache(self, suffix, func):
-        k = self._cache_key(suffix)
-        c = cache.get(k)
-        timeout = 60 * 60 # 1 hour
-        if c is None:
-            c = func()
-            cache.set(k, c, timeout)
-        return c
-
-    def _cache_key(self, suffix):
-        return 'baljan.shift.%d.%s' % (self.pk, suffix)
-
-    def _invalidate_cache(self):
-        for s in ('signed_up', 'on_callduty'):
-            cache.delete(self._cache_key(s))
+        return OnCallDuty.objects.filter(shift=self)
 
     class Meta:
         verbose_name = _("shift")
@@ -707,7 +689,6 @@ class ShiftSignup(Made):
 
 
 def signup_post(sender, instance=None, **kwargs):
-    instance.shift._invalidate_cache()
 
     # Remove trade requests where this sign-up is wanted wanted or offered.
     trs = TradeRequest.objects.filter(
@@ -805,7 +786,7 @@ class OnCallDuty(Made):
 
 
 def oncallduty_post(sender, instance=None, **kwargs):
-    instance.shift._invalidate_cache()
+    pass
 
 def oncallduty_post_save(sender, instance=None, **kwargs):
     if instance is None:
