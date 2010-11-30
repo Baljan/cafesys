@@ -556,7 +556,7 @@ class Shift(Made):
     semester = models.ForeignKey(Semester, verbose_name=_("semester"))
     when = models.DateField(_("what day the shift is on"))
     span = models.PositiveSmallIntegerField(_("time span"), 
-            default=True, choices=SPAN_CHOICES)
+            default=0, choices=SPAN_CHOICES)
     exam_period = models.BooleanField(_("exam period"), 
             help_text=_('the work scheduler takes this field into account'), 
             default=False)
