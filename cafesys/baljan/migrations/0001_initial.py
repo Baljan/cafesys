@@ -95,7 +95,7 @@ class Migration(SchemaMigration):
             ('made', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('semester', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['baljan.Semester'])),
             ('when', self.gf('django.db.models.fields.DateField')()),
-            ('span', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=True)),
+            ('span', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=0)),
             ('exam_period', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('enabled', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
