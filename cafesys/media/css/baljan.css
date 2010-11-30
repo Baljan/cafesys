@@ -770,6 +770,10 @@ body.job-opening-projector table td {
     padding: .8em 0;
 }
 
+body.orders .date-change {
+    font-weight: bold;
+}
+
 .ui-selected div, .ui-selecting div {
     background: rgba(255, 0, 132, 0.5);
 }

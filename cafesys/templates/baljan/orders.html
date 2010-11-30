@@ -1,0 +1,59 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+{% load baljan_extras %}
+
+{% block head_title %}{% trans "Orders for" %} {{user.username}}{% endblock %}
+
+{% block body_class %}orders{% endblock %}
+{% block body %}
+<h1>{% trans "Orders for" %} {{user.username}} ({{orders|length}})</h1>
+<div class="grid_6 alpha main">
+    <div>
+        <table>
+            {% for order in order_page.object_list %}
+            {% with order.put_at|date as put_at_date %}
+            <tr>
+                <td class="date-change">
+                    {% ifchanged put_at_date %}
+                        {{put_at_date}} 
+                    {% endifchanged %}
+                </td>
+                <td>
+                    {{order.put_at|time }}
+                </td>
+                <td>
+                    {{order.ordergood_set.all|join:", "}}
+                </td>
+            </tr>
+            {% endwith %}
+            {% empty %}
+            <tr>
+                <td colspan="3">
+                    {% trans "nothing ordered" %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        {% if order_page.has_next %}
+            <div style="float:left;">
+                <a href="{% url baljan.views.orders order_page.next_page_number %}">&laquo; {% trans "older" %}</a>
+            </div>
+        {% endif %}
+        {% if order_page.has_previous %}
+            <div style="float:right;">
+                <a href="{% url baljan.views.orders order_page.previous_page_number %}">{% trans "newer" %} &raquo;</a>
+            </div>
+        {% endif %}
+        <div class="clear"></div>
+    </div>
+</div><!--.main-->
+<div class="grid_4 omega secondary">
+
+</div><!--.secondary-->
+<div class="clear"></div>
+{% endblock %}
+
+{% block extra_body %}{% endblock %}
