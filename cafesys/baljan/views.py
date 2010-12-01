@@ -55,10 +55,12 @@ def semesters(request):
     return render_to_response('baljan/semesters.html', tpl, context_instance=RequestContext(request))
 
 
+@login_required
 def current_semester(request):
     return _semester(request, baljan.models.Semester.objects.current())
 
 
+@login_required
 def semester(request, name):
     return _semester(request, baljan.models.Semester.objects.by_name(name))
 
@@ -116,6 +118,7 @@ def toggle_become_worker_request(request, redir):
     return HttpResponseRedirect(redir)
 
 
+@login_required
 def day_shifts(request, day):
     tpl = {}
     tpl['day'] = day = baljan.util.from_iso8601(day)
@@ -235,6 +238,7 @@ def orders(request, page_no):
             context_instance=RequestContext(request))
 
 
+@login_required
 def see_user(request, who):
     u = request.user
     tpl = {}
@@ -303,6 +307,7 @@ def see_user(request, who):
             context_instance=RequestContext(request))
 
 
+@login_required
 def see_group(request, group_name):
     user = request.user
     tpl = {}
