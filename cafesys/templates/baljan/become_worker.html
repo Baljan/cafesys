@@ -38,6 +38,7 @@
             {% endblocktrans %}
             </p>
         </div>
+    {% comment %}
     {% else %}    
         {% with user.get_profile.pending_become_worker_request as pending %}
             <div class="toggle-request{%if pending%} pending-highlight{%endif%}">
@@ -58,6 +59,7 @@
                 </p>
             </div>
         {% endwith %}
+    {% endcomment %}
     {% endif %}
 
 </div><!--.main-->
