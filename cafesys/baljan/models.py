@@ -864,8 +864,8 @@ class GoodCost(Made):
 
 
 class Order(Made):
-    put_at = models.DateTimeField(_("put at"), default=datetime.now)
-    user = models.ForeignKey('auth.User', verbose_name=_("user"))
+    put_at = models.DateTimeField(_("put at"), default=datetime.now, db_index=True)
+    user = models.ForeignKey('auth.User', verbose_name=_("user"), db_index=True)
     paid = models.PositiveIntegerField(_("paid"))
     currency = models.CharField(_("currency"), max_length=5, default=u"SEK")
     accepted = models.BooleanField(_("accepted"), default=True)
