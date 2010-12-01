@@ -435,24 +435,20 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
 
     def setup_orders(self):
         logkort = self._get_logkort()
-        created_count, existing_count, skipped = 0, 0, []
+        created_count, skipped = 0, []
         decode = self._decode
         clerk = orders.Clerk()
+
+        # Only import recent orders. Start at the back.
+        logkort = list(logkort)
+        logkort.sort(key=lambda x: x['ts'], reverse=True)
 
         users = {}
         goods = orders.default_goods()
 
-        start_adding = False
-        try:
-            start_at = Order.objects.all().order_by('-put_at')[0].put_at
-        except:
-            start_at = datetime(1970, 1, 1)
         for lk in logkort:
             daytime = lk['ts'].strftime('%Y-%m-%d %H:%M')
             print daytime
-
-            if lk['ts'] < start_at:
-                continue
 
             if not lk['persid']:
                 skipped.append(lk)
@@ -475,13 +471,10 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
                 skipped.append(lk)
                 continue
 
-            if not start_adding:
-                if Order.objects.filter(user=user, put_at=lk['ts']).count():
-                    skipped.append(lk)
-                    log.debug('skipped, already imported (%s)' % daytime)
-                    continue
-                else:
-                    start_adding = True
+            if Order.objects.filter(user=user, put_at=lk['ts'])[:1].count():
+                skipped.append(lk)
+                log.warning('already imported (%s), stop now' % daytime)
+                break
 
             preorder = orders.FreePreOrder(user, goods, lk['ts'])
             processed = clerk.process(preorder)
@@ -489,11 +482,14 @@ SELECT * FROM styrelse WHERE persid=%d ORDER BY ts
                 log.debug('accepted order for %r (%s)' % (user, daytime))
             else:
                 log.debug('denied order for %r (%s)' % (user, daytime))
+            created_count += 1
 
-        log.info('%d/%d/%d order(s) created/existing/skipped' % (
-            created_count, existing_count, len(skipped)))
-        if len(skipped):
-            log.warning('skipped: %s' % ", ".join([str(s) for s in skipped]))
+        log.info('%d/%d order(s) created/skipped' % (
+            created_count, len(skipped)))
+
+        # This can get very long.
+        #if len(skipped):
+        #    log.warning('skipped: %s' % ", ".join([str(s) for s in skipped]))
 
 
     def _get_sets(self):
