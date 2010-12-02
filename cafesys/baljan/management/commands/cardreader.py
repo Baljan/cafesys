@@ -104,6 +104,9 @@ class CardReaderError(Exception):
 class StateChangeError(CardReaderError):
     pass
 
+class BadUser(CardReaderError):
+    pass
+
 # There are two states: 
 #   1) waiting for reader availability, and 
 #   2) reading cards and putting orders
@@ -134,13 +137,7 @@ class OrderObserver(CardObserver):
         self.clerk = orders.Clerk()
 
     def _put_order(self, card_id):
-        orderer = User.objects.get(profile__card_id=card_id)
-        preorder = orders.default_preorder(orderer)
-        processed = self.clerk.process(preorder)
-        if processed.accepted():
-            log.info('order was accepted')
-        else:
-            log.info('order was not accepted')
+        tasks.default_order_from_card.delay(card_id)
 
     def _handle_added(self, cards):
         for card in cards:

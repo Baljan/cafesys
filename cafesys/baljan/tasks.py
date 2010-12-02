@@ -3,8 +3,10 @@ from celery.decorators import task
 from baljan.sounds import play_sound
 from baljan.util import get_logger
 from django.conf import settings
+from django.contrib.auth.models import User, Group
 
 log = get_logger('baljan.tasks')
+cardlog = get_logger('baljan.tasks.cardreader')
 
 @task(ignore_result=True)
 def play_success_normal():
@@ -29,6 +31,26 @@ def play_start():
 @task(ignore_result=True)
 def play_leader():
     return play_sound(settings.SOUND_LEADER)
+
+@task(ignore_result=True)
+def default_order_from_card(card_id):
+    from baljan import orders # prevent circular import
+    try:
+        orderer = User.objects.get(profile__card_id=card_id)
+    except:
+        err_msg = "problem finding user with card id %s" % card_id
+        cardlog.warning(err_msg)
+        play_error.delay()
+        return
+
+    clerk = orders.Clerk()
+    preorder = orders.default_preorder(orderer)
+    processed = clerk.process(preorder)
+    if processed.accepted():
+        cardlog.info('order was accepted')
+    else:
+        cardlog.info('order was not accepted')
+
 
 SOUND_FUNCS_AND_DESCS = [
     (play_success_normal, "normal success"),
