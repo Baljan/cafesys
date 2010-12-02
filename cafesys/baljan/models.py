@@ -73,6 +73,8 @@ class Profile(Made):
         verbose_name_plural = _("profiles")
         permissions = (
                 ('available_for_call_duty', _nl("Available for call duty")), # for workers
+                ('free_coffee_unlimited', _nl("Unlimited free coffee")),
+                ('free_coffee_with_cooldown', _nl("Free coffee with cooldown")),
                 )
 
     def __unicode__(self):
