@@ -80,7 +80,6 @@ class PreOrder(object):
             put_date = datetime.now()
 
         using_cls = DefaultPreOrder
-        groups = user.groups.all()
         for member_func, cls in [
                 (was_board, BoardPreOrder),
                 (was_worker, WorkerPreOrder),
@@ -89,7 +88,26 @@ class PreOrder(object):
                 using_cls = cls
                 break
 
-        prelog.info('using %r for %r' % (using_cls, user))
+        prelog.info('using %r for %r (group)' % (using_cls, user))
+        return using_cls(user, goods, put_date)
+
+    @staticmethod
+    def from_perms(user, goods, put_date=None):
+        if put_date is None:
+            put_date = datetime.now()
+        else:
+            prelog.warning('permission-based does not take date into account')
+
+        using_cls = DefaultPreOrder
+        for perm, cls in [
+                ('baljan.free_coffee_unlimited', BoardPreOrder),
+                ('baljan.free_coffee_with_cooldown', WorkerPreOrder),
+                ]:
+            if user.has_perm(perm):
+                using_cls = cls
+                break
+
+        prelog.info('using %r for %r (perms)' % (using_cls, user))
         return using_cls(user, goods, put_date)
 
     def __init__(self, user, goods, put_date=None):
@@ -265,10 +283,7 @@ def default_goods():
 def default_preorder(user, when=None):
     """Return a default preorder for `user`. If `when` is ungiven, the current
     time will be set as the order date. `default_goods` is called internally.
-    The type of the preorder is determined based on the user's group memberships
-    and the `when` value."""
-    if when is None:
-        when = datetime.now()
+    The type of the preorder is determined based on the user's permissions."""
     goods = default_goods()
-    preorder = PreOrder.from_group(user, goods, when)
+    preorder = PreOrder.from_perms(user, goods, when)
     return preorder
