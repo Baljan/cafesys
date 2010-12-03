@@ -17,6 +17,7 @@ import baljan.search
 from baljan import pdf
 from baljan.util import get_logger, year_and_week, all_initials
 from baljan.util import adjacent_weeks, week_dates
+from baljan.util import htmlents
 from baljan.ldapbackend import valid_username, exists_in_ldap, fetch_user
 from baljan import credits as creditsmodule
 from baljan import friendrequests, trades, planning, pseudogroups, workdist
@@ -608,6 +609,7 @@ def call_duty_week(request, year=None, week=None):
     id_initials = dict(zip(uids, initials))
 
     disp_names = ["%s (%s)" % (name, inits) for name, inits in zip(names, initials)]
+    disp_names = [htmlents(dn) for dn in disp_names]
     disp_names = ["&nbsp;".join(dn.split()) for dn in disp_names]
     id_disp_names = dict(zip(uids, disp_names))
 
@@ -615,9 +617,9 @@ def call_duty_week(request, year=None, week=None):
     drags = []
     for drag_id, disp_name, pic in zip(drag_ids, disp_names, pics):
         if pic:
-            drags.append("<span id='%s'><img src='%s' title='%s'/></span>" % (drag_id, pic, disp_name))
+            drags.append('<span id="%s"><img src="%s" title="%s"/></span>' % (drag_id, pic, disp_name))
         else:
-            drags.append("<span id='%s'>%s</span>" % (drag_id, disp_name))
+            drags.append('<span id="%s">%s</span>' % (drag_id, disp_name))
     id_drags = dict(zip(uids, drags))
 
     if request.method == 'POST' and request.is_ajax():
