@@ -14,6 +14,32 @@ import itertools
 from itertools import izip, chain, repeat
 from dateutil.relativedelta import relativedelta
 from emailconfirmation.models import EmailAddress
+from django.template import defaultfilters
+from htmlentitydefs import codepoint2name
+
+def escapejs(s):
+    """Shortcut to default filter."""
+    return defaultfilters.escapejs(s)
+
+
+def escape(s):
+    """Shortcut to default filter."""
+    return defaultfilters.escape(s)
+
+
+def htmlents(s):
+    if isinstance(s, unicode):
+        u = s
+    else:
+        u = unicode(s, 'utf-8')
+
+    ented = u""
+    for c in u:
+        try:
+            ented += u'&%s;' % codepoint2name[ord(c)]
+        except KeyError:
+            ented += c
+    return ented
 
 
 def year_and_week(some_date=None): 
