@@ -410,13 +410,14 @@ body.semester .hide {
 body.semester .show {
     visibility: visible;
 }
-body.semester .accepts {
+body.semester .accepts, body.semester .empty {
     background: #fee;
 }
-body.semester .even .accepts {
+body.semester .even .accepts, body.semester .even .empty {
     background: #fdd;
 }
 body.semester table.plain .accepts,
+body.semester table.plain .empty,
 body.semester table.plain .hide,
 body.semester table.plain .day-name,
 body.semester table.plain .week,
