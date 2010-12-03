@@ -124,9 +124,9 @@ class LCD(object):
 
         with self.comlock:
             self.comconn.write(to_send)
-        sleep(SEND_SLEEP_SECONDS)
-        log.info('sent: %r' % to_send)
-        log.info('preview: %s' % output.preview())
+            sleep(SEND_SLEEP_SECONDS)
+            log.info('sent: %r' % to_send)
+            log.info('preview: %s' % output.preview())
 
     def close(self):
         with self.comlock:
