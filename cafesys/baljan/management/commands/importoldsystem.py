@@ -173,6 +173,7 @@ SELECT nummer FROM telefon WHERE persid=%d
         shift_dicts = self.get_shift_dicts()
         decode = self._decode
         created_count, existing_count, skipped = 0, 0, []
+        cleared_shifts = {}
         for sd in shift_dicts:
             day = sd['dag']
             sem = self._sem_for_day(day)
@@ -191,6 +192,11 @@ SELECT nummer FROM telefon WHERE persid=%d
                     when=day,
                     span=span,
                     semester=sem)
+
+            if not cleared_shifts.has_key(shift):
+                ShiftSignup.objects.filter(shift=shift).delete()
+                cleared_shifts[shift] = True
+
             signup, created = ShiftSignup.objects.get_or_create(
                     shift=shift,
                     user=User.objects.get(username=uname),
@@ -217,6 +223,7 @@ SELECT nummer FROM telefon WHERE persid=%d
         oncall_dicts = self.get_oncall_dicts()
         decode = self._decode
         created_count, existing_count, skipped = 0, 0, []
+        cleared_shifts = {}
         for oc in oncall_dicts:
             day = oc['dag']
             sem = Semester.objects.for_date(day)
@@ -230,6 +237,11 @@ SELECT nummer FROM telefon WHERE persid=%d
                     when=day,
                     span=oc['pass'], # uses the same integers
                     semester=sem)
+
+            if not cleared_shifts.has_key(shift):
+                OnCallDuty.objects.filter(shift=shift).delete()
+                cleared_shifts[shift] = True
+
             oncall, created = OnCallDuty.objects.get_or_create(
                     shift=shift,
                     user=User.objects.get(username=uname),
@@ -583,10 +595,10 @@ server. See OLD_SYSTEM_* settings.
     def handle(self, *args, **options):
         imp = Import()
         #imp.setup_users()
-        #imp.setup_shifts()
+        imp.setup_shifts()
         #imp.setup_oncallduties()
         #imp.setup_current_workers_and_board()
         #imp.manual_board()
         #imp.setup_board_groups()
         #imp.setup_orders()
-        imp.setup_cards_and_sets()
+        #imp.setup_cards_and_sets()
