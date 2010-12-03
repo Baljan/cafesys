@@ -60,7 +60,7 @@ $(document).ready(function () {
         }
         if (needCallDuty) {
             filters.push(function(row) {
-                return $(row).find('.on-call').hasClass('accepts');
+                return $(row).find('.on-call').hasClass('empty');
             });
         }
         if (onlySwitchable) {
