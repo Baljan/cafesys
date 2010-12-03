@@ -80,7 +80,7 @@ LANGUAGES = (
 
 # Bump when for example CSS or JS files change to force clients to download a
 # new version.
-MEDIA_AND_STATIC_VERSION = 4
+MEDIA_AND_STATIC_VERSION = 5
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
