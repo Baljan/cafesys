@@ -406,8 +406,6 @@ class Scheduler(object):
         pairs = []
         for comb in combs:
             pairs.append(LabeledPairAlloc.from_db(comb))
-
-        log.info('fetched %d pairs from db for %r' % (len(pairs), self.sem))
         return pairs
 
 
