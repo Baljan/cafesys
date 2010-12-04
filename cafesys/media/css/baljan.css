@@ -790,3 +790,9 @@ body.orders .date-change {
     border-radius: 7px;
     padding: 10px;
 }
+
+p.background-image {
+    margin: 1em;
+    font-size: .8em;
+    text-align: right;
+}

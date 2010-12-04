@@ -80,7 +80,7 @@ LANGUAGES = (
 
 # Bump when for example CSS or JS files change to force clients to download a
 # new version.
-MEDIA_AND_STATIC_VERSION = 5
+MEDIA_AND_STATIC_VERSION = 6
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
@@ -350,6 +350,10 @@ CELERY_CACHE_BACKEND_OPTIONS = {
 #CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
 #JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+
+# Terminal
+#LCD_PORT = '/dev/ttyS1'
+LCD_PORT = '/dev/ttyS0'
 
 ANALYTICS_KEY= ''
 
