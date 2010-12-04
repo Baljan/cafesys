@@ -10,11 +10,9 @@ from django.utils.translation import ugettext as _nl
 from django.utils.translation import string_concat
 from django.conf import settings
 from datetime import date, datetime
-import random
-import string
 from dateutil.relativedelta import relativedelta
 import baljan.util
-from baljan.util import get_logger, week_dates, year_and_week
+from baljan.util import get_logger, week_dates, year_and_week, random_string
 import itertools
 from django.core.cache import cache
 from notification import models as notification
@@ -27,6 +25,12 @@ class Made(models.Model):
     class Meta:
         abstract = True
 
+PRIVATE_KEY_LENGTH = 25
+def generate_private_key():
+    private_key = random_string(PRIVATE_KEY_LENGTH)
+    while len(Profile.objects.filter(private_key=private_key)) != 0:
+        private_key = random_string(PRIVATE_KEY_LENGTH)
+    return private_key
 
 class Profile(Made):
     user = models.OneToOneField('auth.User', verbose_name=_("user"), editable=False)
@@ -38,6 +42,9 @@ class Profile(Made):
     picture = models.ImageField(_("picture"), upload_to='profile_pics', null=True, blank=True)
     show_email = models.BooleanField(_("show email address"), default=False)
     show_profile = models.BooleanField(_("show profile"), default=True)
+
+    private_key = models.CharField(_("private key"), max_length=PRIVATE_KEY_LENGTH, unique=True, 
+            default=generate_private_key)
 
     card_id = models.BigIntegerField(_("card id"), blank=True, null=True, 
             unique=True,
@@ -929,17 +936,11 @@ def default_issued():
 def default_least_valid_until():
     return default_issued() + SERIES_RELATIVE_LEAST_VALIDITY
 
-
 def generate_balance_code():
-    pool = string.letters + string.digits
-    def get_code():
-        return ''.join(random.choice(pool) for _ in range(BALANCE_CODE_LENGTH))
-
-    code = get_code()
+    code = random_string(BALANCE_CODE_LENGTH)
     while len(BalanceCode.objects.filter(code=code)) != 0:
-        code = get_code()
+        code = random_string(BALANCE_CODE_LENGTH)
     return code
-
 
 class RefillSeries(Made):
     issued = models.DateField(_("issued"), default=default_issued)
