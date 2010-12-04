@@ -11,13 +11,6 @@
 
 <h1>{% trans "Credits" %}</h1>
 <div class="grid_5 alpha main">
-    <div class="available">
-        <h2>{% trans "Available" %}</h2>
-        <div class="credits">
-            <span>{{currently_available}}</span>
-        </div>
-    </div>
-
     <div class="refill">
         <h2>{% trans "Refill" %}</h2>
         <p>
@@ -26,8 +19,12 @@
         into problems, <a href="mailto:{{CONTACT_EMAIL}}">contact us</a>. Abuse
         will be logged.
         {% endblocktrans %}
+        {% blocktrans %}
+        To import an old coffee card (kaffeklippkort), see <a href="#import-old">below</a>.
+        {% endblocktrans %}
         </p>
         <form autocomplete="off" method="POST" action="" class="uniForm">{% csrf_token %}
+            <input type="hidden" name="task" value="refill" />
             <fieldset class="inlineLabels">
                 {{refill_form|as_uni_form}}
                 <div class="form_block submit">
@@ -36,9 +33,52 @@
             </fieldset>
         </form>
     </div>
+
+    <div class="refill-old">
+        <h2 id="import-old">{% trans "Import Old Coffee Card" %}</h2>
+        <p style="text-align:center">
+            <img src="{{STATIC_URL}}img/kaffepil.gif" 
+                width="248" height="180" alt="{% trans "old coffee card" %}"/>
+        </p>
+        <p>
+        {% blocktrans %}
+            Cards (kaffeklippkort) that you have bought but haven't registrered
+            to your account must be imported manually, which you do here by
+            entering the number at your old coffee card.
+        {% endblocktrans %}
+        </p>
+        <p>
+        {% blocktrans %}
+            The new system uses RFID technology and can't read bar codes,
+            therefore you must register old paper cards and use your liu
+            identification card at the station.
+        {% endblocktrans %}
+        </p>
+        <p>
+        {% blocktrans with KLIPP_WORTH as worth %}
+            Each klipp is worth {{worth}} SEK (the price of one coffee or tea).
+        {% endblocktrans %}
+        </p>
+        <form autocomplete="off" method="POST" action="" class="uniForm">{% csrf_token %}
+            <input type="hidden" name="task" value="import-old" />
+            <fieldset class="inlineLabels">
+                {{import_form|as_uni_form}}
+                <div class="form_block submit">
+                    <input type="submit" value="{% trans "import" %}"/>
+                </div>
+            </fieldset>
+        </form>
+    </div>
 </div><!--.main-->
 
 <div class="grid_5 omega secondary">
+    <div class="available">
+        <h2>{% trans "Available" %}</h2>
+        <div class="credits">
+            <span>{{currently_available}}</span>
+        </div>
+    </div>
+
     {% if used_card %}
         <div class="saved">
             {% trans "code was successfully used to refill your account" %}
@@ -62,6 +102,23 @@
                 </li>
             {% empty %}
                 <li>{% trans "you have not used any value cards" %}</li>
+            {% endfor %}
+        </ul>
+        <h3>{% trans "Old Cards (Kaffeklippkort)" %}</h3>
+        <ul>
+            {% for card in used_old_cards %}
+                <li>
+                {% blocktrans with card.set.set_id as setid and card.card_id as cardid and card.left as left and card.count as count %}
+                card {{setid}}.{{cardid}} with {{left}} of {{count}} klipp left
+                {% endblocktrans %}
+                {% if card.imported %}
+                    ({% trans "imported" %})
+                {% else %}
+                    ({% trans "unimported" %})
+                {% endif %}
+                </li>
+            {% empty %}
+                <li>{% trans "you have not used any old coffee cards" %}</li>
             {% endfor %}
         </ul>
     </div>

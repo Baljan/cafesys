@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-04 03:20+0100\n"
+"POT-Creation-Date: 2010-12-04 17:14+0100\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -220,7 +220,8 @@ msgstr "Det finns använda koder i serien/-erna."
 msgid "make PDF"
 msgstr "skapa PDF"
 
-#: baljan/forms.py:33 baljan/models.py:1024 baljan/models.py:1093
+#: baljan/forms.py:33 baljan/forms.py:38 baljan/models.py:1024
+#: baljan/models.py:1093
 msgid "code"
 msgstr "kod"
 
@@ -228,23 +229,23 @@ msgstr "kod"
 msgid "found on your value card"
 msgstr "står på ditt värdekort"
 
-#: baljan/forms.py:39 templates/baljan/admin_semester.html:104
+#: baljan/forms.py:43 templates/baljan/admin_semester.html:104
 msgid "open"
 msgstr "öppet"
 
-#: baljan/forms.py:40 templates/baljan/admin_semester.html:83
+#: baljan/forms.py:44 templates/baljan/admin_semester.html:83
 #: templates/baljan/admin_semester.html:106
 msgid "closed"
 msgstr "stängt"
 
-#: baljan/forms.py:41 baljan/models.py:562
+#: baljan/forms.py:45 baljan/models.py:562
 #: templates/baljan/admin_semester.html:76
 #: templates/baljan/admin_semester.html:86
 #: templates/baljan/admin_semester.html:108
 msgid "exam period"
 msgstr "tenta-p"
 
-#: baljan/forms.py:45
+#: baljan/forms.py:49
 msgid "make"
 msgstr "gör"
 
@@ -799,11 +800,11 @@ msgstr "går ut"
 msgid "left"
 msgstr "kvar"
 
-#: baljan/models.py:1099
+#: baljan/models.py:1099 templates/baljan/credits.html:115
 msgid "imported"
 msgstr "importerad"
 
-#: baljan/models.py:1102
+#: baljan/models.py:1102 templates/baljan/credits.html:41
 msgid "old coffee card"
 msgstr "gammalt kaffekort"
 
@@ -831,7 +832,7 @@ msgstr "Olika valutor."
 msgid "Insufficient funds."
 msgstr "Otillräckligt med pengar."
 
-#: baljan/pdf.py:82 baljan/views.py:304
+#: baljan/pdf.py:82 baljan/views.py:328
 #: templates/baljan/admin_semester.html:91
 #: templates/baljan/work_planning.html:47
 msgid "work shifts"
@@ -851,7 +852,7 @@ msgstr "dokument genererat %s"
 msgid "liu ids"
 msgstr "liu-idn"
 
-#: baljan/views.py:50 baljan/views.py:715
+#: baljan/views.py:50 baljan/views.py:739
 #, python-format
 msgid "%s was added successfully."
 msgstr "%s lades till utan problem"
@@ -868,31 +869,31 @@ msgstr "kommande"
 msgid "past"
 msgstr "gångna"
 
-#: baljan/views.py:305
+#: baljan/views.py:329
 msgid "call duties"
 msgstr "jourpass"
 
-#: baljan/views.py:409
+#: baljan/views.py:433
 msgid "This would result in a double booking."
 msgstr "Detta skulle resultera i en dubbelbokning."
 
-#: baljan/views.py:412
+#: baljan/views.py:436
 msgid "Invalid trade request."
 msgstr "Ogiltig bytesförfrågan."
 
-#: baljan/views.py:505 templates/baljan/job_opening.html:29
+#: baljan/views.py:529 templates/baljan/job_opening.html:29
 msgid "enter liu id"
 msgstr "skriv in liu-id"
 
-#: baljan/views.py:518
+#: baljan/views.py:542
 msgid "OK"
 msgstr "OK"
 
-#: baljan/views.py:523
+#: baljan/views.py:547
 msgid "liu id unfound"
 msgstr "liu-id hittades inte"
 
-#: baljan/views.py:645
+#: baljan/views.py:669
 msgid "Your changes were saved."
 msgstr "Dina ändringar sparades."
 
@@ -1148,7 +1149,7 @@ msgstr "+ styrelseprivilegier"
 msgid "+ worker privileges"
 msgstr "+ jobbarprivilegier"
 
-#: templates/accounting/accounting.html:70 templates/baljan/credits.html:22
+#: templates/accounting/accounting.html:70 templates/baljan/credits.html:15
 msgid "Refill"
 msgstr "Fyll på"
 
@@ -1483,11 +1484,7 @@ msgstr "Är du säker?"
 msgid "Credits"
 msgstr "Konto"
 
-#: templates/baljan/credits.html:15
-msgid "Available"
-msgstr "Tillgängligt"
-
-#: templates/baljan/credits.html:24
+#: templates/baljan/credits.html:17
 #, python-format
 msgid ""
 "\n"
@@ -1504,23 +1501,89 @@ msgstr ""
 "a>.         Missbruk loggas.\n"
 "        "
 
-#: templates/baljan/credits.html:34
+#: templates/baljan/credits.html:22
+msgid ""
+"\n"
+"        To import an old coffee card (kaffeklippkort), see <a href=\"#import-"
+"old\">below</a>.\n"
+"        "
+msgstr ""
+"\n"
+"        För att importera kaffeklipport, se <a href=\"#import-old\">nedan</"
+"a>.\n"
+"        "
+
+#: templates/baljan/credits.html:31
 msgid "refill"
 msgstr "fyll på"
 
+#: templates/baljan/credits.html:38
+msgid "Import Old Coffee Card"
+msgstr "Importera kaffeklippkort"
+
 #: templates/baljan/credits.html:44
+msgid ""
+"\n"
+"            Cards (kaffeklippkort) that you have bought but haven't "
+"registrered\n"
+"            to your account must be imported manually, which you do here by\n"
+"            entering the number at your old coffee card.\n"
+"        "
+msgstr ""
+"\n"
+"            Kaffeklippkort som du har köpt men inte registrerat             "
+"till ditt konto måste importeras manuellt, vilket du gör här genom\n"
+"            att skriva in numret som står på ditt kaffeklippkort.\n"
+"        "
+
+#: templates/baljan/credits.html:51
+msgid ""
+"\n"
+"            The new system uses RFID technology and can't read bar codes,\n"
+"            therefore you must register old paper cards and use your liu\n"
+"            identification card at the station.\n"
+"        "
+msgstr ""
+"\n"
+"            Det nya systemet använder RFID-teknologi och kan inte läsa "
+"streckkoder,\n"
+"            därför måste du registrera gamla kaffeklippkort och använda ditt "
+"liu-kort\n"
+"            vid stationen.\n"
+"        "
+
+#: templates/baljan/credits.html:58
+#, python-format
+msgid ""
+"\n"
+"            Each klipp is worth %(worth)s SEK (the price of one coffee or "
+"tea).\n"
+"        "
+msgstr ""
+"\n"
+"            Varje klipp är värt %(worth)s SEK."
+
+#: templates/baljan/credits.html:67
+msgid "import"
+msgstr "importera"
+
+#: templates/baljan/credits.html:76
+msgid "Available"
+msgstr "Tillgängligt"
+
+#: templates/baljan/credits.html:84
 msgid "code was successfully used to refill your account"
 msgstr "koden användes för att fylla på ditt konto"
 
-#: templates/baljan/credits.html:50
+#: templates/baljan/credits.html:90
 msgid "invalid or used code"
 msgstr "ogiltig eller använd kod"
 
-#: templates/baljan/credits.html:55
+#: templates/baljan/credits.html:95
 msgid "Used Value Cards"
 msgstr "Använda värdekort"
 
-#: templates/baljan/credits.html:59
+#: templates/baljan/credits.html:99
 #, python-format
 msgid ""
 "\n"
@@ -1531,9 +1594,33 @@ msgstr ""
 "                kort %(serid)s värt %(worth)s användes %(used_at)s\n"
 "                "
 
-#: templates/baljan/credits.html:64
+#: templates/baljan/credits.html:104
 msgid "you have not used any value cards"
 msgstr "du har inte använt några värdekort"
+
+#: templates/baljan/credits.html:107
+msgid "Old Cards (Kaffeklippkort)"
+msgstr "Kaffeklippkort (gamla systemet)"
+
+#: templates/baljan/credits.html:111
+#, python-format
+msgid ""
+"\n"
+"                card %(setid)s.%(cardid)s with %(left)s of %(count)s klipp "
+"left\n"
+"                "
+msgstr ""
+"\n"
+"                kort %(setid)s.%(cardid)s med %(left)s av %(count)s klipp "
+"kvar                "
+
+#: templates/baljan/credits.html:117
+msgid "unimported"
+msgstr "oimporterad"
+
+#: templates/baljan/credits.html:121
+msgid "you have not used any old coffee cards"
+msgstr "du har inte använt några kaffeklippkort"
 
 #: templates/baljan/day.html:14
 #, python-format

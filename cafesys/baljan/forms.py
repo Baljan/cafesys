@@ -34,6 +34,10 @@ class RefillForm(forms.Form):
             help_text=_(u"found on your value card"))
 
 
+class ImportOldCardForm(forms.Form):
+    code = forms.IntegerField(label=_("code"))
+
+
 class ShiftSelectionForm(forms.Form):
     CHOICES = (
         ('enabled', _('open')),
