@@ -7,3 +7,6 @@ def actions(request):
 
 def analytics(request):
     return {'ANALYTICS_KEY': settings.ANALYTICS_KEY}
+
+def common(request):
+    return {'KLIPP_WORTH': settings.KLIPP_WORTH}
