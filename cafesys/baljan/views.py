@@ -204,21 +204,45 @@ def credits(request):
     user = request.user
     profile = user.get_profile()
     tpl = {}
-    form = baljan.forms.RefillForm()
-    if request.method == 'POST':
-        form = baljan.forms.RefillForm(request.POST)
-        if form.is_valid():
-            entered_code = form.cleaned_data['code']
-            creditsmodule.is_used(entered_code, user) # for logging
-            try:
-                creditsmodule.manual_refill(entered_code, user)
-                tpl['used_card'] = True
-            except creditsmodule.BadCode, e:
-                tpl['invalid_card'] = True
 
-    tpl['refill_form'] = form 
+    refill_form = baljan.forms.RefillForm()
+    import_form = baljan.forms.ImportOldCardForm()
+    credits_log = get_logger('baljan.views.credits')
+
+    if request.method == 'POST':
+        try:
+            foo = request.POST['task']
+        except:
+            credits_log.error('no task in form!')
+        else:
+            if request.POST['task'] == 'refill':
+                refill_form = baljan.forms.RefillForm(request.POST)
+                if refill_form.is_valid():
+                    entered_code = refill_form.cleaned_data['code']
+                    creditsmodule.is_used(entered_code, user) # for logging
+                    try:
+                        creditsmodule.manual_refill(entered_code, user)
+                        tpl['used_card'] = True
+                    except creditsmodule.BadCode, e:
+                        tpl['invalid_card'] = True
+            elif request.POST['task'] == 'import-old':
+                import_form = baljan.forms.ImportOldCardForm(request.POST)
+                if import_form.is_valid():
+                    entered_code = import_form.cleaned_data['code']
+                    creditsmodule.is_used(entered_code, user, old_card=True) # for logging
+                    try:
+                        creditsmodule.manual_import(entered_code, user)
+                        tpl['used_card'] = True
+                    except creditsmodule.BadCode, e:
+                        tpl['invalid_card'] = True
+            else:
+                credits_log.error('illegal task %r' % request.POST['task'])
+
+    tpl['refill_form'] = refill_form 
+    tpl['import_form'] = import_form 
     tpl['currently_available'] = profile.balcur()
     tpl['used_cards'] = used_cards = creditsmodule.used_by(user)
+    tpl['used_old_cards'] = used_old_cards = creditsmodule.used_by(user, old_card=True)
 
     return render_to_response('baljan/credits.html', tpl,
             context_instance=RequestContext(request))
