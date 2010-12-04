@@ -56,7 +56,7 @@
         </p>
         <p>
         {% blocktrans with KLIPP_WORTH as worth %}
-            Each “klipp” is worth {{worth}} SEK (the price of one coffee or tea).
+            Each klipp is worth {{worth}} SEK (the price of one coffee or tea).
         {% endblocktrans %}
         </p>
         <form autocomplete="off" method="POST" action="" class="uniForm">{% csrf_token %}
@@ -109,7 +109,7 @@
             {% for card in used_old_cards %}
                 <li>
                 {% blocktrans with card.set.set_id as setid and card.card_id as cardid and card.left as left and card.count as count %}
-                card {{setid}}.{{cardid}} with {{left}} of {{count}} “klipp” left
+                card {{setid}}.{{cardid}} with {{left}} of {{count}} klipp left
                 {% endblocktrans %}
                 {% if card.imported %}
                     ({% trans "imported" %})
