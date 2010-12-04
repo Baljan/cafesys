@@ -4,6 +4,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <title>{% block head_title_base %}{% if SITE_NAME %}{{ SITE_NAME }} : {% endif %}{% block head_title %}{% endblock %}{% endblock %}</title>
+        <link rel="shortcut icon" href="{{ STATIC_URL}}img/logo/favicon.ico" />
         <!--[if IE]><style>
             div {
                 zoom: 1; /* trigger hasLayout */
