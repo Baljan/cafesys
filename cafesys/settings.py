@@ -162,6 +162,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
 
     "baljan.ctx.actions",
     "baljan.ctx.analytics",
+    "baljan.ctx.common",
 ]
 
 INSTALLED_APPS = [
@@ -285,7 +286,8 @@ LOGIN_URL = "/account/login/"
 LOGIN_REDIRECT_URLNAME = "home"
 
 WORKER_COOLDOWN_SECONDS = 5 * 60
-WORKER_MAX_COST_REDUCE = 5
+WORKER_MAX_COST_REDUCE = 5 # SEK
+KLIPP_WORTH = WORKER_MAX_COST_REDUCE # SEK
 DEFAULT_ORDER_NAME = 'kaffe/te'
 DEFAULT_ORDER_DESC = 'pappersmugg'
 
