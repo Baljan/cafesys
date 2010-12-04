@@ -351,6 +351,10 @@ CELERY_CACHE_BACKEND_OPTIONS = {
 #JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
+# Terminal
+#LCD_PORT = '/dev/ttyS1'
+LCD_PORT = '/dev/ttyS0'
+
 ANALYTICS_KEY= ''
 
 # local_settings.py can be used to override environment-specific settings
