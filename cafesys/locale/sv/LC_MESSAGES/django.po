@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-05 18:06+0100\n"
+"POT-Creation-Date: 2010-12-05 22:28+0100\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -261,11 +261,11 @@ msgstr "beskrivning"
 msgid "price"
 msgstr "pris"
 
-#: baljan/ical.py:40
+#: baljan/ical.py:48
 msgid "work in Baljan"
 msgstr "jobba i Baljan"
 
-#: baljan/ical.py:49
+#: baljan/ical.py:57
 msgid "on call in Baljan"
 msgstr "jour i Baljan"
 
@@ -2035,12 +2035,12 @@ msgstr "iCal-format"
 #, python-format
 msgid ""
 "\n"
-"        None. To work for Baljan, one must <a href=\"%(become_worker_link)s"
+"        None. To work in Baljan, one must <a href=\"%(become_worker_link)s"
 "\">become a member of the workers' group</a>.\n"
 "        "
 msgstr ""
 "\n"
-"        Inga. För att jobba för Baljan måste man <a href=\"%"
+"        Inga. För att jobba i Baljan måste man <a href=\"%"
 "(become_worker_link)s\">gå med i jobbargruppen</a>.\n"
 "        "
 
@@ -2377,25 +2377,10 @@ msgstr "För tillfället vill inga jobbare byta skift."
 msgid "You are not a worker."
 msgstr "Du är ingen jobbare."
 
-#: templates/notification/friend_request_answered/full.txt:1
 #: templates/notification/friend_request_answered/notice.html:1
-#: templates/notification/friend_request_received/full.txt:1
 #: templates/notification/friend_request_received/notice.html:1
 msgid "Friends can sign each other up for work shifts."
 msgstr "Vänner kan anmäla varandra till jobbpass."
-
-#: templates/notification/signup/full.txt:1
-#, python-format
-msgid ""
-"%(msg)s %(shift_name)s.\n"
-"\n"
-" * shift: http://%(current_site)s%(shift_link)s\n"
-"\n"
-msgstr ""
-"%(msg)s %(shift_name)s.\n"
-"\n"
-" * pass: http://%(current_site)s%(shift_link)s\n"
-"\n"
 
 #: templates/notification/signup/notice.html:4
 #, fuzzy, python-format
@@ -2403,49 +2388,6 @@ msgid ""
 "\n"
 "%(msg)s %(shift_link)s.\n"
 msgstr "%(msg)s %(shift_name)s"
-
-#: templates/notification/signup/short.txt:1
-#, python-format
-msgid "%(msg)s %(shift_name)s"
-msgstr "%(msg)s %(shift_name)s"
-
-#: templates/notification/trade_request/full.txt:1
-#, python-format
-msgid ""
-"%(requester_name)s wants %(wanted_name)s from %(responder_name)s in exchange "
-"for %(offered_name)s.\n"
-"\n"
-"You can answer to or cancel requests on your profile page.\n"
-"\n"
-" * wanted shift: http://%(current_site)s%(wanted_url)s\n"
-" * offered shift: http://%(current_site)s%(offered_url)s\n"
-" * profile of %(requester_name)s: http://%(current_site)s%(requester_url)s\n"
-" * profile of %(responder_name)s: http://%(current_site)s%(responder_url)s\n"
-msgstr ""
-"%(requester_name)s vill ha %(wanted_name)s från %(responder_name)s i utbyte "
-"mot %(offered_name)s.\n"
-"\n"
-"Du kan svara på eller ångra förfrågningar på din profilsida.\n"
-"\n"
-" * önskat pass: http://%(current_site)s%(wanted_url)s\n"
-" * erbjudet pass: http://%(current_site)s%(offered_url)s\n"
-" * profil för %(requester_name)s: http://%(current_site)s%(requester_url)s\n"
-" * profil för %(responder_name)s: http://%(current_site)s%(responder_url)s\n"
-
-#: templates/notification/trade_request/full.txt:9
-#, python-format
-msgid ""
-"Your request to trade shifts %(happening)s.\n"
-"\n"
-" * answered by: http://%(current_site)s%(answerer)s\n"
-" * %(wrename)s: http://%(current_site)s%(wanted)s\n"
-" * %(orename)s: http://%(current_site)s%(offered)s\n"
-msgstr ""
-"Din förfrågan att byta pass %(happening)s.\n"
-"\n"
-" * svarad av: http://%(current_site)s%(answerer)s\n"
-" * %(wrename)s: http://%(current_site)s%(wanted)s\n"
-" * %(orename)s: http://%(current_site)s%(offered)s\n"
 
 #: templates/notification/trade_request/notice.html:5
 #, python-format
@@ -2481,16 +2423,6 @@ msgstr ""
 "(answerer)s.\n"
 "    "
 
-#: templates/notification/trade_request/short.txt:1
-#, python-format
-msgid "%(requester_name)s wants %(wanted_name)s"
-msgstr "%(requester_name)s vill ha %(wanted_name)s"
-
-#: templates/notification/trade_request/short.txt:1
-#, python-format
-msgid "Request to trade shifts %(happening)s"
-msgstr "Förfrågan att byta pass %(happening)s"
-
 #: terminal/views.py:44
 msgid "adjusted for worker"
 msgstr "ändrad för jobbare"
@@ -2498,6 +2430,64 @@ msgstr "ändrad för jobbare"
 #: terminal/views.py:46
 msgid "adjusted for board member"
 msgstr "ändrad för styrelsemedlem"
+
+#~ msgid ""
+#~ "%(msg)s %(shift_name)s.\n"
+#~ "\n"
+#~ " * shift: http://%(current_site)s%(shift_link)s\n"
+#~ "\n"
+#~ msgstr ""
+#~ "%(msg)s %(shift_name)s.\n"
+#~ "\n"
+#~ " * pass: http://%(current_site)s%(shift_link)s\n"
+#~ "\n"
+
+#~ msgid "%(msg)s %(shift_name)s"
+#~ msgstr "%(msg)s %(shift_name)s"
+
+#~ msgid ""
+#~ "%(requester_name)s wants %(wanted_name)s from %(responder_name)s in "
+#~ "exchange for %(offered_name)s.\n"
+#~ "\n"
+#~ "You can answer to or cancel requests on your profile page.\n"
+#~ "\n"
+#~ " * wanted shift: http://%(current_site)s%(wanted_url)s\n"
+#~ " * offered shift: http://%(current_site)s%(offered_url)s\n"
+#~ " * profile of %(requester_name)s: http://%(current_site)s%(requester_url)"
+#~ "s\n"
+#~ " * profile of %(responder_name)s: http://%(current_site)s%(responder_url)"
+#~ "s\n"
+#~ msgstr ""
+#~ "%(requester_name)s vill ha %(wanted_name)s från %(responder_name)s i "
+#~ "utbyte mot %(offered_name)s.\n"
+#~ "\n"
+#~ "Du kan svara på eller ångra förfrågningar på din profilsida.\n"
+#~ "\n"
+#~ " * önskat pass: http://%(current_site)s%(wanted_url)s\n"
+#~ " * erbjudet pass: http://%(current_site)s%(offered_url)s\n"
+#~ " * profil för %(requester_name)s: http://%(current_site)s%(requester_url)"
+#~ "s\n"
+#~ " * profil för %(responder_name)s: http://%(current_site)s%(responder_url)"
+#~ "s\n"
+
+#~ msgid ""
+#~ "Your request to trade shifts %(happening)s.\n"
+#~ "\n"
+#~ " * answered by: http://%(current_site)s%(answerer)s\n"
+#~ " * %(wrename)s: http://%(current_site)s%(wanted)s\n"
+#~ " * %(orename)s: http://%(current_site)s%(offered)s\n"
+#~ msgstr ""
+#~ "Din förfrågan att byta pass %(happening)s.\n"
+#~ "\n"
+#~ " * svarad av: http://%(current_site)s%(answerer)s\n"
+#~ " * %(wrename)s: http://%(current_site)s%(wanted)s\n"
+#~ " * %(orename)s: http://%(current_site)s%(offered)s\n"
+
+#~ msgid "%(requester_name)s wants %(wanted_name)s"
+#~ msgstr "%(requester_name)s vill ha %(wanted_name)s"
+
+#~ msgid "Request to trade shifts %(happening)s"
+#~ msgstr "Förfrågan att byta pass %(happening)s"
 
 #~ msgid ""
 #~ "\n"
