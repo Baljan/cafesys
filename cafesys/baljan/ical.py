@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from baljan.models import ShiftSignup, OnCallDuty
-from icalendar import Calendar, Event
+from icalendar import Calendar, Event, UTC
 from django.db.models import Q
 from django.utils.translation import ugettext as _ 
 import pytz
@@ -12,6 +12,12 @@ def to_utc(dt):
     local_dt = dt.replace(tzinfo=pytz.timezone(tz))
     utc_dt = local_dt.astimezone(pytz.utc)
     return utc_dt
+
+UTC_FMT = "%Y%m%dT%H%M%SZ"
+
+def encode_dt(dt):
+    """Will also convert to UTC internally."""
+    return to_utc(dt).strftime(UTC_FMT)
 
 def for_user(user):
     """Returns an `icalendar.Calendar` object."""
@@ -31,18 +37,18 @@ def for_user(user):
         ev = Event()
         start, end = signup.shift.worker_times()
         ev.add('summary', _(u"work in Baljan"))
-        ev.add('dtstart', to_utc(start))
-        ev.add('dtend', to_utc(end))
-        ev.add('dtstamp', to_utc(signup.made))
+        ev.add('dtstart', encode_dt(start), encode=False)
+        ev.add('dtend', encode_dt(end), encode=False)
+        ev.add('dtstamp', encode_dt(signup.made), encode=False)
         cal.add_component(ev)
 
     for oncall in oncalls:
         ev = Event()
         start, end = oncall.shift.oncall_times()
         ev.add('summary', _(u"on call in Baljan"))
-        ev.add('dtstart', to_utc(start))
-        ev.add('dtend', to_utc(end))
-        ev.add('dtstamp', to_utc(oncall.made))
+        ev.add('dtstart', encode_dt(start), encode=False)
+        ev.add('dtend', encode_dt(end), encode=False)
+        ev.add('dtstamp', encode_dt(oncall.made), encode=False)
         cal.add_component(ev)
 
     return cal
