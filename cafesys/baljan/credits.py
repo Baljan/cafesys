@@ -68,7 +68,7 @@ def manual_refill(entered_code, by_user):
         use_code_on(get_unused_code(entered_code), by_user)
         return True
     except Exception, e:
-        log.warning('%r tried bad code %r (caught %s)' % (by_user, entered_code, e))
+        log.warning('%r tried bad code %r (caught %r)' % (by_user, entered_code, e))
         raise BadCode()
 
 
@@ -85,7 +85,7 @@ def manual_import(entered_code, by_user):
         log.info('%r imported %r' % (by_user, oc))
         return True
     except Exception, e:
-        log.warning('%r tried bad code %r (caught %s)' % (by_user, entered_code, e))
+        log.warning('%r tried bad code %r (caught %r)' % (by_user, entered_code, e))
         raise BadCode()
 
 
