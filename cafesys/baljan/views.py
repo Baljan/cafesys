@@ -14,6 +14,7 @@ from datetime import date, datetime
 import baljan.forms
 import baljan.models
 import baljan.search
+import baljan.ical
 from baljan import pdf
 from baljan.util import get_logger, year_and_week, all_initials
 from baljan.util import adjacent_weeks, week_dates
@@ -792,3 +793,9 @@ def _shift_combinations_pdf(request, sem_name, form):
 def price_list(request):
     goods = baljan.models.Good.objects.order_by('position', 'title').all()
     return PriceListGrid(request, goods).render_to_response('baljan/price_list.html')
+
+
+def user_calendar(request, private_key):
+    user = User.objects.get(profile__private_key__exact=private_key)
+    cal = baljan.ical.for_user(user)
+    return HttpResponse(cal.as_string(), mimetype="text/calendar")

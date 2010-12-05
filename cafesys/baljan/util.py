@@ -16,6 +16,8 @@ from dateutil.relativedelta import relativedelta
 from emailconfirmation.models import EmailAddress
 from django.template import defaultfilters
 from htmlentitydefs import codepoint2name
+import random
+import string
 
 def escapejs(s):
     """Shortcut to default filter."""
@@ -322,3 +324,8 @@ def get_or_create_user(
     p.save()
 
     return u, created
+
+
+def random_string(length):
+    pool = string.letters + string.digits
+    return ''.join(random.choice(pool) for dummy in range(length))
