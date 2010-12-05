@@ -30,8 +30,9 @@ def for_user(user):
     ).order_by('shift__when', 'shift__span').distinct()
 
     cal = Calendar()
-    cal.add('version', '2.0')
     cal.add('prodid', '-//Baljan//Baljan Schedule//EN')
+    cal.add('version', '2.0')
+    cal.add('method', 'PUBLISH')
 
     for signup in signups:
         ev = Event()
