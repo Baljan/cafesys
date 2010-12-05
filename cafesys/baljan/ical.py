@@ -9,7 +9,15 @@ from datetime import datetime
 
 def to_utc(dt):
     tz = settings.TIME_ZONE
-    local_dt = dt.replace(tzinfo=pytz.timezone(tz))
+    swe = pytz.timezone(tz)
+
+    # Try localize() first. If it fails, fall back to replacing the time zone
+    # even if it doesn't take daylight saving into account.
+    try:
+        local_dt = swe.localize(dt)
+    except:
+        local_dt = dt.replace(tzinfo=pytz.timezone(tz))
+
     utc_dt = local_dt.astimezone(pytz.utc)
     return utc_dt
 
