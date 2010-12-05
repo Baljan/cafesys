@@ -41,6 +41,8 @@ urlpatterns = patterns("baljan.views",
     url(r'pdf/shift-combinations/(\w+)', 'shift_combinations_pdf'),
     url(r'pdf/shift-combinations-form/(\w+)', 'shift_combination_form_pdf'),
 
+    url(r'ical/user/(.+).ics', 'user_calendar'),
+
     url(r'trade/take/(\d+)/(.*)', 'trade_take', name='take_signup'),
     url(r'trade/accept/(\d+)/(.*)', 'trade_accept', name='accept_trade'),
     url(r'trade/deny/(\d+)/(.*)', 'trade_deny', name='deny_trade'),

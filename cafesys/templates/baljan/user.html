@@ -76,6 +76,11 @@
                 {% endif %}
             <dt>{% trans "last login" %}</dt>
             <dd>{{watched.last_login|date}} {{watched.last_login|time}}</dd>
+            {% if watching_self %}
+            <dt>{% trans "calendar" %}</dt>
+            <dd><a href="{% url baljan.views.user_calendar watched.get_profile.private_key %}">
+                {% trans "iCal format" %}</a></dd>
+            {% endif %}
         </dl>
         {% endwith %}
     </div>
