@@ -30,8 +30,7 @@ def for_user(user):
     for signup in signups:
         ev = Event()
         start, end = signup.shift.worker_times()
-        ev.add('summary', _(u"jobba i Baljan"))
-        ev.add('location', _(u"Baljan, Kårallen, Linköping"))
+        ev.add('summary', _(u"work in Baljan"))
         ev.add('dtstart', to_utc(start))
         ev.add('dtend', to_utc(end))
         ev.add('dtstamp', to_utc(signup.made))
@@ -40,8 +39,7 @@ def for_user(user):
     for oncall in oncalls:
         ev = Event()
         start, end = oncall.shift.oncall_times()
-        ev.add('summary', _(u"jour i Baljan"))
-        ev.add('location', _(u"Baljan, Kårallen, Linköping"))
+        ev.add('summary', _(u"on call in Baljan"))
         ev.add('dtstart', to_utc(start))
         ev.add('dtend', to_utc(end))
         ev.add('dtstamp', to_utc(oncall.made))
