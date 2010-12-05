@@ -25,6 +25,11 @@ urlpatterns = patterns("",
     url(r"^$", direct_to_template, {
         "template": "baljan/about.html",
     }, name='home'), # name needed for login redirect
+
+    url(r"^robots.txt$", direct_to_template, {
+        "template": "robots.txt",
+        "mimetype": "text/plain",
+    }, name='robots'),
     
     url(r"^admin/invite_user/$", "pinax.apps.signup_codes.views.admin_invite_user", name="admin_invite_user"),
     url(r"^account/signup/$", signup_view, name="acct_signup"),
