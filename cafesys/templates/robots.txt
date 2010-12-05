@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /baljan/user/
+Disallow: /baljan/search-person
+Disallow: /baljan/semester/
+Disallow: /baljan/day/
+Disallow: /account/
