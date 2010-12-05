@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-05 17:16+0100\n"
+"POT-Creation-Date: 2010-12-05 18:06+0100\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1123,8 +1123,8 @@ msgid ""
 "If you have any trouble logging in to your account, contact us at <a href="
 "\"mailto:%(CONTACT_EMAIL)s\">%(CONTACT_EMAIL)s</a>."
 msgstr ""
-"Om du har problem att logga in, kontakta oss på <a href="
-"\"mailto:%(CONTACT_EMAIL)s\">%(CONTACT_EMAIL)s</a>."
+"Om du har problem att logga in, kontakta oss på <a href=\"mailto:%"
+"(CONTACT_EMAIL)s\">%(CONTACT_EMAIL)s</a>."
 
 #: templates/accounting/accounting.html:6
 msgid "Accounting"
@@ -1941,9 +1941,9 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"        Markera passen som du vill erbjuda. %(first_name)s kommer att kunna "
-"        välja ett av dem. Du kan lägga till och ta bort erbjudanden när som helst."
-"        "
+"        Markera passen som du vill erbjuda. %(first_name)s kommer att "
+"kunna         välja ett av dem. Du kan lägga till och ta bort erbjudanden "
+"när som helst.        "
 
 #: templates/baljan/trade.html:80
 msgid "You have no shifts to offer."
@@ -2377,19 +2377,75 @@ msgstr "För tillfället vill inga jobbare byta skift."
 msgid "You are not a worker."
 msgstr "Du är ingen jobbare."
 
+#: templates/notification/friend_request_answered/full.txt:1
 #: templates/notification/friend_request_answered/notice.html:1
+#: templates/notification/friend_request_received/full.txt:1
 #: templates/notification/friend_request_received/notice.html:1
 msgid "Friends can sign each other up for work shifts."
 msgstr "Vänner kan anmäla varandra till jobbpass."
 
-#: templates/notification/signup/notice.html:4
+#: templates/notification/signup/full.txt:1
 #, python-format
+msgid ""
+"%(msg)s %(shift_name)s.\n"
+"\n"
+" * shift: http://%(current_site)s%(shift_link)s\n"
+"\n"
+msgstr ""
+"%(msg)s %(shift_name)s.\n"
+"\n"
+" * pass: http://%(current_site)s%(shift_link)s\n"
+"\n"
+
+#: templates/notification/signup/notice.html:4
+#, fuzzy, python-format
 msgid ""
 "\n"
 "%(msg)s %(shift_link)s.\n"
-msgstr ""
+msgstr "%(msg)s %(shift_name)s"
+
+#: templates/notification/signup/short.txt:1
+#, python-format
+msgid "%(msg)s %(shift_name)s"
+msgstr "%(msg)s %(shift_name)s"
+
+#: templates/notification/trade_request/full.txt:1
+#, python-format
+msgid ""
+"%(requester_name)s wants %(wanted_name)s from %(responder_name)s in exchange "
+"for %(offered_name)s.\n"
 "\n"
-"%(msg)s %(shift_link)s.\n"
+"You can answer to or cancel requests on your profile page.\n"
+"\n"
+" * wanted shift: http://%(current_site)s%(wanted_url)s\n"
+" * offered shift: http://%(current_site)s%(offered_url)s\n"
+" * profile of %(requester_name)s: http://%(current_site)s%(requester_url)s\n"
+" * profile of %(responder_name)s: http://%(current_site)s%(responder_url)s\n"
+msgstr ""
+"%(requester_name)s vill ha %(wanted_name)s från %(responder_name)s i utbyte "
+"mot %(offered_name)s.\n"
+"\n"
+"Du kan svara på eller ångra förfrågningar på din profilsida.\n"
+"\n"
+" * önskat pass: http://%(current_site)s%(wanted_url)s\n"
+" * erbjudet pass: http://%(current_site)s%(offered_url)s\n"
+" * profil för %(requester_name)s: http://%(current_site)s%(requester_url)s\n"
+" * profil för %(responder_name)s: http://%(current_site)s%(responder_url)s\n"
+
+#: templates/notification/trade_request/full.txt:9
+#, python-format
+msgid ""
+"Your request to trade shifts %(happening)s.\n"
+"\n"
+" * answered by: http://%(current_site)s%(answerer)s\n"
+" * %(wrename)s: http://%(current_site)s%(wanted)s\n"
+" * %(orename)s: http://%(current_site)s%(offered)s\n"
+msgstr ""
+"Din förfrågan att byta pass %(happening)s.\n"
+"\n"
+" * svarad av: http://%(current_site)s%(answerer)s\n"
+" * %(wrename)s: http://%(current_site)s%(wanted)s\n"
+" * %(orename)s: http://%(current_site)s%(offered)s\n"
 
 #: templates/notification/trade_request/notice.html:5
 #, python-format
@@ -2424,6 +2480,16 @@ msgstr ""
 "    Din förfrågan att byta %(offered)s mot %(wanted)s %(happening)s av %"
 "(answerer)s.\n"
 "    "
+
+#: templates/notification/trade_request/short.txt:1
+#, python-format
+msgid "%(requester_name)s wants %(wanted_name)s"
+msgstr "%(requester_name)s vill ha %(wanted_name)s"
+
+#: templates/notification/trade_request/short.txt:1
+#, python-format
+msgid "Request to trade shifts %(happening)s"
+msgstr "Förfrågan att byta pass %(happening)s"
 
 #: terminal/views.py:44
 msgid "adjusted for worker"
@@ -2483,9 +2549,6 @@ msgstr "ändrad för styrelsemedlem"
 
 #~ msgid "%(sent_by)s wants to be friends with %(sent_to)s"
 #~ msgstr "%(sent_by)s vill bli vän med %(sent_to)s"
-
-#~ msgid "%(requester)s wants %(shift)s"
-#~ msgstr "%(requester)s vill ha %(shift)s"
 
 #~ msgid "early shift"
 #~ msgstr "tidigt pass"
