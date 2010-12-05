@@ -603,6 +603,25 @@ class Shift(Made):
             return _("ca 4:00 pm to ca 4:45 pm")
         assert False
 
+    def worker_times(self):
+        rd = relativedelta
+        for span, start, end in [
+                (0, rd(hours=7, minutes=30), rd(hours=12, minutes=30)),
+                (2, rd(hours=12, minutes=0), rd(hours=16, minutes=45)),
+                ]:
+            if self.span == span:
+                return self.when + start, self.when + end
+
+    def oncall_times(self):
+        rd = relativedelta
+        for span, start, end in [
+                (0, rd(hours=7, minutes=30), rd(hours=8, minutes=0)),
+                (1, rd(hours=12, minutes=0), rd(hours=12, minutes=30)),
+                (2, rd(hours=16, minutes=0), rd(hours=16, minutes=45)),
+                ]:
+            if self.span == span:
+                return self.when + start, self.when + end
+
 
     def ampm(self, i18n=True):
         lookup = {
