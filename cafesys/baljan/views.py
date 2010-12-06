@@ -815,9 +815,9 @@ def high_score(request, year=None, week=None):
     end_offset = relativedelta(hours=23, minutes=59, seconds=59)
     end_of_today = today + end_offset
     interval_starts = [
-        (relativedelta(days=1), _("today")),
-        (relativedelta(days=7), _("last 7 days")),
-        (relativedelta(days=30), _("last 30 days")),
+        (relativedelta(days=1), _("Today")),
+        (relativedelta(days=7), _("Last 7 Days")),
+        (relativedelta(days=30), _("Last 30 Days")),
     ]
     
     high_scores = []
