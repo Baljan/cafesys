@@ -11,10 +11,12 @@ from django.utils.translation import ugettext as _
 from django.contrib import messages
 from django.conf import settings
 from datetime import date, datetime
+from dateutil.relativedelta import relativedelta
 import baljan.forms
 import baljan.models
 import baljan.search
 import baljan.ical
+from baljan import stats
 from baljan import pdf
 from baljan.util import get_logger, year_and_week, all_initials
 from baljan.util import adjacent_weeks, week_dates
@@ -799,3 +801,36 @@ def user_calendar(request, private_key):
     user = User.objects.get(profile__private_key__exact=private_key)
     cal = baljan.ical.for_user(user)
     return HttpResponse(cal.as_string(), mimetype="text/calendar")
+
+
+def high_score(request, year=None, week=None):
+    if year is None or week is None:
+        year, week = year_and_week()
+    else:
+        year = int(year)
+        week = int(week)
+
+    tpl = {}
+    today = date.today()
+    end_offset = relativedelta(hours=23, minutes=59, seconds=59)
+    end_of_today = today + end_offset
+    interval_starts = [
+        (relativedelta(days=1), _("Today")),
+        (relativedelta(days=7), _("Last 7 Days")),
+        (relativedelta(days=30), _("Last 30 Days")),
+    ]
+    
+    high_scores = []
+    high_score_limit = 20
+    for delta, title in interval_starts:
+        high_scores.append({
+            'consumers': stats.top_consumers(
+                end_of_today - delta,
+                end_of_today,
+            )[:high_score_limit],
+            'title': title,
+        })
+
+    tpl['high_scores'] = high_scores
+    return render_to_response('baljan/high_score.html', tpl, 
+            context_instance=RequestContext(request))

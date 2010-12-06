@@ -1,0 +1,40 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+{% load baljan_extras %}
+
+{% block head_title %}{% trans "High Score" %}{% endblock %}
+
+{% block body_class %}high-score{% endblock %}
+{% block body %}
+<h1>{% trans "High Score" %}</h1>
+<div class="grid_7 alpha main">
+    {% for high_score in high_scores %}
+    {% if high_score.consumers|length %}
+        <div class="score">
+            <h2>{{high_score.title}}</h2>
+            <ol>
+            {% for consumer in high_score.consumers %}
+            {% if user == consumer %}
+                <li><strong>{{consumer|user_link}} ({{consumer.num_orders}})</strong></li>
+            {% else %}
+                <li>{{consumer|user_link}} ({{consumer.num_orders}})</li>
+            {% endif %}
+            {% endfor %}
+            </ol>
+        </div>
+    {% endif %}
+    {% endfor %}
+</div><!--.main-->
+<div class="grid_3 omega secondary">
+</div><!--.secondary-->
+<div class="clear"></div>
+{% endblock %}
+
+{% block extra_body %}
+<script type="text/javascript">
+// <![CDATA[
+// ]]>
+</script>
+{% endblock %}
