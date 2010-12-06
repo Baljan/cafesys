@@ -43,6 +43,9 @@ urlpatterns = patterns("baljan.views",
 
     url(r'ical/user/(.+).ics', 'user_calendar'),
 
+    url(r'high-score/(\d+)/(\d+)', 'high_score'),
+    url(r'high-score', 'high_score'),
+
     url(r'trade/take/(\d+)/(.*)', 'trade_take', name='take_signup'),
     url(r'trade/accept/(\d+)/(.*)', 'trade_accept', name='accept_trade'),
     url(r'trade/deny/(\d+)/(.*)', 'trade_deny', name='deny_trade'),
