@@ -28,6 +28,26 @@
     {% endfor %}
 </div><!--.main-->
 <div class="grid_3 omega secondary">
+    <div class="info">
+        <h2>{% trans "About the High Scores" %}</h2>
+        {% blocktrans %}
+        <p>
+            These lists show the people who have used the blipper&trade;
+            the most. Each blip represents one coffee, tea, or&mdash;for
+            children&mdash;milk chocolate.
+        </p>
+        <p>
+            Start using it you too, to track your caffeine consumption and
+            to compete for glory and fame in the high scores.
+        </p>
+        <h3>For Old-Timers</h3>
+        <p>
+            In these lists we make no difference between regular customers or
+            workers. If you think that we should do that again, start a Facebook
+            protest group or <a href="mailto:{{CONTACT_EMAIL}}">contact us</a>.
+        </p>
+        {% endblocktrans %}
+    </div>
 </div><!--.secondary-->
 <div class="clear"></div>
 {% endblock %}
