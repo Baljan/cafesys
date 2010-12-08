@@ -44,7 +44,7 @@ class RefillCard(object):
         topmost_off = h-(pad+font_height)
 
         c.setFont(*font)
-        c.drawString(pad, topmost_off, 'Baljan')
+        c.drawString(pad, topmost_off, 'Baljan (baljan.org)')
         c.drawRightString(w-pad, topmost_off, '%d %s' % (code.value, code.currency))
         
         c.setFont(*code_font)
