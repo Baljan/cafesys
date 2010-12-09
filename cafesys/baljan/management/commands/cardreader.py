@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from baljan import tasks
 from baljan import orders
+from baljan.lcd import LCD
 from baljan.util import get_logger
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext as _
@@ -277,6 +278,8 @@ class Command(BaseCommand):
     def _enter_initial(self):
         initial_readers = scsystem.readers()
         log.info('connected readers: %r' % initial_readers)
+        self.lcd = LCD()
+        self.lcd.send(u"åäö ÅÄÖ")
         try:
             if len(initial_readers) == 0:
                 initial_state = STATE_WAITING_FOR_READER

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from baljan.tasks import test_play_all, SOUND_FUNCS_AND_DESCS
