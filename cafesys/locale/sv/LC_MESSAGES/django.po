@@ -1764,7 +1764,7 @@ msgstr "Topplista"
 
 #: templates/baljan/high_score.html:32
 msgid "About the High Scores"
-msgstr "Om Topplistorna"
+msgstr "Om topplistorna"
 
 #: templates/baljan/high_score.html:33
 #, python-format
