@@ -1,0 +1,9 @@
+parapin-*/examples/adc0831
+parapin-*/examples/baljanparport
+parapin-*/examples/inputtest
+parapin-*/examples/outputtest
+parapin-*/examples/ppdrv-test
+*.a
+*.o
+*.so
+
