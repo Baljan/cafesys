@@ -41,7 +41,7 @@ urlpatterns = patterns("baljan.views",
     url(r'pdf/shift-combinations/(\w+)', 'shift_combinations_pdf'),
     url(r'pdf/shift-combinations-form/(\w+)', 'shift_combination_form_pdf'),
 
-    url(r'ical/user/(.+).ics', 'user_calendar'),
+    url(r'ical/user/(.+)/baljan.ics', 'user_calendar'),
 
     url(r'high-score/(\d+)/(\d+)', 'high_score'),
     url(r'high-score', 'high_score'),
