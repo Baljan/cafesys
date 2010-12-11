@@ -5,3 +5,4 @@ sphinx/*
 baljan/_build/*
 *_settings.py
 site_media/*
+*.log
