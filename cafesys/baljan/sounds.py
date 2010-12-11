@@ -4,7 +4,7 @@ from subprocess import Popen, PIPE
 from django.conf import settings
 from baljan.util import get_logger
 
-log = get_logger('baljan.sounds')
+log = get_logger('baljan.sounds', with_sentry=False)
 
 class SoundError(Exception):
     pass

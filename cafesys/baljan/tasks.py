@@ -4,9 +4,13 @@ from baljan.sounds import play_sound
 from baljan.util import get_logger
 from django.conf import settings
 from django.contrib.auth.models import User, Group
+from datetime import datetime
+from baljan.lcd import LCD, ADUNO, get_lcd
 
-log = get_logger('baljan.tasks')
-cardlog = get_logger('baljan.tasks.cardreader')
+log = get_logger('baljan.tasks', with_sentry=False)
+cardlog = get_logger('baljan.tasks.cardreader', with_sentry=False)
+
+lcd = get_lcd()
 
 @task(ignore_result=True)
 def play_success_normal():
@@ -33,24 +37,58 @@ def play_leader():
     return play_sound(settings.SOUND_LEADER)
 
 @task(ignore_result=True)
+def blipper_ready():
+    lcd.last_send = datetime.now()
+    lcd.send([u"Blipparen", u"är redo"])
+
+@task(ignore_result=True)
+def blipper_too_fast():
+    lcd.last_send = datetime.now()
+    lcd.send([u"Oj! Visa", u"kortet längre"], ok=False)
+
+@task(ignore_result=True)
+def blipper_error():
+    lcd.last_send = datetime.now()
+    lcd.send([ADUNO, u"Oj, fel!"], ok=False)
+
+@task(ignore_result=True)
+def blipper_waiting():
+    lcd.last_send = datetime.now()
+    lcd.send([u"Blipparen", u"väntar"])
+
+@task(ignore_result=True)
+def blipper_reading_cards():
+    lcd.last_send = datetime.now()
+    lcd.send([u"Blipparen", u"läser kort"])
+
+@task(ignore_result=True)
 def default_order_from_card(card_id):
+    lcd.last_send = datetime.now()
     from baljan import orders # prevent circular import
     try:
         orderer = User.objects.get(profile__card_id=card_id)
     except:
         err_msg = "problem finding user with card id %s" % card_id
         cardlog.warning(err_msg)
-        play_error.delay()
+        #play_error.delay()
+        lcd.send([u'ingen användare', u"busskort kanske?"], ok=False)
         return
 
     clerk = orders.Clerk()
     preorder = orders.default_preorder(orderer)
     processed = clerk.process(preorder)
     if processed.accepted():
+        line2 = u""
+        if processed.free:
+            line2 = u"gratis wohoo"
+        else:
+            line2 = u"saldo: %s" % orderer.get_profile().balcur()
+        lcd.send([u"tack %s" % orderer.username, line2])
         cardlog.info('order was accepted')
     else:
         cardlog.info('order was not accepted')
-
+        line2 = u"saldo: %s" % orderer.get_profile().balcur()
+        lcd.send([u"tyvärr %s" % orderer.username, line2], ok=False)
 
 SOUND_FUNCS_AND_DESCS = [
     (play_success_normal, "normal success"),

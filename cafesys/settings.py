@@ -341,6 +341,7 @@ CELERYD_PREFETCH_MULTIPLIER = 128
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_DEFAULT_RATE_LIMIT = None
 CELERY_RESULT_BACKEND = 'cache'
+CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 CELERY_CACHE_BACKEND_OPTIONS = {
     'binary': True,
@@ -356,6 +357,9 @@ CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 # Terminal
 #LCD_PORT = '/dev/ttyS1'
 LCD_PORT = '/dev/ttyS0'
+LCD_BLANK_SECONDS = 1.5
+PAR_PORT_PROG = os.path.join(PROJECT_ROOT, "..", "parport", "parapin-1.5.1-beta1",
+        "examples", "baljanparport")
 
 ANALYTICS_KEY= ''
 

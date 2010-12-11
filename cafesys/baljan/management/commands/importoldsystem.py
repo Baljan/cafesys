@@ -14,7 +14,7 @@ from dateutil.relativedelta import relativedelta
 import re
 from emailconfirmation.models import EmailAddress
 
-log = get_logger('baljan.migration')
+log = get_logger('baljan.migration', with_sentry=False)
 
 manual_board = []
 
@@ -594,10 +594,10 @@ server. See OLD_SYSTEM_* settings.
 
     def handle(self, *args, **options):
         imp = Import()
-        #imp.setup_users()
-        #imp.setup_shifts()
-        #imp.setup_oncallduties()
-        #imp.setup_current_workers_and_board()
+        imp.setup_users()
+        imp.setup_shifts()
+        imp.setup_oncallduties()
+        imp.setup_current_workers_and_board()
         #imp.manual_board()
         #imp.setup_board_groups()
         imp.setup_orders()

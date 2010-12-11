@@ -10,9 +10,9 @@ from baljan import tasks
 from baljan.pseudogroups import was_worker, was_board
 from dateutil.relativedelta import relativedelta
 
-log = get_logger('baljan.orders')
-prelog = get_logger('baljan.orders.pre')
-rebatelog = get_logger('baljan.orders.rebate')
+log = get_logger('baljan.orders', with_sentry=False)
+prelog = get_logger('baljan.orders.pre', with_sentry=False)
+rebatelog = get_logger('baljan.orders.rebate', with_sentry=False)
 
 class Processed(object):
     default_reason = _("The order was processed.") 
@@ -252,22 +252,22 @@ class Clerk(object):
         cost, cur = preorder.costcur()
 
         if cur != balance_currency:
-            self.error_sound.delay()
+            #self.error_sound.delay()
             denied = Denied(preorder, _("Mixed currencies."))
             return denied
         elif balance < cost:
-            self.no_funds_sound.delay()
+            #self.no_funds_sound.delay()
             return Denied(preorder, _("Insufficient funds."))
         else:
             accepted =  Accepted(preorder)
             accepted.create_order_and_update_balance()
 
-            if preorder.free:
-                self.free_sound.delay()
-            elif preorder.rebate != 0:
-                self.rebate_sound.delay()
-            else:
-                self.success_sound.delay()
+            #if preorder.free:
+            #    self.free_sound.delay()
+            #elif preorder.rebate != 0:
+            #    self.rebate_sound.delay()
+            #else:
+            #    self.success_sound.delay()
 
             return accepted
 

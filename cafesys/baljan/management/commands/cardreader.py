@@ -3,7 +3,6 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from baljan import tasks
 from baljan import orders
-from baljan.lcd import LCD
 from baljan.util import get_logger
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext as _
@@ -95,7 +94,7 @@ def translate_atr(atr):
 #
 #print "ok bye"
 
-log = get_logger('baljan.cardreader')
+log = get_logger('baljan.cardreader', with_sentry=False)
 
 # The new program.
 
@@ -106,6 +105,9 @@ class StateChangeError(CardReaderError):
     pass
 
 class BadUser(CardReaderError):
+    pass
+
+class TooFast(CardReaderError):
     pass
 
 # There are two states: 
@@ -150,6 +152,9 @@ class OrderObserver(CardObserver):
             conn.connect()
             log.debug('connected to card')
             response, sw1, sw2 = conn.transmit(APDU_GET_CARD_ID)
+            if (("%.2x" % sw1) == "63"): # FIXME: never triggered
+                raise TooFast('show the card longer')
+
             log.info('response=%r, sw1=%r, sw2=%r' % (response, sw1, sw2))
             card_id = to_id(response)
             log.info('id=%r %r' % (card_id, type(card_id)))
@@ -175,8 +180,11 @@ class OrderObserver(CardObserver):
                 else:
                     call_msg = "%s" % desc
                 ret = call(arg)
+            except TooFast:
+                tasks.blipper_too_fast.delay()
             except Exception, e:
                 log.error("%s exception: %r" % (desc, e), exc_auto=True)
+                tasks.blipper_error.delay()
                 tasks.play_error.delay()
             else:
                 if ret is None:
@@ -257,6 +265,7 @@ class Command(BaseCommand):
         self.card_observer = None
 
     def _enter_waiting_for_reader(self):
+        tasks.blipper_waiting.delay()
         while len(scsystem.readers()) == 0:
             sleep(1)
         log.info('reader attached')
@@ -264,6 +273,7 @@ class Command(BaseCommand):
 
     def _enter_reading_cards(self):
         self._setup_card_monitor_and_observer()
+        tasks.blipper_reading_cards.delay()
         while len(scsystem.readers()) != 0:
             log.debug('reading cards heartbeat')
             sleep(1)
@@ -278,8 +288,7 @@ class Command(BaseCommand):
     def _enter_initial(self):
         initial_readers = scsystem.readers()
         log.info('connected readers: %r' % initial_readers)
-        self.lcd = LCD()
-        self.lcd.send(u"åäö ÅÄÖ")
+        tasks.blipper_ready.delay()
         try:
             if len(initial_readers) == 0:
                 initial_state = STATE_WAITING_FOR_READER

@@ -219,23 +219,24 @@ class Logging(Borg):
     def _key(self, name):
         return "_log_%s" % name
 
-    def _setup_logger(self, name):
+    def _setup_logger(self, name, with_sentry):
         logger = logging.getLogger(name)
-        logger.addHandler(SentryHandler())
+        if with_sentry:
+            logger.addHandler(SentryHandler())
         # TODO: Add file handler.
         #logger.propagate = False # FIXME: should this be done?
         self.__dict__[self._key(name)] = Logger(logger)
 
-    def get_logger(self, name):
+    def get_logger(self, name, with_sentry):
         key = self._key(name)
         d = self.__dict__
         if not d.has_key(key):
-            self._setup_logger(name)
+            self._setup_logger(name, with_sentry)
         return d[key]
 
 
-def get_logger(name='baljan'):
-    return Logging().get_logger(name)
+def get_logger(name='baljan', with_sentry=True):
+    return Logging().get_logger(name, with_sentry)
 
 
 class Ring(object):

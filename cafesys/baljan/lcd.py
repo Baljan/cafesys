@@ -5,8 +5,11 @@ from threading import Lock
 from time import sleep
 import serial
 import string
+from baljan.parport import ParPort
+from datetime import datetime
+from celery.decorators import task
 
-log = get_logger('baljan.lcd')
+log = get_logger('baljan.lcd', with_sentry=False)
 
 SEND_SLEEP_SECONDS = 0.0021
 
@@ -83,7 +86,6 @@ class Output(object):
         }
         return u'\n┏%(linepad)s┓\n┃%(line0)s┃\n┃%(line1)s┃\n┗%(linepad)s┛\n' % kws
 
-
 class LCD(object):
     _shared_state = {}
 
@@ -103,6 +105,9 @@ class LCD(object):
 
     def __init__(self):
         self.__dict__ = self._shared_state
+        self.parport = ParPort()
+        if not hasattr(self, 'last_send'):
+            self.last_send = datetime.now()
         if hasattr(self, 'inited'):
             if self.inited:
                 log.warning('LCD connection has already been established')
@@ -114,19 +119,40 @@ class LCD(object):
             self.comlock = Lock()
             self._cominit()
 
-    def send(self, msgs):
+    def blank(self):
+        entered = datetime.now()
+        with self.comlock:
+            delta = entered - self.last_send 
+            if delta.total_seconds() < settings.LCD_BLANK_SECONDS:
+                return
+            log.info('blanking %r' % self)
+            self.comconn.write(CMD_CLEAR)
+            self.parport.blank()
+
+    def send(self, msgs, ok=True):
         """Send to terminal. An `Output` object is created from `msgs`
         internally."""
+        log.info('sending to %r' % self)
+        self.last_send = datetime.now()
         output = Output(msgs)
         to_send = CMD_CLEAR
+
         for precmd, line in zip(CMD_ROWS, output.lines):
             to_send += precmd + line.msg
 
         with self.comlock:
+            # FIXME: should not be here
+            if ok:
+                self.parport.order_ok()
+            else:
+                self.parport.order_bad()
             self.comconn.write(to_send)
-            sleep(SEND_SLEEP_SECONDS)
+            self.last_send = datetime.now()
             log.info('sent: %r' % to_send)
             log.info('preview: %s' % output.preview())
+
+        sleep(settings.LCD_BLANK_SECONDS)
+        self.blank()
 
     def close(self):
         with self.comlock:
@@ -140,3 +166,7 @@ class LCD(object):
 
     def __del__(self):
         self.close()
+
+_lcd = LCD()
+def get_lcd():
+    return _lcd
