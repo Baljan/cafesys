@@ -15,11 +15,31 @@
 #define PIN_MAX 7
 #define OUT_OF_RANGE "pin out of range\n"
 
+void show_help(char* exec)
+{
+    fprintf(stderr, "Usage: %s [-c] [-s PIN] [-u PIN] [-z MS]\n" \
+        "    -c       unset all pins\n" \
+        "    -s PIN   set pin high\n" \
+        "    -u PIN   set pin low\n" \
+        "    -z MS    sleep (milliseconds)\n" \
+        "\n" \
+        "Options can occur multiple times. Example:\n" \
+        "\n" \
+        "    %s -c -z 50 -s 3 -z 100 -u 3 -z 50 -c\n",
+        exec, exec
+    );
+}
+
 int main(int argc, char *argv[]){
     if (pin_init_user(LPT_PCI) < 0) {
         return -1;
     }
     pin_output_mode(LP_DATA_PINS | LP_SWITCHABLE_PINS);
+
+    if (argc == 1) {
+        show_help(argv[0]);
+        return -1;
+    }
 
     int c = 0;
     int i = -1;
@@ -28,8 +48,11 @@ int main(int argc, char *argv[]){
     long int sleep = -1;
     char *port_conv_end = NULL;
 
-    while ((c = getopt(argc, argv, "cs:u:z:")) != -1) {
+    while ((c = getopt(argc, argv, "hcs:u:z:")) != -1) {
         switch (c) {
+            case 'h':
+                show_help(argv[0]);
+                break;
             case 'c':
                 fprintf(stderr, "unset all\n");
                 for (i = PIN_MIN; i <= PIN_MAX; ++i) {
@@ -71,7 +94,7 @@ int main(int argc, char *argv[]){
                 }
                 break;
             default:
-                fprintf(stderr, "invalid flag\n");
+                show_help(argv[0]);
                 return -1;
         }
     }
