@@ -74,7 +74,7 @@ class Output(object):
         that there will be exactly ROWS lines. Messages are made `Line` objects
         internally.
         """
-        self.lines = [Line(msg) for msg in msgs[:2]]
+        self.lines = [Line(msg) for msg in msgs[:ROWS]]
         while len(self.lines) < ROWS:
             self.lines.append(Line(u''))
 
