@@ -35,6 +35,9 @@ class BadUser(CardReaderError):
 class TooFast(CardReaderError):
     pass
 
+# There are two states: 
+#   1) waiting for reader availability, and 
+#   2) reading cards and putting orders
 STATE_INITIAL = 0
 STATE_WAITING_FOR_READER = 1
 STATE_READING_CARDS = 2
@@ -45,10 +48,10 @@ import struct
 
 # XXX: Also evaluated 'i' as format, but that does not work. Unsigned ('I') is
 # the way to go.
-STRUCT = struct.Struct('I')
+_struct = struct.Struct('I')
 _good_size = 4
-if STRUCT.size != _good_size:
-    err_msg = 'size of STRUCT not %d!!!' % _good_size
+if _struct.size != _good_size:
+    err_msg = 'size of _struct not %d!!!' % _good_size
     log.error(err_msg)
     raise ValueError(err_msg)
 
@@ -119,7 +122,7 @@ class OrderObserver(CardObserver):
 
 def to_id(card_bytes):
     buf = "".join([chr(x) for x in card_bytes])
-    unpacked = STRUCT.unpack(buf)
+    unpacked = _struct.unpack(buf)
     if len(unpacked) != 1:
         err_msg = 'unpack return more than one value!!!'
         log.error(err_msg)
