@@ -152,6 +152,9 @@ class OrderObserver(CardObserver):
             conn.connect()
             log.debug('connected to card')
             response, sw1, sw2 = conn.transmit(APDU_GET_CARD_ID)
+            conn.disconnect()
+            log.debug('disconnected from card')
+
             if (("%.2x" % sw1) == "63"): # FIXME: never triggered
                 raise TooFast('show the card longer')
 
@@ -159,8 +162,6 @@ class OrderObserver(CardObserver):
             card_id = to_id(response)
             log.info('id=%r %r' % (card_id, type(card_id)))
             self._put_order(card_id)
-            conn.disconnect()
-            log.debug('disconnected from card')
 
 
     def _handle_removed(self, cards):
