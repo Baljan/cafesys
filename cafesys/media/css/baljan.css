@@ -796,3 +796,7 @@ p.background-image {
     font-size: .8em;
     text-align: right;
 }
+
+.marker {
+    background: #ffa;
+}
