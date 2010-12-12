@@ -30,8 +30,13 @@ def get_unused_code(entered_code, old_card=False):
     now = datetime.now()
     try:
         if old_card:
+            stringed = str(entered_code)
+            code_len = 6
+            card_id = int(stringed[:-code_len], 10)
+            code = int(stringed[-code_len:], 10)
             oc = OldCoffeeCard.objects.get(
-                code__exact=entered_code,
+                card_id=card_id,
+                code__exact=code,
                 user__isnull=True,
                 imported=False,
                 expires__gte=now,
