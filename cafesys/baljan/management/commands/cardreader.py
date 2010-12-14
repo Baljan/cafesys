@@ -77,9 +77,8 @@ class OrderObserver(CardObserver):
             if ("%.2x" % sw1 != "90" or ".2x" % sw2 != "00"):
                 raise CardReaderError("response to APDU invalid: sw1=0x%.2x, sw2=0x%.2x" % (sw1, sw2))
 
-            log.info('response=%r, sw1=%r, sw2=%r' % (response, sw1, sw2))
             card_id = to_id(response)
-            log.info('id=%s' % card_id)
+            log.info('read card %s' % card_id)
             self._put_order(card_id)
 
 
