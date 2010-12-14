@@ -32,9 +32,6 @@ class StateChangeError(CardReaderError):
 class BadUser(CardReaderError):
     pass
 
-class TooFast(CardReaderError):
-    pass
-
 # There are two states: 
 #   1) waiting for reader availability, and 
 #   2) reading cards and putting orders
@@ -70,34 +67,31 @@ class OrderObserver(CardObserver):
     def _handle_added(self, cards):
         for card in cards:
             if card is None:
-                log.debug('ignoring None in _handle_added')
                 continue
 
             conn = card.createConnection()
             conn.connect()
-            log.debug('connected to card')
             response, sw1, sw2 = conn.transmit(APDU_GET_CARD_ID)
             conn.disconnect()
-            log.debug('disconnected from card')
 
-            if (("%.2x" % sw1) == "63"): # FIXME: never triggered
-                raise TooFast('show the card longer')
+            if ("%.2x" % sw1 != "90" or ".2x" % sw2 != "00"):
+                raise CardReaderError()
 
             log.info('response=%r, sw1=%r, sw2=%r' % (response, sw1, sw2))
             card_id = to_id(response)
-            log.info('id=%r %r' % (card_id, type(card_id)))
+            log.info('id=%s' % card_id)
             self._put_order(card_id)
 
 
     def _handle_removed(self, cards):
         for card in cards:
-            log.debug('removed %r' % toHexString(card.atr))
+            pass
 
     def update(self, observable, (addedcards, removedcards)):
         card_tasks = [
             # callable             argument (cards)  description
             (self._handle_added,   addedcards,       "handle added"),
-            (self._handle_removed, removedcards,     "handle removed"),
+            #(self._handle_removed, removedcards,     "handle removed"),
         ]
         for call, arg, desc in card_tasks:
             try:
@@ -106,12 +100,10 @@ class OrderObserver(CardObserver):
                 else:
                     call_msg = "%s" % desc
                 ret = call(arg)
-            except TooFast:
-                tasks.blipper_too_fast.delay()
             except Exception, e:
                 log.error("%s exception: %r" % (desc, e), exc_auto=True)
                 tasks.blipper_error.delay()
-                tasks.play_error.delay()
+                #tasks.play_error.delay()
             else:
                 if ret is None:
                     msg = "%s finished" % desc
@@ -176,15 +168,11 @@ class Command(BaseCommand):
 
     def _setup_card_monitor_and_observer(self):
         self.card_monitor = CardMonitor()
-        log.debug('card monitor created: %r' % self.card_monitor)
         self.card_observer = OrderObserver()
         self.card_observer.initialize()
-        log.debug('card observer created: %r' % self.card_observer)
         self.card_monitor.addObserver(self.card_observer)
-        log.debug('card observer attached to monitor')
 
     def _tear_down_card_monitor_and_observer(self):
-        log.debug('card observer detaching from monitor')
         if self.card_observer is not None and self.card_monitor is not None:
             self.card_monitor.deleteObserver(self.card_observer)
         self.card_monitor = None
@@ -201,7 +189,6 @@ class Command(BaseCommand):
         self._setup_card_monitor_and_observer()
         tasks.blipper_reading_cards.delay()
         while len(scsystem.readers()) != 0:
-            log.debug('reading cards heartbeat')
             sleep(1)
         log.info('reader detached')
         self._tear_down_card_monitor_and_observer()
