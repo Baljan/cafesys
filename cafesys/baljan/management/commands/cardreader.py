@@ -74,7 +74,7 @@ class OrderObserver(CardObserver):
             response, sw1, sw2 = conn.transmit(APDU_GET_CARD_ID)
             conn.disconnect()
 
-            if ("%.2x" % sw1 != "90" or ".2x" % sw2 != "00"):
+            if ("%.2x" % sw1 != "90" or "%.2x" % sw2 != "00"):
                 raise CardReaderError("response to APDU invalid: sw1=0x%.2x, sw2=0x%.2x" % (sw1, sw2))
 
             card_id = to_id(response)
