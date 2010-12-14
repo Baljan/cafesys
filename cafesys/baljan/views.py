@@ -804,6 +804,7 @@ def user_calendar(request, private_key):
 
 
 def high_score(request, year=None, week=None):
+    print request.GET.keys()
     if year is None or week is None:
         year, week = year_and_week()
     else:
@@ -820,17 +821,39 @@ def high_score(request, year=None, week=None):
         (relativedelta(days=30), _("Last 30 Days")),
     ]
     
-    high_scores = []
     high_score_limit = 20
-    for delta, title in interval_starts:
-        high_scores.append({
-            'consumers': stats.top_consumers(
-                end_of_today - delta,
-                end_of_today,
-            )[:high_score_limit],
-            'title': title,
-        })
 
-    tpl['high_scores'] = high_scores
-    return render_to_response('baljan/high_score.html', tpl, 
-            context_instance=RequestContext(request))
+    if request.GET.has_key('format'):
+        format = request.GET['format']
+        high_scores = []
+        for delta, title in interval_starts:
+            high_scores.append({
+                'consumers': stats.top_consumers(
+                    end_of_today - delta,
+                    end_of_today,
+                    simple=True
+                )[:high_score_limit],
+                'title': title,
+            })
+
+        if format == 'json':
+            return HttpResponse(
+                simplejson.dumps({'high_scores': high_scores}), 
+                mimetype='text/plain',
+            )
+        else:
+            return HttpResponse("INVALID FORMAT", mimetype='text/plain')
+    else:
+        high_scores = []
+        for delta, title in interval_starts:
+            high_scores.append({
+                'consumers': stats.top_consumers(
+                    end_of_today - delta,
+                    end_of_today,
+                )[:high_score_limit],
+                'title': title,
+            })
+
+        tpl['high_scores'] = high_scores
+        return render_to_response('baljan/high_score.html', tpl, 
+                context_instance=RequestContext(request))
