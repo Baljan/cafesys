@@ -60,11 +60,11 @@ def is_used(entered_code, lookup_by_user=None, old_card=False):
     try:
         bc_or_oc = get_unused_code(entered_code, old_card)
         if lookup_by_user:
-            log.info('%r found %r unused' % (lookup_by_user, entered_code))
+            log.info('%s found %r unused' % (lookup_by_user, entered_code))
         return not bc_or_oc
     except BadCode:
         if lookup_by_user:
-            log.info('%r found %r used or invalid' % (lookup_by_user, entered_code))
+            log.info('%s found %r used or invalid' % (lookup_by_user, entered_code))
         return True
 
 
@@ -73,7 +73,7 @@ def manual_refill(entered_code, by_user):
         use_code_on(get_unused_code(entered_code), by_user)
         return True
     except Exception, e:
-        log.warning('%r tried bad code %r (caught %r)' % (by_user, entered_code, e))
+        log.warning('manual_refill: %s tried bad code %r (caught %r)' % (by_user, entered_code, e))
         raise BadCode()
 
 
@@ -83,14 +83,16 @@ def manual_import(entered_code, by_user):
         oc.user = by_user
         oc.imported = True
         profile = by_user.get_profile()
-        assert profile.balance_currency == 'SEK'
-        profile.balance += oc.left * settings.KLIPP_WORTH
+        cur = 'SEK'
+        assert profile.balance_currency == cur
+        worth = oc.left * settings.KLIPP_WORTH
+        profile.balance += worth
         profile.save()
         oc.save()
-        log.info('%r imported %r' % (by_user, oc))
+        log.info('%s imported %r worth %s %s' % (by_user, oc, worth, cur))
         return True
     except Exception, e:
-        log.warning('%r tried bad code %r (caught %r)' % (by_user, entered_code, e))
+        log.warning('manual_import: %s tried bad code %r (caught %r)' % (by_user, entered_code, e))
         raise BadCode()
 
 
