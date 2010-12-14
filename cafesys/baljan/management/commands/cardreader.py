@@ -115,7 +115,7 @@ def to_id(card_bytes):
     buf = "".join([chr(x) for x in card_bytes])
     unpacked = _struct.unpack(buf)
     if len(unpacked) != 1:
-        err_msg = 'unpack return more than one value!!!'
+        err_msg = 'unpack returned more than one value!!!'
         log.error(err_msg)
         raise CardReaderError(err_msg)
     # Some returned values are of integer type, we cast to long so that the
