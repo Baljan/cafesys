@@ -181,7 +181,6 @@ class Command(BaseCommand):
         tasks.blipper_waiting.delay()
         while len(scsystem.readers()) == 0:
             sleep(1)
-        log.info('reader attached')
         self._enter_state(STATE_READING_CARDS)
 
     def _enter_reading_cards(self):
@@ -189,7 +188,6 @@ class Command(BaseCommand):
         tasks.blipper_reading_cards.delay()
         while len(scsystem.readers()) != 0:
             sleep(1)
-        log.info('reader detached')
         self._tear_down_card_monitor_and_observer()
         self._enter_state(STATE_WAITING_FOR_READER)
 
