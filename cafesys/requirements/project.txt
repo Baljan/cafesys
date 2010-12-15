@@ -26,3 +26,5 @@ South
 
 pyserial
 icalendar # LGPL
+
+cx_Oracle
