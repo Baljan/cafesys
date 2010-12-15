@@ -14,7 +14,6 @@ from dateutil.relativedelta import relativedelta
 import baljan.util
 from baljan.util import get_logger, week_dates, year_and_week, random_string
 import itertools
-from django.core.cache import cache
 from notification import models as notification
 from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
