@@ -32,6 +32,9 @@ def get_unused_code(entered_code, old_card=False):
         if old_card:
             stringed = str(entered_code)
             code_len = 6
+            actual_len = len(stringed)
+            if actual_len <= code_len:
+                raise BadCode("string version of code (%s) too short (%d)" % (stringed, actual_len))
             card_id = int(stringed[:-code_len], 10)
             code = int(stringed[-code_len:], 10)
             oc = OldCoffeeCard.objects.get(
@@ -50,9 +53,9 @@ def get_unused_code(entered_code, old_card=False):
             )
             return bc
     except OldCoffeeCard.DoesNotExist:
-        raise BadCode()
+        raise BadCode("old code unexisting")
     except BalanceCode.DoesNotExist:
-        raise BadCode()
+        raise BadCode("balance code unexisting")
 
 
 def is_used(entered_code, lookup_by_user=None, old_card=False):
@@ -60,20 +63,22 @@ def is_used(entered_code, lookup_by_user=None, old_card=False):
     try:
         bc_or_oc = get_unused_code(entered_code, old_card)
         if lookup_by_user:
-            log.info('%s found %r unused' % (lookup_by_user, entered_code))
+            log.info('%s found %s unused' % (lookup_by_user, entered_code))
         return not bc_or_oc
     except BadCode:
         if lookup_by_user:
-            log.info('%s found %r used or invalid' % (lookup_by_user, entered_code))
+            log.info('%s found %s used or invalid' % (lookup_by_user, entered_code), exc_auto=True)
         return True
 
 
 def manual_refill(entered_code, by_user):
     try:
-        use_code_on(get_unused_code(entered_code), by_user)
+        bc = get_unused_code(entered_code)
+        use_code_on(bc, by_user)
+        log.info('%s refilled %s using %s' % (by_user, bc.valcur(), bc))
         return True
     except Exception, e:
-        log.warning('manual_refill: %s tried bad code %r (caught %r)' % (by_user, entered_code, e))
+        log.warning('manual_refill: %s tried bad code %s' % (by_user, entered_code), exc_auto=True)
         raise BadCode()
 
 
@@ -89,10 +94,10 @@ def manual_import(entered_code, by_user):
         profile.balance += worth
         profile.save()
         oc.save()
-        log.info('%s imported %r worth %s %s' % (by_user, oc, worth, cur))
+        log.info('%s imported %s worth %s %s' % (by_user, oc, worth, cur))
         return True
     except Exception, e:
-        log.warning('manual_import: %s tried bad code %r (caught %r)' % (by_user, entered_code, e))
+        log.warning('manual_import: %s tried bad code %s' % (by_user, entered_code), exc_auto=True)
         raise BadCode()
 
 
@@ -106,5 +111,5 @@ def use_code_on(bc, user):
     bc.save()
     profile.balance += bc.value
     profile.save()
-    log.info('%r used %r' % (user, bc))
+    log.info('%s used %s' % (user, bc))
     return True
