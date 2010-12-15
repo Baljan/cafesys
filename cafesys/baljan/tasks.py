@@ -86,9 +86,9 @@ def default_order_from_card(card_id):
         lcd.send([u"tack %s" % orderer.username, line2])
         cardlog.info('order was accepted')
     else:
-        cardlog.info('order was not accepted')
         line2 = u"saldo: %s" % orderer.get_profile().balcur()
         lcd.send([u"tyvärr %s" % orderer.username, line2], ok=False)
+        cardlog.info('order was denied')
 
 SOUND_FUNCS_AND_DESCS = [
     (play_success_normal, "normal success"),
