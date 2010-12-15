@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import User, Group
 from datetime import datetime
 from baljan.lcd import LCD, ADUNO, get_lcd
+from baljan.card2user import Card2User
 
 log = get_logger('baljan.tasks', with_sentry=False)
 cardlog = get_logger('baljan.tasks.cardreader', with_sentry=False)
@@ -61,13 +62,13 @@ def blipper_reading_cards():
     lcd.last_send = datetime.now()
     lcd.send([u"Blipparen", u"läser kort"])
 
+_user_finder = Card2User()
 @task(ignore_result=True)
 def default_order_from_card(card_id):
     lcd.last_send = datetime.now()
     from baljan import orders # prevent circular import
-    try:
-        orderer = User.objects.get(profile__card_id=card_id)
-    except:
+    orderer = _user_finder.find(card_id)
+    if orderer is None:
         err_msg = "problem finding user with card id %s" % card_id
         cardlog.warning(err_msg)
         #play_error.delay()
