@@ -1124,6 +1124,6 @@ class OldCoffeeCard(models.Model):
         ordering = ('-card_id',)
 
     def __unicode__(self):
-        return u"%d" % self.card_id
+        return u"%d.%d (old)" % (self.set.set_id, self.card_id)
 
 
