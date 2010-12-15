@@ -361,6 +361,11 @@ LCD_BLANK_SECONDS = 1.5
 PAR_PORT_PROG = os.path.join(PROJECT_ROOT, "..", "parport", "parapin-1.5.1-beta1",
         "examples", "baljanparport")
 
+# How to find the user owning a card. Uses a "first hit" strategy.
+CARD_TO_USER_MODULES = [
+    'baljan.card2user.manualdb',
+]
+
 ANALYTICS_KEY= ''
 
 # local_settings.py can be used to override environment-specific settings
