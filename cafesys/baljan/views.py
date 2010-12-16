@@ -804,7 +804,6 @@ def user_calendar(request, private_key):
 
 
 def high_score(request, year=None, week=None):
-    print request.GET.keys()
     if year is None or week is None:
         year, week = year_and_week()
     else:
@@ -817,8 +816,9 @@ def high_score(request, year=None, week=None):
     end_of_today = today + end_offset
     interval_starts = [
         (relativedelta(days=1), _("Today")),
-        (relativedelta(days=7), _("Last 7 Days")),
-        (relativedelta(days=30), _("Last 30 Days")),
+        (relativedelta(days=7), _("Last %d Days") % 7),
+        (relativedelta(days=30), _("Last %d Days") % 30),
+        (relativedelta(days=90), _("Last %d Days") % 90),
     ]
     
     high_score_limit = 20
