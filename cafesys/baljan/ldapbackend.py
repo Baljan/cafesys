@@ -39,12 +39,13 @@ def search(username, password=None, bind=False):
     return result_data
 
 
-def fetch_user(username, password=None, bind=False, create=True):
+def fetch_user(username, password=None, bind=False, create=True, silent=False):
     """If the user does not exist in our own db, he or she will be added to it.
     If `bind` is false the password argument is ignored and only a search is
     performed inside this function, otherwise both bind and search are 
     performed. If `create` is false, True is returned instead of the actual 
-    user if the search or bind+search finds a user (otherwise None)."""
+    user if the search or bind+search finds a user (otherwise None). If `silent`
+    is true, no logging will be done inside this function."""
     result_data = search(username, password, bind)
     if result_data is None:
         return None
@@ -54,7 +55,10 @@ def fetch_user(username, password=None, bind=False, create=True):
         first_name = " ".join(result_data[0][1]['givenName'])
         last_name = " ".join(result_data[0][1]['sn'])
     except Exception, e:
-        log.error(e)
+        if silent:
+            pass
+        else:
+            log.error(e)
         return None
 
     if create:
@@ -71,10 +75,13 @@ def fetch_user(username, password=None, bind=False, create=True):
             last_name=last_name,
         )
 
-        if created:
-            log.info('created %r' % user)
+        if silent:
+            pass
         else:
-            log.info('fetched %r from directory' % user)
+            if created:
+                log.info('created %r' % user)
+            else:
+                log.info('fetched %r from directory' % user)
         return user
     return True
 
