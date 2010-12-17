@@ -365,6 +365,7 @@ PAR_PORT_PROG = os.path.join(PROJECT_ROOT, "..", "parport", "parapin-1.5.1-beta1
 CARD_TO_USER_MODULES = [
     'baljan.card2user.manualdb',
 ]
+CARD_TO_USER_USE_CACHE = True
 
 ANALYTICS_KEY= ''
 
