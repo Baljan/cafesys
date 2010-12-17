@@ -703,6 +703,12 @@ def call_duty_week(request, year=None, week=None):
 def admin_semester(request, name=None):
     if name is None:
         sem = baljan.models.Semester.objects.current()
+        if sem is None:
+            try:
+                upcoming_sems = baljan.models.Semester.objects.upcoming()
+                sem = upcoming_sems[0]
+            except:
+                pass
     else:
         sem = baljan.models.Semester.objects.by_name(name)
 
