@@ -29,6 +29,13 @@ class Cacher(object):
         return cached
 
 
+class CacherNoOp(object):
+    def store(self, card_id, user):
+        return self
+
+    def get(self, card_id):
+        return None
+
 
 class Card2User(object):
     _shared_state = {}
@@ -40,7 +47,14 @@ class Card2User(object):
             pass
         else: # find and load modules to use in settings
             self.finders = []
-            self.cacher = Cacher()
+
+            if settings.CARD_TO_USER_USE_CACHE:
+                log.info('using cache')
+                self.cacher = Cacher()
+            else:
+                log.info('not using cache')
+                self.cacher = CacherNoOp()
+
             for modstr in settings.CARD_TO_USER_MODULES:
                 mod = import_module(modstr)
                 finder = mod.Finder()
