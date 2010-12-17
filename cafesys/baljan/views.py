@@ -61,7 +61,11 @@ def semesters(request):
 
 @login_required
 def current_semester(request):
-    return _semester(request, baljan.models.Semester.objects.current())
+    sem = baljan.models.Semester.objects.current()
+    if sem is None:
+        upcoming_sems = baljan.models.Semester.objects.upcoming()
+        sem = upcoming_sems[0]
+    return _semester(request, sem)
 
 
 @login_required
