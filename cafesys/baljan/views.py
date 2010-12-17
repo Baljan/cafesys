@@ -63,8 +63,11 @@ def semesters(request):
 def current_semester(request):
     sem = baljan.models.Semester.objects.current()
     if sem is None:
-        upcoming_sems = baljan.models.Semester.objects.upcoming()
-        sem = upcoming_sems[0]
+        try:
+            upcoming_sems = baljan.models.Semester.objects.upcoming()
+            sem = upcoming_sems[0]
+        except:
+            pass
     return _semester(request, sem)
 
 
