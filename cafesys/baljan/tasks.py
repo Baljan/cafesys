@@ -5,13 +5,16 @@ from baljan.util import get_logger
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from datetime import datetime
-from baljan.lcd import LCD, ADUNO, get_lcd
 from baljan.card2user import Card2User
 
 log = get_logger('baljan.tasks', with_sentry=False)
 cardlog = get_logger('baljan.tasks.cardreader', with_sentry=False)
 
-lcd = get_lcd()
+try:
+    from baljan.lcd import LCD, ADUNO, get_lcd
+    lcd = get_lcd()
+except:
+    log.warning('running without LCD support')
 
 @task(ignore_result=True)
 def play_success_normal():
