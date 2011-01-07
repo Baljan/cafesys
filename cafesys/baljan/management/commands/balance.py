@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from baljan.util import get_logger
@@ -6,42 +7,140 @@ from django.utils.translation import ugettext as _
 from baljan.models import OldCoffeeCard, Good, BalanceCode
 from django.contrib.auth.models import User, Permission, Group
 from django.db.models import Count
+from datetime import date
+
+_today = date.today()
+_klipp_worth = settings.KLIPP_WORTH
+
+def dump_info(user):
+    coffee = Good.objects.get(
+        title=settings.DEFAULT_ORDER_NAME, 
+        description=settings.DEFAULT_ORDER_DESC, 
+    )
+    cworth, ccur = coffee.current_costcur()
+
+    headline = "%s (%s)" % (user.username, user.get_full_name())
+    print "%s\n%s" % (headline, '=' * len(headline))
+    print "old cards:"
+    old_cards = OldCoffeeCard.objects.filter(user=user).order_by('-id')
+    for old_card in old_cards:
+        now_worth = cworth * old_card.left
+        if old_card.imported:
+            imp = 'imported'
+        else:
+            imp = 'unimported'
+        print "  %-7d worth %3d %s (%s)" % (old_card.card_id, now_worth, ccur, imp)
+    if not len(old_cards):
+        print "  %-7s" % "none"
+
+    print "used new codes:"
+    new_codes = BalanceCode.objects.filter(used_by=user).order_by('-id')
+    for code in new_codes:
+        print "  %-7s worth %s" % (code.serid(), code.valcur())
+    if not len(new_codes):
+        print "  %-7s" % "none"
+
+    print "orders:\n  %-7s" % user.order_set.count()
+    print "total balance:\n  %-7s" % user.get_profile().balcur()
+    print
+
+
+def import_old_cards(user):
+    profile = user.get_profile()
+    assert profile.balance_currency == u'SEK'
+    unimported = OldCoffeeCard.objects.filter(
+        user=user,
+        imported=False,
+        expires__gt=_today,
+    )
+
+    previous_balance = profile.balance
+
+    total_left = sum(unimp.left for unimp in unimported)
+    to_add = _klipp_worth * total_left
+    new_balance = previous_balance + to_add
+    if to_add == 0:
+        print 'nothing to add for %s' % user
+    else:
+        profile.balance = new_balance
+        profile.save()
+        for unimp in unimported:
+            unimp.imported = True
+            unimp.save()
+
+        print "add %.3d SEK (%.3d->%.3d) to %s (%d klipp)" % (
+            to_add, 
+            previous_balance, 
+            new_balance, 
+            user,
+            total_left,
+        )
+
+task_funs = {
+    'import_old': import_old_cards,
+    'info': dump_info,
+}
 
 class Command(BaseCommand):
-    args = 'username'
-    help = 'Get balance for a user.'
+    args = 'TASK'
+    help = 'List, show, or update balance for accounts.'
+
+    option_list = BaseCommand.option_list + (
+        make_option('-f', '--from',
+            type='string',
+            action='append',
+            metavar='GROUP',
+            dest='from_groups',
+            default=[],
+            help='From groups. Used with -d/--do.',
+        ),
+        make_option('-a', '--all',
+            action='store_true',
+            dest='all_users',
+            default=False,
+            help='Apply for all users.',
+        ),
+        make_option('-u', '--user',
+            type='string',
+            action='append',
+            metavar='USER',
+            dest='users',
+            default=[],
+            help='Apply for user.',
+        ),
+    )
 
     def handle(self, *args, **options):
-        if not len(args) == 1:
-            raise CommandError('no username given')
+        task_str = "valid tasks are: %s" % ", ".join(task_funs.keys())
 
-        coffee = Good.objects.get(
-            title=settings.DEFAULT_ORDER_NAME, 
-            description=settings.DEFAULT_ORDER_DESC, 
-        )
-        cworth, ccur = coffee.current_costcur()
+        if len(args) != 1:
+            raise CommandError('need one TASK, got %r. %s' % (
+                args,
+                task_str,
+            ))
 
-        username = args[0]
-        user = User.objects.get(username=username)
+        if args[0] not in task_funs:
+            raise CommandError('invalid task %s. %s' % (
+                args[0],
+                task_str,
+            ))
 
-        print "old cards:"
-        old_cards = OldCoffeeCard.objects.filter(user=user).order_by('-id')
-        for old_card in old_cards:
-            now_worth = cworth * old_card.left
-            if old_card.imported:
-                imp = 'imported'
-            else:
-                imp = 'unimported'
-            print "  %-7d worth %3d %s (%s)" % (old_card.card_id, now_worth, ccur, imp)
-        if not len(old_cards):
-            print "  %-7s" % "none"
+        if options['all_users']:
+            users = User.objects.all()
+        else:
+            if len(options['users']) == 0:
+                raise CommandError('need at least one username')
+            users = User.objects.filter(username__in=options['users'])
 
-        print "used new codes:"
-        new_codes = BalanceCode.objects.filter(used_by=user).order_by('-id')
-        for code in new_codes:
-            print "  %-7s worth %s" % (code.serid(), code.valcur())
-        if not len(new_codes):
-            print "  %-7s" % "none"
+        users = users.distinct().order_by('last_name', 'first_name')
 
-        print "orders:\n  %-7s" % user.order_set.count()
-        print "total balance:\n  %-7s" % user.get_profile().balcur()
+        user_count = len(users)
+        if user_count <= 10:
+            print "%s user(s): %s" % (user_count, ", ".join(str(u) for u in users))
+        else:
+            print "%s user(s)" % user_count
+        
+        task_name = args[0]
+        task_fun = task_funs[task_name]
+        for user in users:
+            task_fun(user)
