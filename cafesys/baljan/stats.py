@@ -8,6 +8,11 @@ from datetime import datetime, date, timedelta
 from django.utils.translation import ugettext_lazy as _ 
 from baljan.util import year_and_week, week_dates, adjacent_weeks
 
+LONG_PERIODIC = timedelta(days=1)
+LONG_CACHE = 60 * 60 * 24 * 2 # 2 days. Should at least be longer than LONG_PERIODIC.
+SHORT_PERIODIC = timedelta(minutes=15)
+SHORT_CACHE = 60 * 15 * 2 # 2x15 minutes. Should at least be longer than SHORT_PERIODIC.
+
 def top_consumers(start=None, end=None, simple=False):
     """`start` and `end` are dates. Returns top consumers in the interval with
     order counts annotated (num_orders). If `simple` is true the returned list 
@@ -155,7 +160,6 @@ class Meta(object):
         for name in self.classes_ordered:
             if user in self.classes[name]:
                 return name
-
 
 class Stats(object):
 
