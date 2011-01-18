@@ -122,6 +122,7 @@ TEMPLATE_LOADERS = [
 MIDDLEWARE_CLASSES = [
     #'johnny.middleware.LocalStoreClearMiddleware',
     #'johnny.middleware.QueryCacheMiddleware',
+    "django.middleware.gzip.GZipMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -366,6 +367,8 @@ CARD_TO_USER_MODULES = [
     'baljan.card2user.manualdb',
 ]
 CARD_TO_USER_USE_CACHE = True
+
+CARDREADER_PREFETCH = True
 
 ANALYTICS_KEY= ''
 
