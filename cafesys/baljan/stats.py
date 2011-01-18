@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
-from baljan.models import Order
+from baljan.models import Order, Semester
+from django.conf import settings
 from django.db.models import Avg, Count, Max, Min
+from django.db.models.query import QuerySet
 from django.contrib.auth.models import User, Permission, Group
 from datetime import datetime
 from django.core.cache import cache
+from datetime import datetime, date, timedelta
+from django.utils.translation import ugettext_lazy as _ 
+from baljan.util import year_and_week, week_dates, adjacent_weeks
 
 def top_consumers(start=None, end=None, simple=False):
     """`start` and `end` are dates. Returns top consumers in the interval with
@@ -39,3 +44,169 @@ def top_consumers(start=None, end=None, simple=False):
             })
         return simple_top
     return top
+
+
+class Meta(object):
+
+    def __init__(self):
+        self.classes = {}
+        self.classes_ordered = []
+        self.classes_i18n = {}
+        self.class_members = {}
+        for name, name_i18n in [
+            ('board member', _('board member')),
+            ('old board member', _('old board member')),
+            ('worker', _('worker')),
+            ('old worker', _('old worker')),
+            ('normal user', _('normal user')),
+            ]:
+            self.classes[name] = {}
+            self.classes_i18n[name] = name_i18n
+            self.class_members[name] = []
+            self.classes_ordered.append(name)
+
+        self.intervals = []
+        self.interval_keys = {}
+
+    def compute_users(self):
+        board_users = User.objects.filter(groups__name=settings.BOARD_GROUP).distinct()
+        for user in board_users:
+            self.classes['board member'][user] = True
+
+        oldie_users = User.objects.filter(groups__name=settings.OLDIE_GROUP).distinct()
+        for user in oldie_users:
+            self.classes['old board member'][user] = True
+
+        worker_users = User.objects.filter(groups__name=settings.WORKER_GROUP).distinct()
+        for user in worker_users:
+            self.classes['worker'][user] = True
+
+        old_worker_users = User.objects.annotate(
+            num_shiftsignups=Count('shiftsignup'),
+        ).exclude(
+            num_shiftsignups=0,
+        ).distinct()
+        for user in old_worker_users:
+            self.classes['old worker'][user] = True
+
+        self.all_users = set(User.objects.all().distinct())
+        for user in self.all_users:
+            self.classes['normal user'][user] = True
+
+        for user in self.all_users:
+            self.class_members[self.user_class(user)].append(user)
+
+    def compute_intervals(self):
+        today = date.today()
+        yesterday = today - timedelta(1)
+
+        std_staff_classes = [
+            'board member',
+            'old board member',
+            'worker',
+        ]
+
+        self.intervals.append({
+            'key': 'today',
+            'name': _('Today'),
+            'staff classes': std_staff_classes,
+            'dates': [today, today],
+        })
+
+        self.intervals.append({
+            'key': 'yesterday',
+            'name': _('Yesterday'),
+            'staff classes': std_staff_classes,
+            'dates': [yesterday, yesterday],
+        })
+
+        current_week_dates = week_dates(*year_and_week())
+        self.intervals.append({
+            'key': 'this_week',
+            'name': _('This Week'),
+            'staff classes': std_staff_classes,
+            'dates': current_week_dates,
+        })
+
+        last_week_dates = week_dates(*adjacent_weeks()[0])
+        self.intervals.append({
+            'key': 'last_week',
+            'name': _('Last Week'),
+            'staff classes': std_staff_classes,
+            'dates': last_week_dates,
+        })
+
+        sem = Semester.objects.current()
+        if sem:
+            self.intervals.append({
+                'key': 'this_semester',
+                'name': sem.name,
+                'staff classes': std_staff_classes,
+                'dates': list(sem.date_range()),
+            })
+
+        self.intervals.append({
+            'key': 'forever',
+            'name': _('Forever'),
+            'staff classes': std_staff_classes + ['old worker'],
+            'dates': None,
+        })
+
+        for interval in self.intervals:
+            self.interval_keys[interval['key']] = interval
+
+
+    def compute(self):
+        self.compute_users()
+        self.compute_intervals()
+
+    def user_class(self, user):
+        for name in self.classes_ordered:
+            if user in self.classes[name]:
+                return name
+
+
+class Stats(object):
+
+    def __init__(self):
+        self.meta = Meta()
+        self.meta.compute()
+
+    def get_interval(self, interval_key):
+        interval = self.meta.interval_keys[interval_key]
+        staff_users = set()
+        for cls_name in interval['staff classes']:
+            staff_users |= set(self.meta.class_members[cls_name])
+        normal_users = self.meta.all_users - staff_users
+
+        limit = 15
+        groups = []
+        for title, users in [
+            (_('Normal Users'), normal_users),
+            (_('Staff'), staff_users),
+            ]:
+            top = User.objects.filter(
+                id__in=[u.id for u in users],
+                profile__show_profile=True,
+            )
+            if interval['dates']:
+                dates = list(interval['dates'])
+                top = top.filter(
+                    order__put_at__gte=dates[0],
+                    order__put_at__lte=dates[-1],
+                )
+            top = top.annotate(
+                num_orders=Count('order'),
+            ).order_by('-num_orders')[:limit]
+            top = list(top)
+
+            groups.append({
+                'title': title,
+                'top_users': top,
+            })
+
+        return {
+            'name': interval['name'],
+            'groups': groups,
+            'empty': sum([len(g['top_users']) for g in groups]) == 0,
+        }
