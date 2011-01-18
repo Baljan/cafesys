@@ -293,6 +293,7 @@ DEFAULT_ORDER_DESC = 'pappersmugg'
 
 BOARD_GROUP = 'styrelsen'
 WORKER_GROUP = 'jobbare'
+OLDIE_GROUP = '_gamlingar'
 PSEUDO_GROUP_FORMAT = "_%s"
 
 PRICE_LIST_ROW_HEIGHT = 40 # px
