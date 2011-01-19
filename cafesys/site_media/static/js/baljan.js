@@ -60,7 +60,7 @@ $(document).ready(function () {
         }
         if (needCallDuty) {
             filters.push(function(row) {
-                return $(row).find('.on-call').hasClass('accepts');
+                return $(row).find('.on-call').hasClass('empty');
             });
         }
         if (onlySwitchable) {
@@ -203,6 +203,7 @@ $(document).ready(function () {
     /* Job Opening View */
     if ($("body").hasClass('job-opening')) {
         var slots = $('.slots td.pair.free'),
+            takenSlots = $('.slots td.pair.taken'),
             curSearch = false,
             idInput = $('#id_liu_id'),
             msg = $('.user-adder .message span'),
@@ -239,9 +240,10 @@ $(document).ready(function () {
                 var serialShiftIds = currentCombShiftIds.join('|'),
                     serialUsernames = [],
                     serialPhones = [];
+
                 for (i in addedUsers) {
                     serialUsernames.push(i);
-                    serialPhones.push(addedUsers[i].phone);
+                    serialPhones.push($('.phone-' + i).attr('value'));
                 }
                 serialUsernames = serialUsernames.join('|');
                 serialPhones = serialPhones.join('|');
@@ -262,19 +264,22 @@ $(document).ready(function () {
         refreshSave();
 
         var setActiveComb = function(cell) {
+            slots.removeClass('active');
             currentCombLabel = $.trim($(cell).text());
             var pair = PAIRS[currentCombLabel];
-            var shifts = pair.shifts,
-                ids = pair.ids;
-            currentCombShiftIds = ids;
+            var shifts = pair.shifts;
+            if ($(cell).hasClass('free')) {
+                currentCombShiftIds = pair.ids;
+                $(cell).toggleClass('active');
+            }
+            else {
+                currentCombShiftIds = [];
+            }
             currentComb.html('');
             for (i in shifts) {
                 currentComb.append('<li/>');
                 currentComb.find('li:last').text(shifts[i]);
             }
-
-            slots.removeClass('active');
-            $(cell).toggleClass('active');
             refreshSave();
         }
 
@@ -283,6 +288,10 @@ $(document).ready(function () {
         });
         slots.unselectable();
         slots.click(function() {
+            setActiveComb(this);
+        });
+        takenSlots.unselectable();
+        takenSlots.click(function() {
             setActiveComb(this);
         });
 
@@ -314,12 +323,14 @@ $(document).ready(function () {
                 last.append(' <span class="remove link">&#x2715;</span>');
                 last.append('<br/>'+PHONE_TEXT+' <input type="text" maxlength="10" style="width:50%"/>');
                 var phone = last.find('input');
+                $(phone).addClass('phone-' + i);
                 $(phone).attr('value', user.phone);
+                $(phone).data('username', i);
                 $(phone).keyfilter(/[\d]/);
                 $(phone).change(function() {
-                    var uName = $(this).parent().data('username'),
-                        phone = $.trim($(this).attr('value'));
-                    addedUsers[uName].phone = phone;
+                    var uName =$(this).data('username');
+                    addedUsers[uName].phone = $(this).attr('value');
+                    refreshSave();
                 });
             }
 
@@ -585,6 +596,41 @@ $(document).ready(function () {
         $('.choose-semester select').change(function() {
             var name = $(this).children(':selected').html();
             location.href = '' + BASE_URL + '/' + name;
+        });
+    }
+
+    /* Job Opening Projector View */
+    if ($('body').hasClass('job-opening-projector')) {
+        var curRequest = false,
+            updateFreq = 5, // seconds
+            lastUpdate = $('.last-updated span');
+
+        $(document).everyTime(updateFreq * 1000, function(i) {
+            if (curRequest) curRequest.abort();
+            curRequest = $.ajax({
+                url: document.location.pathname,
+                dataType: 'json',
+                success: function(data) {
+                    $(data.pairs).each(function() {
+                        var slot = $('#pair-' + this.label);
+                        if (this.free) {
+                            $(slot).removeClass('taken');
+                            $(slot).fadeTo('slow', 1.0, function() {
+                                $(slot).addClass('free');
+                            });
+                        }
+                        else {
+                            if ($(slot).hasClass('free')) {
+                                $(slot).fadeTo('slow', 0.0, function() {
+                                    $(slot).removeClass('free');
+                                    $(slot).addClass('taken');
+                                });
+                            }
+                        }
+                        $(lastUpdate).html(data.now);
+                    });
+                }
+            });
         });
     }
 });

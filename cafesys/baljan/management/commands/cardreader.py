@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
+from baljan import tasks
+
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
-from baljan import tasks
 from baljan import orders
 from baljan.util import get_logger
 from django.contrib.auth.models import User, Group
@@ -17,6 +20,7 @@ from smartcard.ReaderMonitoring import ReaderMonitor, ReaderObserver
 from smartcard import System as scsystem
 from smartcard.util import *
 from smartcard.ATR import ATR
+from smartcard import scard
 
 APDU_GET_CARD_ID = [0xFF, 0xCA, 0x00, 0x00, 0x00]
 SELECT = [0xA0, 0xA4, 0x00, 0x00, 0x02, 0x90, 0x00]
@@ -32,9 +36,6 @@ class StateChangeError(CardReaderError):
 class BadUser(CardReaderError):
     pass
 
-# There are two states: 
-#   1) waiting for reader availability, and 
-#   2) reading cards and putting orders
 STATE_INITIAL = 0
 STATE_WAITING_FOR_READER = 1
 STATE_READING_CARDS = 2
@@ -100,9 +101,8 @@ class OrderObserver(CardObserver):
                     call_msg = "%s" % desc
                 ret = call(arg)
             except Exception, e:
-                log.error("%s exception: %r" % (desc, e), exc_auto=True)
+                log.error("exception in '%s': %r" % (desc, e), exc_auto=True)
                 tasks.blipper_error.delay()
-                #tasks.play_error.delay()
             else:
                 if ret is None:
                     msg = "%s finished" % desc
@@ -186,8 +186,10 @@ class Command(BaseCommand):
     def _enter_reading_cards(self):
         self._setup_card_monitor_and_observer()
         tasks.blipper_reading_cards.delay()
+
         while len(scsystem.readers()) != 0:
             sleep(1)
+
         self._tear_down_card_monitor_and_observer()
         self._enter_state(STATE_WAITING_FOR_READER)
 
@@ -217,6 +219,13 @@ class Command(BaseCommand):
         valid = True 
         if not valid:
             raise CommandError('invalid config')
+
+        if settings.CARDREADER_PREFETCH:
+            log.info('prefetch enabled')
+            tasks.blipper_prefetch_users.delay()
+        else:
+            log.info('prefetch disabled')
+
 
         self.card_monitor = None
         self.card_observer = None

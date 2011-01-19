@@ -10,14 +10,26 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 from django.db import transaction
 
-from baljan.util import get_logger
+from baljan.util import get_logger, asciilize, random_string
 
 log = get_logger('baljan.commands.group')
+
+
+def google_apps_identifier(user):
+    """For Google Apps bulk uploads."""
+    email = "%s@baljan.org" % (asciilize(user.get_full_name().lower()).replace(' ', '.'))
+    return ','.join([email, user.first_name, user.last_name, random_string(8)])
+
         
 id_funs = {
     'username': (lambda u: "%s" % u.username, ('username',)),
     'email': (lambda u: "%s" % u.email, ('email',)),
     'name': (lambda u: "%s" % u.get_full_name(), ('first_name', 'last_name')),
+    'googleapps': (google_apps_identifier, ('first_name', 'last_name')),
+}
+
+id_header = {
+    'googleapps': 'email address,first name,last name,password'
 }
 
 def get_groups(names):
@@ -42,6 +54,8 @@ def task_list(from_groups, to_groups, opts):
     if len(to_groups):
         raise CommandError("-t/--to can not be used when listing users")
     users = get_members(from_groups).order_by(*sort_order)
+    if opts['identifier'] in id_header:
+        print id_header[opts['identifier']]
     print "\n".join(id(m) for m in users)
 
 @transaction.commit_manually

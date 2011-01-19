@@ -192,10 +192,16 @@ div.commands a { color:black; text-decoration:none; }
 /** variables **/
 #requestinfo { padding: 10px; overflow: hidden; }
 #requestinfo > table { border: 0; width: 100%; }
-#requestinfo th.key, td.values { padding: 0 0 20px; position: relative; }
+#requestinfo th.key, #requestinfo td.values { padding: 0 0 20px; position: relative; }
 #requestinfo th.key { vertical-align: top; font-size: 1.1em; text-align: left; padding-right: 30px; }
-#requestinfo td.values td {  }
+#requestinfo td.values td { }
 #requestinfo td.values th { text-align: left; }
+
+#versioninfo th { text-align: left; font-family: monospace; padding-right: 20px; }
+#versioninfo tr:nth-child(odd) {
+    background: #eee;
+}
+
 #reporter_body #traceback li { list-style-type: inherit; }
 #reporter_body #traceback { padding: 8px; margin-top: 10px; }
 #reporter_body td, #reporter_body th { border-bottom: 0; font:small sans-serif; line-height: auto; }
@@ -210,6 +216,12 @@ pre.exception_value { font-family: sans-serif; color: #666; font-size: 1.5em; ma
 .server-list li, .url-list li { padding-bottom: 10px; }
 .url-list li a { line-height: 18px; }
 .filter-list { margin-left: 0; text-transform: lowercase; }
+.filter-select {
+    padding: 10px;
+}
+.filter-select select {
+    width: 100%;
+}
 .filter-list li a {
     display: block; padding: 10px; text-decoration: none;
     border-bottom: 1px solid rgba(0,0,0, .05);
@@ -291,6 +303,9 @@ dl.flat dd {
 /* message list */
 .messages { list-style: none; margin-left: 0; }
 .messages li { list-style: none; }
+.messages .no-messages {
+    font-weight: bold;
+}
 .messages .count {
     width: 28px;
     vertical-align: top;
@@ -504,6 +519,11 @@ dl.flat dd {
     -moz-box-shadow: inset 0 1px 5px rgba(0,0,0, .30), 0 1px 0 #fff;
     -webkit-box-shadow: inset 0 1px 5px rgba(0,0,0, .30), 0 1px 0 #fff;
     position: relative;
+    margin-bottom: 18px;
+}
+
+#search p {
+    margin-bottom: 0;
 }
 
 #search .textfield input {
@@ -541,6 +561,8 @@ dl.flat dd {
 .login-area p {
     margin-bottom: 10px;
 }
+.login-form table { width: 295px; }
+.login-form td { padding: 2px 0; }
 form table {
     border: 0;
     margin: 1em 0;

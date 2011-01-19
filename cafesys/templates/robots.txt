@@ -3,4 +3,7 @@ Disallow: /baljan/user/
 Disallow: /baljan/search-person
 Disallow: /baljan/semester/
 Disallow: /baljan/day/
+Disallow: /baljan/friend-request/
+Disallow: /baljan/trade/
+Disallow: /baljan/tradable/
 Disallow: /account/

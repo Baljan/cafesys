@@ -330,3 +330,17 @@ def get_or_create_user(
 def random_string(length):
     pool = string.letters + string.digits
     return ''.join(random.choice(pool) for dummy in range(length))
+
+
+def asciilize(s):
+    new = s
+    for f, t in [
+            (u'Å', u'A'),
+            (u'Ä', u'A'),
+            (u'Ö', u'O'),
+            (u'å', u'a'),
+            (u'ä', u'a'),
+            (u'ö', u'o'),
+            ]:
+        new = new.replace(f, t)
+    return new

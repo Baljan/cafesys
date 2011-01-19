@@ -13,12 +13,8 @@ html, body {
     height: 100%;
 }
 body {
-    background-color: #FFF;
-    /* http://www.flickr.com/photos/31288116@N02/3731106877/ */
-    background-image: url(../img/flickr/3731106877_28a642a1a6_o.jpg);
-    background-position: center center;
-    background-position: left top;
-    background-attachment: fixed;
+    background-color: #efefef;
+    background-image: url(../img/tile-dark.png);
     margin: 0;
     color: #333;
     font-family: "Helvetica Neue", Arial, sans-serif;
@@ -410,13 +406,14 @@ body.semester .hide {
 body.semester .show {
     visibility: visible;
 }
-body.semester .accepts {
+body.semester .accepts, body.semester .empty {
     background: #fee;
 }
-body.semester .even .accepts {
+body.semester .even .accepts, body.semester .even .empty {
     background: #fdd;
 }
 body.semester table.plain .accepts,
+body.semester table.plain .empty,
 body.semester table.plain .hide,
 body.semester table.plain .day-name,
 body.semester table.plain .week,
@@ -689,6 +686,9 @@ body.admin-semester .month .shift {
 body.admin-semester .month .span-1 {
     width: 20%;
 }
+body.admin-semester .month .shift .taken {
+    color: #ccc;
+}
 body.admin-semester td.disabled {
     border-bottom: 1px solid #222;
 }
@@ -729,6 +729,69 @@ body.admin-semester .selection input {
     margin-bottom: 0px;
 }
 
+/* Job Opening Projector View */
+body.job-opening-projector {
+    font-size: 2.2em;
+    margin: 0;
+    padding: 0;
+    font-family: 'Yanone Kaffeesatz', Arial, sans-serif;
+    font-weight: bold;
+    color: #FF0084;
+    text-shadow: 1px -1px 0px #903;
+}
+body.job-opening-projector .slots td.taken {
+    visibility: hidden;
+}
+body.job-opening-projector div.container {
+    width: 95%;
+    margin: 0 auto;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.5);
+    padding-bottom: .5em;
+    -webkit-border-bottom-right-radius: 15px;
+    -webkit-border-bottom-left-radius: 15px;
+    -moz-border-radius-bottomright: 15px;
+    -moz-border-radius-bottomleft: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+body.job-opening-projector div.container .last-updated {
+    text-align: center;
+}
+body.job-opening-projector table {
+    width: 100%;
+    padding: 0;
+}
+body.job-opening-projector table td {
+    text-align: center;
+    padding: .8em 0;
+}
+
+body.orders .date-change {
+    font-weight: bold;
+}
+
+/* High Score View */
+body.high-score .score {
+    padding-bottom: 2em;
+}
+body.high-score table .pos {
+    width: 10%;
+    text-align: right;
+    font-style: italic;
+}
+body.high-score table .blips {
+    width: 20%;
+    text-align: right;
+}
+body.high-score table .name {
+    width: 70%;
+}
+body.high-score table .name .motto {
+    color: #666;
+    font-size: .9em;
+}
+
 .ui-selected div, .ui-selecting div {
     background: rgba(255, 0, 132, 0.5);
 }
@@ -745,4 +808,12 @@ body.admin-semester .selection input {
     padding: 10px;
 }
 
+p.background-image {
+    margin: 1em;
+    font-size: .8em;
+    text-align: right;
+}
 
+.marker {
+    background: #ffa;
+}

@@ -6,7 +6,6 @@ from datetime import date, datetime
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from baljan.util import get_logger
-from baljan import tasks
 from baljan.pseudogroups import was_worker, was_board
 from dateutil.relativedelta import relativedelta
 
@@ -236,12 +235,6 @@ class DefaultPreOrder(PreOrder):
 
 
 class Clerk(object):
-    success_sound = tasks.play_success_normal
-    rebate_sound = tasks.play_success_rebate
-    free_sound = tasks.play_success_rebate
-    error_sound = tasks.play_error
-    no_funds_sound = tasks.play_no_funds
-    leader_sound = tasks.play_leader
 
     def process(self, preorder):
         user = preorder.user
@@ -252,22 +245,13 @@ class Clerk(object):
         cost, cur = preorder.costcur()
 
         if cur != balance_currency:
-            #self.error_sound.delay()
             denied = Denied(preorder, _("Mixed currencies."))
             return denied
         elif balance < cost:
-            #self.no_funds_sound.delay()
             return Denied(preorder, _("Insufficient funds."))
         else:
             accepted =  Accepted(preorder)
             accepted.create_order_and_update_balance()
-
-            #if preorder.free:
-            #    self.free_sound.delay()
-            #elif preorder.rebate != 0:
-            #    self.rebate_sound.delay()
-            #else:
-            #    self.success_sound.delay()
 
             return accepted
 

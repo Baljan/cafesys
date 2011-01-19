@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from celery.task.schedules import crontab
 from baljan.models import Order, Semester
 from django.conf import settings
 from django.db.models import Avg, Count, Max, Min
@@ -9,11 +10,19 @@ from django.core.cache import cache
 from datetime import datetime, date, timedelta
 from django.utils.translation import ugettext_lazy as _ 
 from baljan.util import year_and_week, week_dates, adjacent_weeks
+from baljan.util import get_logger
 
-LONG_PERIODIC = timedelta(days=1)
-LONG_CACHE = 60 * 60 * 24 * 2 # 2 days. Should at least be longer than LONG_PERIODIC.
-SHORT_PERIODIC = timedelta(minutes=15)
-SHORT_CACHE = 60 * 15 * 2 # 2x15 minutes. Should at least be longer than SHORT_PERIODIC.
+log = get_logger('baljan.stats', with_sentry=False)
+
+LONG_PERIODIC = crontab(minute=30)
+LONG_CACHE_TIME = 60 * 60 * 24 * 2 # 2 days. Should at least be longer than LONG_PERIODIC.
+SHORT_PERIODIC = crontab(minute='*/10')
+SHORT_CACHE_TIME = 60 * 15 * 2 # 2x15 minutes. Should at least be longer than SHORT_PERIODIC.
+
+CACHE_KEY_BASE = 'baljan.stats.periodic.%s'
+LONG_CACHE_KEY = CACHE_KEY_BASE % 'long'
+SHORT_CACHE_KEY = CACHE_KEY_BASE % 'short'
+CACHE_KEYS = [SHORT_CACHE_KEY, LONG_CACHE_KEY]
 
 def top_consumers(start=None, end=None, simple=False):
     """`start` and `end` are dates. Returns top consumers in the interval with
@@ -103,7 +112,7 @@ class Meta(object):
 
     def compute_intervals(self):
         today = date.today()
-        yesterday = today - timedelta(1)
+        yesterday = today - timedelta(days=1)
 
         std_staff_classes = [
             'board member',
@@ -141,18 +150,30 @@ class Meta(object):
             'dates': last_week_dates,
         })
 
-        sem = Semester.objects.current()
-        if sem:
+        sem_now = Semester.objects.current()
+        if sem_now:
             self.intervals.append({
                 'key': 'this_semester',
-                'name': sem.name,
+                'name': sem_now.name,
                 'staff classes': std_staff_classes,
-                'dates': list(sem.date_range()),
+                'dates': list(sem_now.date_range()),
             })
+        
+        try:
+            sem_last = Semester.objects.old()[0]
+            if sem_last:
+                self.intervals.append({
+                    'key': 'last_semester',
+                    'name': sem_last.name,
+                    'staff classes': std_staff_classes + ['old worker'],
+                    'dates': list(sem_last.date_range()),
+                })
+        except Exception, e:
+            log.warning('could not fetch last semester: %s' % e)
 
         self.intervals.append({
-            'key': 'forever',
-            'name': _('Forever'),
+            'key': 'total',
+            'name': _('Total'),
             'staff classes': std_staff_classes + ['old worker'],
             'dates': None,
         })
@@ -197,7 +218,7 @@ class Stats(object):
                 dates = list(interval['dates'])
                 top = top.filter(
                     order__put_at__gte=dates[0],
-                    order__put_at__lte=dates[-1],
+                    order__put_at__lte=dates[-1] + timedelta(days=1),
                 )
             top = top.annotate(
                 num_orders=Count('order'),

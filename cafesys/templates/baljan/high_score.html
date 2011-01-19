@@ -4,51 +4,77 @@
 {% load uni_form_tags %}
 {% load baljan_extras %}
 
+{% url baljan.views.profile as profile_url %}
+
 {% block head_title %}{% trans "High Score" %}{% endblock %}
 
 {% block body_class %}high-score{% endblock %}
 {% block body %}
 <h1>{% trans "High Score" %}</h1>
-<div class="grid_7 alpha main">
-    {% for high_score in high_scores %}
-    {% if high_score.consumers|length %}
-        <div class="score">
-            <h2>{{high_score.title}}</h2>
-            <ol>
-            {% for consumer in high_score.consumers %}
-            {% if user == consumer %}
-                <li><strong>{{consumer|user_link}} ({{consumer.num_orders}})</strong></li>
-            {% else %}
-                <li>{{consumer|user_link}} ({{consumer.num_orders}})</li>
-            {% endif %}
-            {% endfor %}
-            </ol>
-        </div>
-    {% endif %}
-    {% endfor %}
-</div><!--.main-->
-<div class="grid_3 omega secondary">
-    <div class="info">
-        <h2>{% trans "About the High Scores" %}</h2>
-        {% blocktrans %}
-        <p>
-            These lists show the people who have used the blipper&trade;
-            the most. Each blip represents one coffee, tea, or&mdash;for
-            children&mdash;milk chocolate.
-        </p>
-        <p>
-            Start using it you too, to track your caffeine consumption and
-            to compete for glory and fame in the high scores.
-        </p>
-        <h3>For Old-Timers</h3>
-        <p>
-            In these lists we make no difference between regular customers or
-            workers. If you think that we should do that again, start a Facebook
-            protest group or <a href="mailto:{{CONTACT_EMAIL}}">contact us</a>.
-        </p>
+
+<div class="grid_10 alpha main">
+
+    {% if request.user.is_authenticated %}
+    <div class="feature confirmed-highlight">
+        {% blocktrans with profile_url as p %}
+        <strong>New feature:</strong> You can display a motto
+        below your name in the high scores.  Go to your profile page 
+        to set one.
         {% endblocktrans %}
     </div>
-</div><!--.secondary-->
+    {% endif %}
+
+    <div class="info">
+        {% blocktrans %}
+        These lists show the people who have used the blipper&trade;
+        the most. Each blip represents one coffee, tea, or chocolate.
+        Start using it you too, to track your caffeine consumption and
+        to compete for glory and fame in the high scores.
+        If you have suggestions, feel free to <a href="mailto:{{CONTACT_EMAIL}}">contact us</a>.
+        {% endblocktrans %}
+    </div>
+
+    {% for stat in stats %}
+    {% if not stat.empty %}
+    <div class="score clearfix">
+        <h2>{{stat.name}}</h2>
+        {% for group in stat.groups %}
+        <div class="layout" style="float:left;width:50%">
+            <h3>{{group.title}}</h3>
+            <table style="width:98%">
+                <thead>
+                    <tr>
+                        <th colspan="2">{% trans "person" %}</th>
+                        <th class="blips">{% trans "blips" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for top in group.top_users %}
+                    <tr class="{% cycle "even" "odd" %}">
+                        <td class="pos">
+                            {% ifchanged top.num_orders %}
+                            {{forloop.counter}}.
+                            {% endifchanged %}
+                        </td>
+                        <td class="name">
+                            {{top|name_link}}
+                            {% if top.profile.motto %}
+                            <br/>
+                            <span class="motto">{{top.profile.motto}}</span>
+                            {% endif %}
+                        </td>
+                        <td class="blips">{{top.num_orders}}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+
+</div><!--.main-->
 <div class="clear"></div>
 {% endblock %}
 

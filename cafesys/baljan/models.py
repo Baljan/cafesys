@@ -41,6 +41,8 @@ class Profile(Made):
     picture = models.ImageField(_("picture"), upload_to='profile_pics', null=True, blank=True)
     show_email = models.BooleanField(_("show email address"), default=False)
     show_profile = models.BooleanField(_("show profile"), default=True)
+    motto = models.CharField(_("motto"), max_length=40, blank=True, null=True,
+            help_text=_("displayed in high scores"))
 
     private_key = models.CharField(_("private key"), max_length=PRIVATE_KEY_LENGTH, unique=True, 
             default=generate_private_key)
@@ -129,6 +131,7 @@ class FriendRequest(Made):
     class Meta:
         verbose_name = _("friend request")
         verbose_name_plural = _("friend requests")
+        unique_together = ("sent_by", "sent_to")
 
     def __unicode__(self):
         return u"%(sent_by)s wants to be friends with %(sent_to)s" % {
@@ -376,6 +379,9 @@ class SemesterManager(models.Manager):
 
     def upcoming(self):
         return self.filter(start__gte=date.today()).order_by('start')
+
+    def old(self):
+        return self.filter(end__lt=date.today()).order_by('-start')
 
     def current(self):
         return self.for_date(date.today())

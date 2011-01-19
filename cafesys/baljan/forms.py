@@ -25,6 +25,7 @@ class ProfileForm(forms.ModelForm):
                 'picture',
                 'show_profile',
                 'show_email',
+                'motto',
                 )
 
 

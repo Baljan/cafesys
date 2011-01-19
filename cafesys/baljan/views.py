@@ -824,6 +824,7 @@ def high_score(request, year=None, week=None):
         week = int(week)
 
     tpl = {}
+
     today = date.today()
     end_offset = relativedelta(hours=23, minutes=59, seconds=59)
     end_of_today = today + end_offset
@@ -832,10 +833,9 @@ def high_score(request, year=None, week=None):
         (relativedelta(days=7), _("Last %d Days") % 7),
         (relativedelta(days=30), _("Last %d Days") % 30),
         (relativedelta(days=90), _("Last %d Days") % 90),
+        (relativedelta(days=2000), _("Forever")),
     ]
     
-    high_score_limit = 20
-
     if request.GET.has_key('format'):
         format = request.GET['format']
         high_scores = []
@@ -845,7 +845,7 @@ def high_score(request, year=None, week=None):
                     end_of_today - delta,
                     end_of_today,
                     simple=True
-                )[:high_score_limit],
+                )[:20],
                 'title': title,
             })
 
@@ -856,17 +856,12 @@ def high_score(request, year=None, week=None):
             )
         else:
             return HttpResponse("INVALID FORMAT", mimetype='text/plain')
-    else:
-        high_scores = []
-        for delta, title in interval_starts:
-            high_scores.append({
-                'consumers': stats.top_consumers(
-                    end_of_today - delta,
-                    end_of_today,
-                )[:high_score_limit],
-                'title': title,
-            })
 
-        tpl['high_scores'] = high_scores
-        return render_to_response('baljan/high_score.html', tpl, 
-                context_instance=RequestContext(request))
+    fetched_stats = []
+    for cache_key in stats.CACHE_KEYS:
+        got = cache.get(cache_key)
+        if got is not None:
+            fetched_stats += got
+    tpl['stats'] = fetched_stats
+    return render_to_response('baljan/high_score.html', tpl, 
+            context_instance=RequestContext(request))
