@@ -50,6 +50,7 @@ class Profile(Made):
     card_id = models.BigIntegerField(_("card id"), blank=True, null=True, 
             unique=True,
             help_text=_("card ids can be manually set"))
+    section = models.ForeignKey('baljan.Section', verbose_name=_("section"), blank=True, null=True)
 
     def balcur(self):
         return u"%s %s" % (self.balance, self.balance_currency)
@@ -1132,3 +1133,13 @@ class OldCoffeeCard(models.Model):
         return u"%d.%d (old)" % (self.set.set_id, self.card_id)
 
 
+class Section(models.Model):
+    name = models.CharField(_("name"), max_length=30)
+
+    class Meta:
+        verbose_name = _('section')
+        verbose_name_plural = _('sections')
+        ordering = ('name',)
+
+    def __unicode__(self):
+        return u"%s" % self.name
