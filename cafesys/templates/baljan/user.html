@@ -90,6 +90,15 @@
                     </dd>
                 {% endif %}
 
+                <dt>{% trans "section" %}</dt>
+                {% if prof.section %}
+                    <dd>{{prof.section.name}}</dd>
+                {% else %}
+                    <dd>
+                    {% trans "None set." %}
+                    </dd>
+                {% endif %}
+
             {% endif %}
         </dl>
         {% endwith %}

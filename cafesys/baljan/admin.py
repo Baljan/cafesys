@@ -344,3 +344,8 @@ class OldCoffeeCardAdmin(admin.ModelAdmin):
     list_display = ('card_id', 'set', 'created', 'count', 'left', 'expires',
             'user', 'imported')
 admin.site.register(baljan.models.OldCoffeeCard, OldCoffeeCardAdmin)
+
+
+class SectionAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+admin.site.register(baljan.models.Section, SectionAdmin)

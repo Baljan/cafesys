@@ -117,12 +117,20 @@ def stats_long_periodic():
     data = [s.get_interval(i) for i in intervals]
     cache.set(stats.LONG_CACHE_KEY, data, stats.LONG_CACHE_TIME)
 
+    sec = stats.SectionStats()
+    secdata = [sec.get_interval(i) for i in intervals]
+    cache.set(stats.LONG_CACHE_KEY_GROUP, secdata, stats.LONG_CACHE_TIME)
+
 @periodic_task(run_every=stats.SHORT_PERIODIC)
 def stats_short_periodic():
     s = stats.Stats()
     intervals = ['today', 'yesterday', 'this_week']
     data = [s.get_interval(i) for i in intervals]
     cache.set(stats.SHORT_CACHE_KEY, data, stats.SHORT_CACHE_TIME)
+
+    sec = stats.SectionStats()
+    secdata = [sec.get_interval(i) for i in intervals]
+    cache.set(stats.SHORT_CACHE_KEY_GROUP, secdata, stats.SHORT_CACHE_TIME)
 
 SOUND_FUNCS_AND_DESCS = [
     (play_success_normal, "normal success"),

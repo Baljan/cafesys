@@ -858,10 +858,28 @@ def high_score(request, year=None, week=None):
             return HttpResponse("INVALID FORMAT", mimetype='text/plain')
 
     fetched_stats = []
-    for cache_key in stats.CACHE_KEYS:
-        got = cache.get(cache_key)
-        if got is not None:
-            fetched_stats += got
+    fetched_section_stats = []
+    if settings.STATS_CACHE:
+        for cache_key in stats.CACHE_KEYS:
+            got = cache.get(cache_key)
+            if got is not None:
+                fetched_stats += got
+        for cache_key in stats.CACHE_KEYS_GROUP:
+            got = cache.get(cache_key)
+            if got is not None:
+                fetched_section_stats += got
+    else:
+        s = stats.Stats()
+        intervals = ['today', 'yesterday', 'this_week']
+        intervals += ['last_week', 'this_semester', 'total']
+        fetched_stats = [s.get_interval(i) for i in intervals]
+
+        ss = stats.SectionStats()
+        intervals = ['today', 'yesterday', 'this_week']
+        intervals += ['last_week', 'this_semester', 'total']
+        fetched_section_stats = [ss.get_interval(i) for i in intervals]
+
     tpl['stats'] = fetched_stats
+    tpl['section_stats'] = fetched_section_stats
     return render_to_response('baljan/high_score.html', tpl, 
             context_instance=RequestContext(request))

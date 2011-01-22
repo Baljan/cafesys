@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 DEBUG = False
-STATS_CACHE = False
+STATS_CACHE = True
 
 DATABASES = {
     "default": {

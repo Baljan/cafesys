@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from celery.task.schedules import crontab
-from baljan.models import Order, Semester
+from baljan.models import Order, Semester, Section
 from django.conf import settings
 from django.db.models import Avg, Count, Max, Min
 from django.db.models.query import QuerySet
@@ -21,8 +21,11 @@ SHORT_CACHE_TIME = 60 * 15 * 2 # 2x15 minutes. Should at least be longer than SH
 
 CACHE_KEY_BASE = 'baljan.stats.periodic.%s'
 LONG_CACHE_KEY = CACHE_KEY_BASE % 'long'
+LONG_CACHE_KEY_GROUP = CACHE_KEY_BASE % 'long.group'
 SHORT_CACHE_KEY = CACHE_KEY_BASE % 'short'
+SHORT_CACHE_KEY_GROUP = CACHE_KEY_BASE % 'short.group'
 CACHE_KEYS = [SHORT_CACHE_KEY, LONG_CACHE_KEY]
+CACHE_KEYS_GROUP = [SHORT_CACHE_KEY_GROUP, LONG_CACHE_KEY_GROUP]
 
 def top_consumers(start=None, end=None, simple=False):
     """`start` and `end` are dates. Returns top consumers in the interval with
@@ -109,6 +112,8 @@ class Meta(object):
 
         for user in self.all_users:
             self.class_members[self.user_class(user)].append(user)
+
+        self.all_sections = Section.objects.all().order_by('name')
 
     def compute_intervals(self):
         today = date.today()
@@ -234,4 +239,74 @@ class Stats(object):
             'name': interval['name'],
             'groups': groups,
             'empty': sum([len(g['top_users']) for g in groups]) == 0,
+        }
+
+
+class SectionStats(object):
+
+    def __init__(self):
+        self.meta = Meta()
+        self.meta.compute()
+
+    def get_interval(self, interval_key):
+        interval = self.meta.interval_keys[interval_key]
+        staff_users = set()
+        for cls_name in interval['staff classes']:
+            staff_users |= set(self.meta.class_members[cls_name])
+        normal_users = self.meta.all_users - staff_users
+
+        limit = 15
+        groups = []
+        for title, users in [
+                (_('Normal Users'), normal_users),
+                (_('Staff'), staff_users),
+                ]:
+
+            section_stats = []
+            for section in self.meta.all_sections:
+                orders = Order.objects.filter(
+                    user__profile__section__id=section.id,
+                    user__id__in=[u.id for u in users],
+                )
+
+                if interval['dates']:
+                    dates = list(interval['dates'])
+                    orders = orders.filter(
+                        put_at__gte=dates[0],
+                        put_at__lte=dates[-1] + timedelta(days=1),
+                    )
+
+                this_users = User.objects.filter(
+                    profile__section__id=section.id,
+                    id__in=[u.id for u in users],
+                ).distinct().count()
+
+                if this_users == 0:
+                    continue
+
+                sec_stat = {
+                    'name': section.name,
+                    'num_orders': orders.count(),
+                    'num_users': this_users,
+                    'avg_orders': 0,
+                }
+
+                if sec_stat['num_orders'] == 0:
+                    continue
+
+                if this_users:
+                    sec_stat['avg_orders'] = float(sec_stat['num_orders']) / this_users
+
+                section_stats.append(sec_stat)
+
+            section_stats.sort(key=lambda x: x['avg_orders'], reverse=True)
+            groups.append({
+                'title': title,
+                'top_sections': section_stats,
+            })
+
+        return {
+            'name': interval['name'],
+            'groups': groups,
+            'empty': sum([len(g['top_sections']) for g in groups]) == 0,
         }
