@@ -11,7 +11,7 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 # tells Pinax to use the default theme
 PINAX_THEME = "default"
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = True # nice for Sentry, different than DEBUG
 
 # Terminal settings.
@@ -372,6 +372,8 @@ CARD_TO_USER_USE_CACHE = True
 CARDREADER_PREFETCH = True
 
 ANALYTICS_KEY= ''
+
+STATS_CACHE = True
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
