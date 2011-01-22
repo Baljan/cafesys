@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+DEBUG = False
+STATS_CACHE = False
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2", # Add "postgresql_psycopg2", "postgresql", "mysql", "sqlite3" or "oracle".
@@ -19,7 +22,7 @@ EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
 
-SITE_ID=1
+SITE_ID=2
 
 # For importing data from the old system. There is a management command
 # that uses these settings (importoldsystem).
