@@ -23,6 +23,10 @@
         To import an old coffee card (kaffeklippkort), see <a href="#import-old">below</a>.
         {% endblocktrans %}
         </p>
+        <p>
+            <img src="{{STATIC_URL}}img/signs.png" 
+                width="364" height="121" alt="{% trans "old coffee card" %}"/>
+        </p>
         <form autocomplete="off" method="POST" action="" class="uniForm">{% csrf_token %}
             <input type="hidden" name="task" value="refill" />
             <fieldset class="inlineLabels">

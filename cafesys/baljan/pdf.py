@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FIXME: This module could need some attention and polishing.
 
+import os
 from django.utils.translation import ugettext as _
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -13,6 +14,9 @@ from cStringIO import StringIO
 from baljan.util import grouper
 from datetime import date, datetime 
 from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_RIGHT, TA_CENTER
+from django.conf import settings
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
 
 if __name__ == '__main__':
     from pdfstimuli import gettext as _
@@ -28,7 +32,12 @@ DATETIME_FORMAT = '%Y-%m-%d %H:%M'
 
 font = ('Helvetica', 12)
 footer_font = ('Helvetica', 8)
-code_font = ('Courier-Bold', 22)
+
+try:
+    pdfmetrics.registerFont(TTFont('CourierNew-Bold', os.path.join(settings.PROJECT_ROOT, 'courbd.ttf')))
+    code_font = ('CourierNew-Bold', 23)
+except:
+    code_font = ('Courier-Bold', 23)
 
 class RefillCard(object):
     def __init__(self, balance_code):

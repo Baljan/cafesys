@@ -7,7 +7,8 @@ from django.utils.translation import ugettext as _
 from baljan.models import OldCoffeeCard, Good, BalanceCode
 from django.contrib.auth.models import User, Permission, Group
 from django.db.models import Count
-from datetime import date
+from datetime import date, datetime
+from baljan import ldapbackend
 
 _today = date.today()
 _klipp_worth = settings.KLIPP_WORTH
@@ -45,6 +46,36 @@ def dump_info(user):
     print
 
 
+def union_info(user):
+    from pprint import pprint
+    union_key = 'liuStudentUnionMembership'
+    try:
+        unions = ldapbackend.search(user.username)[0][1][union_key]
+        unions = [u.decode('utf-8') for u in unions]
+    except (IndexError, KeyError):
+        unions = []
+
+    unions_str = u", ".join(unions)
+    name_str = unicode(user.get_full_name().ljust(40))
+    groups = [g.name for g in user.groups.all()]
+    class_str = u"normal"
+    if 'styrelsen' in groups:
+        class_str = u"board"
+    elif '_gamlingar' in groups:
+        class_str = u"oldie"
+    elif 'jobbare' in groups:
+        class_str = u"worker"
+
+    class_str = class_str.ljust(10)
+
+    output = u"%(name)s%(class)s%(unions)s" % {
+        'name': name_str,
+        'unions': unions_str,
+        'class': class_str,
+    }
+    print output.encode('utf-8')
+
+
 def import_old_cards(user):
     profile = user.get_profile()
     assert profile.balance_currency == u'SEK'
@@ -79,6 +110,7 @@ def import_old_cards(user):
 task_funs = {
     'import_old': import_old_cards,
     'info': dump_info,
+    'union': union_info,
 }
 
 class Command(BaseCommand):
@@ -108,6 +140,14 @@ class Command(BaseCommand):
             default=[],
             help='Apply for user.',
         ),
+        make_option('-s', '--ordered-since',
+            type='string',
+            action='store',
+            metavar='YYYY-MM-DD',
+            dest='ordered_since',
+            default=False,
+            help='Apply for users that have ordered since a date.',
+        ),
     )
 
     def handle(self, *args, **options):
@@ -127,6 +167,9 @@ class Command(BaseCommand):
 
         if options['all_users']:
             users = User.objects.all()
+        elif options['ordered_since']:
+            since = datetime.strptime(options['ordered_since'], '%Y-%m-%d')
+            users = User.objects.filter(order__put_at__gte=since).distinct()
         else:
             if len(options['users']) == 0:
                 raise CommandError('need at least one username')

@@ -59,6 +59,7 @@ def categories_and_actions(request):
             Action(_('github'), 'http://github.com/pilt/cafesys', resolve_func=None),
             )),
         (settings.WORKER_GROUP, _('workers'), (
+            Action(_('guide'), settings.STATIC_URL + 'baljan-tasks.pdf', resolve_func=None),
             #Action(_('schedule'), 'cal.views.worker_calendar'),
             #Action(_('swaps'), 'cal.views.swappable'),
             )),

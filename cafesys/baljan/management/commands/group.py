@@ -20,12 +20,20 @@ def google_apps_identifier(user):
     email = "%s@baljan.org" % (asciilize(user.get_full_name().lower()).replace(' ', '.'))
     return ','.join([email, user.first_name, user.last_name, random_string(8)])
 
+
+def full_identifier(user):
+    name = user.get_full_name()
+    uname = user.username
+    full = u"%s, %s" % (name, uname)
+    return full.encode('latin-1')
+
         
 id_funs = {
     'username': (lambda u: "%s" % u.username, ('username',)),
     'email': (lambda u: "%s" % u.email, ('email',)),
-    'name': (lambda u: "%s" % u.get_full_name(), ('first_name', 'last_name')),
+    'name': (lambda u: u.get_full_name().encode('latin-1'), ('first_name', 'last_name')),
     'googleapps': (google_apps_identifier, ('first_name', 'last_name')),
+    'full': (full_identifier, ('last_name', 'first_name')),
 }
 
 id_header = {

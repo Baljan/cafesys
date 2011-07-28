@@ -73,6 +73,15 @@
     {% endfor %}
 
     <h1 id="sections">{% trans "Sections" %}</h1>
+
+    {% if request.user.is_authenticated %}
+    <div class="info">
+        {% blocktrans %}
+        set one at <a href="/baljan/profile">your profile page</a>
+        {% endblocktrans %}
+    </div>
+    {% endif %}
+
     {% for stat in section_stats %}
     {% if not stat.empty %}
     <div class="score clearfix">
