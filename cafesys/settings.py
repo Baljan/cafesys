@@ -274,10 +274,6 @@ else:
         "django.contrib.auth.backends.ModelBackend",
     ]
 
-AUTHENTICATION_BACKENDS += [
-    'baljan.ldapbackend.LDAPBackend',
-] 
-
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = True
 CONTACT_EMAIL = "styret@baljan.studorg.liu.se"
@@ -330,6 +326,7 @@ EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
 
 LDAP_SERVER = 'ldap://lukas-backend.unit.liu.se'
+LDAP_ENABLED = True
 MUNIN_PORT = 8800
 MUNIN_PATH = 'munin/localhost/localhost/index.html'
 
@@ -381,3 +378,8 @@ try:
     from local_settings import *
 except ImportError:
     pass
+
+if LDAP_ENABLED:
+    AUTHENTICATION_BACKENDS += [
+        'baljan.ldapbackend.LDAPBackend',
+    ] 
