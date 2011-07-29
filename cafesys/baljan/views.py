@@ -21,7 +21,16 @@ from baljan import pdf
 from baljan.util import get_logger, year_and_week, all_initials
 from baljan.util import adjacent_weeks, week_dates
 from baljan.util import htmlents
-from baljan.ldapbackend import valid_username, exists_in_ldap, fetch_user
+
+if getattr(settings, 'LDAP_ENABLED', True):
+    from baljan.ldapbackend import valid_username, exists_in_ldap, fetch_user
+else:
+    def exists_in_ldap(x):
+        return False
+
+    def valid_username(x):
+        return False
+
 from baljan import credits as creditsmodule
 from baljan import friendrequests, trades, planning, pseudogroups, workdist
 from django.contrib.auth.models import User, Permission, Group
