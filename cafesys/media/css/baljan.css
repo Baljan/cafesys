@@ -13,12 +13,8 @@ html, body {
     height: 100%;
 }
 body {
-    background-color: #FFF;
-    /* http://www.flickr.com/photos/31288116@N02/3731106877/ */
-    background-image: url(../img/flickr/3731106877_28a642a1a6_o.jpg);
-    background-position: center center;
-    background-position: left top;
-    background-attachment: fixed;
+    background-color: #efefef;
+    background-image: url(../img/tile-dark.png);
     margin: 0;
     color: #333;
     font-family: "Helvetica Neue", Arial, sans-serif;
@@ -221,7 +217,7 @@ form table th {
 
 #logo {
     text-align: center;
-    margin-top: -1.2em;
+    margin-top: -23px;
 }
 .init-hidden {
     visibility: hidden;
@@ -773,6 +769,27 @@ body.job-opening-projector table td {
 
 body.orders .date-change {
     font-weight: bold;
+}
+
+/* High Score View */
+body.high-score .score {
+    padding-bottom: 2em;
+}
+body.high-score table .pos {
+    width: 10%;
+    text-align: right;
+    font-style: italic;
+}
+body.high-score table .blips {
+    width: 20%;
+    text-align: right;
+}
+body.high-score table .name {
+    width: 70%;
+}
+body.high-score table .name .motto {
+    color: #666;
+    font-size: .9em;
 }
 
 .ui-selected div, .ui-selecting div {
