@@ -9,9 +9,7 @@ django-rosetta
 #python-dateutil # included in base.txt
 reportlab
 pyPdf
-python-ldap
 #Geraldo
-numpy
 django-sentry
 
 django-celery
@@ -26,5 +24,3 @@ South
 
 pyserial
 icalendar # LGPL
-
-cx_Oracle
