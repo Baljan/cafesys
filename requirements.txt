@@ -18,9 +18,4 @@ johnny-cache
 # For RFIDIOt:
 #pycrypto
 
-http://downloads.sourceforge.net/project/pyscard/pyscard/pyscard%201.6.12/pyscard-1.6.12.tar.gz?use_mirror=heanet&ts=1278761137#egg=pyscard
-
 #pyserial
-
-# For importing data from the old version of the system.
-mysql-python
