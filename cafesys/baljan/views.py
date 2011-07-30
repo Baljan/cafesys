@@ -400,6 +400,7 @@ def _answer_friend_request(request, sender, accept):
 
 
 @login_required
+@csrf_exempt
 def search_person(request):
     tpl = {}
     terms = ""
@@ -516,6 +517,7 @@ def job_opening_projector(request, semester_name):
 
 
 @permission_required('baljan.manage_job_openings')
+@csrf_exempt
 def job_opening(request, semester_name):
     opening_log = get_logger('baljan.jobopening')
     tpl = {}
@@ -620,6 +622,7 @@ def job_opening(request, semester_name):
 @permission_required('baljan.delete_oncallduty')
 @permission_required('baljan.add_oncallduty')
 @permission_required('baljan.change_oncallduty')
+@csrf_exempt
 def call_duty_week(request, year=None, week=None):
     user = request.user
     if year is None or week is None:
