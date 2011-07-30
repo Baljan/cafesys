@@ -7,3 +7,4 @@ baljan/_build/*
 site_media/*
 *.log
 celerybeat-*
+/*.tar
