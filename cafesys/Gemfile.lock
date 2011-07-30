@@ -5,6 +5,7 @@ GEM
       Platform (>= 0.4.0)
       open4
     Platform (0.4.0)
+    closure-compiler (1.1.1)
     jammit (0.6.3)
       yui-compressor (>= 0.9.3)
     open4 (1.1.0)
@@ -15,4 +16,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  closure-compiler
   jammit

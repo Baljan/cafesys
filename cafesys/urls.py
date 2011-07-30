@@ -56,7 +56,6 @@ urlpatterns = patterns("",
 )
 
 
-if settings.SERVE_MEDIA:
-    urlpatterns += patterns("",
-        (r"", include("staticfiles.urls"), {'show_indexes':settings.DEBUG}),
-    )
+if settings.DEBUG:
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+    urlpatterns += staticfiles_urlpatterns()

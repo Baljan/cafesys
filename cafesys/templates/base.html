@@ -13,11 +13,7 @@
 
         <link href='//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:light,regular&subset=latin' rel='stylesheet' type='text/css'>
 
-        <link rel="stylesheet" href="{{ STATIC_URL }}pinax/css/facebox.css" />
-        <link rel="stylesheet" href="{{ STATIC_URL }}pinax/css/announcements.css" />
-        <link rel="stylesheet" href="{{ STATIC_URL }}pinax/css/accounts.css" />
-        <link rel="stylesheet" href="{{ STATIC_URL }}uni_form/uni-form.css" />
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/960.css" />
+        <link rel="stylesheet" href="{{ STATIC_URL }}assets/workspace-datauri.css">
         {% if LANGUAGE_BIDI %}
         <style type="text/css" media="screen">
             div.right_panel {
@@ -33,4 +29,6 @@
     <body class="{% block body_class %}{% endblock %}">
         {% block body_base %}{% endblock %}
     </body>
+
+    <script type="text/javascript" src="{{ STATIC_URL }}assets/workspace.js"></script>
 </html>

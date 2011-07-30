@@ -19,9 +19,6 @@ TERMINAL_FIREWALL = not DEBUG
 
 DAJAXICE_MEDIA_PREFIX="dajaxice"
 
-# tells Pinax to serve media through the staticfiles app.
-SERVE_MEDIA = True #DEBUG
-
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
@@ -82,26 +79,15 @@ LANGUAGES = (
 # new version.
 MEDIA_AND_STATIC_VERSION = 12
 
-# Absolute path to the directory that holds media.
-# Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, "site_media", "media")
-
-# URL that handles the media served from MEDIA_ROOT.
-# Example: "http://media.lawrence.com"
-MEDIA_URL = "/site_media%d/media/" % MEDIA_AND_STATIC_VERSION
-
-# Absolute path to the directory that holds static files like app media.
-# Example: "/home/media/media.lawrence.com/apps/"
-STATIC_ROOT = os.path.join(PROJECT_ROOT, "site_media", "static")
-
-# URL that handles the static files like app media.
-# Example: "http://media.lawrence.com"
-STATIC_URL = "/site_media%d/static/" % MEDIA_AND_STATIC_VERSION
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, "media")
+MEDIA_URL = "/media%d/" % MEDIA_AND_STATIC_VERSION
+STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
+STATIC_URL = "/static%d/" % MEDIA_AND_STATIC_VERSION
 
 # Additional directories which hold static files
 STATICFILES_DIRS = [
-    os.path.join(PROJECT_ROOT, "media"),
     os.path.join(PINAX_ROOT, "media", PINAX_THEME),
+    os.path.join(PROJECT_ROOT, 'jammit'),
 ]
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
@@ -175,6 +161,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.messages",
     "django.contrib.humanize",
+    "django.contrib.staticfiles",
 
     "django.contrib.databrowse",
     
