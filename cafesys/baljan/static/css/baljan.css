@@ -817,3 +817,7 @@ p.background-image {
 .marker {
     background: #ffa;
 }
+
+fieldset {
+    border: none;
+}
