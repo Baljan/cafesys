@@ -7,3 +7,4 @@ share
 src
 core.*
 /*.tar
+*.vim
