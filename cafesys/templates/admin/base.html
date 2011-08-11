@@ -1,7 +1,4 @@
-{% load account_tags %}
-{% load openid_tags %}
 {% load ifsetting_tag %}
-{% load analytics %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
@@ -34,15 +31,7 @@
 
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
 {% if not is_popup %}
-<div id="login">
-    {% if user.is_authenticated %}
-        <strong><a href="{{user.get_absolute_url}}">{% user_display user %}</a></strong> 
-        {#| <a href="{% url acct_email %}">{% trans "Account" %}</a>#} <span class="delim">|</span>
-        <a href="{% url acct_logout %}">{% trans "logout" %}</a>
-    {% else %}
-        <a href="{% url acct_login %}">{% trans "login" %}</a> 
-    {% endif %}
-</div>
+<div id="login">&nbsp;</div>
 
 <div id="body" {% if not is_popup %}class="container_12"{% endif %}>
     <div class="grid_2">

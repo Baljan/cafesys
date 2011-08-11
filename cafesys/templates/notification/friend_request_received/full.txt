@@ -1,1 +1,0 @@
-{% load i18n %}{{mail_msg}}. {% trans "Friends can sign each other up for work shifts." %}

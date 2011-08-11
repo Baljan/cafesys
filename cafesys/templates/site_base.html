@@ -1,10 +1,7 @@
 {% extends "common.html" %}
 
 {% load i18n %}
-{% load account_tags %}
-{% load openid_tags %}
 {% load ifsetting_tag %}
-{% load analytics %}
 
 {#{% load dajaxice_templatetags %}#}
 
@@ -23,12 +20,12 @@
         </a>
         <span class="delim">|</span>
         {% endif %}
-        <a href="{{user.get_absolute_url}}">{% user_display user %}</a>
+        <a href="{{user.get_absolute_url}}">{{user}}</a>
         {#| <a href="{% url acct_email %}">{% trans "Account" %}</a>#}
         <span class="delim">|</span>
-        <a href="{% url acct_logout %}">{% trans "logout" %}</a>
+        <a href="#">{% trans "logout" %}</a>
     {% else %}
-        <a href="{% url acct_login %}">{% trans "login" %}</a> 
+        <a href="#">{% trans "login" %}</a> 
     {% endif %}
 {% endblock %}
 

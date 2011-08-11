@@ -867,6 +867,13 @@ class Good(Made):
     def current_costcur(self):
         return self.costcur(date.today())
 
+    def current_cost_dict(self):
+        costcur = self.current_costcur()
+        return {
+            'cost': costcur[0],
+            'currency': costcur[1],
+        }
+
     class Meta:
         verbose_name = _("good")
         verbose_name_plural = _("goods")

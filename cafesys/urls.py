@@ -6,8 +6,6 @@ from django.views.generic.simple import direct_to_template
 from django.contrib import admin
 admin.autodiscover()
 
-from pinax.apps.account.openid_consumer import PinaxConsumer
-
 #from dajaxice.core import dajaxice_autodiscover
 #dajaxice_autodiscover()
 
@@ -35,21 +33,10 @@ urlpatterns = patterns("",
     url(r"^account/signup/$", signup_view, name="acct_signup"),
     
     (r"^about/", include("about.urls")),
-    (r"^account/", include("pinax.apps.account.urls")),
-    (r"^notices/", include("notification.urls")), # TODO: roll our own
-    (r"^announcements/", include("announcements.urls")),
-
-    #(r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('dajaxice.urls')),
-
-    #(r'^rosetta/', include('rosetta.urls')),
-    #(r"^terminal/", include("terminal.urls")),
-    #(r"^calendar/", include("cal.urls")),
-    #(r"^accounting/", include("accounting.urls")),
-    #(r"^stats/", include("stats.urls")),
-
-    #(r"^liu/", include("liu.urls")),
 
     (r"^baljan/", include("baljan.urls")),
+    (r"^brassbird/", include("brassbird.urls")),
+    (r"^mobile/", include("mobile.urls")),
 
     (r"^admin/", include(admin.site.urls)),
     (r"^sentry/", include('sentry.urls')),

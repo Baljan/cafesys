@@ -14,11 +14,6 @@ PINAX_THEME = "default"
 DEBUG = False
 TEMPLATE_DEBUG = True # nice for Sentry, different than DEBUG
 
-# Terminal settings.
-TERMINAL_FIREWALL = not DEBUG
-
-DAJAXICE_MEDIA_PREFIX="dajaxice"
-
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
@@ -106,21 +101,15 @@ TEMPLATE_LOADERS = [
 ]
 
 MIDDLEWARE_CLASSES = [
-    #'johnny.middleware.LocalStoreClearMiddleware',
-    #'johnny.middleware.QueryCacheMiddleware',
     "django.middleware.gzip.GZipMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django_openid.consumer.SessionConsumer",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "pinax.apps.account.middleware.LocaleMiddleware",
     "django.middleware.doc.XViewMiddleware",
     "pagination.middleware.PaginationMiddleware",
-    "pinax.middleware.security.HideSensistiveFieldsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
-    #"terminal.middleware.RestrictAccessMiddleware",
     'django.middleware.transaction.TransactionMiddleware',
 ]
 
@@ -138,15 +127,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
-
     "staticfiles.context_processors.static_url",
-    
-    "pinax.core.context_processors.pinax_settings",
-    
-    "notification.context_processors.notification",
-    "announcements.context_processors.site_wide_announcements",
-    "pinax.apps.account.context_processors.account",
-
     "baljan.ctx.actions",
     "baljan.ctx.analytics",
     "baljan.ctx.common",
@@ -168,37 +149,19 @@ INSTALLED_APPS = [
     "pinax.templatetags",
     
     # external
-    "notification", # must be first
-    "django_openid",
-    "emailconfirmation",
     #"mailer", # use django.core.mail instead
-    "announcements",
     "pagination",
     "timezones",
     "ajax_validation",
     "uni_form",
     "staticfiles",
     "debug_toolbar",
-
-    #"dajaxice",
-    #"dajax",
-    
-    # Pinax
-    "pinax.apps.analytics",
-    #"pinax.apps.basic_profiles",
-    "pinax.apps.account",
-    "pinax.apps.signup_codes",
     
     # project
-    #"rosetta",
-    #"fixtures",
     "about",
-    #"terminal",
-    #"liu",
-    #"cal",
-    #"accounting",
-    #"stats",
     "baljan",
+    "brassbird",
+    "mobile",
 
     "djcelery",
     "gunicorn",
@@ -208,8 +171,6 @@ INSTALLED_APPS = [
     "sentry.client",
     "sentry.plugins.sentry_urls",
     "datagrid",
-
-    #"johnny",
 
     # Migrations
     "south",
@@ -358,6 +319,8 @@ CARDREADER_PREFETCH = True
 ANALYTICS_KEY= ''
 
 STATS_CACHE = True
+
+BRASSBIRD_INTERFACE = 'baljan.brassbird'
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.

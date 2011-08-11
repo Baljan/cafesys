@@ -1,0 +1,32 @@
+.static-page {
+    padding: 10px;
+    h2 {
+        font-weight: bold
+    }
+    p {
+        margin-bottom: 10px;
+    }
+}
+
+.shop {
+    .description {
+        font-style: italic;
+    }
+}
+.items {
+    .title, .description {
+        float: left;
+    }
+    .title {
+        margin-right: 1em;
+    }
+    .description {
+        font-style: italic;
+        font-size: .9rem;
+        vertical-align: bottom;
+    }
+    .cost {
+        float: right;
+        text-align: right;
+    }
+}

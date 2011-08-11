@@ -8,3 +8,4 @@ site_media/*
 *.log
 celerybeat-*
 /*.tar
+.sass-cache
