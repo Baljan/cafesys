@@ -9,6 +9,7 @@ from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.translation import ugettext as _ 
 from django.contrib import messages
+from django.contrib import auth
 from django.conf import settings
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
@@ -42,6 +43,13 @@ import simplejson
 import re
 from math import ceil
 from cStringIO import StringIO
+
+
+def logout(request):
+    auth.logout(request)
+    messages.add_message(request, messages.SUCCESS, _("Logged out."))
+    return HttpResponseRedirect('/')
+
 
 def index(request):
     return render_to_response('baljan/baljan.html', {}, context_instance=RequestContext(request))

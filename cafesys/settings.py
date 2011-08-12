@@ -158,7 +158,6 @@ INSTALLED_APPS = [
     "debug_toolbar",
     
     # project
-    "about",
     "baljan",
     "brassbird",
     "mobile",
@@ -227,8 +226,9 @@ EMAIL_DEBUG = True
 CONTACT_EMAIL = "styret@baljan.studorg.liu.se"
 USER_EMAIL_DOMAIN = 'student.liu.se'
 SITE_NAME = "Sektionscafé Baljan"
-LOGIN_URL = "/account/login/"
-LOGIN_REDIRECT_URLNAME = "home"
+LOGIN_URL = "/login/"
+LOGOUT_URL = "/logout/"
+LOGIN_REDIRECT_URL = "/"
 
 WORKER_COOLDOWN_SECONDS = 5 * 60
 WORKER_MAX_COST_REDUCE = 5 # SEK

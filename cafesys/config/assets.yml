@@ -26,6 +26,7 @@ stylesheets:
         - public/pinax/css/announcements.css
         - public/pinax/css/accounts.css
         - public/uni_form/uni-form.css
+        - public/uni_form/default.uni-form.css
         - public/css/960.css
         - public/css/flick/jquery-ui-1.8.2.custom.css
         - public/css/site_base.css

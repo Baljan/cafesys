@@ -1,0 +1,19 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load uni_form_tags %}
+
+{% block head_title %}{% trans "Log in" %}{% endblock %}
+{% block body_class %}login{% endblock %}
+
+{% block body %}
+
+<form method="post" action="{% url login %}" class="uniForm">
+{% csrf_token %}
+{{form|as_uni_form}}
+<div class="buttonHolder">
+    <input name="submit" class="submit submitButton" type="submit" value="{% trans "Log in" %}">
+</div>
+<input type="hidden" name="next" value="{{ next }}">
+</form>
+
+{% endblock body %}

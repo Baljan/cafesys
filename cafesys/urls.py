@@ -32,7 +32,10 @@ urlpatterns = patterns("",
     url(r"^admin/invite_user/$", "pinax.apps.signup_codes.views.admin_invite_user", name="admin_invite_user"),
     url(r"^account/signup/$", signup_view, name="acct_signup"),
     
-    (r"^about/", include("about.urls")),
+    url(r'^login/$', 'django.contrib.auth.views.login', {
+        'template_name': 'baljan/login.html'
+        }, name='login'),
+    url(r'^logout/$', 'baljan.views.logout', name='logout'),
 
     (r"^baljan/", include("baljan.urls")),
     (r"^brassbird/", include("brassbird.urls")),
