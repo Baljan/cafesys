@@ -38,7 +38,6 @@ from django.contrib.auth.models import User, Permission, Group
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.cache import cache
 from baljan.grids import PriceListGrid
-from notification import models as notification
 import simplejson
 import re
 from math import ceil
