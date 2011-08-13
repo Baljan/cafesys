@@ -14,7 +14,7 @@ from dateutil.relativedelta import relativedelta
 import baljan.util
 from baljan.util import get_logger, week_dates, year_and_week, random_string
 import itertools
-from notification import models as notification
+import notifications
 from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
 
@@ -161,33 +161,15 @@ def friendrequest_post_save(sender, instance=None, **kwargs):
                 sent_by, sent_to, extra))
 
     if fr.answered_at:
-        link = "<a href='%s'>%s</a>" % (
-                sent_to.get_absolute_url(), 
-                sent_to.get_full_name())
-
         if fr.accepted:
-            common_msg = _("%s accepted your friend request")
+            send_type = 'friend_request_accepted'
         else:
-            common_msg = _("%s denied your friend request")
-
-        mail_msg = common_msg % sent_to.get_full_name()
-        web_msg = common_msg % link
-        notification.send([sent_by], "friend_request_answered", {
-            'mail_msg': mark_safe(mail_msg),
-            'web_msg': mark_safe(web_msg),
-            })
+            send_type = 'friend_request_denied'
+        notifications.send(send_type, sent_by, 
+            requestee=sent_to.get_full_name())
     else:
-        link = "<a href='%s'>%s</a>" % (
-                sent_by.get_absolute_url(), 
-                sent_by.get_full_name())
-
-        common_msg = _("You have received a friend request from %s")
-        mail_msg =  common_msg % sent_by.get_full_name()
-        web_msg = common_msg % link
-        notification.send([sent_to], "friend_request_received", {
-            'mail_msg': mark_safe(mail_msg),
-            'web_msg': mark_safe(web_msg),
-            })
+        notifications.send('friend_request_received', 
+            sent_to, requestor=sent_by.get_full_name())
 signals.post_save.connect(friendrequest_post_save, sender=FriendRequest)
 
 
@@ -200,17 +182,11 @@ def friendrequest_post_delete(sender, instance=None, **kwargs):
 
     get_logger('baljan.friends').info('friend request %s → %s deleted' % (
         fr.sent_by, fr.sent_to))
-
-    link = "<a href='%s'>%s</a>" % (
-            sent_by.get_absolute_url(), 
-            sent_by.get_full_name())
-    common_msg = _("The pending friend request from %s was recalled")
-    mail_msg =  common_msg % sent_by.get_full_name()
-    web_msg = common_msg % link
-    notification.send([sent_to], "friend_request_received", {
-        'mail_msg': mark_safe(mail_msg),
-        'web_msg': mark_safe(web_msg),
-        })
+    if fr.answered_at:
+        pass # a notification has already been sent in this case
+    else:
+        notifications.send('friend_request_canceled', 
+            sent_to, requestor=sent_by.get_full_name())
 signals.post_delete.connect(friendrequest_post_delete, sender=FriendRequest)
 
 
@@ -265,32 +241,26 @@ class TradeRequest(Made):
 
 def traderequest_notice_delete(tr):
     if tr.answered:
-        if tr.accepted:
-            answer_happening = _("was accepted")
-            wanted_rename = _("new shift")
-            offered_rename = _("lost shift")
-        else:
-            answer_happening = _("was denied")
-            wanted_rename = _("requested shift")
-            offered_rename = _("offered shift")
-
+        cancel = False
         if tr.wanted_signup.shift.when < date.today():
-            return
+            cancel = True
         if tr.offered_signup.shift.when < date.today():
+            cancel = True
+        if cancel:
+            logger = get_logger('baljan.trades')
+            logger.info('not sending message about trade request deletion because the offered or wanted shift was in the past')
             return
 
-        requester = tr.offered_signup.user
-        notification.send([requester], "trade_request", {
-            'accepted': tr.accepted,
-            'answer_happening': answer_happening,
-            'answered_by': tr.wanted_signup.user,
-            'wanted_rename': wanted_rename,
-            'offered_rename': offered_rename,
-            'wanted_signup': tr.wanted_signup,
-            'offered_signup': tr.offered_signup,
-            'deleted': True,
-            'saved': False,
-            })
+        if tr.accepted:
+            send_type = 'trade_request_accepted'
+        else:
+            send_type = 'trade_request_denied'
+        requestor = tr.offered_signup.user
+        notifications.send(send_type,
+            requestor,
+            wanted_shift=tr.wanted_signup.shift.name(),
+            offered_shift=tr.offered_signup.shift.name(),
+        )
     else:
         pass # FIXME: notifications should be sent here as well
 
@@ -300,8 +270,6 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
         return
 
     tr = instance
-    answerer = tr.wanted_signup.user
-    requester = tr.offered_signup.user
 
     # Mark other trade requests involving the wanted or offered sign-up as
     # denied and answered, so that notifications will be sent for them. Do not
@@ -311,6 +279,8 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
     # denied, there is no need to do anything besides sending the appropriate
     # notifications.
     if tr.accepted:
+        answerer = tr.wanted_signup.user
+        requester = tr.offered_signup.user
         logger = get_logger('baljan.trades')
         logger.info('%s accepted' % tr, trade_request=tr)
         TradeRequest.objects.filter(
@@ -352,14 +322,14 @@ def traderequest_notice_save(tr):
         if tr.offered_signup.shift.when < date.today():
             return
 
-        accepter = tr.wanted_signup.user
-        requester = tr.offered_signup.user
-        notification.send([requester, accepter], "trade_request", {
-            'wanted_signup': tr.wanted_signup,
-            'offered_signup': tr.offered_signup,
-            'deleted': False,
-            'saved': True,
-            })
+        requestee = tr.wanted_signup.user
+        requestor = tr.offered_signup.user
+        notifications.send('new_trade_request',
+            requestee, 
+            requestor=requestor.get_full_name(),
+            wanted_shift=tr.wanted_signup.shift.name(),
+            offered_shift=tr.offered_signup.shift.name(),
+        )
 
 
 def traderequest_post_save(sender, instance=None, **kwargs):
@@ -740,32 +710,18 @@ def _signup_notice_common(signup):
 def signup_notice_save(signup):
     if signup.shift.when < date.today():
         return
-
-    tpl = _signup_notice_common(signup)
-    tpl.update({
-        'saved': True,
-        'deleted': False,
-        'mail_msg': _("You were signed up for a shift on"),
-        'web_msg': _("You were signed up for"),
-        })
-    notification.send([signup.user], "signup", tpl)
+    notifications.send('added_to_shift', signup.user,
+        shift=signup.shift.name())
 
 
 def signup_notice_delete(signup):
     if signup.shift.when < date.today():
         return
-
-    tpl = _signup_notice_common(signup)
-    tpl.update({
-        'saved': False,
-        'deleted': True,
-        'mail_msg': _("You were removed from a shift on"),
-        'web_msg': _("You were removed from"),
-        })
-    notification.send([signup.user], "signup", tpl)
+    notifications.send('removed_from_shift', signup.user,
+        shift=signup.shift.name())
 
 
-def signup_post_save(sender, instance=None, **kwargs):
+def signup_pre_save(sender, instance=None, **kwargs):
     if instance is None:
         return
 
@@ -781,13 +737,16 @@ def signup_post_save(sender, instance=None, **kwargs):
                 offered_signup__shift=signup.shift))
     trs_possible_doubles.delete()
 
-    signup_notice_save(signup)
-    get_logger('baljan.signups').info("%s saved" % signup)
+    if signup.tradable:
+        get_logger('baljan.signups').info("%s saved (tradable)" % signup)
+    else:
+        get_logger('baljan.signups').info("%s saved (not tradable)" % signup)
+        signup_notice_save(signup)
 
-signals.post_save.connect(signup_post_save, sender=ShiftSignup)
+signals.pre_save.connect(signup_pre_save, sender=ShiftSignup)
 
 
-def signup_post_delete(sender, instance=None, **kwargs):
+def signup_pre_delete(sender, instance=None, **kwargs):
     if instance is None:
         return
     signup = instance
@@ -796,7 +755,7 @@ def signup_post_delete(sender, instance=None, **kwargs):
     signup_notice_delete(signup)
     get_logger('baljan.signups').info("%s deleted" % instance)
 
-signals.post_delete.connect(signup_post_delete, sender=ShiftSignup)
+signals.pre_delete.connect(signup_pre_delete, sender=ShiftSignup)
 
 
 class OnCallDuty(Made):
@@ -819,20 +778,15 @@ class OnCallDuty(Made):
                 }
 
 
-def oncallduty_post(sender, instance=None, **kwargs):
-    pass
-
 def oncallduty_post_save(sender, instance=None, **kwargs):
     if instance is None:
         return
-    oncallduty_post(sender, instance, **kwargs)
     get_logger('baljan.signups').info("%s saved" % instance)
     signup_notice_save(instance)
 
 def oncallduty_post_delete(sender, instance=None, **kwargs):
     if instance is None:
         return
-    oncallduty_post(sender, instance, **kwargs)
     signup_notice_delete(instance)
     get_logger('baljan.signups').info("%s deleted" % instance)
 
