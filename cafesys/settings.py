@@ -223,7 +223,8 @@ else:
 
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = True
-CONTACT_EMAIL = "styret@baljan.studorg.liu.se"
+CONTACT_EMAIL = "styrelsen@baljan.org"
+CONTACT_PHONE = "013259927"
 USER_EMAIL_DOMAIN = 'student.liu.se'
 SITE_NAME = "Sektionscafé Baljan"
 LOGIN_URL = "/login/"
