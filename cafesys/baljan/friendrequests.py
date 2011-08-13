@@ -37,6 +37,8 @@ def answer_to(frequest, accept):
     frequest.accepted = accept
     frequest.answered_at = date.today()
     frequest.save()
+    if not frequest.accepted:
+        frequest.delete()
 
 
 def sent_by(user):
