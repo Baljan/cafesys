@@ -72,7 +72,7 @@ LANGUAGES = (
 
 # Bump when for example CSS or JS files change to force clients to download a
 # new version.
-MEDIA_AND_STATIC_VERSION = 12
+MEDIA_AND_STATIC_VERSION = 13
 
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, "media")
 MEDIA_URL = "/media%d/" % MEDIA_AND_STATIC_VERSION
