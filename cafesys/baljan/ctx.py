@@ -9,4 +9,8 @@ def analytics(request):
     return {'ANALYTICS_KEY': settings.ANALYTICS_KEY}
 
 def common(request):
-    return {'KLIPP_WORTH': settings.KLIPP_WORTH}
+    return {
+        'KLIPP_WORTH': settings.KLIPP_WORTH,
+        'CONTACT_EMAIL': settings.CONTACT_EMAIL,
+        'CONTACT_PHONE': settings.CONTACT_PHONE,
+    }
