@@ -3,13 +3,8 @@
 
 import os.path
 import posixpath
-import pinax
 
-PINAX_ROOT = os.path.abspath(os.path.dirname(pinax.__file__))
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
-
-# tells Pinax to use the default theme
-PINAX_THEME = "default"
 
 DEBUG = False
 TEMPLATE_DEBUG = True # nice for Sentry, different than DEBUG
@@ -81,7 +76,6 @@ STATIC_URL = "/static%d/" % MEDIA_AND_STATIC_VERSION
 
 # Additional directories which hold static files
 STATICFILES_DIRS = [
-    os.path.join(PINAX_ROOT, "media", PINAX_THEME),
     os.path.join(PROJECT_ROOT, 'jammit'),
 ]
 
@@ -117,7 +111,6 @@ ROOT_URLCONF = "cafesys.urls"
 
 TEMPLATE_DIRS = [
     os.path.join(PROJECT_ROOT, "templates"),
-    os.path.join(PINAX_ROOT, "templates", PINAX_THEME),
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [
@@ -145,8 +138,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "django.contrib.databrowse",
-    
-    "pinax.templatetags",
     
     # external
     #"mailer", # use django.core.mail instead
@@ -212,14 +203,9 @@ ACCOUNT_EMAIL_VERIFICATION = False
 ACCOUNT_EMAIL_AUTHENTICATION = False
 ACCOUNT_UNIQUE_EMAIL = EMAIL_CONFIRMATION_UNIQUE_EMAIL = False
 
-if ACCOUNT_EMAIL_AUTHENTICATION:
-    AUTHENTICATION_BACKENDS = [
-        "pinax.apps.account.auth_backends.EmailModelBackend",
-    ]
-else:
-    AUTHENTICATION_BACKENDS = [
-        "django.contrib.auth.backends.ModelBackend",
-    ]
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = True

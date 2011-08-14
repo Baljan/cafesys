@@ -10,15 +10,6 @@ admin.autodiscover()
 #dajaxice_autodiscover()
 
 
-handler500 = "pinax.views.server_error"
-
-
-if settings.ACCOUNT_OPEN_SIGNUP:
-    signup_view = "pinax.apps.account.views.signup"
-else:
-    signup_view = "pinax.apps.signup_codes.views.signup"
-
-
 urlpatterns = patterns("",
     url(r"^$", direct_to_template, {
         "template": "baljan/about.html",
@@ -28,9 +19,6 @@ urlpatterns = patterns("",
         "template": "robots.txt",
         "mimetype": "text/plain",
     }, name='robots'),
-    
-    url(r"^admin/invite_user/$", "pinax.apps.signup_codes.views.admin_invite_user", name="admin_invite_user"),
-    url(r"^account/signup/$", signup_view, name="acct_signup"),
     
     url(r'^login/$', 'django.contrib.auth.views.login', {
         'template_name': 'baljan/login.html'

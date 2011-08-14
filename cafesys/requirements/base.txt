@@ -8,7 +8,7 @@
 #--extra-index-url=http://dist.pinaxproject.com/dev/
 
 Django
-Pinax
+#Pinax
 
 django-debug-toolbar
 #django-staticfiles==0.2.0

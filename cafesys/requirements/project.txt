@@ -2,7 +2,7 @@
 # required by your project to run.
 
 --requirement=base.txt
--e git+https://github.com/pinax/django-notification.git#egg=django-notification
+#-e git+https://github.com/pinax/django-notification.git#egg=django-notification
 
 # Put project-specific requirements here.
 # See http://pip-installer.org/requirement-format.html for more information.
