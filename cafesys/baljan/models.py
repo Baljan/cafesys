@@ -309,7 +309,7 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
         requester_signup = ShiftSignup(**requester_kwargs)
         requester_signup.save()
         
-    traderequest_notice_delete(tr)
+    #traderequest_notice_delete(tr)
 signals.post_delete.connect(traderequest_post_delete, sender=TradeRequest)
 
 
