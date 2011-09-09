@@ -28,6 +28,11 @@
 {% endblock %}
 
 {% block nav %}
+    <div class="nyan">
+        <div class="rainbow catchadream"></div>
+        <img class="cat" src="{{STATIC_URL}}/img/nyancat-small.gif"/>
+    </div>
+
     <div id="links-for">
         {% for id, action_title, actions in action_categories %}
             <h3><a class="{{ id }}" href="#">{{ action_title }}</a></h3>

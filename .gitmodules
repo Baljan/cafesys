@@ -1,0 +1,3 @@
+[submodule "cafesys/baljan/static/rainbow"]
+	path = cafesys/baljan/static/rainbow
+	url = git@github.com:pilt/CSS3-Rainbow-Dividers.git

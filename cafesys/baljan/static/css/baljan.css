@@ -815,3 +815,21 @@ p.background-image {
 fieldset {
     border: none;
 }
+
+.nyan {
+    position: relative;
+    height: 36px;
+    width: 150px;
+    margin-top: -5px;
+}
+.nyan .cat {
+    position: absolute;
+    right: 0;
+}
+.nyan .rainbow {
+    position: absolute;
+    right: 20px;
+    left: 0;
+    top: 7px;
+    height: 19px;
+}

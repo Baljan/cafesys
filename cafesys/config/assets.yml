@@ -30,6 +30,7 @@ stylesheets:
         - public/css/960.css
         - public/css/flick/jquery-ui-1.8.2.custom.css
         - public/css/site_base.css
+        - public/rainbow/rainbows.css
         - public/css/baljan.css
     mobile:
         - public/mobile/css/*.css
