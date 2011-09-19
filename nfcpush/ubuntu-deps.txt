@@ -1,0 +1,3 @@
+pcsc-tools
+pcscd
+libccid
