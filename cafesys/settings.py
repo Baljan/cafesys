@@ -150,6 +150,7 @@ INSTALLED_APPS = [
     
     # project
     "baljan",
+    "terminal",
     "brassbird",
     "mobile",
 
@@ -308,6 +309,8 @@ ANALYTICS_KEY= ''
 STATS_CACHE = True
 
 BRASSBIRD_INTERFACE = 'baljan.brassbird'
+
+TERMINAL_TORNADO_PORT = 3500
 
 # local_settings.py can be used to override environment-specific settings
 # like database and email that differ between development and production.
