@@ -8,8 +8,7 @@ django-dajax
 django-dajaxice
 psycopg2
 mock
-tornado
-TornadIO
+tornado==2.1
 
 python-memcached
 johnny-cache
