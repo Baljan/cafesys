@@ -10,7 +10,6 @@ from django.conf import settings
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
-import tornadio
 
 insert_queue = Queue()
 
@@ -25,14 +24,14 @@ class CardInsertsHandler(tornado.web.RequestHandler):
 def insert_worker(ws):
     while True:
         data = insert_queue.get()
-        ws.send(data)
+        ws.write_message(data)
         print "write to ws: %r" % data
         insert_queue.task_done()
 
 
-class EventConnection(tornadio.SocketConnection):
+class EventHandler(tornado.websocket.WebSocketHandler):
 
-    def on_open(self, request, *args, **kwargs):
+    def open(self):
         print "event web socket opened"
         self.thread = Thread(target=insert_worker, args=(self,))
         self.thread.daemon = True
@@ -48,13 +47,10 @@ class EventConnection(tornadio.SocketConnection):
             self.thread.join()
 
 
-EventRouter = tornadio.get_router(EventConnection)
-
-
 app = tornado.web.Application([
     (r'/card_inserts', CardInsertsHandler),
-    EventRouter.route(),
-], socket_io_port=3501)
+    (r'/events', EventHandler),
+])
 
 class Command(BaseCommand):
     args = ''
