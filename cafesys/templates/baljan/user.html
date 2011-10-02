@@ -104,6 +104,19 @@
         {% endwith %}
     </div>
 
+    {% if watching_self %}
+    <div class="social">
+        <h2>{% trans "Social" %}</h2>
+        <ul>
+            <li>
+                <a href="https://www.facebook.com/dialog/oauth?client_id={{FACEBOOK_APP_ID}}&redirect_uri={{facebook_redirect_uri}}&scope=offline_access,publish_actions">
+                    Facebook
+                </a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
+
     {% with watched_groups as groups %}
     <div class="groups">
         <h2>{% trans "Groups" %}</h2>

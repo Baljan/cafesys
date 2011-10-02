@@ -9,6 +9,7 @@ django-dajaxice
 psycopg2
 mock
 tornado==2.1
+requests
 
 python-memcached
 johnny-cache

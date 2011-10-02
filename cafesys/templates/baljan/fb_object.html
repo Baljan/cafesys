@@ -1,0 +1,18 @@
+<html lang="{{LANGUAGE_CODE}}">
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# cafebaljan: http://ogp.me/ns/fb/cafebaljan#">
+    <title>{{good.title}}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta property="fb:app_id"      content="{{FACEBOOK_APP_ID}}"> 
+    <meta property="og:type"        content="cafebaljan:drink"> 
+    <meta property="og:url"         content="{{good_url}}">
+    <meta property="og:title"       content="{{good.title}}"> 
+    <meta property="og:description" content="{{good.description}}"> 
+    <meta property="og:image"       content="https://s-static.ak.fbcdn.net/images/devsite/attachment_blank.png"> 
+</head>
+
+<body>
+    {% with good.current_cost_dict as cost %}
+    <h1>{{good.title}} <small>{{cost.cost}} {{cost.currency}}</small></h1>
+    {% endwith %}
+</body>
+</html>

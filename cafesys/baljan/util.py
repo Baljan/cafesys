@@ -6,7 +6,9 @@ from django.db.models import Q
 from django.core.cache import cache
 from django.utils.hashcompat import md5_constructor
 from django.utils.http import urlquote
+from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.contrib.sites.models import Site
 import logging
 from sentry.client.handlers import SentryHandler
 import sys
@@ -330,6 +332,12 @@ def get_or_create_user(
 def random_string(length):
     pool = string.letters + string.digits
     return ''.join(random.choice(pool) for dummy in range(length))
+
+def current_site():
+    return Site.objects.get_current()
+
+def facebook_redirect_uri():
+    return u"http://%s%s" % (current_site().domain, reverse('facebook_auth'))
 
 
 def asciilize(s):

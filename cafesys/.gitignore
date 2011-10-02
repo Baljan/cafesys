@@ -9,3 +9,4 @@ site_media/*
 celerybeat-*
 /*.tar
 .sass-cache
+/secretz.py

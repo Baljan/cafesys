@@ -319,6 +319,11 @@ try:
 except ImportError:
     pass
 
+try:
+    from secretz import *
+except ImportError:
+    pass
+
 if LDAP_ENABLED:
     AUTHENTICATION_BACKENDS += [
         'baljan.ldapbackend.LDAPBackend',
