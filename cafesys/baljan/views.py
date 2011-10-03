@@ -310,23 +310,6 @@ def see_user(request, who):
                 (baljan.forms.ProfileForm, u.get_profile()),
                 )
 
-    if watching_self:
-        fb_log = get_logger('baljan.facebook')
-        profile = u.get_profile()
-        good = baljan.models.Good.objects.get(pk=1)
-        good_url = fb.good_url(good)
-        fb_log.info('posting to open graph, drink=%s' % good_url)
-        if profile.fb_access_token:
-            r = requests.post(fb.url('me/cafebaljan:have'),
-                data={
-                    'access_token': profile.fb_access_token,
-                    'drink': good_url,
-                    #'drink': 'http://samples.ogp.me/257648334277394',
-                }
-            )
-            print "status code: %s" % r.status_code
-            print "content: %s" % r.content
-
     if watching_self and request.method == 'POST':
         profile_forms = [c(request.POST, request.FILES, instance=i) 
                 for c, i in profile_form_cls_inst]
