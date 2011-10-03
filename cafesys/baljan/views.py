@@ -311,14 +311,17 @@ def see_user(request, who):
                 )
 
     if watching_self:
+        fb_log = get_logger('baljan.facebook')
         profile = u.get_profile()
         good = baljan.models.Good.objects.get(pk=1)
+        good_url = fb.good_url(good)
+        fb_log.info('posting to open graph, drink=%s' % good_url)
         if profile.fb_access_token:
             r = requests.post(fb.url('me/cafebaljan:have'),
                 data={
                     'access_token': profile.fb_access_token,
-                    #'drink': fb.good_url(good),
-                    'drink': 'http://samples.ogp.me/257648334277394',
+                    'drink': good_url,
+                    #'drink': 'http://samples.ogp.me/257648334277394',
                 }
             )
             print "status code: %s" % r.status_code
