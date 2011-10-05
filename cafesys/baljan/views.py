@@ -947,12 +947,15 @@ def facebook_auth(request):
             fb_log.warning('bad status code: %s' % r.status_code)
             messages.add_message(request, messages.ERROR, _("Bad Facebook status code: %s." % r.status_code))
     else:
-        error = request.GET('error')
-        error_reason = request.GET('error_reason')
-        error_desc = request.GET('error_description')
-        fb_log.info('user error: %r %r %s' % (
-            error, error_reason, error_desc))
-        messages.add_message(request, messages.ERROR, _("Facebook auth error."))
+        try:
+            error = request.GET['error']
+            error_reason = request.GET['error_reason']
+            error_desc = request.GET['error_description']
+            fb_log.info('user error: %r %r %s' % (
+                error, error_reason, error_desc))
+            messages.add_message(request, messages.ERROR, _("Facebook auth error."))
+        except:
+            messages.add_message(request, messages.ERROR, _("Facebook auth error."))
 
     profile_url = reverse('profile')
     return HttpResponseRedirect(profile_url)
