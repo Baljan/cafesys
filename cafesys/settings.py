@@ -150,9 +150,6 @@ INSTALLED_APPS = [
     
     # project
     "baljan",
-    "terminal",
-    "brassbird",
-    "mobile",
 
     "djcelery",
     "gunicorn",
