@@ -52,7 +52,7 @@ class Profile(Made):
             help_text=_("card ids can be manually set"))
     section = models.ForeignKey('baljan.Section', verbose_name=_("section"), blank=True, null=True)
 
-    fb_access_token = models.CharField(_("Facebook access token"), max_length=150, blank=True, default=u'')
+    fb_access_token = models.CharField(_("Facebook access token"), max_length=150, blank=True, null=True, default=u'')
 
     def balcur(self):
         return u"%s %s" % (self.balance, self.balance_currency)
