@@ -6,7 +6,7 @@ from datetime import date, datetime
 
 class Command(BaseCommand):
     args = ''
-    help = 'Dump orders per day in CSV format.'
+    help = 'Dump orders per month in CSV format.'
 
     def handle(self, *args, **options):
         valid = True 
