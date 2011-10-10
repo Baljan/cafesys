@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="utf-8">
+    <title>Sök till Baljans styrelse</title>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="{{ STATIC_URL }}assets/nomcom-datauri.css">
+</head>
+
+<body>
+    <div class="container">
+        <section id="poster">
+            <h1>
+                Poster
+                <small>
+                    Alla är inte lediga men alla är awesome
+                </small>
+            </h1>
+            {% for row in post_rows %}
+            <div class="row">
+                {% for post in row %}
+                <div class="span{{post.span}}">
+                    <div class="alert-message {{post.class}}">
+                        <p>
+                        <strong>{{post.title}}</strong>
+                        {{post.desc}}
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </section>
+        <div class="row">
+            <div class="span5">
+                <section id="jour">
+                    <h1>
+                        Jour
+                        <small>
+                            Har nästan alla poster
+                        </small>
+                    </h1>
+                    <p>
+                    Att joura innebär att man är på plats när fiket öppnar,
+                    stänger eller när personalen byts av under lunchen. Varje
+                    vecka är det två styrelsemedlemmar som jourar och delar
+                    på jourpassen (sju pass var om man delar lika). Under 
+                    ett pass i veckan behöver bägge jourande medlemmar vara på 
+                    plats för att banka.
+                    </p>
+                    <p>
+                    Man har jour tre veckor per termin (21 pass och tre 
+                    bankningar bör det bli). En del poster har ingen jourplikt.
+                    </p>
+                </section>
+            </div>
+            <div class="span5">
+                <section id="formaner">
+                    <h1>
+                        Förmåner
+                        <small>
+                            Jajamen
+                        </small>
+                    </h1>
+                    <p>
+                        <ul>
+                            <li>Gratis kaffe, te, läsk och klägg</li>
+                            <li>Skönt kontor att hänga och luncha i</li>
+                            <li>Personalfest</li>
+                        </ul>
+                    </p>
+                </section>
+            </div>
+            <div class="span6">
+                <section id="sok">
+                    <h1>
+                        Sök
+                        <small>
+                            Det är jättekul att sitta i styrelsen
+                        </small>
+                    </h1>
+                    <p>
+                    Maila <a href="mailto:val@baljan.org">val@baljan.org</a> om du vill söka 
+                    eller har frågor. Alla som söker blir kallade till intervju. Du kan också titta in i kontoret under någon av jourtiderna.
+                    </p>
+                </section>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

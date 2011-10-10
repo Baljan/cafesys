@@ -150,6 +150,7 @@ INSTALLED_APPS = [
     
     # project
     "baljan",
+    "nomcom",
 
     "djcelery",
     "gunicorn",

@@ -26,6 +26,7 @@ urlpatterns = patterns("",
     url(r'^logout/$', 'baljan.views.logout', name='logout'),
 
     (r"^baljan/", include("baljan.urls")),
+    (r"^val/", include("nomcom.urls")),
 
     (r"^admin/", include(admin.site.urls)),
     (r"^sentry/", include('sentry.urls')),
