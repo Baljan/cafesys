@@ -1,0 +1,3 @@
+[submodule "cafesys/nomcom/static/bootstrap"]
+	path = cafesys/nomcom/static/bootstrap
+	url = git://github.com/twitter/bootstrap.git

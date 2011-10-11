@@ -19,6 +19,10 @@ javascripts:
         - public/mobile/app/views/*.js
         - public/mobile/app/controllers/*.js
         - public/mobile/app/client.js
+    nomcom:
+        - public/bootstrap/js/bootstrap-dropdown.js
+        - public/bootstrap/js/bootstrap-twipsy.js
+        - public/bootstrap/js/bootstrap-scrollspy.js
 
 stylesheets:
     workspace:
@@ -33,3 +37,6 @@ stylesheets:
         - public/css/baljan.css
     mobile:
         - public/mobile/css/*.css
+    nomcom:
+        - public/bootstrap/bootstrap.min.css
+        - public/nomcom.css
