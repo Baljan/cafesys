@@ -59,7 +59,7 @@ def apply_board(request):
             'title': u'Partypuff',
             'desc': u'Arrangerar personalfest.',
         }, {
-            'class': 'error',
+            'class': 'success',
             'span': 4,
             'title': u'Möbel+termos',
             'desc': u'Det finns många möbler och termosar i Baljan.',
