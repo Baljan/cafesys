@@ -14,83 +14,82 @@
 
 <body>
     <div class="container">
-        <section id="poster">
-            <h1>
-                Poster
-                <small>
-                    Alla är inte lediga men alla är awesome
-                </small>
-            </h1>
-            {% for row in post_rows %}
-            <div class="row">
-                {% for post in row %}
-                <div class="span{{post.span}}">
-                    <div class="alert-message {{post.class}}">
-                        <p>
-                        <strong>{{post.title}}</strong>
-                        {{post.desc}}
-                        </p>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endfor %}
-        </section>
         <div class="row">
-            <div class="span5">
-                <section id="jour">
-                    <h1>
-                        Jour
-                        <small>
-                            Har nästan alla poster
-                        </small>
-                    </h1>
-                    <p>
-                    Att joura innebär att man är på plats när fiket öppnar,
-                    stänger eller när personalen byts av under lunchen. Varje
-                    vecka är det två styrelsemedlemmar som jourar och delar
-                    på jourpassen (sju pass var om man delar lika). Under 
-                    ett pass i veckan behöver bägge jourande medlemmar vara på 
-                    plats för att banka.
-                    </p>
-                    <p>
-                    Man har jour tre veckor per termin (21 pass och tre 
-                    bankningar bör det bli). En del poster har ingen jourplikt.
-                    </p>
-                </section>
-            </div>
-            <div class="span5">
-                <section id="formaner">
-                    <h1>
-                        Förmåner
-                        <small>
-                            Jajamen
-                        </small>
-                    </h1>
-                    <p>
-                        <ul>
-                            <li>Gratis kaffe, te, läsk och klägg</li>
-                            <li>Skönt kontor att hänga och luncha i</li>
-                            <li>Personalfest</li>
-                        </ul>
-                    </p>
-                </section>
-            </div>
-            <div class="span6">
-                <section id="sok">
-                    <h1>
-                        Sök
-                        <small>
-                            Det är jättekul att sitta i styrelsen
-                        </small>
-                    </h1>
-                    <p>
-                    Maila <a href="mailto:val@baljan.org">val@baljan.org</a> om du vill söka 
-                    eller har frågor. Alla som söker blir kallade till intervju. Du kan också titta in i kontoret under någon av jourtiderna.
-                    </p>
-                </section>
+            <div class="span16">
             </div>
         </div>
+        <div class="row">
+            <div class="span8">
+                <div class="info">
+                    <h1>
+                        Sök till Baljans styrelse
+                    </h1>
+                    <p>
+                    Nu söker vi i Baljanstyret nya medlemmar! Som styrelsemedlem har du chans att vara med och påverka Baljan och får vara med och driva vårt studentcafé.
+                    </p>
+                </div>
+            </div>
+
+            <div class="span8">
+                <div class="info">
+                    <h2>Mingel</h2>
+                    <p>
+                    Torsdag lunch <strong>3 november</strong> har du chansen att mingla med baljanstyret för frågor och funderingar. Några av oss kommer att sitta i Baljan hela lunchen för att träffa er. Det går självklart även bra att maila <a href="mailto:val@baljan.org">val@baljan.org</a> för frågor.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="span10">
+                <div class="info">
+                    <h2>
+                        Den här terminen har Baljan bland annat&hellip;
+                    </h2>
+                    <ul>
+                        <li>
+                        haft 122 fantastiska jobbare
+                        </li>
+                        <li>
+                        köpt in och delat ut mjukglass
+                        </li>
+                        <li>
+                        bytt leverantör av jochen till sänkt pris och högre kvalitet
+                        </li>
+                        <li>
+                        gett bort 1 680 st kanelbullar 
+                        </li>
+                        <li>
+                        sålt ungefär 40 000 koppar kaffe och 6 500 klägg
+                        </li>
+                        <li>
+                        och mycket mycket mer...
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="span6">
+                <div class="info">
+                    <p>
+                    Vad vill du ska hända i Baljans framtid? 
+                    Sök Baljanstyret!
+                    </p>
+                </div>
+                <div class="alert-message danger doit">
+                    <p class="mail">
+                    Maila <a href="mailto:val@baljan.org">val@baljan.org</a>.
+                    </p>
+                    <p class="latest">
+                    Senast
+                    <strong>6 november</strong>
+                    vill vi ha din ansökan.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="photo">
+        Foto: Jonas Olofsson
     </div>
 
     {% if ANALYTICS_KEY %}
