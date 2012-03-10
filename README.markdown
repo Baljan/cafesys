@@ -19,9 +19,11 @@ Run (you are recommended to do this inside a virtualenv):
     $ python manage.py syncdb --noinput
     $ python manage.py migrate
     $ python manage.py createsuperuser
+    $ python manage.py assets rebuild
     $ python manage.py runserver 
 
-Visit [http://localhost:8000/](http://localhost:8000/).
+Visit [http://localhost:8000/](http://localhost:8000/). Assets are rebuilt
+automatically.
 
 # External Dependencies
 ## Base dependencies
