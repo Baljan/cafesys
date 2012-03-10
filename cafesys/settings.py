@@ -30,6 +30,12 @@ DATABASES = {
     }
 }
 
+STATICFILES_FINDERS = [
+        "django.contrib.staticfiles.finders.FileSystemFinder",
+        "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+        "django_assets.finders.AssetsFinder",
+        ]
+
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 # although not all variations may be possible on all operating systems.
@@ -65,14 +71,10 @@ LANGUAGES = (
         ('en', u'English'),
         )
 
-# Bump when for example CSS or JS files change to force clients to download a
-# new version.
-MEDIA_AND_STATIC_VERSION = 13
-
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, "media")
-MEDIA_URL = "/media%d/" % MEDIA_AND_STATIC_VERSION
+MEDIA_URL = "/media/"
 STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
-STATIC_URL = "/static%d/" % MEDIA_AND_STATIC_VERSION
+STATIC_URL = "/static/"
 
 # Additional directories which hold static files
 STATICFILES_DIRS = [
@@ -102,7 +104,6 @@ MIDDLEWARE_CLASSES = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.doc.XViewMiddleware",
-    "pagination.middleware.PaginationMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.transaction.TransactionMiddleware',
 ]
@@ -118,9 +119,9 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
+    "django.core.context_processors.static",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
-    "staticfiles.context_processors.static_url",
     "baljan.ctx.actions",
     "baljan.ctx.analytics",
     "baljan.ctx.common",
@@ -141,12 +142,9 @@ INSTALLED_APPS = [
     
     # external
     #"mailer", # use django.core.mail instead
-    "pagination",
-    "timezones",
-    "ajax_validation",
     "uni_form",
-    "staticfiles",
     "debug_toolbar",
+    "django_assets",
     
     # project
     "baljan",
@@ -156,9 +154,6 @@ INSTALLED_APPS = [
     "gunicorn",
     "indexer",
     "paging",
-    "sentry",
-    "sentry.client",
-    "sentry.plugins.sentry_urls",
     "datagrid",
 
     # Migrations
@@ -167,15 +162,6 @@ INSTALLED_APPS = [
 
 import logging
 logging.basicConfig(level=logging.INFO)
-
-SENTRY_THRASHING_TIMEOUT = 0
-SENTRY_TESTING = True
-SENTRY_FILTERS = (
-        'sentry.filters.StatusFilter',
-        'sentry.filters.LoggerFilter',
-        'sentry.filters.LevelFilter',
-)
-SENTRY_PUBLIC = False
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 

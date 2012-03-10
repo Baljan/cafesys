@@ -29,7 +29,6 @@ urlpatterns = patterns("",
     (r"^val/", include("nomcom.urls")),
 
     (r"^admin/", include(admin.site.urls)),
-    (r"^sentry/", include('sentry.urls')),
 )
 
 

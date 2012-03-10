@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from baljan.models import ShiftSignup, OnCallDuty
-from icalendar import Calendar, Event, UTC
+from icalendar import Calendar, Event
 from django.db.models import Q
 from django.utils.translation import ugettext as _ 
 import pytz

@@ -25,3 +25,6 @@ South
 
 pyserial
 icalendar # LGPL
+
+webassets
+cssmin

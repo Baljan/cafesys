@@ -54,7 +54,7 @@ def categories_and_actions(request):
         ),
         ('sysadmins', _('sysadmins'), (
             Action(_('django admin site'), 'admin:index'),
-            Action(_('sentry'), 'sentry'),
+            #Action(_('sentry'), 'sentry'),
             Action(_('munin'), 'http://%s:%s/%s' % (domain, settings.MUNIN_PORT, settings.MUNIN_PATH), resolve_func=None),
             Action(_('github'), 'http://github.com/pilt/cafesys', resolve_func=None),
             )),

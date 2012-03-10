@@ -1,16 +1,27 @@
 # After Cloning
+## System Dependencies
+### OS X
+
+    $ brew install postgresql node
+    $ npm install -g uglify-js coffee-script
+
+Start the server. Either manually or through launchd, see output from
+Homebrew.
+
+    $ createdb cafesys
+
+## Python and Django
 Run (you are recommended to do this inside a virtualenv):
 
     $ pip install -r requirements.txt
     $ sudo yum -y install $(cat yum-packages.txt) # external deps
     $ cd cafesys
-    $ python manage.py syncdb
+    $ python manage.py syncdb --noinput
+    $ python manage.py migrate
+    $ python manage.py createsuperuser
+    $ python manage.py runserver 
 
-# Running a Development Server
-Run:
-
-    $ cd cafesys
-    $ python manage.py runserver 0.0.0.0:8000
+Visit http://localhost:8000/.
 
 # Virtualenv Crash Course
 Here is a crash course on how to get started with virtualenv and
@@ -32,24 +43,10 @@ virtualenvwrapper in Fedora:
     (cafesys) $ easy_install pip
     (cafesys) $ pip install -r requirements.txt
 
-## On Windows
-### Using VirtualBox (recommended)
-Install the [latest Fedora release](http://fedoraproject.org/get-fedora) on a
-[VirtualBox](http://www.virtualbox.org/) instance. If you want to work on the
-Windows host, configure shared folders.
-
-### Using Cygwin
-Install [cygwin](http://www.cygwin.com/) and be sure to include the Python and
-SQLite packages. This has not been tried to work; if you do it successfully,
-please let someone know so that we can update this readme.
-
 # External Dependencies
 ## Base dependencies
  * See `yum-packages.txt`. You can install them all by running 
    `yum -y install $(cat yum-packages.txt)`.
-
-## Kiosk Mode
- * Opera browser
 
 ## Smartcard Tools
  * The `pcsc-lite-devel` and `ccid` packages should be installed (in yum). 

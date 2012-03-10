@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load assets %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" xml:lang="{{ LANGUAGE_CODE }}" lang="{{ LANGUAGE_CODE }}">
     <head>
@@ -13,7 +14,10 @@
 
         <link href='//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:light,regular&subset=latin' rel='stylesheet' type='text/css'>
 
-        <link rel="stylesheet" href="{{ STATIC_URL }}assets/workspace-datauri.css">
+        {% assets "css_all" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+        {% endassets %}
+
         {% if LANGUAGE_BIDI %}
         <style type="text/css" media="screen">
             div.right_panel {
@@ -30,5 +34,7 @@
         {% block body_base %}{% endblock %}
     </body>
 
-    <script type="text/javascript" src="{{ STATIC_URL }}assets/workspace.js"></script>
+    {% assets "js_all" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
 </html>
