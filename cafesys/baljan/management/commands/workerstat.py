@@ -65,7 +65,7 @@ class Command(BaseCommand):
             future_count = None
         else:
             future_count = int(options['future_count'])
-        today = date(2011, 9, 9)
+        today = date.today()
 
         # FIXME: This can be done much faster.
         workers = list(User.objects.filter(shiftsignup__shift__semester=semester).distinct())
