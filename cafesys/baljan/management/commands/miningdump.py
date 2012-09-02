@@ -14,39 +14,6 @@ class Command(BaseCommand):
     args = 'OUTFILE'
     help = 'Save a dump (pickled) suitable to use for data mining.'
 
-    option_list = BaseCommand.option_list + (
-        make_option('-f', '--from',
-            type='string',
-            action='append',
-            metavar='GROUP',
-            dest='from_groups',
-            default=[],
-            help='From groups. Used with -d/--do.',
-        ),
-        make_option('-t', '--to',
-            type='string',
-            action='append',
-            metavar='GROUP',
-            dest='to_groups',
-            default=[],
-            help='To groups. Used with -d/--do.',
-        ),
-        make_option('-l', '--list',
-            action='store_true',
-            dest='list_groups',
-            default=False,
-            help='List groups.',
-        ),
-        make_option('-a', '--add',
-            type='string',
-            action='store',
-            metavar='GROUP',
-            dest='add_group',
-            default=None,
-            help='Add group to system.',
-        ),
-    )
-
     def handle(self, *args, **options):
         out_file = args[0]
         if os.path.exists(out_file):
