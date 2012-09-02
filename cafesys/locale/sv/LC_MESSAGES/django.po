@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-14 11:57+0200\n"
+"POT-Creation-Date: 2012-02-05 15:08+0100\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,46 +66,54 @@ msgstr "jobbare"
 
 #: baljan/actions.py:62
 msgid "guide"
-msgstr ""
+msgstr "guide"
 
-#: baljan/actions.py:66
+#: baljan/actions.py:63
+msgid "contract"
+msgstr "kontrakt"
+
+#: baljan/actions.py:64
+msgid "add shifts to calendar program"
+msgstr "lägga till pass i kalenderprogram"
+
+#: baljan/actions.py:68
 msgid "your account"
 msgstr "ditt konto"
 
-#: baljan/actions.py:67 baljan/models.py:81 templates/baljan/user.html:57
+#: baljan/actions.py:69 baljan/models.py:81 templates/baljan/user.html:57
 #: templates/baljan/user.html.py:146
 msgid "profile"
 msgstr "profil"
 
-#: baljan/actions.py:68
+#: baljan/actions.py:70
 msgid "credits"
 msgstr "konto"
 
-#: baljan/actions.py:69 baljan/models.py:888
+#: baljan/actions.py:71 baljan/models.py:888
 msgid "orders"
 msgstr "köp"
 
-#: baljan/actions.py:71
+#: baljan/actions.py:73
 msgid "users"
 msgstr "användare"
 
-#: baljan/actions.py:72
+#: baljan/actions.py:74
 msgid "work planning"
 msgstr "jobbplanering"
 
-#: baljan/actions.py:73
+#: baljan/actions.py:75
 msgid "work for Baljan"
 msgstr "jobba i Baljan"
 
-#: baljan/actions.py:74
+#: baljan/actions.py:76
 msgid "people and groups"
 msgstr "personer och grupper"
 
-#: baljan/actions.py:75
+#: baljan/actions.py:77
 msgid "high score"
 msgstr "topplista"
 
-#: baljan/actions.py:76
+#: baljan/actions.py:78
 msgid "price list"
 msgstr "prislista"
 
@@ -1062,15 +1070,15 @@ msgstr ""
 "                byta till en webbläsare med stöd för transparens.\n"
 "                "
 
-#: templates/site_base.html:19
+#: templates/site_base.html:18
 msgid "logout"
 msgstr "logga ut"
 
-#: templates/site_base.html:21
+#: templates/site_base.html:20
 msgid "login"
 msgstr "logga in"
 
-#: templates/admin/base.html:60
+#: templates/admin/base.html:58
 msgid "Home"
 msgstr "Hem"
 
@@ -1830,7 +1838,7 @@ msgstr "Prislista"
 msgid "Assortment"
 msgstr "Sortiment"
 
-#: templates/baljan/price_list.html:20
+#: templates/baljan/price_list.html:34
 msgid "Ordering From Us"
 msgstr "Beställa från oss"
 

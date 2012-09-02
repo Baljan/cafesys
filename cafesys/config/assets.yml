@@ -5,20 +5,10 @@ compress_assets: off
 javascripts:
     workspace:
         - public/js/jquery-1.4.2.min.js
-        - public/pinax/js/base.js
         - public/js/jquery.plugins.js
         - public/js/jquery-ui-*.min.js
         - public/js/uni-form.jquery.js
         - public/js/baljan.js
-    senchatouch:
-        - public/mobile/underscore.js
-        - public/sencha/sencha-touch-debug.js
-    mobile:
-        - public/mobile/app/prelude.js
-        - public/mobile/app/models/*.js
-        - public/mobile/app/views/*.js
-        - public/mobile/app/controllers/*.js
-        - public/mobile/app/client.js
     nomcom:
         - public/bootstrap/js/bootstrap-dropdown.js
         - public/bootstrap/js/bootstrap-twipsy.js
@@ -26,17 +16,12 @@ javascripts:
 
 stylesheets:
     workspace:
-        - public/pinax/css/facebox.css
-        - public/pinax/css/announcements.css
-        - public/pinax/css/accounts.css
         - public/uni_form/uni-form.css
         - public/uni_form/default.uni-form.css
         - public/css/960.css
         - public/css/flick/jquery-ui-1.8.2.custom.css
         - public/css/site_base.css
         - public/css/baljan.css
-    mobile:
-        - public/mobile/css/*.css
     nomcom:
         - public/bootstrap/bootstrap.min.css
         - public/nomcom.css

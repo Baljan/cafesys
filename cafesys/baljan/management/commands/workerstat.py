@@ -38,6 +38,14 @@ class Command(BaseCommand):
             default='',
             help='Show only users that have these many shifts in the future.'
         ),
+        make_option('-t', '--type',
+            type='string',
+            action='store',
+            metavar='TYPE',
+            dest='type',
+            default='text',
+            help='Output type. Can be text or csv.'
+        ),
     )
 
 
@@ -57,13 +65,15 @@ class Command(BaseCommand):
             future_count = None
         else:
             future_count = int(options['future_count'])
-        today = date(2011, 9, 9)
+        today = date.today()
 
         # FIXME: This can be done much faster.
         workers = list(User.objects.filter(shiftsignup__shift__semester=semester).distinct())
         workers.sort(key=lambda x: x.shiftsignup_set.all().count(), reverse=True)
         signup_counts = sorted(set([w.shiftsignup_set.all().count() for w in workers]), reverse=True)
-        print "%d worker(s):" % len(workers)
+
+        if options['type'] == 'text':
+            print "%d worker(s):" % len(workers)
         tot_count = 0
         indent = " " * 4
         for signup_count in signup_counts:
@@ -73,15 +83,23 @@ class Command(BaseCommand):
             tot_count += c
             if signup_count > upper_limit:
                 continue
-            print "%3d shift(s): %3d (%.2G%%)" % (signup_count, c, 100.0*c/len(workers))
+            if options['type'] == 'text':
+                print "%3d shift(s): %3d (%.2G%%)" % (signup_count, c, 100.0*c/len(workers))
             if signup_count < names_limit:
                 for w in workers_with_count_signups:
                     if future_count is not None:
                         if w.shiftsignup_set.filter(shift__when__gte=today).count() != future_count:
                             continue
-                    readable = u"%s%s (%s)" % (indent, w.get_full_name(), w.username)
+                    if options['type'] == 'text':
+                        readable = u"%s%s (%s)" % (indent, w.get_full_name(), w.username)
+                    elif options['type'] == 'csv':
+                        readable = u"%s,%s,%s,%s" % (
+                            signup_count, w.first_name, w.last_name, w.username)
+                    else:
+                        assert False, "bad type: %s" % options['type']
                     print readable.encode('utf-8')
             else:
-                print "%stoo many to print" % indent
+                if options['type'] == 'text':
+                    print "%stoo many to print" % indent
 
         assert tot_count == len(workers)
