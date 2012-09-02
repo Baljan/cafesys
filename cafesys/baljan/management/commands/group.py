@@ -12,56 +12,57 @@ from django.utils.translation import ugettext as _
 from django.db import transaction
 
 from baljan.util import get_logger, asciilize, random_string
+from baljan.models import ShiftCombination
+from baljan.models import Semester
 
 log = get_logger('baljan.commands.group')
 
 
-def google_apps_identifier(user, memo):
+def google_apps_identifier(user, ctx):
     """For Google Apps bulk uploads."""
     email = "%s@baljan.org" % (asciilize(user.get_full_name().lower()).replace(' ', '.'))
     return ','.join([email, user.first_name, user.last_name, random_string(8)])
 
 
-def full_identifier(user, memo):
+def full_identifier(user, ctx):
     name = user.get_full_name()
     uname = user.username
     full = u"%s, %s" % (name, uname)
     return full.encode('latin-1')
 
-def csv_identifier(user, memo):
-    if 'today' not in memo:
-        memo['today'] = datetime.date.today()
-    if 'next' not in memo:
-        memo['next'] = 1
-    if 'combs' not in memo:
-        memo['combs'] = dict()
-
-    today = memo['today']
-    next = memo['next']
-    upcoming_signups = user.shiftsignup_set.filter(
-        shift__when__gte=today).order_by('shift__when', 'shift__span')
-    comb_hash = "|".join(str(uc.shift.id) for uc in upcoming_signups)
-    if comb_hash not in memo['combs']:
-        memo['combs'][comb_hash] = next
-        next += 1
-    comb_num = memo['combs'][comb_hash]
-    memo['next'] = next
-
-    csv = u"%s,%s,%s,%s,%s,%s" % (
+def csv_identifier(user, ctx):
+    fields = [
         user.first_name, 
         user.last_name, 
         user.username, 
         "%s@student.liu.se" % user.username, 
         user.shiftsignup_set.count(),
-        comb_num,
-    )
+    ]
+    if 'semester' in ctx and 'combinations' in ctx:
+        sem = ctx['semester']
+        combs = ctx['combinations']
+        sem_signups = user.shiftsignup_set.filter(shift__semester=sem)
+        comb_name = "NONE"
+        if sem_signups.exists():
+            sem_combs = combs.filter(shifts__in=[s.shift for s in sem_signups])
+            if sem_combs.exists():
+                labels = [c.label for c in sem_combs]
+                uniq = list(set(labels))
+                if len(uniq) == 1:
+                    comb_name = uniq[0]
+                else:
+                    uniq.sort()
+                    comb_name = "MULTI: %s" % "+".join(uniq)
+        fields.append(comb_name)
+
+    csv = u",".join(map(unicode, fields))
     return csv.encode('utf-8')
 
         
 id_funs = {
-    'username': (lambda u, memo: "%s" % u.username, ('username',)),
-    'email': (lambda u, memo: "%s" % u.email, ('email',)),
-    'name': (lambda u, memo: u.get_full_name().encode('latin-1'), ('first_name', 'last_name')),
+    'username': (lambda u, ctx: "%s" % u.username, ('username',)),
+    'email': (lambda u, ctx: "%s" % u.email, ('email',)),
+    'name': (lambda u, ctx: u.get_full_name().encode('latin-1'), ('first_name', 'last_name')),
     'googleapps': (google_apps_identifier, ('first_name', 'last_name')),
     'full': (full_identifier, ('last_name', 'first_name')),
     'csv': (csv_identifier, ('first_name', 'last_name', 'username')),
@@ -95,8 +96,11 @@ def task_list(from_groups, to_groups, opts):
     users = get_members(from_groups).order_by(*sort_order)
     if opts['identifier'] in id_header:
         print id_header[opts['identifier']]
-    memo = dict()
-    print "\n".join(id(m, memo) for m in users)
+    ctx = dict(opts=opts)
+    if opts["semester"] is not None:
+        ctx["semester"] = sem = Semester.objects.by_name(opts["semester"])
+        ctx["combinations"] = ShiftCombination.objects.filter(semester=sem).distinct()
+    print "\n".join(id(m, ctx) for m in users)
 
 @transaction.commit_manually
 def task_add(from_groups, to_groups, opts):
@@ -109,11 +113,11 @@ def task_add(from_groups, to_groups, opts):
 
     users = get_members(from_groups)
     to_group_names = get_group_names(to_groups)
-    memo = dict()
+    ctx = dict(opts=opts)
     for user in users:
         [user.groups.add(g) for g in to_groups]
         sys.stderr.write('added %s to %s\n' % (
-            id(user, memo), ", ".join(to_group_names)))
+            id(user, ctx), ", ".join(to_group_names)))
     transaction.commit()
 
 @transaction.commit_manually
@@ -129,11 +133,11 @@ def task_delete(from_groups, to_groups, opts):
 
     users = get_members(from_groups)
     from_group_names = get_group_names(from_groups)
-    memo = dict()
+    ctx = dict(opts=opts)
     for user in users:
         [user.groups.remove(g) for g in from_groups]
         sys.stderr.write('removed %s from %s\n' % (
-            id(user, memo), ", ".join(from_group_names)))
+            id(user, ctx), ", ".join(from_group_names)))
     transaction.commit()
 
 tasks = {
@@ -193,6 +197,14 @@ class Command(BaseCommand):
             default='username',
             help='Set identifier to use and/or show. Choices are: %s (default: %s).' % (
                 ", ".join(id_funs.keys()), "%default"),
+        ),
+        make_option('-s', '--semester',
+            type='string',
+            action='store',
+            metavar='SEMESTER',
+            dest='semester',
+            default=None,
+            help='Semester (used by some tasks)',
         ),
     )
 
