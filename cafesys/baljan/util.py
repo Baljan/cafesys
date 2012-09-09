@@ -333,11 +333,9 @@ def random_string(length):
     pool = string.letters + string.digits
     return ''.join(random.choice(pool) for dummy in range(length))
 
+
 def current_site():
     return Site.objects.get_current()
-
-def facebook_redirect_uri():
-    return u"http://%s%s" % (current_site().domain, reverse('facebook_auth'))
 
 
 def asciilize(s):

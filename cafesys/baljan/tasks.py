@@ -10,7 +10,6 @@ from datetime import datetime
 from baljan import orders
 from baljan.card2user import Card2User
 from baljan import stats
-from baljan import fb
 from baljan.models import Good
 from django.core.cache import cache
 
@@ -63,24 +62,6 @@ def blipper_reading_cards():
     lcd.send([u"Blipparen", u"läser kort"])
 
 @task(ignore_result=True)
-def push_social(user, goods):
-    # TODO: Check what the user ordered. Now it is just assumed
-    # that a coffee or tea was ordered.
-    profile = user.get_profile()
-    if not profile.fb_access_token:
-        return
-    good = Good.objects.get(pk=1)
-    good_url = fb.good_url(good)
-    r = requests.post(fb.url('me/cafebaljan:have'),
-        data={
-            'access_token': profile.fb_access_token,
-            'drink': good_url,
-        }
-    )
-    print "status code: %s" % r.status_code
-    print "content: %s" % r.content
-
-@task(ignore_result=True)
 def default_order_from_card(card_id):
     lcd.last_send = datetime.now()
     orderer = user_finder.find(card_id)
@@ -100,7 +81,6 @@ def default_order_from_card(card_id):
         else:
             line2 = u"saldo: %s" % orderer.get_profile().balcur()
         lcd.send([u"tack %s" % orderer.username, line2])
-        push_social.delay(orderer, preorder.goods)
         tasklog.info('order was accepted')
     else:
         line2 = u"saldo: %s" % orderer.get_profile().balcur()

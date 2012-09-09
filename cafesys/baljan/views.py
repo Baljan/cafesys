@@ -29,12 +29,10 @@ import baljan.forms
 import baljan.models
 import baljan.search
 import baljan.ical
-from baljan import fb
 from baljan import stats
 from baljan import pdf
 from baljan.util import get_logger, year_and_week, all_initials
 from baljan.util import adjacent_weeks, week_dates
-from baljan.util import facebook_redirect_uri
 from baljan.util import htmlents
 
 if getattr(settings, 'LDAP_ENABLED', True):
@@ -910,52 +908,3 @@ def high_score(request, year=None, week=None):
     tpl['section_stats'] = fetched_section_stats
     return render_to_response('baljan/high_score.html', tpl, 
             context_instance=RequestContext(request))
-
-
-def facebook_good(request, good_pk):
-    tpl = {}
-    good = get_object_or_404(baljan.models.Good, pk=int(good_pk))
-    tpl['good'] = good
-    tpl['good_url'] = fb.good_url(good)
-    return render_to_response('baljan/fb_object.html', tpl, 
-            context_instance=RequestContext(request))
-
-
-@login_required
-def facebook_auth(request):
-    fb_log = get_logger('baljan.facebook')
-    if 'code' in request.GET:
-        code = request.GET['code']
-        fb_log.info('got code for %s' % request.user.username)
-        r = requests.get("https://graph.facebook.com/oauth/access_token",
-                params={
-                    'client_id': settings.FACEBOOK_APP_ID,
-                    'client_secret': settings.FACEBOOK_APP_SECRET,
-                    'redirect_uri': facebook_redirect_uri(),
-                    'code': code,
-                }
-            )
-        if r.status_code == 200:
-            parsed = parse_qs(r.content)
-            token = parsed['access_token'][0]
-            user_profile = request.user.get_profile()
-            user_profile.fb_access_token = token
-            user_profile.save()
-            fb_log.info('FB access token set for %s' % request.user.username)
-            messages.add_message(request, messages.SUCCESS, _("Facebook auth successful."))
-        else:
-            fb_log.warning('bad status code: %s' % r.status_code)
-            messages.add_message(request, messages.ERROR, _("Bad Facebook status code: %s." % r.status_code))
-    else:
-        try:
-            error = request.GET['error']
-            error_reason = request.GET['error_reason']
-            error_desc = request.GET['error_description']
-            fb_log.info('user error: %r %r %s' % (
-                error, error_reason, error_desc))
-            messages.add_message(request, messages.ERROR, _("Facebook auth error."))
-        except:
-            messages.add_message(request, messages.ERROR, _("Facebook auth error."))
-
-    profile_url = reverse('profile')
-    return HttpResponseRedirect(profile_url)
