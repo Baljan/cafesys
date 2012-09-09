@@ -247,11 +247,7 @@ SOUND_LEADER = 'mk64_mario03.wav'
 
 import djcelery
 djcelery.setup_loader()
-BROKER_HOST = "localhost"
-BROKER_PORT = 5672
-BROKER_USER = "guest"
-BROKER_PASSWORd = "guest"
-BROKER_VHOST = "/"
+BROKER_URL = "amqp://guest:guest@127.0.0.1:5672/"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = ''
