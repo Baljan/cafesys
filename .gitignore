@@ -8,3 +8,4 @@ src
 core.*
 /*.tar
 *.vim
+logs/

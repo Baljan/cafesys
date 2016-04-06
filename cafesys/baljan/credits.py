@@ -112,4 +112,10 @@ def use_code_on(bc, user):
     profile.balance += bc.value
     profile.save()
     log.info('%s used %s' % (user, bc))
+
+    group = bc.refill_series.add_to_group
+    if group:
+        group.user_set.add(user)
+        log.info('added %s to group %s' % (user, group.name))
+
     return True

@@ -1,10 +1,12 @@
 {% load i18n %}
+{% load compress %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" xml:lang="{{ LANGUAGE_CODE }}" lang="{{ LANGUAGE_CODE }}">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <title>{% block head_title_base %}{% if SITE_NAME %}{{ SITE_NAME }} : {% endif %}{% block head_title %}{% endblock %}{% endblock %}</title>
         <link rel="shortcut icon" href="{{ STATIC_URL}}img/logo/favicon.ico" />
+	<!--<link href="{{STATIC_URL}}img/apple-touch-icon.png" rel="apple-touch-icon" />-->
         <!--[if IE]><style>
             div {
                 zoom: 1; /* trigger hasLayout */
@@ -13,7 +15,24 @@
 
         <link href='//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:light,regular&subset=latin' rel='stylesheet' type='text/css'>
 
-        <link rel="stylesheet" href="{{ STATIC_URL }}assets/workspace-datauri.css">
+        {% compress css %}
+        <link rel="stylesheet" href="{{STATIC_URL}}uni_form/uni-form.css">
+        <link rel="stylesheet" href="{{STATIC_URL}}uni_form/default.uni-form.css">
+        <link rel="stylesheet" href="{{STATIC_URL}}css/960.css">
+        <link rel="stylesheet" href="{{STATIC_URL}}jquery-ui-1.8.24/themes/base/minified/jquery-ui.min.css">
+        <link rel="stylesheet" href="{{STATIC_URL}}css/site_base.css">
+   	<link rel="stylesheet" href="{{STATIC_URL}}css/baljan.css">
+
+        {% endcompress %}
+   
+        {% compress js %}
+        <script type="text/javascript" src="{{STATIC_URL}}js/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/jquery.plugins.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}jquery-ui-1.8.24/ui/minified/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/uni-form.jquery.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/baljan.js"></script>
+        {% endcompress %}
+
         {% if LANGUAGE_BIDI %}
         <style type="text/css" media="screen">
             div.right_panel {
@@ -29,6 +48,4 @@
     <body class="{% block body_class %}{% endblock %}">
         {% block body_base %}{% endblock %}
     </body>
-
-    <script type="text/javascript" src="{{ STATIC_URL }}assets/workspace.js"></script>
 </html>

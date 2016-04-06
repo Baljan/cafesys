@@ -44,7 +44,6 @@ class Accepted(Processed):
 
     def create_order_and_update_balance(self):
         preorder = self.preorder
-
         paid, cur = preorder.costcur(silent=True)
         order = Order(
             put_at=preorder.put_date,
@@ -53,19 +52,16 @@ class Accepted(Processed):
             currency=cur,
             accepted=True)
         order.save()
-
         profile = preorder.user.get_profile()
         profile.balance -= paid
         assert profile.balance_currency == cur
         profile.save()
-
         for good, count in preorder.goods:
             og = OrderGood(
                     order=order,
                     good=good,
                     count=count)
             og.save()
-
         log.info('created order %r' % order)
 
 
@@ -243,7 +239,6 @@ class Clerk(object):
         balance_currency = profile.balance_currency
 
         cost, cur = preorder.costcur()
-
         if cur != balance_currency:
             denied = Denied(preorder, _("Mixed currencies."))
             return denied

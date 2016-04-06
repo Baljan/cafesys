@@ -31,6 +31,7 @@ DATE_FORMAT = '%Y-%m-%d'
 DATETIME_FORMAT = '%Y-%m-%d %H:%M'
 
 font = ('Helvetica', 12)
+group_font = ('Helvetica-Bold', 14)
 footer_font = ('Helvetica', 8)
 
 try:
@@ -55,6 +56,11 @@ class RefillCard(object):
         c.setFont(*font)
         c.drawString(pad, topmost_off, 'Baljan (baljan.org)')
         c.drawRightString(w-pad, topmost_off, '%d %s' % (code.value, code.currency))
+
+        add_to_group = series.add_to_group
+        if add_to_group:
+            c.setFont(*group_font)
+            c.drawCentredString(w/2, h * 0.7, add_to_group.name.lstrip(u"_"))
         
         c.setFont(*code_font)
         c.drawCentredString(w/2, h * 0.46, code.code)

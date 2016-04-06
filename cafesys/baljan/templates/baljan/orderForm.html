@@ -1,0 +1,414 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+{% load baljan_extras %}
+{% block body_class %}orderForm{% endblock %}
+{% block head_title %} Beställa från Baljan {% endblock %}
+{% block body %}
+
+<h1> Beställa från Baljan </h1>
+<div class = "grid_10 alpha main">
+<div>
+Här kan ni enkelt skicka beställningar till Baljan! <br>Saknar ni något fält eller har någon fundering kring er beställning kan ni lägga till det under ”Övrig information” längst ner i formuläret eller kontakta styrelsen via mail: <a href="mailto:bestallning@baljan.org">bestallning@baljan.org</a>. För att formuläret ska fungera behöver ni ha Javascript aktiverat i webbläsaren, vissa datorsalar på LiU har Javascript avstängt.
+</div>
+</div>
+<div class = "grid_5 alpha main">
+	<form method="post">
+	{% csrf_token %}
+	<div class ="contactInfo">	                       
+                <h2> Kontaktuppgiter </h2>
+                <p> Namn: <br>  {{ form.orderer }} </p>
+                {% if form.orderer.errors %}<p><FONT COLOR="red"> {{ form.orderer.errors}} </FONT> </p> {% endif %}   
+
+                <p> Email: <br> {{ form.ordererEmail }}</p>
+                {% if form.ordererEmail.errors %} <p><FONT COLOR = "red"> {{ form.ordererEmail.errors }}</FONT> </p> {% endif %}
+
+                <p> Telefon:<br>{{form.phoneNumber}}
+                {% if form.phoneNumber.errors %}<p> <FONT COLOR ="red"> {{ form.phoneNumber.errors }}</FONT> </p> {% endif %}
+     
+                <p> Sektion/Förening: <br> {{form.association}}
+                {% if form.association.errors %}<p> <FONT COLOR = "red"> {{ form.association.errors}}</FONT> </p> {% endif %}	
+	</div> <!-- End contactInfo -->
+
+	<div class="pickupInfo">
+        	<h2> Kontaktuppgiter uthämtare</h2>
+        	        <p> Samma som beställare:{{form.sameAsOrderer}}</p>
+
+			<p> Namn: <br>  {{ form.pickupName }} </p>
+               		{% if form.pickupName.errors %}<p><FONT COLOR="red"> {{ form.pickupName.errors}} </FONT> </p> {% endif %}
+
+                	<p> Email: <br> {{ form.pickupEmail }}</p>
+                	{% if form.pickupEmail.errors %} <p><FONT COLOR = "red"> {{ form.pickupEmail.errors }}</FONT> </p> {% endif %}
+
+                	<p> Telefon:<br>{{form.pickupNumber}}
+                	{% if form.pickupNumber.errors %}<p> <FONT COLOR ="red"> {{ form.pickupNumber.errors }}</FONT> </p> {% endif %} 
+
+		<script>
+		  function calcSum(highlight) {
+		    highlight = typeof highlight !== 'undefined' ? highlight : true;
+		    var userInput = 30*document.getElementById('id_numberOfJochen').value + 6*document.getElementById('id_numberOfCoffee').value
+                                    + 6*document.getElementById('id_numberOfTea').value + 5*document.getElementById('id_numberOfSoda').value
+                                    + 6*document.getElementById('id_numberOfKlagg').value;
+		    document.getElementById('currentSum').innerHTML = userInput;
+                    document.getElementById("id_orderSum").value = userInput;
+                    
+                    if (highlight) {
+		      $("#currentSum").effect("highlight");
+		    }
+		  }
+
+
+		window.onload=function justdoit(){ 
+
+			$("#id_sameAsOrderer").live('change',function(){   
+                        	$("#id_pickupName").effect("highlight");
+                        	$("#id_pickupEmail").effect("highlight");
+                        	$("#id_pickupNumber").effect("highlight");
+                   
+ 				if($(this).is(':checked')){
+                                	document.getElementById('id_pickupName').value=document.getElementById('id_orderer').value
+                                	document.getElementById('id_pickupName').readOnly=true
+                                	document.getElementById('id_pickupEmail').value=document.getElementById('id_ordererEmail').value
+                                	document.getElementById('id_pickupEmail').readOnly=true
+                                	document.getElementById('id_pickupNumber').value=document.getElementById('id_phoneNumber').value
+                                	document.getElementById('id_pickupNumber').readOnly=true
+                        	}
+                       	 	else{   
+                                	document.getElementById('id_pickupName').value=""
+                                	document.getElementById('id_pickupName').readOnly=false   
+                                	document.getElementById('id_pickupEmail').value=""
+                                	document.getElementById('id_pickupEmail').readOnly=false
+                                	document.getElementById('id_pickupNumber').value=""
+                                	document.getElementById('id_pickupNumber').readOnly=false
+                        	}                          
+                     	});
+
+			$('#id_orderer').bind('input', function() { 
+                              	document.getElementById('id_pickupName').readOnly=true
+                                document.getElementById('id_pickupEmail').readOnly=true
+                                document.getElementById('id_pickupNumber').readOnly=true
+				if(document.getElementById('id_sameAsOrderer').checked){ 
+                               		document.getElementById('id_pickupName').value=document.getElementById('id_orderer').value        
+				}                             
+                        });
+                        $('#id_ordererEmail').bind('input', function() {                
+		                document.getElementById('id_pickupName').readOnly=true
+                                document.getElementById('id_pickupEmail').readOnly=true
+                                document.getElementById('id_pickupNumber').readOnly=true
+				if(document.getElementById('id_sameAsOrderer').checked){ 
+                          	      	document.getElementById('id_pickupEmail').value=document.getElementById('id_ordererEmail').value
+				}
+                        }); 
+                        $('#id_phoneNumber').bind('input', function() {                 
+		                document.getElementById('id_pickupName').readOnly=true
+                                document.getElementById('id_pickupEmail').readOnly=true
+                                document.getElementById('id_pickupNumber').readOnly=true
+				if(document.getElementById('id_sameAsOrderer').checked){ 
+                        	        document.getElementById('id_pickupNumber').value=document.getElementById('id_phoneNumber').value
+				}
+                        });
+			}
+
+        	</script>	
+	</div> <!-- End pickupInfo -->	
+	
+
+	<div id="items" >
+		<h2> Beställning </h2> 
+		<div align="center"> 
+		<script>
+  			$(function() {
+   			$( "#check" ).button();
+    			$( "#items" ).buttonset();
+  			});
+
+			$("#id_jochenSelected").live('change',function(){
+        			if($(this).is(':checked')){
+                			$("#jochen").show("fast");
+					$("#id_numberOfJochen").focus();
+                		}
+        			else{
+                			$("#jochen").hide("fast");
+        				document.getElementById('id_numberOfJochen').value=""
+			                calcSum();
+		                   
+				}       
+			});
+  
+			$("#id_coffeeSelected").live('change',function(){
+        			if($(this).is(':checked')){
+        				$("#coffee").show("fast");
+					$("#id_numberOfCoffee").focus();
+               			}
+        			else{
+        				$("#coffee").hide("fast");
+					document.getElementById('id_numberOfCoffee').value=""
+			                calcSum();
+       			       	}       
+			});
+  		
+			$("#id_teaSelected").live('change',function(){
+        			if($(this).is(':checked')){
+        				$("#tea").show("fast");
+					$("#id_numberOfTea").focus();
+        			}
+        			else{
+        				$("#tea").hide("fast");
+                                        document.getElementById('id_numberOfTea').value=""
+                                        calcSum();
+        			}       
+			});
+  
+			$("#id_sodaSelected").live('change',function(){
+				if($(this).is(':checked')){
+        				$("#soda").show("fast");
+					$("#id_numberOfSoda").focus();
+        			}
+        			else{
+       					$("#soda").hide("fast");
+					document.getElementById('id_numberOfSoda').value=""
+			                calcSum();		
+				}       
+			});
+  			
+			$("#id_klaggSelected").live('change',function(){
+        			if($(this).is(':checked')){
+        				$("#klagg").show("fast");
+					$("#id_numberOfKlagg").focus();
+        			}
+        			else{
+        				$("#klagg").hide("fast");
+					document.getElementById('id_numberOfKlagg').value=""
+                                        calcSum();
+        			}       
+
+			});
+  
+		</script>
+	
+		{{form.jochenSelected}}
+	  	<input type="checkbox" id="#id_jochenSelected" /><label for="id_jochenSelected">Jochen</label> 
+	      	{{form.coffeeSelected}}
+		<input type="checkbox" id="#id_coffeeSelected" /><label for="id_coffeeSelected">Kaffe</label>
+  	      	{{form.teaSelected}}
+		<input type="checkbox" id="#id_teaSelected" /><label for="id_teaSelected">Te</label>
+  		{{form.sodaSelected}}
+		<input type="checkbox" id="#id_sodaSelected" /><label for="id_sodaSelected">Läsk</label>
+ 		{{form.klaggSelected}}
+		<input type="checkbox" id="#id_klaggSelected" /><label for="id_klaggSelected">Klägg</label>
+	        </div>
+	
+
+			
+		{% if form.jochenSelected.value %} 
+               		<div id="jochen">
+		{% endif %}         
+
+                {% if not form.jochenSelected.value %} 
+			 <div id="jochen" style="display:none;">
+		{% endif %}       
+       				<label for="id_numberOfJochen" id="noj"> Antal Jochen: </label>
+        	        	<br>{{ form.numberOfJochen }}
+                	       	{% if form.numberOfJochen.errors %}  <p><FONT COLOR="red"> {{ form.numberOfJochen.errors}} </FONT> </p> {% endif %}
+               		</div> 
+
+                {% if form.coffeeSelected.value %}
+                        <div id="coffee">
+                {% endif %}        
+               
+                {% if not form.coffeeSelected.value %}
+                         <div id="coffee" style="display:none;">
+                {% endif %} 
+		     	<label for="id_numberOfCoffee" id="noc"> Antal kaffe: </label>
+                	<br>{{ form.numberOfCoffee }}
+			{% if form.numberOfCoffee.errors %}<p><FONT COLOR="red"> {{ form.numberOfCoffee.errors}} </FONT> </p> {% endif %}
+                </div>
+                
+
+                {% if form.teaSelected.value %}
+                        <div id="tea">
+                {% endif %}                
+                {% if not form.teaSelected.value %}
+                         <div id="tea" style="display:none;">
+                {% endif %} 	
+			<label for="id_numberOfTea" id="not"> Antal te:</label>
+                	<br>{{ form.numberOfTea }}
+                	{% if form.numberOfTea.errors %}<p><FONT COLOR="red"> {{ form.numberOfTea.errors}} </FONT> </p> {% endif %}
+                </div>
+               
+
+                {% if form.sodaSelected.value %}
+                        <div id="soda">
+                {% endif %}        
+               
+                {% if not form.sodaSelected.value %}
+                         <div id="soda" style="display:none;">
+                {% endif %}  
+                	<label for="id_numberOfSoda" id="nos"> Antal läsk: </label>
+                	<br>{{ form.numberOfSoda }}
+        		{% if form.numberOfSoda.errors %}<p><FONT COLOR="red"> {{ form.numberOfSoda.errors}} </FONT> </p> {% endif %}
+                </div>
+                
+                {% if form.klaggSelected.value %}
+                        <div id="klagg">
+                {% endif %}        
+               
+                {% if not form.klaggSelected.value %}
+                         <div id="klagg" style="display:none;">
+                {% endif %} 
+                	<label for="id_numberOfKlagg" id="nok"> Antal klägg: </label>
+                	<br>{{ form.numberOfKlagg }}
+                	{% if form.numberOfKlagg.errors %}<p><FONT COLOR="red"> {{ form.numberOfKlagg.errors}} </FONT> </p> {% endif %}
+                </div>
+	</div> <!-- End items -->
+
+	<div id="sum" >
+		<h2> Summa </h2>
+        	<div class="sum" id="divsum" style= " border: 1px solid #ccc;
+    background-color: #eee;
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;">
+		<a id ="currentSum">0 </a><a> SEK</a>
+		{{form.orderSum.as_hidden}}	
+		</div>
+		{% if form.orderSum.errors %}<p><FONT COLOR="red"> {{ form.orderSum.errors}} </FONT> </p> {% endif %}	
+		<script>
+		$(document).ready(function(){
+                        calcSum(false);
+		});
+		//	<span> {{form.orderSum.value|default_if_none:"0"}} SEK </span>	
+		$('#id_numberOfJochen').bind('input', function() { 
+                                calcSum();
+				//$.datepicker({minDate:+30});
+
+                                });
+                $('#id_numberOfCoffee').bind('input', function() { 
+                                calcSum();
+                                });
+                $('#id_numberOfTea').bind('input', function() { 
+                                calcSum();
+                                });
+                $('#id_numberOfSoda').bind('input', function() {
+                                calcSum();
+                                });
+	        $('#id_numberOfKlagg').bind('input', function() { 
+                  calcSum();
+                                });
+		//document.getElementById('id_orderSum').value = userInput;
+		</script>
+	</div> <!-- End sum -->
+
+	<div id ="timeAndDate">
+                <h2> Uthämtning </h2>
+            <!--    <link rel="stylesheet" href="/themes/base/jquery.ui.all.css"> -->
+                       <!-- <script src="/jquery.js"></script>
+                        <script src="/ui/jquery.ui.core.js"></script>
+                        <script src="/ui/jquery.ui.widget.js"></script>
+                        <script src="/ui/jquery.ui.datepicker.js"></script>-->
+                        <script>
+                        	$(function() {
+                        		$( "#id_date" ).datepicker({
+				              minDate: +1,
+				              showWeek: true,
+				              dateFormat:"yy-mm-dd",
+				              firstDay: 1,
+				              beforeShowDay: $.datepicker.noWeekends
+				        });
+                        		$.datepicker.regional['sv'] = {
+                			closeText: 'Stäng',
+        				prevText: '&laquo;Förra',
+               				nextText: 'Nästa&raquo;',
+                			currentText: 'Idag',
+       		 			monthNames: ['Januari','Februari','Mars','April','Maj','Juni',
+        				'Juli','Augusti','September','Oktober','November','December'],
+        				monthNamesShort: ['Jan','Feb','Mar','Apr','Maj','Jun',
+        				'Jul','Aug','Sep','Okt','Nov','Dec'],
+                			dayNamesShort: ['Sön','Mån','Tis','Ons','Tor','Fre','Lör'],
+                			dayNames: ['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag'],
+                			dayNamesMin: ['Sö','Må','Ti','On','To','Fr','Lö'],
+                			weekHeader: 'Ve',
+        				dateFormat: 'yy-mm-dd',
+                			maxDate: "16-06-03",
+					firstDay: 1,
+                			isRTL: false,
+                			showMonthAfterYear: false,
+                			yearSuffix: ''};
+    					$.datepicker.setDefaults($.datepicker.regional['sv']);
+				});
+                        </script>
+                <p> Datum:<br>  {{ form.date }} </p>
+                {% if form.date.errors %}<p> <FONT COLOR="red"> {{ form.date.errors }} </FONT> {% endif %}</p>
+                <p> Tid för uthämtning <br> {{form.pickup}}</p>
+                <p> Övrig information: <br> {{form.other}}</p>
+			<div class="ui-state-highlight" id="deliveryInfo">	
+				<span class="ui-icon ui-icon-info" style="float:left"></span>
+				Ni kommer få en bekräftelse att er beställning är tillagd när styrelsen har tagit emot den. 
+			</div> <!-- End deliveryInfo -->	
+	<input type="submit" value="Skicka beställning" onclick="return validate()"/>
+	</div> <!-- End timeAndDate -->
+	
+</form>
+</div> <!-- End main -->
+
+<div class ="grid_5 omega secondary">
+	
+	<div class="ui-state-highlight" id="generalInfo">
+		<h2> Observera! </h2>
+
+		Jobbare i Baljan har inte möjlighet att lämna ut beställningar, det är enbart Baljans styrelsemedlemmar som lämnar ut beställningar.
+		<br><br>
+		Beställningar går endast att hämta ut under våra jourtider:
+			<ul>
+				<li>Morgon: 07.30 - 08.00
+				<li>Lunch: 12.15 - 13.00 (ej fredagar)
+				<li>Eftermiddag: 16.15 - 17.00
+			</ul>
+		
+		Baljan fakturerar endast studentföreningar samt sektioner vid Linköpings Universitet. För beställare med fakturaadress utanför Linköpings universitet tillkommer en fakturaavgift på 19 kronor.
+	</div> <!-- End deliveryInfo -->
+
+	<div id="amount">
+		<h2> Hur mycket kan man beställa?</h2>
+		På grund av begränsningar i hur mycket kaffe vi kan koka samt hur mycket vi kan förvara har vi följade gränser:  
+		<ul>
+		<li> Kaffe: minst 5, Morgon max 45, Lunch max 90, Eftermiddag max 135</li>
+		<li> Te: minst 5, max 45 </li>
+		<li> Jochen: minst 5, max 200</li>
+		<li> Läsk/vatten: minst 5, max 200</li>
+		<li> Klägg: minst 5, max 300</li>
+		</ul>
+	Beställer ni över 100 stycken jochen måste ni hämta ut beställningen på morgonen (07.30-08.00) då vi inte möjlighet att förvara dessa i våra kylar. 
+		 
+	</div> <!-- End amout -->
+	
+	<div id="orderInfo">
+		<h2> Vad gäller? </h2> 	
+		Följade gäller vid beställningar:
+		<h3> Kaffe/te </h3>
+		<ul>
+		<li>På grund av termosstorlekar kan vi eventuellt behöva justera antalet kaffe eller te i er beställning. <a href= "https://baljan.org/baljan/price-list"> Klicka här för att se våra termosstorlekar.</a></li>
+		<li>Koppar, skedar, socker och mjölk ingår vid beställning av kaffe och te. <br></li>
+		</ul>
+
+		<h3> Jochen </h3>
+		<ul>	
+		<li>Beställning av jochen måste vara inne <b>senast klockan tolv två arbetsdagar i förväg</b>.</li> 
+		
+		<li>Vi erbjuder även laktosfria samt vegetariska jochen, önskas detta kan ni lägga till det under ”Övrig information”. Vi kan tyvärr ej erbjuda glutenfria jochen.</li>  
+		</ul>
+
+		<h3> Läsk/vatten </h3>
+		<ul>
+		<li> Vid beställningar på över 100 stycken av samma sort är det bra att kontakta Baljan i god tid. Vid köp av fulla backar betalar man även pant. Lämnar man tillbaka fulla backar kan panten skrivas av från fakturan om den lämnas tillbaka senast dagen efter.</li>
+		<li>Har ni speciella önskemål på vilka sorter av läsk eller vatten ni vill ha kan ni specificera detta under ”Övrig information”.</li>
+		</ul>
+	</div> <!-- End orderInfo -->
+
+
+
+</div> <!-- End secondary -->
+
+
+{% endblock %}
