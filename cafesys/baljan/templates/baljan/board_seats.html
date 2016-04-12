@@ -1,0 +1,61 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+{% load baljan_extras %}
+{% block body_class %}board_seats{% endblock %}
+{% block head_title %} Sök styret {% endblock %}
+
+{% block body %}
+<h1> Sök styret </h1>
+<div class = "grid_8 alpha main">
+	<div id = "common_info">
+		<h2> Allmänt om att söka styrelsen </h2>
+	 För att söka till Baljans styrelse skickar du ett mail med liu-id, namn och sektion till <a href="mailto:val@baljan.org">val@baljan.org</a>. Du söker inte en specifik post i styrelsen. Vem som får vilken post bestäms istället internt i styrelsen när de nya tillsats. Nedan beskrivs de poster som i dagsläget finns i styrelsen.<br><br>
+Man får sitta med i Baljans styrelse så länge man själv vill. Detta innebär att hela styrelsen inte byts ut på en gång, utan detta är en process som sker successivt varje termin.<br><br> 
+Styrelsearbetet innebär förutom postspecifika uppgifter även styrelsemöten och jourande. Man jourar tillsammans med en annan styrelsemedlem tre veckor per termin. Under dessa veckor har man huvudansvaret för Baljans verksamhet och ser till att allt fungerar som det ska.<br><br> 
+Utöver detta gör vi i styrelsen även en massa roliga saker tillsammans. Så om du har lust att göra något lite annorlunda och träffa en massa roliga människor, sök nu! 
+	
+	</div>
+	<!-- End common_info -->
+<div id="board_posts">
+	<h2> Styrelseposter i Baljan </h2>
+	Följande poster finns i Baljans styrelse. 
+	<h3> Ordförande, Inköpschef, Kassör </h3>
+	Dessa poster väljs på årsbasis och nomineras då av valberedningen. Fungerar därmed inte som övriga poster där styrelsen internt beslutar vem som ska ha vilken post.
+	
+	<h3> Vice Ordförande </h3>
+	Backar upp ordförande då hen inte är närvarande. Sköter även fakturering och svarar på mail som ej rör beställningar.
+
+	<h3> Sekreterare </h3>
+	Skriver protokoll efter varje möte.
+	
+	<h3>Leverantörsansvarig  </h3>
+	Sköter kontakten med jochenleverantören samt med Delicato. Övriga inköp är inköpschefen ansvarig för.
+
+	<h3>CoffeeKannan </h3>
+	<p>Kollar att vi har hela möbler. Fixar även möbelkartor och annat kul. Innebär även reparation av möbler vilket innebär att det är en fördel att inte ha tummen mitt i handen.
+	
+	<h3>Naturrutan </h3>
+	<p>Ansvarig för alla miljöfrågor i Baljan. </p>
+
+	<h3> Personaliz</h3>
+	Informerar jobbare och fixar jobbsläpp en gång per termin. Ställer krav på organisationsförmåga och att kunna hålla koll på en massa folk samtidigt.
+	<h3>Kulhjul </h3>
+	Ordnar så att vi i styret gör saker tillsammans utanför skolan. Bör vara kreativ och tycka att det är kul att göra saker i grupp. Detta gäller för övrigt alla i styrelsen. 
+	<h3>PartyPiff, PartyPuff & PartyPaff </h3>
+	Ordnar personalfesten och p-presenten till jobbarna. Här är det bra om man tycker att det är kul att arrangera saker och ordna riktigt grymma fester. Även detta gäller alla styrelsemedlemmar. 
+	<h3>Infognurgla </h3>
+	Ansvarar för alla typer av tryck och annan form av marknadsföring. Detta kan exempelvis gälla affischer eller andra typer av pappgrejer. Är en fördel om man har en viss kunskap och intresse för ämnet.
+	<h3>Roomie</h3>
+	Fixar saker i Nollberga om något går sönder. För den som inte vet så är Nollberga styrelsens högkvarter precis bredvid kassan och ett alldeles utmärkt ställe att softa på.
+	<h3>Nörd </h3>
+	Har koll på IT-relaterade frågor i verksamheten. Denna post specialrekryteras och väljs därmed inte internt av styrelsen.
+	<h3> Pyssling </h3>
+	Fixar och trixar och pysslar. Har en form av vaktmästarroll och bör därmed vara lite händig.
+</div>
+<!-- End board_posts -->
+
+
+
+{% endblock %}

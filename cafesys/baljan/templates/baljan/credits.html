@@ -85,7 +85,7 @@
 
     {% if used_card %}
         <div class="saved">
-            {% trans "code was successfully used to refill your account" %}
+            {% trans "the code was used" %}
         </div>
     {% endif %}
 
@@ -125,6 +125,11 @@
                 {% blocktrans with card.used_at|date as used_at and card.valcur as worth and card.serid as serid %}
                 card {{serid}} worth {{worth}} used at {{used_at}}
                 {% endblocktrans %}
+                {% if card.refill_series.add_to_group %}
+                    {% blocktrans with card.refill_series.add_to_group.name as group_name %}
+                    (you were added to {{group_name}})
+                    {% endblocktrans %}
+                {% endif %}
                 </li>
             {% empty %}
                 <li>{% trans "you have not used any value cards" %}</li>

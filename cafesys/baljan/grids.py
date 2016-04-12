@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 class ShiftGrid(DataGrid):
+    paginate_by = 1000
     when = Column()
     span = Column()
     exam_period = Column()
@@ -25,6 +26,7 @@ def pl_price(good):
     return '%s %s' % good.current_costcur()
 
 class PriceListGrid(DataGrid):
+    paginate_by = 1000
     img = Column(_("image"),
         data_func=pl_image,
     )

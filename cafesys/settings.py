@@ -7,6 +7,7 @@ import posixpath
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = False
+COMPRESS_ENABLED = True
 TEMPLATE_DEBUG = True # nice for Sentry, different than DEBUG
 
 INTERNAL_IPS = [
@@ -65,19 +66,16 @@ LANGUAGES = (
         ('en', u'English'),
         )
 
-# Bump when for example CSS or JS files change to force clients to download a
-# new version.
-MEDIA_AND_STATIC_VERSION = 13
-
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, "media")
-MEDIA_URL = "/media%d/" % MEDIA_AND_STATIC_VERSION
+MEDIA_URL = "/media/"
 STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
-STATIC_URL = "/static%d/" % MEDIA_AND_STATIC_VERSION
+STATIC_URL = "/static/"
 
-# Additional directories which hold static files
-STATICFILES_DIRS = [
-    os.path.join(PROJECT_ROOT, 'jammit'),
-]
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -89,9 +87,12 @@ SECRET_KEY = "55qj2y&$zh_1rsxs5(ibkg8y)t=ewo(ln5d)%l(u_^xp$*=^f+"
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = [
-    "django.template.loaders.filesystem.load_template_source",
-    "django.template.loaders.app_directories.load_template_source",
-    'django.template.loaders.eggs.load_template_source',
+    #"django.template.loaders.filesystem.load_template_source",
+    #"django.template.loaders.app_directories.load_template_source",
+    #'django.template.loaders.eggs.load_template_source',
+    "django.template.loaders.filesystem.Loader",
+    "django.template.loaders.app_directories.Loader",
+    'django.template.loaders.eggs.Loader',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -114,13 +115,13 @@ TEMPLATE_DIRS = [
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [
-    "django.core.context_processors.auth",
+    "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
+    "django.core.context_processors.static",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
-    "staticfiles.context_processors.static_url",
     "baljan.ctx.actions",
     "baljan.ctx.analytics",
     "baljan.ctx.common",
@@ -142,40 +143,43 @@ INSTALLED_APPS = [
     # external
     #"mailer", # use django.core.mail instead
     "pagination",
-    "timezones",
-    "ajax_validation",
+    #"timezones",
+    #"ajax_validation",
     "uni_form",
-    "staticfiles",
+    #"staticfiles",
     "debug_toolbar",
+    "compressor",
     
     # project
     "baljan",
-    "nomcom",
 
     "djcelery",
     "gunicorn",
     "indexer",
     "paging",
-    "sentry",
-    "sentry.client",
-    "sentry.plugins.sentry_urls",
+    "raven.contrib.django",
+    #"sentry",
+    #"sentry.client",
+    #"sentry.plugins.sentry_urls",
     "datagrid",
 
     # Migrations
     "south",
+    #"kombu.transport.django",
+    #"kombu",
 ]
 
 import logging
 logging.basicConfig(level=logging.INFO)
 
-SENTRY_THRASHING_TIMEOUT = 0
-SENTRY_TESTING = True
-SENTRY_FILTERS = (
-        'sentry.filters.StatusFilter',
-        'sentry.filters.LoggerFilter',
-        'sentry.filters.LevelFilter',
-)
-SENTRY_PUBLIC = False
+#SENTRY_THRASHING_TIMEOUT = 0
+#SENTRY_TESTING = True
+#SENTRY_FILTERS = (
+#        'sentry.filters.StatusFilter',
+#        'sentry.filters.LoggerFilter',
+#        'sentry.filters.LevelFilter',
+#)
+#SENTRY_PUBLIC = False
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
@@ -253,9 +257,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = ''
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
-DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
+#DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
 
-LDAP_SERVER = 'ldap://lukas-backend.unit.liu.se'
+#LDAP_SERVER = 'ldap://lukas-backend.unit.liu.se'
+LDAP_SERVER = 'ldaps://baljan.lukas.unit.liu.se:636'
 LDAP_ENABLED = True
 MUNIN_PORT = 8800
 MUNIN_PATH = 'munin/localhost/localhost/index.html'

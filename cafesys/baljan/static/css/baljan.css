@@ -498,6 +498,14 @@ body.credits .credits {
     font-weight: bold;
 }
 
+body.orderForm .sum {
+    border: 1px solid #ccc;
+    background-color: #eee;
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+}
+
 body.job-opening .user-adder input[type=text] {
     margin: 0;
     padding: 0;
