@@ -22,10 +22,11 @@ class Migration(SchemaMigration):
             while len(orm.Profile.objects.filter(private_key=private_key)) != 0:
                 private_key = random_string(key_len)
             return private_key
-
-        for profile in orm.Profile.objects.all():
-            profile.private_key = generate_private_key()
-            profile.save()
+	
+	if not db.dry_run:
+	        for profile in orm.Profile.objects.all():
+        	    profile.private_key = generate_private_key()
+	            profile.save()
 
         db.alter_column('baljan_profile', 'private_key', self.gf('django.db.models.fields.CharField')(null=False, unique=True, max_length=key_len))
 
