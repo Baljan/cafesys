@@ -1,0 +1,13 @@
+# Runtime dependencies
+python
+py-pip
+
+# Build dependencies
+gcc
+git
+libpq
+postgresql-dev
+jpeg-dev
+python-dev
+musl-dev
+openldap-dev

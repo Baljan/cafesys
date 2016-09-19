@@ -1,8 +1,0 @@
-python-ldap
-cx_Oracle
-#numpy
-
-# For importing data from the old version of the system.
-mysql-python
-http://downloads.sourceforge.net/project/pyscard/pyscard/pyscard%201.6.12/pyscard-1.6.12.tar.gz?use_mirror=heanet&ts=1278761137#egg=pyscard
-
