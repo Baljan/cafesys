@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-# Django settings for basic pinax project.
 
 import os.path
 import posixpath
 
-PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 DEBUG = False
 COMPRESS_ENABLED = True
-TEMPLATE_DEBUG = True # nice for Sentry, different than DEBUG
+TEMPLATE_DEBUG = True  # nice for Sentry, different than DEBUG
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -22,12 +21,13 @@ MANAGERS = ADMINS
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3", # Add "postgresql_psycopg2", "postgresql", "mysql", "sqlite3" or "oracle".
-        "NAME": "cafesys.db",                       # Or path to database file if using sqlite3.
-        "USER": "",                             # Not used with sqlite3.
-        "PASSWORD": "",                         # Not used with sqlite3.
-        "HOST": "",                             # Set to empty string for localhost. Not used with sqlite3.
-        "PORT": "",                             # Set to empty string for default. Not used with sqlite3.
+        "ENGINE": "django.db.backends.sqlite3",
+    # Add "postgresql_psycopg2", "postgresql", "mysql", "sqlite3" or "oracle".
+        "NAME": "cafesys.db",  # Or path to database file if using sqlite3.
+        "USER": "",  # Not used with sqlite3.
+        "PASSWORD": "",  # Not used with sqlite3.
+        "HOST": "",  # Set to empty string for localhost. Not used with sqlite3.
+        "PORT": "",  # Set to empty string for default. Not used with sqlite3.
     }
 }
 
@@ -40,8 +40,7 @@ TIME_ZONE = "Europe/Stockholm"
 
 USE_L10N = True
 
-
-#FORMAT_MODULE_PATH = 'formats' # FIXME: not working
+# FORMAT_MODULE_PATH = 'formats' # FIXME: not working
 
 DATE_FORMAT = 'Y-m-d'
 DATETIME_FORMAT = 'Y-m-d H:i'
@@ -62,9 +61,9 @@ SITE_ID = 1
 # to load the internationalization machinery.
 USE_I18N = True
 LANGUAGES = (
-        ('sv', u'Svenska'),
-        ('en', u'English'),
-        )
+    ('sv', u'Svenska'),
+    ('en', u'English'),
+)
 
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, "media")
 MEDIA_URL = "/media/"
@@ -87,9 +86,6 @@ SECRET_KEY = "55qj2y&$zh_1rsxs5(ibkg8y)t=ewo(ln5d)%l(u_^xp$*=^f+"
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = [
-    #"django.template.loaders.filesystem.load_template_source",
-    #"django.template.loaders.app_directories.load_template_source",
-    #'django.template.loaders.eggs.load_template_source',
     "django.template.loaders.filesystem.Loader",
     "django.template.loaders.app_directories.Loader",
     'django.template.loaders.eggs.Loader',
@@ -111,7 +107,7 @@ MIDDLEWARE_CLASSES = [
 ROOT_URLCONF = "cafesys.urls"
 
 TEMPLATE_DIRS = [
-    os.path.join(PROJECT_ROOT, "templates"),
+    os.path.join(PROJECT_ROOT, "cafesys", "templates"),
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [
@@ -139,17 +135,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "django.contrib.databrowse",
-    
+
     # external
-    #"mailer", # use django.core.mail instead
     "pagination",
-    #"timezones",
-    #"ajax_validation",
     "uni_form",
-    #"staticfiles",
     "debug_toolbar",
     "compressor",
-    
+
     # project
     "baljan",
 
@@ -158,28 +150,24 @@ INSTALLED_APPS = [
     "indexer",
     "paging",
     "raven.contrib.django",
-    #"sentry",
-    #"sentry.client",
-    #"sentry.plugins.sentry_urls",
     "datagrid",
 
     # Migrations
     "south",
-    #"kombu.transport.django",
-    #"kombu",
 ]
 
 import logging
+
 logging.basicConfig(level=logging.INFO)
 
-#SENTRY_THRASHING_TIMEOUT = 0
-#SENTRY_TESTING = True
-#SENTRY_FILTERS = (
+# SENTRY_THRASHING_TIMEOUT = 0
+# SENTRY_TESTING = True
+# SENTRY_FILTERS = (
 #        'sentry.filters.StatusFilter',
 #        'sentry.filters.LoggerFilter',
 #        'sentry.filters.LevelFilter',
-#)
-#SENTRY_PUBLIC = False
+# )
+# SENTRY_PUBLIC = False
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
@@ -221,8 +209,8 @@ LOGOUT_URL = "/logout/"
 LOGIN_REDIRECT_URL = "/"
 
 WORKER_COOLDOWN_SECONDS = 5 * 60
-WORKER_MAX_COST_REDUCE = 5 # SEK
-KLIPP_WORTH = WORKER_MAX_COST_REDUCE # SEK
+WORKER_MAX_COST_REDUCE = 5  # SEK
+KLIPP_WORTH = WORKER_MAX_COST_REDUCE  # SEK
 DEFAULT_ORDER_NAME = 'kaffe/te'
 DEFAULT_ORDER_DESC = 'pappersmugg'
 
@@ -231,25 +219,10 @@ WORKER_GROUP = 'jobbare'
 OLDIE_GROUP = '_gamlingar'
 PSEUDO_GROUP_FORMAT = "_%s"
 
-PRICE_LIST_ROW_HEIGHT = 40 # px
-
-# For importing data from the old system. There is a management command
-# that uses these settings (importoldsystem).
-#OLD_SYSTEM_MYSQL_LOGIN = 'foo'
-#OLD_SYSTEM_MYSQL_PASSWORD = 'foo'
-#OLD_SYSTEM_MYSQL_DB = 'foo'
-#OLD_SYSTEM_MYSQL_HOST = 'localhost'
-
-SOUND_DIR = os.path.join(PROJECT_ROOT, "media", "sounds")
-SOUND_CMD = 'play'
-SOUND_SUCCESS_NORMAL = 'smb3_coin.wav'
-SOUND_SUCCESS_REBATE = 'smb3_jump.wav'
-SOUND_NO_FUNDS = 'mk64_mario04.wav'
-SOUND_ERROR = 'mk64_bowser02.wav'
-SOUND_START = 'mk64_countdown.wav'
-SOUND_LEADER = 'mk64_mario03.wav'
+PRICE_LIST_ROW_HEIGHT = 40  # px
 
 import djcelery
+
 djcelery.setup_loader()
 BROKER_URL = "amqp://guest:guest@127.0.0.1:5672/"
 #BROKER_URL = 'django://'
@@ -264,9 +237,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = ''
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
-#DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
+# DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
 
-#LDAP_SERVER = 'ldap://lukas-backend.unit.liu.se'
+# LDAP_SERVER = 'ldap://lukas-backend.unit.liu.se'
 LDAP_SERVER = 'ldaps://baljan.lukas.unit.liu.se:636'
 LDAP_ENABLED = True
 MUNIN_PORT = 8800
@@ -291,44 +264,19 @@ CELERY_CACHE_BACKEND_OPTIONS = {
     },
 }
 
-#CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
-#JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
+# CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
+# JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
-
-# Terminal
-#LCD_PORT = '/dev/ttyS1'
-LCD_PORT = '/dev/ttyS0'
-LCD_BLANK_SECONDS = 1.5
-PAR_PORT_PROG = os.path.join(PROJECT_ROOT, "..", "parport", "parapin-1.5.1-beta1",
-        "examples", "baljanparport")
-
-# How to find the user owning a card. Uses a "first hit" strategy.
-CARD_TO_USER_MODULES = [
-    'baljan.card2user.manualdb',
-]
-CARD_TO_USER_USE_CACHE = True
 
 CARDREADER_PREFETCH = True
 
-ANALYTICS_KEY= ''
+ANALYTICS_KEY = ''
 
 STATS_CACHE = True
 
 TERMINAL_TORNADO_PORT = 3500
 
-# local_settings.py can be used to override environment-specific settings
-# like database and email that differ between development and production.
-try:
-    from local_settings import *
-except ImportError:
-    pass
-
-try:
-    from secretz import *
-except ImportError:
-    pass
-
 if LDAP_ENABLED:
     AUTHENTICATION_BACKENDS += [
         'baljan.ldapbackend.LDAPBackend',
-    ] 
+    ]
