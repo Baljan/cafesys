@@ -6,7 +6,7 @@ import posixpath
 PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 DEBUG = False
-COMPRESS_ENABLED = True
+COMPRESS_ENABLED = False
 TEMPLATE_DEBUG = True  # nice for Sentry, different than DEBUG
 
 INTERNAL_IPS = [
