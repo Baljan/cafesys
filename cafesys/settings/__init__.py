@@ -65,9 +65,9 @@ LANGUAGES = (
     ('en', u'English'),
 )
 
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, "media")
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, "cafesys", "media")
 MEDIA_URL = "/media/"
-STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
+STATIC_ROOT = os.path.join(PROJECT_ROOT, "cafesys", "static")
 STATIC_URL = "/static/"
 
 STATICFILES_FINDERS = (
