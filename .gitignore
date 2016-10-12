@@ -9,3 +9,5 @@ core.*
 /*.tar
 *.vim
 logs/
+.DS_Store
+._.DS_Store

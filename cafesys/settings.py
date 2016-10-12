@@ -6,7 +6,7 @@ import posixpath
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
-DEBUG = False
+DEBUG = True
 COMPRESS_ENABLED = True
 TEMPLATE_DEBUG = True # nice for Sentry, different than DEBUG
 
@@ -15,7 +15,7 @@ INTERNAL_IPS = [
 ]
 
 ADMINS = [
-    # ("Your Name", "your_email@domain.com"),
+    ("Admin", "1337@baljan.org"),
 ]
 
 MANAGERS = ADMINS
@@ -106,9 +106,10 @@ MIDDLEWARE_CLASSES = [
     "pagination.middleware.PaginationMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.transaction.TransactionMiddleware',
+	'django.middleware.locale.LocaleMiddleware',
 ]
 
-ROOT_URLCONF = "cafesys.urls"
+ROOT_URLCONF = "urls"
 
 TEMPLATE_DIRS = [
     os.path.join(PROJECT_ROOT, "templates"),
@@ -213,7 +214,7 @@ AUTHENTICATION_BACKENDS = [
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = True
 CONTACT_EMAIL = "styrelsen@baljan.org"
-CONTACT_PHONE = "013259927"
+CONTACT_PHONE = "013-25 99 27"
 USER_EMAIL_DOMAIN = 'student.liu.se'
 SITE_NAME = "Sektionscafé Baljan"
 LOGIN_URL = "/login/"
@@ -239,6 +240,16 @@ PRICE_LIST_ROW_HEIGHT = 40 # px
 #OLD_SYSTEM_MYSQL_PASSWORD = 'foo'
 #OLD_SYSTEM_MYSQL_DB = 'foo'
 #OLD_SYSTEM_MYSQL_HOST = 'localhost'
+
+EMAIL_BOARD = CONTACT_EMAIL
+EMAIL_ON_CALL = "bestallning@baljan.org"
+EMAIL_CHAIRMAN = "ordf@baljan.org"
+EMAIL_VICE_CHAIRMAN = "vice.ordf@baljan.org"
+EMAIL_TREASURER = "kassor@baljan.org"
+EMAIL_STAFF_MANAGER = "personalis@baljan.org"
+EMAIL_PARTY = "party@baljan.org"
+EMAIL_NERDS = "1337@baljan.org"
+EMAIL_NOMINATING_COMMITTEE = "val@baljan.org"
 
 SOUND_DIR = os.path.join(PROJECT_ROOT, "media", "sounds")
 SOUND_CMD = 'play'

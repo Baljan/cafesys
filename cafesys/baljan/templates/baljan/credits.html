@@ -9,152 +9,129 @@
 {% block body_class %}credits{% endblock %}
 {% block body %}
 
-<h1>{% trans "Credits" %}</h1>
-<div class="grid_5 alpha main">
-    <div class="refill">
-        <h2>{% trans "Refill" %}</h2>
+<div class="row">
+	<div class="col-xs-12">
+		<h1>{% trans "Credits" %}</h1>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-6">
+		<h2>{% trans "Refill" %}</h2>
         <p>
         {% blocktrans %}
         Value cards can be purchased at the café. If you have questions or run
         into problems, <a href="mailto:{{CONTACT_EMAIL}}">contact us</a>. Abuse
         will be logged.
         {% endblocktrans %}
-        {% blocktrans %}
-        To import an old coffee card (kaffeklippkort), see <a href="#import-old">below</a>.
-        {% endblocktrans %}
         </p>
         <p>
             <img src="{{STATIC_URL}}img/signs.png" 
-                width="364" height="121" alt="{% trans "old coffee card" %}"/>
+                width="364" height="121" alt="{% trans 'The visual difference between lowercase i, lowercase l, a one and an uppercase I' %}"/>
         </p>
-        <form autocomplete="off" method="POST" action="" class="uniForm">{% csrf_token %}
+        <form autocomplete="off" method="POST" action="" class="form-horizontal">
+			{% csrf_token %}
             <input type="hidden" name="task" value="refill" />
-            <fieldset class="inlineLabels">
-                {{refill_form|as_uni_form}}
-                <div class="form_block submit">
-                    <input type="submit" value="{% trans "refill" %}"/>
-                </div>
-            </fieldset>
+			<div class="form-group">
+				<label for="{{ refill_form.code.id_for_label }}" class="col-sm-2 control-label">{{ refill_form.code.label }}<span class="asteriskField">*</span></label>
+				<div class="col-sm-10">
+					{{ refill_form.code }}
+				</div>
+				<div class="col-sm-offset-2 col-sm-10">
+					<span id="helpBlock" class="help-block"><span class="asteriskField">*</span>{{ refill_form.code.help_text }}</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10">
+					<button type="submit" class="btn btn-primary">{% trans 'Refill' %}</button>
+				</div>
+			</div>
         </form>
-    </div>
+	</div>
+	<div class="col-md-6">
+		<div class="row">
+			<div class="col-xs-12">
+				<h2>{% trans "Available" %}</h2>
+				<div class="well well-bold">
+					<span>{{ currently_available }}</span>
+				</div>
+				{% if used_card %}
+				<div class="alert alert-success">
+					{% trans "The coffee code was used successfully" %}
+				</div>
+				{% endif %}
 
-    <div class="refill-old">
-        <h2 id="import-old">{% trans "Import Old Coffee Card" %}</h2>
-        <p style="text-align:center">
-            <img src="{{STATIC_URL}}img/kaffepil.gif" 
-                width="248" height="180" alt="{% trans "old coffee card" %}"/>
-        </p>
-        <p>
-        {% blocktrans %}
-            Cards (kaffeklippkort) that you have bought but haven't registrered
-            to your account must be imported manually, which you do here by
-            entering the number at your old coffee card.
-        {% endblocktrans %}
-        </p>
-        <p>
-        {% blocktrans %}
-            The new system uses RFID technology and can't read bar codes,
-            therefore you must register old paper cards and use your liu
-            identification card at the station.
-        {% endblocktrans %}
-        </p>
-        <p>
-        {% blocktrans with KLIPP_WORTH as worth %}
-            Each klipp is worth {{worth}} SEK (the price of one coffee or tea).
-        {% endblocktrans %}
-        </p>
-        <form autocomplete="off" method="POST" action="" class="uniForm">{% csrf_token %}
-            <input type="hidden" name="task" value="import-old" />
-            <fieldset class="inlineLabels">
-                {{import_form|as_uni_form}}
-                <div class="form_block submit">
-                    <input type="submit" value="{% trans "import" %}"/>
-                </div>
-            </fieldset>
-        </form>
-    </div>
-</div><!--.main-->
-
-<div class="grid_5 omega secondary">
-    <div class="available">
-        <h2>{% trans "Available" %}</h2>
-        <div class="credits">
-            <span>{{currently_available}}</span>
-        </div>
-    </div>
-
-    {% if used_card %}
-        <div class="saved">
-            {% trans "the code was used" %}
-        </div>
-    {% endif %}
-
-    {% if invalid_card %}
-        <div class="invalid">
-            {% trans "invalid or used code" %}
-        </div>
-    {% endif %}
-
-    <div class="liu-cards">
-        <h2>{% trans "LiU Cards Just Work&trade;" %}</h2>
-        {% blocktrans %}
-        <p>
-        LiU card numbers are imported automatically. This means that new 
-        users don't have to enter a number on the web site anymore.
-        </p>
-        {% endblocktrans %}
-    </div>
-
-    <div class="wallet-blipping">
-        <h2>{% trans "Wallet Blips" %}</h2>
-        {% blocktrans %}
-        <p>
-        If your wallet is made of regular wallet material and doesn't stash a
-        public transportation card (or any other RFID tag of the same type), 
-        you can blip through it. If you have mad blipping skills you might be 
-        able to use your wallet anyway (hint: LiU card closest to the reader).
-        </p>
-        {% endblocktrans %}
-    </div>
-
-    <div class="history">
-        <h2>{% trans "Used Value Cards" %}</h2>
-        <ul>
-            {% for card in used_cards %}
-                <li>
-                {% blocktrans with card.used_at|date as used_at and card.valcur as worth and card.serid as serid %}
-                card {{serid}} worth {{worth}} used at {{used_at}}
-                {% endblocktrans %}
-                {% if card.refill_series.add_to_group %}
-                    {% blocktrans with card.refill_series.add_to_group.name as group_name %}
-                    (you were added to {{group_name}})
-                    {% endblocktrans %}
-                {% endif %}
-                </li>
-            {% empty %}
-                <li>{% trans "you have not used any value cards" %}</li>
-            {% endfor %}
-        </ul>
-        <h3>{% trans "Old Cards (Kaffeklippkort)" %}</h3>
-        <ul>
-            {% for card in used_old_cards %}
-                <li>
-                {% blocktrans with card.set.set_id as setid and card.card_id as cardid and card.left as left and card.count as count %}
-                card {{setid}}.{{cardid}} with {{left}} of {{count}} klipp left
-                {% endblocktrans %}
-                {% if card.imported %}
-                    ({% trans "imported" %})
-                {% else %}
-                    ({% trans "unimported" %})
-                {% endif %}
-                </li>
-            {% empty %}
-                <li>{% trans "you have not used any old coffee cards" %}</li>
-            {% endfor %}
-        </ul>
-    </div>
-</div><!--.secondary-->
-<div class="clean"></div>
+				{% if invalid_card %}
+				<div class="alert alert-danger">
+					{% trans "The coffee code was invalid or used" %}
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<h2>{% trans "LiU Cards Just Work&trade;" %}</h2>
+				{% blocktrans %}
+				<p>
+				LiU card numbers are imported automatically. This means that new 
+				users don't have to enter a number on the web site anymore.
+				</p>
+				{% endblocktrans %}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<h2>{% trans "Wallet Blips" %}</h2>
+				{% blocktrans %}
+				<p>
+				If your wallet is made of regular wallet material and doesn't stash a
+				public transportation card (or any other RFID tag of the same type), 
+				you can blip through it. If you have mad blipping skills you might be 
+				able to use your wallet anyway (hint: LiU card closest to the reader).
+				</p>
+				{% endblocktrans %}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12">
+				<h2>{% trans "Used Value Cards" %}</h2>
+				<ul>
+					{% for card in used_cards %}
+						<li>
+						{% blocktrans with card.used_at|date as used_at and card.valcur as worth and card.serid as serid %}
+						card {{serid}} worth {{worth}} used at {{used_at}}
+						{% endblocktrans %}
+						{% if card.refill_series.add_to_group %}
+							{% blocktrans with card.refill_series.add_to_group.name as group_name %}
+							(you were added to {{group_name}})
+							{% endblocktrans %}
+						{% endif %}
+						</li>
+					{% empty %}
+						<li>{% trans "you have not used any value cards" %}</li>
+					{% endfor %}
+				</ul>
+				<h2>{% trans "Old Cards (Kaffeklippkort)" %}</h2>
+				<ul>
+					{% for card in used_old_cards %}
+						<li>
+						{% blocktrans with card.set.set_id as setid and card.card_id as cardid and card.left as left and card.count as count %}
+						card {{setid}}.{{cardid}} with {{left}} of {{count}} klipp left
+						{% endblocktrans %}
+						{% if card.imported %}
+							({% trans "imported" %})
+						{% else %}
+							({% trans "unimported" %})
+						{% endif %}
+						</li>
+					{% empty %}
+						<li>{% trans "you have not used any old coffee cards" %}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
 
 {% endblock %}
 

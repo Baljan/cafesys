@@ -2,20 +2,114 @@
 {% load i18n %}
 
 {% block body_base %}
-    
-    <div id="login">{% block login %}{% endblock %}{% block locale_switcher %}{% endblock %}</div>
+	<div id="fb-root"></div>
+	<script>(function(d, s, id) {
+	  var js, fjs = d.getElementsByTagName(s)[0];
+	  if (d.getElementById(id)) return;
+	  js = d.createElement(s); js.id = id;
+	  {% if LANGUAGE_CODE == "sv" %}
+	  js.src = "//connect.facebook.net/sv_SE/sdk.js#xfbml=1&version=v2.6";
+	  {% else %}
+	  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.6";
+	  {% endif %}
+	  fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));</script>
+	<nav class="navbar navbar-default navbar-fixed-top yamm">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#collapsible-navbar">
+					<span class="sr-only">Toggle navigation</span>
+					<i class="fa fa-bars"></i>
+				</button>
+				<a class="navbar-brand" href="/" title="Sektionscafé Baljan">
+					<img src="{{ STATIC_URL }}img/logo.png" alt="Sektionscafé Baljan">
+				</a>
+			</div>
+
+			<div class="collapse navbar-collapse" id="collapsible-navbar">
+				<ul class="nav navbar-nav">
+					<li><a href="{% url home %}"><i class="fa fa-home"></i><span class="hidden-sm"> {% trans "Home" %}</span></a></li>
+					<li><a href="{% url order_from_us %}"><i class="fa fa-shopping-cart"></i><span class="hidden-sm"> {% trans "Order from Us" %}</span></a></li>
+					<li><a href="{% url price_list %}"><i class="fa fa-money"></i><span class="hidden-sm"> {% trans "Our Prices" %}</span></a></li>
+					<li><a href="{% url credits %}"><i class="fa fa-coffee"></i><span class="hidden-sm"> {% trans "Coffee Card" %}</span></a></li>
+					<li><a href="{% url high_score %}"><i class="fa fa-trophy"></i><span class="hidden-sm"> {% trans "High Score" %}</span></a></li>
+					<li><a href="{% url faq %}"><i class="fa fa-info-circle"></i><span class="hidden-sm"> {% trans "FAQ" %}</span></a></li>
+					<li><a href="{% url home %}#contact"><i class="fa fa-envelope"></i><span class="hidden-sm"> {% trans "Contact Us" %}</span></a></li>
+				</ul>
+
+				<ul class="nav navbar-nav navbar-right">
+					<li class="dropdown yamm-fw">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-label='{% trans "Menu" %}' aria-haspopup="true" aria-expanded="false" title='{% trans "Menu" %}' data-tooltip="menu"><i class="fa fa-bars"></i><span class="visible-xs-inline" aria-hidden="true"> {% trans "Menu" %}</span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<div class="container">
+									<div class="yamm-content">
+										{% block nav %}{% endblock %}
+										<div class="row">
+											<div class="col-xs-6 col-sm-3">
+												<strong>Ditt konto</strong>
+												<ul>
+													<li><a href="#">{% trans "Profile" %}</a></li>
+													<li><a href="#">Konto</a></li>
+													<li><a href="#">Köp</a></li>
+													<li><a href="#">Logga ut</a></li>
+												</ul>
+											</div>
+											<div class="col-xs-6 col-sm-3">
+												<strong>Styrelsen</strong>
+												<ul>
+													<li><a href="#">Veckoplanering</a></li>
+													<li><a href="#">Wiki</a></li>
+													<li><a href="#">Jobbsläpp VT2016</a></li>
+													<li><a href="#">Terminer</a></li>
+												</ul>
+											</div>
+											<div class="col-xs-6 col-sm-3">
+												<strong>Jobbare</strong>
+												<ul>
+													<li><a href="#">Jobbguide</a></li>
+													<li><a href="#">Kontrakt</a></li>
+													<li><a href="#">Visa pass i kalenderprogram</a></li>
+													<li><a href="#">Jobbplanering</a></li>
+													<li><a href="#">Personer och grupper</a></li>
+												</ul>
+											</div>
+											<div class="col-xs-6 col-sm-3">
+												<strong>Nördar / Sysadmins</strong>
+												<ul>
+													<li><a href="#">Djangos adminsida</a></li>
+													<li><a href="#">Sentry</a></li>
+													<li><a href="#">GitHub</a></li>
+												</ul>
+											</div>
+										</div>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</li>
+					
+					{% if user.is_authenticated %}
+					<li><a href="{{user.get_absolute_url}}" aria-label="{% trans 'Profile' %}" title="{% trans 'Profile' %}" data-tooltip="menu"><i class="fa fa-user"></i><span class="visible-xs-inline" aria-hidden="true"> {% trans "Profile" %}</span></a></li>
+					<li><a href="{% url logout %}" aria-label="{% trans 'Log out' %}" title="{% trans 'Log out' %}" data-tooltip="menu"><i class="fa fa-sign-out"></i><span class="visible-xs-inline" aria-hidden="true"> {% trans "Log out" %}</span></a></li>
+					{% else %}
+					<li><a href="{% url login %}" aria-label="{% trans 'Log in' %}" title="{% trans 'Log in' %}" data-tooltip="menu"><i class="fa fa-sign-out"></i><span class="visible-xs-inline" aria-hidden="true"> {% trans "Log in" %}</span></a></li>
+					{% endif %}
+					
+					
+				</ul>
+			</div>
+		</div>
+	</nav>
+	
+	
+    <div id="login">{% block locale_switcher %}{% endblock %}</div>
     
     {% block body_outer %}
+	{% block pre_body %}{% endblock %}
+	{% block body %}{% endblock %}
+	{% block post_body %}{% endblock %}
     <div id="body" class="container container_12">
-        <div class="grid_2">
-            <div id="logo">
-                <a href="/"><img src="{{ STATIC_URL }}img/logo/baljan-logo.png" /></a>
-            </div>
-            <div id="nav">
-            {% block nav %}{% endblock %}
-            </div>
-        </div>
-        {#<div id="logo" class="9" dir="ltr">{% block logo_link_image %}{% endblock %}</div>#}
         <div id="main" class="grid_10">
             {% if messages %}
                 <ul id="messages">
@@ -27,8 +121,7 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-        {% block body %}
-        {% endblock %}
+        
         </div>
 
         <!--[if IE]>
@@ -42,6 +135,41 @@
         <![endif]-->
     </div>
     {% endblock %}
+	
+  <footer>
+	<div class="block gray-box">
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12">
+				<p class="pull-left">Copyright &copy; Sektionscafé Baljan. Licensed under <a href="https://opensource.org/licenses/MIT">MIT</a>, except where otherwise specified.</p>
+				<div class="social pull-right">
+					<a href="https://www.facebook.com/sektionscafe.baljan">
+						<i class="fa fa-facebook"></i>
+					</a>
+					<a href="https://www.instagram.com/sektionscafe_baljan/">
+						<i class="fa fa-instagram"></i>
+					</a>
+					<a href="https://twitter.com/liu_baljan">
+						<i class="fa fa-twitter"></i>
+					</a>
+					<a href="https://plus.google.com/+Sektionscaf%C3%A9BaljanLink%C3%B6ping">
+						<i class="fa fa-google-plus"></i>
+					</a>
+					<a href="https://github.com/Baljan">
+						<i class="fa fa-github-alt"></i>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+		<div class="col-xs-12">
+		<img src="{{ STATIC_URL }}img/logo_white.png" alt="" id="footer-logo">
+		</div>
+		</div>
+	</div>
+  </div>
+  </footer>
+
     
     {% block extra_body_base %}
         {% block extra_body %}{% endblock %}

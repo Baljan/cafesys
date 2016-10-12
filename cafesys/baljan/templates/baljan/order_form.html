@@ -4,16 +4,231 @@
 {% load uni_form_tags %}
 {% load baljan_extras %}
 {% block body_class %}orderForm{% endblock %}
-{% block head_title %} Beställa från Baljan {% endblock %}
+{% block head_title %}{% trans "Order from Us" %}{% endblock %}
 {% block body %}
 
-<h1> Beställa från Baljan </h1>
-<div class = "grid_10 alpha main">
-<div>
-Här kan ni enkelt skicka beställningar till Baljan! <br>Saknar ni något fält eller har någon fundering kring er beställning kan ni lägga till det under ”Övrig information” längst ner i formuläret eller kontakta styrelsen via mail: <a href="mailto:bestallning@baljan.org">bestallning@baljan.org</a>. För att formuläret ska fungera behöver ni ha Javascript aktiverat i webbläsaren, vissa datorsalar på LiU har Javascript avstängt.
+<div class="row">
+	<div class="col-xs-12">
+		<h1>{% trans "Order from Us" %}</h1>
+		<div class="alert alert-info" role="alert">
+			Här kan ni enkelt skicka beställningar till Baljan! Saknar ni något fält eller har någon fundering kring er beställning kan ni lägga till det under ”Övrig information” längst ner i formuläret eller kontakta styrelsen via mail: <a href="mailto:bestallning@baljan.org">bestallning@baljan.org</a>. För att formuläret ska fungera behöver ni ha Javascript aktiverat i webbläsaren, vissa datorsalar på LiU har Javascript avstängt.
+		</div>
+	</div>
 </div>
+
+<div class="row">
+	<div class="col-md-6">
+		<form method="post" class="form-horizontal">
+		{% csrf_token %}
+			<h2>{% trans "Contact Details" %}</h2>
+			<div class="form-group">
+				<label for="{{ form.orderer.id_for_label }}" class="col-sm-4 control-label">{{ form.orderer.label }}</label>
+				<div class="col-sm-8">
+					{{ form.orderer }}
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="{{ form.ordererEmail.id_for_label }}" class="col-sm-4 control-label">{{ form.ordererEmail.label }}</label>
+				<div class="col-sm-8">
+					{{ form.ordererEmail }}
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="{{ form.phoneNumber.id_for_label }}" class="col-sm-4 control-label">{{ form.phoneNumber.label }}</label>
+				<div class="col-sm-8">
+					{{ form.phoneNumber }}
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="{{ form.association.id_for_label }}" class="col-sm-4 control-label">{{ form.association.label }}</label>
+				<div class="col-sm-8">
+					{{ form.association }}
+				</div>
+			</div>
+
+			<h2>{% trans "Contact Details Fetcher" %}</h2>
+			<div class="form-group">
+				<div class="col-sm-offset-4 col-sm-8">
+					<div class="checkbox">
+						<label>
+							{{ form.sameAsOrderer }} {% trans "Same as buyer" %}
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="{{ form.pickupName.id_for_label }}" class="col-sm-4 control-label">{{ form.pickupName.label }}</label>
+				<div class="col-sm-8">
+					{{ form.pickupName }}
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="{{ form.pickupEmail.id_for_label }}" class="col-sm-4 control-label">{{ form.pickupEmail.label }}</label>
+				<div class="col-sm-8">
+					{{ form.pickupEmail }}
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="{{ form.pickupNumber.id_for_label }}" class="col-sm-4 control-label">{{ form.pickupNumber.label }}</label>
+				<div class="col-sm-8">
+					{{ form.pickupNumber }}
+				</div>
+			</div>
+
+			<h2>{% trans "Order" %}</h2>
+
+			<div class="form-group">
+				<div class="col-sm-offset-4 col-sm-8">
+					<div class="btn-group" data-toggle="buttons">
+						<label class="btn btn-default" data-toggle="collapse" data-target="#jochenField">
+							{{ form.jochenSelected }} {{ form.jochenSelected.label }}
+						</label>
+						<label class="btn btn-default" data-toggle="collapse" data-target="#coffeeField">
+							{{ form.coffeeSelected }} {{ form.coffeeSelected.label }}
+						</label>
+						<label class="btn btn-default" data-toggle="collapse" data-target="#teaField">
+							{{ form.teaSelected }} {{ form.teaSelected.label }}
+						</label>
+						<label class="btn btn-default" data-toggle="collapse" data-target="#sodaField">
+							{{ form.sodaSelected }} {{ form.sodaSelected.label }}
+						</label>
+						<label class="btn btn-default" data-toggle="collapse" data-target="#klaggField">
+							{{ form.klaggSelected }} {{ form.klaggSelected.label }}
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group collapse" id="jochenField">
+				<label for="{{ form.numberOfJochen.id_for_label }}" class="col-sm-4 control-label">{{ form.numberOfJochen.label }}</label>
+				<div class="col-sm-8">
+					{{ form.numberOfJochen }}
+					<!--<input id="id_numberOfJochen" type="number" name="numberOfJochen" class="form-control product" placeholder="Antal Jochen" data-price="30">-->
+				</div>
+			</div>
+			<div class="form-group collapse" id="coffeeField">
+				<label for="id_numberOfCoffee" class="col-sm-4 control-label">Antal Kaffe</label>
+				<div class="col-sm-8">
+					<input id="id_numberOfCoffee" type="number" name="numberOfCoffee" class="form-control product" placeholder="Antal Kaffe" data-price="5">
+				</div>
+			</div>
+			<div class="form-group collapse" id="teaField">
+				<label for="id_numberOfTea" class="col-sm-4 control-label">Antal Te</label>
+				<div class="col-sm-8">
+					<input id="id_numberOfTea" type="number" name="numberOfTea" class="form-control product" placeholder="Antal Te" data-price="5">
+				</div>
+			</div>
+			<div class="form-group collapse" id="sodaField">
+				<label for="id_numberOfSoda" class="col-sm-4 control-label">Antal Läsk</label>
+				<div class="col-sm-8">
+					<input id="id_numberOfSoda" type="number" name="numberOfSoda" class="form-control product" placeholder="Antal Läsk" data-price="5">
+				</div>
+			</div>
+			<div class="form-group collapse" id="klaggField">
+				<label for="id_numberOfKlagg" class="col-sm-4 control-label">Antal Klägg</label>
+				<div class="col-sm-8">
+					<input id="id_numberOfKlagg" type="number" name="numberOfKlagg" class="form-control product" placeholder="Antal Klägg" data-price="5">
+				</div>
+			</div>
+
+			<h2>{% trans "Order total" %}</h2>
+
+			<div class="well well-bold" id="sum" data-currency="SEK">0 SEK</div>
+
+			<h2>{% trans 'Fetching' %}</h2>
+
+			<div class="form-group">
+				<label for="id_date" class="col-sm-4 control-label">Datum</label>
+				<div class="col-sm-8">
+
+					<div class="input-group date">
+						<input readonly="readonly" type="text" name="date" id="id_date" class="hasDatepicker form-control">
+						<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="id_pickup" class="col-sm-4 control-label">Tid för uthämtning</label>
+				<div class="col-sm-8">
+					{{form.pickup}}
+					<!--<select name="pickup" id="id_pickup" class="form-control">
+						<option value="Morgon 07:30-08:00">Morgon 07:30-08:00</option>
+						<option value="Lunch 12:15-13:00 (ej fredagar)">Lunch 12:15-13:00 (ej fredagar)</option>
+						<option value="Eftermiddag 16:15-17:00">Eftermiddag 16:15-17:00</option>
+					</select>-->
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="id_other" class="col-sm-4 control-label">Övrig information</label>
+				<div class="col-sm-8">
+					<textarea id="id_other" rows="5" cols="33" name="other" class="form-control"></textarea>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-4 col-sm-8">
+					<div class="alert alert-info" role="alert">Ni kommer få en bekräftelse att er beställning är tillagd när styrelsen har tagit emot den.</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-4 col-sm-8">
+					<button type="submit" onclick="return validate()" class="btn btn-primary">Skicka beställning</button>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="col-md-6">
+		<div class="alert alert-warning" role="alert">
+			<h2>Observera!</h2>
+			<p>Jobbare i Baljan har inte möjlighet att lämna ut beställningar, det är enbart Baljans styrelsemedlemmar som lämnar ut beställningar.</p>
+
+			<p>Beställningar går endast att hämta ut under våra jourtider:</p>
+			<ul>
+				<li>Morgon: 07.30 - 08.00</li>
+				<li>Lunch: 12.15 - 13.00 (ej fredagar)</li>
+				<li>Eftermiddag: 16.15 - 17.00</li>
+			</ul>
+
+			<p>Baljan fakturerar endast studentföreningar samt sektioner vid Linköpings Universitet. För beställare med fakturaadress utanför Linköpings universitet tillkommer en fakturaavgift på 19 kronor.</p>
+		</div>
+
+		<h2>Hur mycket kan man beställa?</h2>
+		<p>På grund av begränsningar i hur mycket kaffe vi kan koka samt hur mycket vi kan förvara har vi följade gränser:</p>
+		<ul>
+			<li>Kaffe: minst 5, Morgon max 45, Lunch max 90, Eftermiddag max 135</li>
+			<li>Te: minst 5, max 45</li>
+			<li>Jochen: minst 5, max 200</li>
+			<li>Läsk/vatten: minst 5, max 200</li>
+			<li>Klägg: minst 5, max 300</li>
+		</ul>
+		<p>Beställer ni över 100 stycken jochen måste ni hämta ut beställningen på morgonen (07.30-08.00) då vi inte möjlighet att förvara dessa i våra kylar.</p>
+
+
+		<h2> Vad gäller? </h2>
+		<p>Följade gäller vid beställningar:</p>
+
+		<h3> Kaffe/te </h3>
+		<ul>
+			<li>På grund av termosstorlekar kan vi eventuellt behöva justera antalet kaffe eller te i er beställning. <a href="/baljan/price-list"> Klicka här för att se våra termosstorlekar.</a></li>
+			<li>Koppar, skedar, socker och mjölk ingår vid beställning av kaffe och te. <br></li>
+		</ul>
+
+		<h3> Jochen </h3>
+		<ul>
+			<li>Beställning av jochen måste vara inne <b>senast klockan tolv två arbetsdagar i förväg</b>.</li>
+
+			<li>Vi erbjuder även laktosfria samt vegetariska jochen, önskas detta kan ni lägga till det under ”Övrig information”. Vi kan tyvärr ej erbjuda glutenfria jochen.</li>
+		</ul>
+
+		<h3> Läsk/vatten </h3>
+		<ul>
+			<li> Vid beställningar på över 100 stycken av samma sort är det bra att kontakta Baljan i god tid. Vid köp av fulla backar betalar man även pant. Lämnar man tillbaka fulla backar kan panten skrivas av från fakturan om den lämnas tillbaka senast dagen efter.</li>
+			<li>Har ni speciella önskemål på vilka sorter av läsk eller vatten ni vill ha kan ni specificera detta under ”Övrig information”.</li>
+		</ul>
+
+	</div>
 </div>
-<div class = "grid_5 alpha main">
+
+<div class = "col-sm-grid_5 alpha main">
 	<form method="post">
 	{% csrf_token %}
 	<div class ="contactInfo">	                       
@@ -44,148 +259,14 @@ Här kan ni enkelt skicka beställningar till Baljan! <br>Saknar ni något fält
                 	<p> Telefon:<br>{{form.pickupNumber}}
                 	{% if form.pickupNumber.errors %}<p> <FONT COLOR ="red"> {{ form.pickupNumber.errors }}</FONT> </p> {% endif %} 
 
-		<script>
-		  function calcSum(highlight) {
-		    highlight = typeof highlight !== 'undefined' ? highlight : true;
-		    var userInput = 30*document.getElementById('id_numberOfJochen').value + 6*document.getElementById('id_numberOfCoffee').value
-                                    + 6*document.getElementById('id_numberOfTea').value + 5*document.getElementById('id_numberOfSoda').value
-                                    + 6*document.getElementById('id_numberOfKlagg').value;
-		    document.getElementById('currentSum').innerHTML = userInput;
-                    document.getElementById("id_orderSum").value = userInput;
-                    
-                    if (highlight) {
-		      $("#currentSum").effect("highlight");
-		    }
-		  }
-
-
-		window.onload=function justdoit(){ 
-
-			$("#id_sameAsOrderer").live('change',function(){   
-                        	$("#id_pickupName").effect("highlight");
-                        	$("#id_pickupEmail").effect("highlight");
-                        	$("#id_pickupNumber").effect("highlight");
-                   
- 				if($(this).is(':checked')){
-                                	document.getElementById('id_pickupName').value=document.getElementById('id_orderer').value
-                                	document.getElementById('id_pickupName').readOnly=true
-                                	document.getElementById('id_pickupEmail').value=document.getElementById('id_ordererEmail').value
-                                	document.getElementById('id_pickupEmail').readOnly=true
-                                	document.getElementById('id_pickupNumber').value=document.getElementById('id_phoneNumber').value
-                                	document.getElementById('id_pickupNumber').readOnly=true
-                        	}
-                       	 	else{   
-                                	document.getElementById('id_pickupName').value=""
-                                	document.getElementById('id_pickupName').readOnly=false   
-                                	document.getElementById('id_pickupEmail').value=""
-                                	document.getElementById('id_pickupEmail').readOnly=false
-                                	document.getElementById('id_pickupNumber').value=""
-                                	document.getElementById('id_pickupNumber').readOnly=false
-                        	}                          
-                     	});
-
-			$('#id_orderer').bind('input', function() { 
-                              	document.getElementById('id_pickupName').readOnly=true
-                                document.getElementById('id_pickupEmail').readOnly=true
-                                document.getElementById('id_pickupNumber').readOnly=true
-				if(document.getElementById('id_sameAsOrderer').checked){ 
-                               		document.getElementById('id_pickupName').value=document.getElementById('id_orderer').value        
-				}                             
-                        });
-                        $('#id_ordererEmail').bind('input', function() {                
-		                document.getElementById('id_pickupName').readOnly=true
-                                document.getElementById('id_pickupEmail').readOnly=true
-                                document.getElementById('id_pickupNumber').readOnly=true
-				if(document.getElementById('id_sameAsOrderer').checked){ 
-                          	      	document.getElementById('id_pickupEmail').value=document.getElementById('id_ordererEmail').value
-				}
-                        }); 
-                        $('#id_phoneNumber').bind('input', function() {                 
-		                document.getElementById('id_pickupName').readOnly=true
-                                document.getElementById('id_pickupEmail').readOnly=true
-                                document.getElementById('id_pickupNumber').readOnly=true
-				if(document.getElementById('id_sameAsOrderer').checked){ 
-                        	        document.getElementById('id_pickupNumber').value=document.getElementById('id_phoneNumber').value
-				}
-                        });
-			}
-
-        	</script>	
+		
 	</div> <!-- End pickupInfo -->	
 	
 
 	<div id="items" >
 		<h2> Beställning </h2> 
 		<div align="center"> 
-		<script>
-  			$(function() {
-   			$( "#check" ).button();
-    			$( "#items" ).buttonset();
-  			});
 
-			$("#id_jochenSelected").live('change',function(){
-        			if($(this).is(':checked')){
-                			$("#jochen").show("fast");
-					$("#id_numberOfJochen").focus();
-                		}
-        			else{
-                			$("#jochen").hide("fast");
-        				document.getElementById('id_numberOfJochen').value=""
-			                calcSum();
-		                   
-				}       
-			});
-  
-			$("#id_coffeeSelected").live('change',function(){
-        			if($(this).is(':checked')){
-        				$("#coffee").show("fast");
-					$("#id_numberOfCoffee").focus();
-               			}
-        			else{
-        				$("#coffee").hide("fast");
-					document.getElementById('id_numberOfCoffee').value=""
-			                calcSum();
-       			       	}       
-			});
-  		
-			$("#id_teaSelected").live('change',function(){
-        			if($(this).is(':checked')){
-        				$("#tea").show("fast");
-					$("#id_numberOfTea").focus();
-        			}
-        			else{
-        				$("#tea").hide("fast");
-                                        document.getElementById('id_numberOfTea').value=""
-                                        calcSum();
-        			}       
-			});
-  
-			$("#id_sodaSelected").live('change',function(){
-				if($(this).is(':checked')){
-        				$("#soda").show("fast");
-					$("#id_numberOfSoda").focus();
-        			}
-        			else{
-       					$("#soda").hide("fast");
-					document.getElementById('id_numberOfSoda').value=""
-			                calcSum();		
-				}       
-			});
-  			
-			$("#id_klaggSelected").live('change',function(){
-        			if($(this).is(':checked')){
-        				$("#klagg").show("fast");
-					$("#id_numberOfKlagg").focus();
-        			}
-        			else{
-        				$("#klagg").hide("fast");
-					document.getElementById('id_numberOfKlagg').value=""
-                                        calcSum();
-        			}       
-
-			});
-  
-		</script>
 	
 		{{form.jochenSelected}}
 	  	<input type="checkbox" id="#id_jochenSelected" /><label for="id_jochenSelected">Jochen</label> 

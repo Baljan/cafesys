@@ -2,6 +2,7 @@
 from django.conf import settings
 from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
+from baljan.forms import BaljanAuthenticationForm
 
 from django.contrib import admin
 admin.autodiscover()
@@ -21,7 +22,8 @@ urlpatterns = patterns("",
     }, name='robots'),
     
     url(r'^login/$', 'django.contrib.auth.views.login', {
-        'template_name': 'baljan/login.html'
+        'template_name': 'baljan/login.html',
+		'authentication_form': BaljanAuthenticationForm
         }, name='login'),
     url(r'^logout/$', 'baljan.views.logout', name='logout'),
 
@@ -35,3 +37,6 @@ urlpatterns = patterns("",
 if settings.DEBUG:
     from django.contrib.staticfiles.urls import staticfiles_urlpatterns
     urlpatterns += staticfiles_urlpatterns()
+    urlpatterns += patterns('',
+        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {
+        'document_root': settings.MEDIA_ROOT}))

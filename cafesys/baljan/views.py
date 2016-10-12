@@ -106,7 +106,7 @@ def current_semester(request):
             pass
     return _semester(request, sem)
 
-def orderFromUs(request):
+def order_from_us(request):
     if request.method == 'POST':
 	form = OrderForm(request.POST)
 	if (form.is_valid()):
@@ -221,7 +221,7 @@ END:VCALENDAR'''
             return HttpResponseRedirect("bestallning")
     else:
 	form = OrderForm()
-    return render(request,'baljan/orderForm.html',{
+    return render(request,'baljan/order_form.html',{
          'form':form,
         })
 

@@ -16,7 +16,7 @@ urlpatterns = patterns("baljan.views",
     url(r"^admin-semester/(\w+)$", 'admin_semester'),
 
     url(r"^profile$", 'profile', name='profile'),
-    url(r"^credits$", 'credits'),
+    url(r"^credits$", 'credits', name='credits'),
     url(r"^orders/(\d+)$", 'orders'),
 
     url(r"^user/(.*)$", 'see_user'),
@@ -36,7 +36,7 @@ urlpatterns = patterns("baljan.views",
     url(r'call-duty/(\d+)/(\d+)', 'call_duty_week'),
     url(r'call-duty', 'call_duty_week'),
 
-    url(r'price-list', 'price_list'),
+    url(r'price-list', 'price_list', name='price_list'),
 
     url(r'pdf/shift-combinations/(\w+)', 'shift_combinations_pdf'),
     url(r'pdf/shift-combinations-form/(\w+)', 'shift_combination_form_pdf'),
@@ -44,11 +44,15 @@ urlpatterns = patterns("baljan.views",
     url(r'ical/user/(.+)/baljan.ics', 'user_calendar'),
 
     url(r'high-score/(\d+)/(\d+)', 'high_score'),
-    url(r'high-score', 'high_score'),
+    url(r'high-score', 'high_score', name='high_score'),
 
-    url(r'bestallning','orderFromUs'),
+    url(r'order','order_from_us', name='order_from_us'),
     url(r'trade/take/(\d+)/(.*)', 'trade_take', name='take_signup'),
     url(r'trade/accept/(\d+)/(.*)', 'trade_accept', name='accept_trade'),
     url(r'trade/deny/(\d+)/(.*)', 'trade_deny', name='deny_trade'),
     #url(r'board-seats','board_posts'),
+                       
+    url(r"faq", direct_to_template, {
+        "template": "baljan/faq.html",
+    }, name='faq'), 
 )

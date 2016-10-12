@@ -8,6 +8,8 @@
 
 {% block body_class %}board-week{% endblock %}
 {% block body %}
+<h1>{% trans "Call Duty" %}</h1>
+
 <div class="chalkboard">
     <table>
         <thead>
@@ -16,16 +18,16 @@
                 <a href="{% url baljan.views.call_duty_week prev_y prev_w %}">
                     &laquo;
                 </a>
-                <span class="num">{{year}}</span> 
-                    {%trans "wk."%} 
+                <span class="num">{{year}}</span>
+                    {%trans "wk."%}
                 <span class="num">{{week}}</span>
                 <a href="{% url baljan.views.call_duty_week next_y next_w %}">
                     &raquo;
                 </a>
             </th>
-            <th>{% trans "morning" %}</th>
-            <th>{% trans "lunch" %}</th>
-            <th>{% trans "afternoon" %}</th>
+            <th>{% trans "Morning" %}</th>
+            <th>{% trans "Lunch" %}</th>
+            <th>{% trans "Afternoon" %}</th>
         </tr>
         </thead>
         <tbody>
@@ -76,7 +78,7 @@
     CONFIRM_MSG = "{% trans "Are you sure?" %}";
     CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
     CONFIRM_DELETE = CONFIRM_MSG;
-    
+
 {% autoescape off %}
     REAL_IDS = {{real_ids}};
     ON_CALL = {{oncall}};

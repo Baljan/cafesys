@@ -77,8 +77,8 @@ def categories_and_actions(request):
             Action(_('people and groups'), 'baljan.views.search_person'),
             Action(_('high score'), 'baljan.views.high_score'),
             Action(_('price list'), 'baljan.views.price_list'),
-	    Action(_('order from Baljan'),'baljan.views.orderFromUs'),
-	    #Action(_('apply board'), 'baljan.views.board_posts'),
+			Action(_('order from Baljan'),'baljan.views.order_from_us'),
+			#Action(_('apply board'), 'baljan.views.board_posts'),
             #Action(_('login'), 'acct_login') if student is None else Action(_('logout'), 'acct_logout'),
             )),
         )

@@ -1,0 +1,47 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="400px" height="174px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 87">
+    <defs>
+    <style type="text/css"><![CDATA[
+      .blue-dark {
+        fill: #391985;
+      }
+      .blue-light {
+        fill: #00aae4;
+      }
+      .pink {
+        fill: #f70079;
+      }
+    ]]></style>
+  </defs>
+  <g>
+    <g class="blue-dark">
+      <polygon points="0,0 25,43.3012702 37.5,21.6506351" />
+      <polygon points="100,0 75,43.3012702 62.5,21.6506351" />
+      <polygon points="50,86.6025404 37.5,64.9519053 50,57.7350269 62.5,64.9519053" />
+    </g>
+    
+    <g class="blue-light">
+      <polygon points="0,86.6025404 25,43.3012702 37.5,64.9519053" />
+      <polygon points="100,86.6025404 75,43.3012702 62.5,64.9519053" />
+      <polygon points="50,0 37.5,21.6506351 50,28.8675135 62.5,21.6506351" />
+    </g>
+    
+    <polygon points="25,43.3012702 37.5,21.6506351 50,28.8675135 62.5,21.6506351 75,43.3012702 62.5,64.9519053 50,57.7350269 37.5,64.9519053" class="pink" />
+  </g>
+  <g transform="translate(100)">
+    <g class="pink">
+      <polygon points="0,0 25,43.3012702 37.5,21.6506351" />
+      <polygon points="100,0 75,43.3012702 62.5,21.6506351" />
+      <polygon points="50,86.6025404 37.5,64.9519053 50,57.7350269 62.5,64.9519053" />
+    </g>
+    
+    <g class="blue-dark">
+      <polygon points="0,86.6025404 25,43.3012702 37.5,64.9519053" />
+      <polygon points="100,86.6025404 75,43.3012702 62.5,64.9519053" />
+      <polygon points="50,0 37.5,21.6506351 50,28.8675135 62.5,21.6506351" />
+    </g>
+    
+    <polygon points="25,43.3012702 37.5,21.6506351 50,28.8675135 62.5,21.6506351 75,43.3012702 62.5,64.9519053 50,57.7350269 37.5,64.9519053" class="blue-light" />
+  </g>
+</svg>

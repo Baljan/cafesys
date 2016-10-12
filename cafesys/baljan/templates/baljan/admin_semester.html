@@ -8,11 +8,15 @@
 
 {% block body_class %}admin-semester{% endblock %}
 {% block body %}
-<h1>{% trans "Admin Semester" %}</h1>
-<div class="grid_7 alpha months">
+<div class="row">
+	<div class="col-xs-12">
+		<h1>{% trans "Admin Semester" %}</h1>
+	</div>
+</div>
+<div class="row">
     {% regroup shifts by when.month as month_shifts %}
     {% for month in month_shifts %}
-    <div class="month">
+    <div class="col-sm-4">
         <h2>{{month.grouper|monthname}}</h2>
         <table>
             <thead>
@@ -31,14 +35,7 @@
                 <tr>
                     <td class="day">{{day.grouper|date:"j"}}</td>
                     {% for sh in day.list %}
-                        <td id="shift-{{sh.id}}" class="shift 
-                            span-{{sh.span}}
-                            {% if sh.enabled %}
-                                {% if sh.exam_period %}exam-period{%endif%}
-                            {% else %}
-                            disabled 
-                            {%endif%}
-                            ">
+                        <td id="shift-{{sh.id}}" class="shift span-{{sh.span}} {% if sh.enabled %} {% if sh.exam_period %}exam-period{%endif%} {% else %} disabled {%endif%}">
                             <div class="{% if sh.comb.is_taken %}taken{%endif%}">{{sh.comb.label|default:"&nbsp;"}}</div>
                         </td>
                     {% endfor %}
@@ -49,12 +46,17 @@
 
     </div>
     {% if forloop.counter|divisibleby:"3" %}
-        <div class="clear"></div>
+	</div>
+	<div class="row">
     {% endif %}
     {% empty %}
+	<div class="col-xs-12">
         <p>{% trans "No semester selected." %}</p>
+	</div>
     {% endfor %}
-</div><!--.main-->
+</div>
+
+
 <div class="grid_3 omega secondary">
     <div class="choose-semester">
         {% if semesters|length %}

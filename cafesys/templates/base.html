@@ -1,37 +1,52 @@
 {% load i18n %}
 {% load compress %}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" xml:lang="{{ LANGUAGE_CODE }}" lang="{{ LANGUAGE_CODE }}">
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <title>{% block head_title_base %}{% if SITE_NAME %}{{ SITE_NAME }} : {% endif %}{% block head_title %}{% endblock %}{% endblock %}</title>
-        <link rel="shortcut icon" href="{{ STATIC_URL}}img/logo/favicon.ico" />
-	<!--<link href="{{STATIC_URL}}img/apple-touch-icon.png" rel="apple-touch-icon" />-->
-        <!--[if IE]><style>
-            div {
-                zoom: 1; /* trigger hasLayout */
-            }
-        </style><![endif]-->
+		<meta charset="utf-8">
+		<link rel="dns-prefetch" href="//ajax.googleapis.com">
+		<link rel="dns-prefetch" href="//fonts.googleapis.com">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="theme-color" content="#fff">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link href='//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:light,regular&subset=latin' rel='stylesheet' type='text/css'>
+        <title>{% block head_title_base %}{% if SITE_NAME %}{{ SITE_NAME }} : {% endif %}{% block head_title %}{% endblock %}{% endblock %}</title>
+
+
+        <link rel="shortcut icon" href="{{ STATIC_URL}}img/logo/favicon.ico" />
+
+
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<link href='https://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope' rel='stylesheet' type='text/css'>
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker3.min.css">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+		<link rel="stylesheet" href="{{STATIC_URL}}css/yamm.css" type="text/css">
+		<link rel="stylesheet" href="{{STATIC_URL}}css/style.css" type="text/css">
 
         {% compress css %}
-        <link rel="stylesheet" href="{{STATIC_URL}}uni_form/uni-form.css">
+
+        <!--<link rel="stylesheet" href="{{STATIC_URL}}uni_form/uni-form.css">
         <link rel="stylesheet" href="{{STATIC_URL}}uni_form/default.uni-form.css">
         <link rel="stylesheet" href="{{STATIC_URL}}css/960.css">
         <link rel="stylesheet" href="{{STATIC_URL}}jquery-ui-1.8.24/themes/base/minified/jquery-ui.min.css">
         <link rel="stylesheet" href="{{STATIC_URL}}css/site_base.css">
-   	<link rel="stylesheet" href="{{STATIC_URL}}css/baljan.css">
-
+		<link rel="stylesheet" href="{{STATIC_URL}}css/baljan.css">-->
         {% endcompress %}
-   
+
         {% compress js %}
-        <script type="text/javascript" src="{{STATIC_URL}}js/jquery-1.4.2.min.js"></script>
+        <!--<script type="text/javascript" src="{{STATIC_URL}}js/jquery-1.4.2.min.js"></script>
         <script type="text/javascript" src="{{STATIC_URL}}js/jquery.plugins.js"></script>
         <script type="text/javascript" src="{{STATIC_URL}}jquery-ui-1.8.24/ui/minified/jquery-ui.min.js"></script>
         <script type="text/javascript" src="{{STATIC_URL}}js/uni-form.jquery.js"></script>
-        <script type="text/javascript" src="{{STATIC_URL}}js/baljan.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/baljan.js"></script>-->
         {% endcompress %}
+
+		<!--[if lt IE 9]>
+		  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+		  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
 
         {% if LANGUAGE_BIDI %}
         <style type="text/css" media="screen">
@@ -44,8 +59,21 @@
             {% block extra_head %}{% endblock %}
         {% endblock %}
     </head>
-    
+
     <body class="{% block body_class %}{% endblock %}">
         {% block body_base %}{% endblock %}
+    		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://code.jquery.com/jquery-migrate-3.0.0.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+    		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
+    		{% if LANGUAGE_CODE == "sv" %}
+    		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/locales/bootstrap-datepicker.sv.min.js"></script>
+    		{% endif %}
+    		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/locales/bootstrap-datepicker.en-GB.min.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/script.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/baljan.js"></script>
+        <script type="text/javascript" src="{{STATIC_URL}}js/jquery.plugins.js"></script>
     </body>
 </html>

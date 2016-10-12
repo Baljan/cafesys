@@ -19,7 +19,7 @@ from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
 
 class Made(models.Model):
-    made = models.DateTimeField(_("made at"), help_text=_("when the object was created"), auto_now_add=True)
+    made = models.DateTimeField(_("Made at"), help_text=_("When the object was created"), auto_now_add=True)
 
     class Meta:
         abstract = True
@@ -32,25 +32,25 @@ def generate_private_key():
     return private_key
 
 class Profile(Made):
-    user = models.OneToOneField('auth.User', verbose_name=_("user"), editable=False)
-    friend_profiles = models.ManyToManyField('self', verbose_name=_("friend profiles"), null=True, blank=True)
-    mobile_phone = models.CharField(_("mobile phone number"), max_length=10, blank=True, null=True)
+    user = models.OneToOneField('auth.User', verbose_name=_("User"), editable=False)
+    friend_profiles = models.ManyToManyField('self', verbose_name=_("Friend profiles"), null=True, blank=True)
+    mobile_phone = models.CharField(_("Phone number"), max_length=10, blank=True, null=True)
     balance = models.IntegerField(default=0)
-    balance_currency = models.CharField(_("balance currency"), max_length=5, default=u"SEK", 
-            help_text=_("currency"))
-    picture = models.ImageField(_("picture"), upload_to='profile_pics', null=True, blank=True)
-    show_email = models.BooleanField(_("show email address"), default=False)
-    show_profile = models.BooleanField(_("show profile"), default=True)
-    motto = models.CharField(_("motto"), max_length=40, blank=True, null=True,
-            help_text=_("displayed in high scores"))
+    balance_currency = models.CharField(_("Balance currency"), max_length=5, default=u"SEK", 
+            help_text=_("Currency"))
+    picture = models.ImageField(_("Picture"), upload_to='profile_pics', null=True, blank=True)
+    show_email = models.BooleanField(_("Show email address"), default=False)
+    show_profile = models.BooleanField(_("Show profile"), default=True)
+    motto = models.CharField(_("Motto"), max_length=40, blank=True, null=True,
+            help_text=_("Displayed in high scores"))
 
-    private_key = models.CharField(_("private key"), max_length=PRIVATE_KEY_LENGTH, unique=True, 
+    private_key = models.CharField(_("Private key"), max_length=PRIVATE_KEY_LENGTH, unique=True, 
             default=generate_private_key)
 
-    card_id = models.BigIntegerField(_("card id"), blank=True, null=True, 
+    card_id = models.BigIntegerField(_("Card ID"), blank=True, null=True, 
             unique=True,
-            help_text=_("card ids can be manually set"))
-    section = models.ForeignKey('baljan.Section', verbose_name=_("section"), blank=True, null=True)
+            help_text=_("Card IDs can be manually set"))
+    section = models.ForeignKey('baljan.Section', verbose_name=_("Section"), blank=True, null=True)
 
     fb_access_token = models.CharField(_("Facebook access token"), max_length=150, blank=True, null=True, default=u'')
 
@@ -80,8 +80,8 @@ class Profile(Made):
                 group__name=settings.WORKER_GROUP).count() != 0
 
     class Meta:
-        verbose_name = _("profile")
-        verbose_name_plural = _("profiles")
+        verbose_name = _("Profile")
+        verbose_name_plural = _("Profiles")
         permissions = (
                 ('available_for_call_duty', _nl("Available for call duty")), # for workers
                 ('free_coffee_unlimited', _nl("Unlimited free coffee")),
