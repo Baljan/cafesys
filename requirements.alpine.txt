@@ -1,8 +1,8 @@
 # Runtime dependencies
 ca-certificates
 openldap
-python
-py-pip
+python2
+py2-pip
 
 # Build dependencies
 gcc
@@ -13,4 +13,5 @@ libpq
 musl-dev
 openldap-dev
 postgresql-dev
-python-dev
+python2-dev
+zlib-dev
