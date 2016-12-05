@@ -1,13 +1,16 @@
 # Runtime dependencies
+ca-certificates
+openldap
 python
 py-pip
 
 # Build dependencies
 gcc
 git
-libpq
-postgresql-dev
 jpeg-dev
-python-dev
+libffi-dev
+libpq
 musl-dev
 openldap-dev
+postgresql-dev
+python-dev

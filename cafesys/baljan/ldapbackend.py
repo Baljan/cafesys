@@ -34,7 +34,7 @@ def search(username, password=None, bind=False):
         result_id = l.search(base, scope, uid_kw, ret)
         result_type, result_data = l.result(result_id, 0)
     except ldap.LDAPError, e:
-        log.error('bad LDAP request')
+        log.error('bad LDAP request', exc_auto=True)
         return None
     return result_data
 

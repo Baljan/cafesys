@@ -1,13 +1,38 @@
 # -*- coding: utf-8 -*-
+# Very, very, very ugly solution to weird linking problems...
+# See http://stackoverflow.com/questions/38740631
+import ldap
 
-import os.path
+import logging
 import posixpath
+import warnings
 
-PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+import djcelery
+import environ
 
-DEBUG = False
+djcelery.setup_loader()
+
+logging.basicConfig(level=logging.INFO)
+
+env = environ.Env()
+
+ROOT_DIR = environ.Path(__file__) - 3  # (/a/b/myfile.py - 3 = /)
+APPS_DIR = ROOT_DIR.path('cafesys')
+
+# Ignores warnings if .env does not exist
+# https://docs.python.org/3/library/warnings.html#temporarily-suppressing-warnings
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    env.read_env(str(ROOT_DIR.path('.env')))
+
+ANALYTICS_KEY = env.str('DJANGO_ANALYTICS_KEY', default='')
+CACHE_BACKEND = env.str('DJANGO_CACHE_URL')
+LDAP_SERVER = env.str('DJANGO_LDAP_URL')
+
+CACHE_MIDDLEWARE_KEY_PREFIX = 'cafesys'
+JOHNNY_MIDDLEWARE_KEY_PREFIX = 'jc_cafesys'
+
 COMPRESS_ENABLED = False
-TEMPLATE_DEBUG = True  # nice for Sentry, different than DEBUG
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -20,16 +45,23 @@ ADMINS = [
 MANAGERS = ADMINS
 
 DATABASES = {
+    "default": env.db_url('DJANGO_DATABASE_URL')
+}
+
+CACHES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-    # Add "postgresql_psycopg2", "postgresql", "mysql", "sqlite3" or "oracle".
-        "NAME": "cafesys.db",  # Or path to database file if using sqlite3.
-        "USER": "",  # Not used with sqlite3.
-        "PASSWORD": "",  # Not used with sqlite3.
-        "HOST": "",  # Set to empty string for localhost. Not used with sqlite3.
-        "PORT": "",  # Set to empty string for default. Not used with sqlite3.
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": CACHE_BACKEND,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
     }
 }
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_COOKIE_DOMAIN = 'baljan.org'
+SESSION_COOKIE_NAME = 'baljansessid'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
@@ -65,9 +97,9 @@ LANGUAGES = (
     ('en', u'English'),
 )
 
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, "cafesys", "media")
+MEDIA_ROOT = str(APPS_DIR + "media")
 MEDIA_URL = "/media/"
-STATIC_ROOT = os.path.join(PROJECT_ROOT, "cafesys", "static")
+STATIC_ROOT = str(APPS_DIR + "static")
 STATIC_URL = "/static/"
 
 STATICFILES_FINDERS = (
@@ -81,9 +113,6 @@ STATICFILES_FINDERS = (
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = posixpath.join(STATIC_URL, "admin/")
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = "55qj2y&$zh_1rsxs5(ibkg8y)t=ewo(ln5d)%l(u_^xp$*=^f+"
-
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = [
     "django.template.loaders.filesystem.Loader",
@@ -92,6 +121,7 @@ TEMPLATE_LOADERS = [
 ]
 
 MIDDLEWARE_CLASSES = [
+    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
     "django.middleware.gzip.GZipMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -107,7 +137,7 @@ MIDDLEWARE_CLASSES = [
 ROOT_URLCONF = "cafesys.urls"
 
 TEMPLATE_DIRS = [
-    os.path.join(PROJECT_ROOT, "cafesys", "templates"),
+    str(APPS_DIR + "templates")
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = [
@@ -137,10 +167,12 @@ INSTALLED_APPS = [
     "django.contrib.databrowse",
 
     # external
+    'opbeat.contrib.django',
     "pagination",
     "uni_form",
     "debug_toolbar",
     "compressor",
+    "emailconfirmation",
 
     # project
     "baljan",
@@ -155,19 +187,6 @@ INSTALLED_APPS = [
     # Migrations
     "south",
 ]
-
-import logging
-
-logging.basicConfig(level=logging.INFO)
-
-# SENTRY_THRASHING_TIMEOUT = 0
-# SENTRY_TESTING = True
-# SENTRY_FILTERS = (
-#        'sentry.filters.StatusFilter',
-#        'sentry.filters.LoggerFilter',
-#        'sentry.filters.LevelFilter',
-# )
-# SENTRY_PUBLIC = False
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
@@ -195,7 +214,8 @@ ACCOUNT_EMAIL_AUTHENTICATION = False
 ACCOUNT_UNIQUE_EMAIL = EMAIL_CONFIRMATION_UNIQUE_EMAIL = False
 
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
+    'baljan.ldapbackend.LDAPBackend',
+    "django.contrib.auth.backends.ModelBackend"
 ]
 
 EMAIL_CONFIRMATION_DAYS = 2
@@ -221,42 +241,19 @@ PSEUDO_GROUP_FORMAT = "_%s"
 
 PRICE_LIST_ROW_HEIGHT = 40  # px
 
-import djcelery
-
-djcelery.setup_loader()
-BROKER_URL = "amqp://guest:guest@127.0.0.1:5672/"
-#BROKER_URL = 'django://'
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#EMAIL_HOST = 'smtp.gmail.com'
-#EMAIL_HOST_USER = 'order@baljan.org'
-#EMAIL_HOST_PASSWORD = 'negerneger'
-#EMAIL_PORT = 587
-#EMAIL_USE_TLS = True
-EMAIL_HOST = ''
-EMAIL_PORT = 25
-EMAIL_USE_TLS = False
-# DEFAULT_FROM_EMAIL = 'noreply@ejlert.spantz.org'
-
-# LDAP_SERVER = 'ldap://lukas-backend.unit.liu.se'
-LDAP_SERVER = 'ldaps://baljan.lukas.unit.liu.se:636'
-LDAP_ENABLED = True
 MUNIN_PORT = 8800
 MUNIN_PATH = 'munin/localhost/localhost/index.html'
-
-# URCHIN_ID = "ua-..."
 
 DEBUG_TOOLBAR_CONFIG = {
     "INTERCEPT_REDIRECTS": False,
 }
 
+BROKER_URL = CACHE_BACKEND
 CELERYD_PREFETCH_MULTIPLIER = 128
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_DEFAULT_RATE_LIMIT = None
-CELERY_RESULT_BACKEND = 'cache'
 CELERY_TASK_SERIALIZER = 'pickle'
-CELERY_CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+CELERY_RESULT_BACKEND = CELERY_CACHE_BACKEND = CACHE_BACKEND
 CELERY_CACHE_BACKEND_OPTIONS = {
     'binary': True,
     'behaviors': {
@@ -264,19 +261,12 @@ CELERY_CACHE_BACKEND_OPTIONS = {
     },
 }
 
-# CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
-# JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_cafesys'
-CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
-
-CARDREADER_PREFETCH = True
-
-ANALYTICS_KEY = ''
-
 STATS_CACHE = True
 
 TERMINAL_TORNADO_PORT = 3500
 
-if LDAP_ENABLED:
-    AUTHENTICATION_BACKENDS += [
-        'baljan.ldapbackend.LDAPBackend',
-    ]
+OPBEAT = {
+    'ORGANIZATION_ID': env.str('OPBEAT_ORGANIZATION_ID', default=''),
+    'APP_ID': env.str('OPBEAT_APP_ID', default=''),
+    'SECRET_TOKEN': env.str('OPBEAT_SECRET_TOKEN', default='')
+}
