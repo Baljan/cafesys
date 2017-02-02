@@ -46,7 +46,9 @@ urlpatterns = patterns("baljan.views",
     url(r'high-score/(\d+)/(\d+)', 'high_score'),
     url(r'high-score', 'high_score'),
 
+    url(r'bestallning','orderFromUs'),
     url(r'trade/take/(\d+)/(.*)', 'trade_take', name='take_signup'),
     url(r'trade/accept/(\d+)/(.*)', 'trade_accept', name='accept_trade'),
     url(r'trade/deny/(\d+)/(.*)', 'trade_deny', name='deny_trade'),
+    #url(r'board-seats','board_posts'),
 )

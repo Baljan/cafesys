@@ -1,0 +1,95 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load uni_form_tags %}
+
+{% block head_title %}{% trans "About Baljan" %}{% endblock %}
+
+{% block body_class %}about{% endblock %}
+{% block body %}
+
+<h1>{% trans "About Baljan" %}</h1>
+<div class="grid_7 alpha main">
+
+    <div>
+        {# TODO: Translate. #}
+        <h2>Mål och mening</h2>
+        <p>
+            Kaffe åt folket! &mdash; helt enkelt. Vi säljer kaffe, te,
+            varm choklad, läsk, mackor och <span style="border-bottom:1px
+            dotted" title="dammsugare, chokladbollar, osv">klägg</span> till
+            studentanpassade priser. Vi är helt idéella. Allt överskott
+            återinvesteras i utrustning, möbler och vår fantastiska personal.
+        </p>
+    </div>
+
+ 
+    <div style="padding:10px">
+        <iframe src="//www.facebook.com/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FSektionscafe-Baljan%2F135878346468778&amp;width=520&amp;colorscheme=light&amp;connections=18&amp;stream=true&amp;header=false&amp;height=537" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:520px; height:537px;" allowTransparency="true"></iframe>
+    </div>
+
+    {% comment %}
+    TODO: This is a good place to include updates and whatnot. Facebook
+    integration, perhaps?
+    {% endcomment %}
+</div><!--.main-->
+<div class="grid_3 omega secondary">
+    {# TODO: English link for Kårallen. Can't seem to find one. #}
+    {% blocktrans %}
+    <div>
+        <a href="http://www.flickr.com/photos/chipgriffin/2210297177/">
+            <img title="chipgriffin @ flickr"
+                 src="{{STATIC_URL}}img/flickr/2210297177_d5a88290b3.jpg"/>
+        </a>
+
+        <dl>
+            <dt>weekdays</dt>
+            <dd>8:00 pm to 4:15 pm<dd>
+            <dt>weekends, holidays</dt>
+            <dd>closed<dd>
+        </dl>
+        <p>
+        Open normal hours during mid-terms and final exams, but closed during re-exams.
+        </p>
+    </div>
+    {% endblocktrans %}
+
+    {% blocktrans %}
+    <div>
+        <a href="http://www.flickr.com/photos/20988296@N03/2133238064/">
+            <img title="MINGHE*luciano @ flickr" 
+                 src="{{STATIC_URL}}img/flickr/2133238064_b7a6f87cf2.jpg"/>
+        </a>
+        <p>
+        Baljan is located at the bottom floor of <a
+            href="http://www.karservice.se/karallen/">Kårallen</a>, 
+        campus Valla, Linköping.
+        </p>
+
+        <p>
+        <strong>email</strong><br/>
+        <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a>
+        </p>
+
+        <p>
+        <strong>snail mail</strong><br/>
+        Sektionscafé Baljan<br/>
+        Kårallen, universitetet<br/>
+        581 83 Linköping<br/>
+        Sweden
+        </p>
+
+        <p>
+        <strong>phone</strong><br/>
+        <a href="tel:{{CONTACT_PHONE}}">{{CONTACT_PHONE}}</a>
+        </p>
+
+    </div>
+    {% endblocktrans %}
+</div><!--.secondary-->
+<div class="clean"></div>
+
+{% endblock %}
+
+{% block extra_body %}
+{% endblock %}

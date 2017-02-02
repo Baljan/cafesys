@@ -3,7 +3,6 @@ from baljan.models import Shift
 from baljan.util import year_and_week, get_logger
 from baljan.util import available_for_call_duty
 from baljan.util import initials, all_initials
-from baljan.grids import ShiftGrid
 from django.contrib.auth.models import User, Permission, Group
 
 log = get_logger('baljan.planning')
@@ -42,12 +41,3 @@ class BoardWeek(object):
         avails = available_for_call_duty()
         all = oncall | avails
         return all.distinct()
-
-    def grid(self, request):
-        """Rows are Monday through Friday. Columns are morning, lunch, and
-        afternoon shifts. Each cell holds a list of the person or people on call
-        duty of that shift. People can be added to or removed from shifts by
-        editing the cell lists. Changes are saved to database when the `save`
-        method is called.
-        """
-        return ShiftGrid(request, self.shifts)

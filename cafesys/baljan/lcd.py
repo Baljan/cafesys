@@ -9,7 +9,7 @@ from baljan.parport import ParPort
 from datetime import datetime
 from celery.decorators import task
 
-log = get_logger('baljan.lcd', with_sentry=False)
+log = get_logger('baljan.lcd', with_sentry=True)
 
 SEND_SLEEP_SECONDS = 0.0021
 
@@ -91,15 +91,15 @@ class LCD(object):
 
     def _cominit(self):
         with self.comlock:
-            self.comconn = serial.Serial(
-                port=settings.LCD_PORT,
-                baudrate=9600,
-                parity=serial.PARITY_NONE,
-                stopbits=serial.STOPBITS_ONE,
-                bytesize=serial.EIGHTBITS,
-            )
-            self.comconn.open()
-            assert self.comconn.isOpen()
+            #self.comconn = serial.Serial(
+            #    port=settings.LCD_PORT,
+            #    baudrate=9600,
+            #    parity=serial.PARITY_NONE,
+            #    stopbits=serial.STOPBITS_ONE,
+            #    bytesize=serial.EIGHTBITS,
+            #)
+            #self.comconn.open()
+            #assert self.comconn.isOpen()
             self.inited = True
             log.info('LCD connection established')
 
@@ -125,8 +125,8 @@ class LCD(object):
             delta = entered - self.last_send 
             if delta.total_seconds() < settings.LCD_BLANK_SECONDS:
                 return
-            log.info('blanking %r' % self)
-            self.comconn.write(CMD_CLEAR)
+            #log.info('blanking %r' % self)
+            #self.comconn.write(CMD_CLEAR)
             self.parport.blank()
 
     def send(self, msgs, ok=True):
@@ -146,7 +146,7 @@ class LCD(object):
                 self.parport.order_ok()
             else:
                 self.parport.order_bad()
-            self.comconn.write(to_send)
+            #self.comconn.write(to_send)
             self.last_send = datetime.now()
             log.info('sent: %r' % to_send)
             log.info('preview: %s' % output.preview())
@@ -155,14 +155,15 @@ class LCD(object):
         self.blank()
 
     def close(self):
-        with self.comlock:
-            if self.comconn.isOpen():
-                self.comconn.close()
-            else:
-                log.warning('close() called but serial connection already closed')
+        pass
+        #with self.comlock:
+        #    if self.comconn.isOpen():
+        #        self.comconn.close()
+        #    else:
+        #        log.warning('close() called but serial connection already closed')
 
-            self.inited = False
-            log.info('LCD connection closed')
+        #    self.inited = False
+        #    log.info('LCD connection closed')
 
     def __del__(self):
         self.close()

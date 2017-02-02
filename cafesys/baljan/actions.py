@@ -47,19 +47,20 @@ def categories_and_actions(request):
             )),
         (settings.BOARD_GROUP, _('board tasks'), (
             Action(_('week planning'), 'baljan.views.call_duty_week'),
+            Action(_('wiki'), '/mediawiki', resolve_func=None),
             #Action(_('work applications'), '#', resolve_func=None),
             ) + tuple(upcoming_sem_actions) + (
             Action(_('semesters'), 'baljan.views.admin_semester'),
-            )
+	                )
         ),
         ('sysadmins', _('sysadmins'), (
             Action(_('django admin site'), 'admin:index'),
-            Action(_('sentry'), 'sentry'),
-            Action(_('munin'), 'http://%s:%s/%s' % (domain, settings.MUNIN_PORT, settings.MUNIN_PATH), resolve_func=None),
-            Action(_('github'), 'http://github.com/pilt/cafesys', resolve_func=None),
+            Action(_('sentry'), 'https://sentry.baljan.org/', resolve_func=None),
+            #Action(_('munin'), 'http://%s:%s/%s' % (domain, settings.MUNIN_PORT, settings.MUNIN_PATH), resolve_func=None),
+            Action(_('github'), 'http://github.com/Baljan/cafesys', resolve_func=None),
             )),
         (settings.WORKER_GROUP, _('workers'), (
-            Action(_('guide'), settings.STATIC_URL + 'guide2012.doc', resolve_func=None),
+            Action(_('guide'), settings.STATIC_URL + 'guide.pdf', resolve_func=None),
             Action(_('contract'), settings.STATIC_URL + 'kontrakt2012.docx', resolve_func=None),
             Action(_('add shifts to calendar program'), settings.STATIC_URL + 'ical-calendar.pdf', resolve_func=None),
             #Action(_('schedule'), 'cal.views.worker_calendar'),
@@ -76,6 +77,8 @@ def categories_and_actions(request):
             Action(_('people and groups'), 'baljan.views.search_person'),
             Action(_('high score'), 'baljan.views.high_score'),
             Action(_('price list'), 'baljan.views.price_list'),
+	    Action(_('order from Baljan'),'baljan.views.orderFromUs'),
+	    #Action(_('apply board'), 'baljan.views.board_posts'),
             #Action(_('login'), 'acct_login') if student is None else Action(_('logout'), 'acct_logout'),
             )),
         )

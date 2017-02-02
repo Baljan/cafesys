@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.sites.models import Site
 import logging
-from sentry.client.handlers import SentryHandler
+from raven.contrib.django.handlers import SentryHandler
 import sys
 import itertools
 from itertools import izip, chain, repeat

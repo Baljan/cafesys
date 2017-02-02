@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import re
+from django.core.mail import send_mail
+from email.MIMEBase import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from django.core.mail import send_mail, EmailMultiAlternatives
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from math import ceil
@@ -8,11 +13,11 @@ from cStringIO import StringIO
 from urlparse import parse_qs
 
 import requests
-
+from baljan.forms import OrderForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, render
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 from django.core.serializers import serialize
@@ -60,6 +65,15 @@ def index(request):
     return render_to_response('baljan/baljan.html', {}, context_instance=RequestContext(request))
 
 
+def redirect_prepend_root(where):
+    if where.startswith("/"):
+        return HttpResponseRedirect(where)
+    return HttpResponseRedirect(u'/%s' % where)
+
+def board_posts(request):
+   return render_to_response('baljan/board_seats.html',
+	context_instance=RequestContext(request))
+
 @permission_required('baljan.add_semester')
 @permission_required('baljan.change_semester')
 @permission_required('baljan.delete_semester')
@@ -92,6 +106,128 @@ def current_semester(request):
             pass
     return _semester(request, sem)
 
+def orderFromUs(request):
+    if request.method == 'POST':
+	form = OrderForm(request.POST)
+	if (form.is_valid()):
+	    orderer = form.cleaned_data['orderer']
+            ordererEmail = form.cleaned_data['ordererEmail']
+            phoneNumber = form.cleaned_data['phoneNumber']
+            association = form.cleaned_data['association']
+            sameAsOrderer = form.cleaned_data['sameAsOrderer']
+            pickupName = form.cleaned_data['pickupName']
+            pickupEmail = form.cleaned_data['pickupEmail']
+            pickupNumber = form.cleaned_data['pickupNumber']
+            numberOfJochen = form.cleaned_data['numberOfJochen']
+            numberOfCoffee = form.cleaned_data['numberOfCoffee']
+            numberOfTea = form.cleaned_data['numberOfTea']
+            numberOfSoda = form.cleaned_data['numberOfSoda']
+            numberOfKlagg = form.cleaned_data['numberOfKlagg']
+            other = form.cleaned_data['other']
+            pickup = form.cleaned_data['pickup']
+            date = form.cleaned_data['date']
+            orderSum = form.cleaned_data['orderSum']
+            ordererIsSame = ""
+            if sameAsOrderer:
+                ordererIsSame = "Samma som best&auml;llare"
+            else:
+                ordererIsSame = "Namn: "+pickupName+"<br>Email: "+pickupEmail+"<br>Telefon: "+pickupNumber+'<br>'
+            items = ""
+	    # String for calendar summary
+	    itemsDes = ""
+            if numberOfJochen:
+                items = items +"Antal jochen: "+str(numberOfJochen)+"<br>"
+		itemsDes = itemsDes + str(numberOfJochen)+" Jochen"
+
+            if numberOfCoffee:
+                items = items +"Antal kaffe: "+str(numberOfCoffee)+"<br>"
+		itemsDes = itemsDes+" "+str(numberOfCoffee)+" Kaffe"
+
+            if numberOfTea:
+                items = items +"Antal te: "+str(numberOfTea)+"<br>"
+		itemsDes = itemsDes+" "+str(numberOfTea)+" Te"
+
+            if numberOfSoda:
+                items = items +"Antal l&auml;sk/vatten: "+str(numberOfSoda)+"<br>"
+		itemsDes = itemsDes+" "+str(numberOfSoda)+" Lask/vatten"
+
+            if numberOfKlagg:
+                items = items +"Antal kl&auml;gg: "+str(numberOfKlagg) +"<br>"
+		itemsDes = itemsDes+" "+str(numberOfKlagg)+ " Klagg"
+
+            if orderSum:
+                orderSum += " SEK"
+            else:
+                orderSum = "0";
+
+            if other:
+                 pass
+            else:
+                other = "Ingen &ouml;vrig information l&auml;mnades."
+
+            subject, from_email, to = '[Beställning '+str(date)+' | '+orderer.encode('utf-8')+' - '+association.encode('utf-8')+']',ordererEmail,'bestallning@baljan.org'
+
+	    html_content = '<div style="border:1px dotted black;padding:2em;"><b> Kontaktuppgifter: </b><br> Namn: '+orderer+'<br> Email: '+ordererEmail+'<br>Telefon: '+phoneNumber +' <br> F&ouml;rening/Sektion: '+association+'<br><br><b>Uth&auml;mtare:</b><br> '+ordererIsSame+'<br><br><b>Best&auml;llning: </b> <br>'+items+ "Summa: <u>"+orderSum+"</u><br><br><b>&Ouml;vrigt:</b><br>" +other+'<br> <br><b>Datum och tid: <br> </b>Datum: '+date+'<br>Tid: '+pickup+' </div>'
+	    htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
+	    text_content = ("Beställning "+str(date))
+	    items = items.replace("&auml;","a")	    
+	    items = items.replace("<br>","\\n")
+	    calendarDescription = "Namn: "+orderer.encode('utf-8')+"\\nTelefon: "+str(phoneNumber)+"\\nEmail: "+str(ordererEmail)+"\\n \\n"+items.encode('utf-8')
+
+
+	    msg = EmailMultiAlternatives(subject,"",from_email,[to])
+	    #msg = mailMultiAlternatives(subject,"",from_email,to)
+	    msg.attach(htmlpart)	  
+
+            dtStart=""
+            if "Morgon" in pickup:
+                dPickUp=date.replace("-","")
+                dtStart=dPickUp+"T073000Z"
+                dtEnd=dPickUp+"T080000Z"
+            if "Lunch" in pickup:
+                dPickUp=date.replace("-","")
+                dtStart=dPickUp+"T121500Z"
+                dtEnd=dPickUp+"T130000Z"
+            if "Eftermiddag" in pickup:
+                dPickUp=date.replace("-","")
+                dtStart=dPickUp+"T161500Z"
+                dtEnd=dPickUp+"T170000Z"
+            ics_data='''BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+DTSTART;TZID=Europe/Stockholm:'''+dtStart.encode('utf-8')+'''
+DTEND;TZID=Europe/Stockholm:'''+dtEnd.encode('utf-8')+'''
+DTSTAMP:20130225T144356Z
+UID:42k@google.com
+ORGANIZER;CN=Baljan Beställning:MAILTO:order@baljan.org
+
+CREATED:20130225T144356Z
+DESCRIPTION:'''+calendarDescription+'''
+
+LAST-MODIFIED:20130225T144356Z
+LOCATION:Baljan
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:'''+association.encode('utf-8')+" - "+itemsDes.encode('utf-8')+'''
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR'''
+            msg.attach('event.ics',ics_data,'text/calendar') 
+	    msg.send()	
+            messages.add_message(request, messages.SUCCESS, _("Thank you!"))
+            return HttpResponseRedirect("bestallning")
+    else:
+	form = OrderForm()
+    return render(request,'baljan/orderForm.html',{
+         'form':form,
+        })
+
+    return render_to_response('baljan/price_list.html', {"goods": goods},
+            context_instance=RequestContext(request)) 
+
 
 @login_required
 def semester(request, name):
@@ -117,13 +253,13 @@ def _semester(request, sem):
 @permission_required('baljan.delete_shiftsignup')
 def delete_signup(request, pk, redir):
     baljan.models.ShiftSignup.objects.get(pk=int(pk)).delete()
-    return HttpResponseRedirect(redir)
+    return redirect_prepend_root(redir)
 
 
 @permission_required('baljan.delete_oncallduty')
 def delete_callduty(request, pk, redir):
     baljan.models.OnCallDuty.objects.get(pk=int(pk)).delete()
-    return HttpResponseRedirect(redir)
+    return redirect_prepend_root(redir)
 
 
 @login_required
@@ -132,7 +268,7 @@ def toggle_tradable(request, pk, redir):
     assert su.user == request.user #or request.user.has_perm('baljan.change_shiftsignup')
     su.tradable = not su.tradable
     su.save()
-    return HttpResponseRedirect(redir)
+    return redirect_prepend_root(redir)
 
 
 @login_required
@@ -148,7 +284,7 @@ def toggle_become_worker_request(request, redir):
     else:
         jgr, created = baljan.models.JoinGroupRequest.objects.get_or_create(**filt)
         assert created
-    return HttpResponseRedirect(redir)
+    return redirect_prepend_root(redir)
 
 
 @login_required
@@ -388,19 +524,19 @@ def toggle_friend_request(request, with_user, redir):
     else:
         fr = baljan.models.FriendRequest(sent_by=send_from, sent_to=send_to)
         fr.save()
-    return HttpResponseRedirect(redir)
+    return redirect_prepend_root(redir)
 
 
 @login_required
 def deny_friend_request_from(request, sender, redir):
     _answer_friend_request(request, sender, accept=False)
-    return HttpResponseRedirect(redir)
+    return redirect_prepend_root(redir)
 
 
 @login_required
 def accept_friend_request_from(request, sender, redir):
     _answer_friend_request(request, sender, accept=True)
-    return HttpResponseRedirect(redir)
+    return redirect_prepend_root(redir)
 
 def _answer_friend_request(request, sender, accept):
     sent_by = User.objects.get(username__exact=sender)
@@ -464,10 +600,10 @@ def trade_take(request, signup_pk, redir):
     except trades.TakeRequest.DoubleSignup:
         messages.add_message(request, messages.ERROR, 
                 _("This would result in a double booking."))
-        return HttpResponseRedirect(redir)
+        return redirect_prepend_root(redir)
     except trades.TakeRequest.Error:
         messages.add_message(request, messages.ERROR, _("Invalid trade request."))
-        return HttpResponseRedirect(redir)
+        return redirect_prepend_root(redir)
 
 
 def _trade_answer(request, request_pk, redir, accept):
@@ -478,7 +614,7 @@ def _trade_answer(request, request_pk, redir, accept):
         tr.accept()
     else:
         tr.deny()
-    return HttpResponseRedirect(redir)
+    return redirect_prepend_root(redir)
 
 
 @permission_required('baljan.self_and_friend_signup')
@@ -779,7 +915,7 @@ def admin_semester(request, name=None):
             messages.add_message(request, messages.SUCCESS, 
                 _("%s was added successfully.") % new_sem.name
             )
-            return HttpResponseRedirect(new_sem_url)
+            return redirect_prepend_root(new_sem_url)
         else:
             new_sem_failed = True
 
@@ -832,7 +968,8 @@ def _shift_combinations_pdf(request, sem_name, form):
 
 def price_list(request):
     goods = baljan.models.Good.objects.order_by('position', 'title').all()
-    return PriceListGrid(request, goods).render_to_response('baljan/price_list.html')
+    return render_to_response('baljan/price_list.html', {"goods": goods}, 
+            context_instance=RequestContext(request))
 
 
 def user_calendar(request, private_key):

@@ -394,7 +394,7 @@ class Semester(Made):
         return not self.past()
 
     def year(self):
-        assert self.start.year == self.end.year
+        #assert self.start.year == self.end.year
         return self.start.year
 
     def spring(self):
@@ -911,7 +911,7 @@ class OrderGood(Made):
 
 
 BALANCE_CODE_LENGTH = 8
-BALANCE_CODE_DEFAULT_VALUE = 250 # SEK
+BALANCE_CODE_DEFAULT_VALUE = 300 # SEK
 BALANCE_CODE_MAX_VALUE = 500 # SEK
 SERIES_RELATIVE_LEAST_VALIDITY = relativedelta(years=1)
 SERIES_CODE_DEFAULT_COUNT = 16
@@ -943,6 +943,10 @@ class RefillSeries(Made):
             default=BALANCE_CODE_DEFAULT_VALUE,
             help_text=_("maximum value is %d SEK") % BALANCE_CODE_MAX_VALUE)
     code_currency = models.CharField(_("code currency"), max_length=5, default=u"SEK")
+
+    add_to_group = models.ForeignKey("auth.Group", verbose_name=_("add to group"),
+            help_text=_("if set, users will be added to this group"),
+            null=True, default=None, blank=True)
 
     class Meta:
         verbose_name = _('refill series')

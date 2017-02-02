@@ -163,7 +163,19 @@ class Meta(object):
                 'staff classes': std_staff_classes,
                 'dates': list(sem_now.date_range()),
             })
-        
+        else:
+            try:
+                sem_last = Semester.objects.old()[0]
+                if sem_last:
+                    self.intervals.append({
+                        'key': 'this_semester',
+                        'name': sem_last.name,
+                        'staff classes': std_staff_classes + ['old worker'],
+                        'dates': list(sem_last.date_range()),
+                        })
+            except Exception, e:
+                log.warning('could not fetch last semester: %s' % e)
+
         try:
             sem_last = Semester.objects.old()[0]
             if sem_last:
