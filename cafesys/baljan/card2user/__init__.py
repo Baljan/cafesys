@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.utils.importlib import import_module
 from baljan.util import get_logger
 
-log = get_logger('baljan.card2user', with_sentry=False)
+log = get_logger('baljan.card2user', with_sentry=True)
 
 class Cacher(object):
     prefix = 'baljan.card2user.cards'

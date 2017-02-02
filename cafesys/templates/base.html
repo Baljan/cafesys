@@ -43,7 +43,52 @@
         {% block extra_head_base %}
             {% block extra_head %}{% endblock %}
         {% endblock %}
-    </head>
+    	
+<style style="text/css">
+.pfest {
+ height: 20px;	
+ overflow: hidden;
+ position: relative;
+}
+.pfest h3 {
+ position: absolute;
+ width: 100%;
+ height: 100%;
+ margin: 0;
+ line-height: 20px;
+ text-align: center;
+ /* Starting position */
+ -moz-transform:translateX(100%);
+ -webkit-transform:translateX(100%);	
+ transform:translateX(100%);
+ /* Apply animation to this element */	
+ -moz-animation: pfest 10s linear infinite;
+ -webkit-animation: pfest 10s linear infinite;
+ animation: pfest 10s linear infinite;
+}
+/* Move it (define the animation) */
+@-moz-keyframes pfest {
+ 0%   { -moz-transform: translateX(100%); }
+ 100% { -moz-transform: translateX(-100%); }
+}
+@-webkit-keyframes pfest {
+ 0%   { -webkit-transform: translateX(100%); }
+ 100% { -webkit-transform: translateX(-100%); }
+}
+@keyframes pfest {
+ 0%   { 
+ -moz-transform: translateX(100%); /* Firefox bug fix */
+ -webkit-transform: translateX(100%); /* Firefox bug fix */
+ transform: translateX(100%); 		
+ }
+ 100% { 
+ -moz-transform: translateX(-100%); /* Firefox bug fix */
+ -webkit-transform: translateX(-100%); /* Firefox bug fix */
+ transform: translateX(-100%); 
+ }
+}
+</style>
+	</head>
     
     <body class="{% block body_class %}{% endblock %}">
         {% block body_base %}{% endblock %}

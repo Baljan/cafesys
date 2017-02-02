@@ -47,17 +47,16 @@ def categories_and_actions(request):
             )),
         (settings.BOARD_GROUP, _('board tasks'), (
             Action(_('week planning'), 'baljan.views.call_duty_week'),
-            Action(_('wiki'), '/mediawiki', resolve_func=None),
             #Action(_('work applications'), '#', resolve_func=None),
             ) + tuple(upcoming_sem_actions) + (
             Action(_('semesters'), 'baljan.views.admin_semester'),
-	                )
+            )
         ),
         ('sysadmins', _('sysadmins'), (
             Action(_('django admin site'), 'admin:index'),
             Action(_('sentry'), 'https://sentry.baljan.org/', resolve_func=None),
             #Action(_('munin'), 'http://%s:%s/%s' % (domain, settings.MUNIN_PORT, settings.MUNIN_PATH), resolve_func=None),
-            Action(_('github'), 'http://github.com/pilt/cafesys', resolve_func=None),
+            Action(_('github'), 'http://github.com/Baljan/cafesys', resolve_func=None),
             )),
         (settings.WORKER_GROUP, _('workers'), (
             Action(_('guide'), settings.STATIC_URL + 'guide.pdf', resolve_func=None),

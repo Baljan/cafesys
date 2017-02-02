@@ -4,7 +4,7 @@ from django.contrib.auth.models import User, Group
 
 from baljan.util import get_logger
 
-log = get_logger('baljan.card2user.manualdb', with_sentry=False)
+log = get_logger('baljan.card2user.manualdb', with_sentry=True)
 
 class Finder(object):
     def search(self, card_id):

@@ -25,7 +25,7 @@ from smartcard import scard
 APDU_GET_CARD_ID = [0xFF, 0xCA, 0x00, 0x00, 0x00]
 SELECT = [0xA0, 0xA4, 0x00, 0x00, 0x02, 0x90, 0x00]
 
-log = get_logger('baljan.cardreader', with_sentry=False)
+log = get_logger('baljan.cardreader', with_sentry=True)
 
 class CardReaderError(Exception):
     pass

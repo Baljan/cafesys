@@ -70,7 +70,7 @@ def default_order_from_card(card_id):
         tasklog.warning(err_msg)
         lcd.send([u'ingen användare', u"busskort kanske?"], ok=False)
         return
-
+	
     clerk = orders.Clerk()
     preorder = orders.default_preorder(orderer)
     processed = clerk.process(preorder)
