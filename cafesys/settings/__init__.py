@@ -26,7 +26,7 @@ with warnings.catch_warnings():
     env.read_env(str(ROOT_DIR.path('.env')))
 
 ANALYTICS_KEY = env.str('DJANGO_ANALYTICS_KEY', default='')
-CACHE_BACKEND = env.str('DJANGO_CACHE_URL')
+BROKER_URL = CELERY_RESULT_BACKEND = CELERY_CACHE_BACKEND = CACHE_BACKEND = env.str('DJANGO_REDIS_URL')
 LDAP_SERVER = env.str('DJANGO_LDAP_URL')
 
 CACHE_MIDDLEWARE_KEY_PREFIX = 'cafesys'
@@ -59,7 +59,6 @@ CACHES = {
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-SESSION_COOKIE_DOMAIN = 'baljan.org'
 SESSION_COOKIE_NAME = 'baljansessid'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
@@ -99,7 +98,7 @@ LANGUAGES = (
 
 MEDIA_ROOT = str(APPS_DIR + "media")
 MEDIA_URL = "/media/"
-STATIC_ROOT = str(APPS_DIR + "static")
+STATIC_ROOT = str(APPS_DIR + "collected-static")
 STATIC_URL = "/static/"
 
 STATICFILES_FINDERS = (
@@ -248,12 +247,10 @@ DEBUG_TOOLBAR_CONFIG = {
     "INTERCEPT_REDIRECTS": False,
 }
 
-BROKER_URL = CACHE_BACKEND
 CELERYD_PREFETCH_MULTIPLIER = 128
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_DEFAULT_RATE_LIMIT = None
 CELERY_TASK_SERIALIZER = 'pickle'
-CELERY_RESULT_BACKEND = CELERY_CACHE_BACKEND = CACHE_BACKEND
 CELERY_CACHE_BACKEND_OPTIONS = {
     'binary': True,
     'behaviors': {
@@ -270,3 +267,5 @@ OPBEAT = {
     'APP_ID': env.str('OPBEAT_APP_ID', default=''),
     'SECRET_TOKEN': env.str('OPBEAT_SECRET_TOKEN', default='')
 }
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_SSL', 'on')
