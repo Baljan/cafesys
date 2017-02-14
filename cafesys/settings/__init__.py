@@ -27,7 +27,7 @@ with warnings.catch_warnings():
 
 ANALYTICS_KEY = env.str('DJANGO_ANALYTICS_KEY', default='')
 BROKER_URL = CELERY_RESULT_BACKEND = CELERY_CACHE_BACKEND = CACHE_BACKEND = env.str('DJANGO_REDIS_URL')
-LDAP_SERVER = env.str('DJANGO_LDAP_URL')
+LDAP_SERVER = env.str('DJANGO_LDAP_URL', default='ldaps://baljan.lukas.unit.liu.se:636')
 
 CACHE_MIDDLEWARE_KEY_PREFIX = 'cafesys'
 JOHNNY_MIDDLEWARE_KEY_PREFIX = 'jc_cafesys'
