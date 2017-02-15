@@ -187,6 +187,10 @@ INSTALLED_APPS = [
     "south",
 ]
 
+SOUTH_MIGRATION_MODULES = {
+    'djcelery': 'djcelery.south_migrations',
+}
+
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 ABSOLUTE_URL_OVERRIDES = {
@@ -250,7 +254,8 @@ DEBUG_TOOLBAR_CONFIG = {
 CELERYD_PREFETCH_MULTIPLIER = 128
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_DEFAULT_RATE_LIMIT = None
-CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
 CELERY_CACHE_BACKEND_OPTIONS = {
     'binary': True,
     'behaviors': {
