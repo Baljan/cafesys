@@ -1,0 +1,2 @@
+#!/bin/sh
+gunicorn cafesys.wsgi -c /app/gunicorn-conf.py

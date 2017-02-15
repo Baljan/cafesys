@@ -1,11 +1,4 @@
-build
-include
-lib
-lib64
-share
-src
-core.*
-/*.tar
-*.vim
-logs/
 .env
+cafesys.db
+cafesys/collected-static
+*.pyc
