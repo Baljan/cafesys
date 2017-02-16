@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from django import forms
-import baljan.models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
-from django.forms.widgets import RadioSelect, CheckboxSelectMultiple
+
+import baljan.models
+
 
 class SemesterForm(forms.ModelForm):
     class Meta:

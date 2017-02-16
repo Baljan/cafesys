@@ -1,3 +1,4 @@
+*.sql
 .env
 cafesys.db
 cafesys/collected-static

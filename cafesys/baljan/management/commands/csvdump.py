@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from datetime import date
+
 from django.core.management.base import BaseCommand, CommandError
-from django.conf import settings
-from baljan.models import Order 
-from datetime import date, datetime
+
+from baljan.models import Order
+
 
 class Command(BaseCommand):
     args = ''

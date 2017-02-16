@@ -1,1 +1,0 @@
-../parapin.c

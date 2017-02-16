@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-from django.core.management.base import BaseCommand, CommandError
-from django.conf import settings
-from baljan.util import get_logger
-from django.utils.translation import ugettext as _
-from baljan.models import Semester
-from django.contrib.auth.models import User, Permission, Group
-from django.db.models import Count
-from optparse import make_option
 from datetime import date
+from optparse import make_option
+
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand, CommandError
+
+from baljan.models import Semester
+
 
 class Command(BaseCommand):
     args = 'semester name'

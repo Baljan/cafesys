@@ -1,3 +1,0 @@
-source "http://rubygems.org"
-gem "jammit"
-gem "closure-compiler"

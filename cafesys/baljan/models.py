@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
+from datetime import date, datetime
+
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.auth.models import User, Group, Permission
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
-from django.utils.encoding import smart_str
-from django.contrib.auth.models import User, Group, Permission
-from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models import signals
-from django.utils.translation import ugettext_lazy as _ 
-from django.utils.translation import ugettext as _nl
+from django.utils.encoding import smart_str
 from django.utils.translation import string_concat
-from django.conf import settings
-from datetime import date, datetime
-from dateutil.relativedelta import relativedelta
+from django.utils.translation import ugettext as _nl
+from django.utils.translation import ugettext_lazy as _
+
 import baljan.util
-from baljan.util import get_logger, week_dates, year_and_week, random_string
-import itertools
 import notifications
-from django.utils.safestring import mark_safe
-from django.core.urlresolvers import reverse
+from baljan.util import get_logger, week_dates, year_and_week, random_string
+
 
 class Made(models.Model):
     made = models.DateTimeField(_("made at"), help_text=_("when the object was created"), auto_now_add=True)

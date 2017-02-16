@@ -1,18 +1,9 @@
 # -*- coding: utf-8 -*-
-from optparse import make_option
-import os
-import readline
-import sys
 from datetime import datetime
 
-from django.conf import settings
-from django.contrib.auth.models import User, Permission, Group
-from django.core.management.base import BaseCommand, CommandError
-from django.utils.translation import ugettext as _
-from django.db import transaction
-from django.core.paginator import Paginator
-from dateutil.relativedelta import relativedelta
 from dateutil import rrule
+from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 
 from baljan.models import ShiftSignup
 from baljan.util import get_logger

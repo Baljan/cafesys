@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import baljan.models
-from django.contrib.auth.models import User, Group
-from django.db.models import Q
+from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.db.models import Q
+
 
 def for_person(terms, use_cache=True):
     cache_minutes = 30

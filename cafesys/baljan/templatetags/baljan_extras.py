@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-from django import template
-from django.utils.safestring import mark_safe 
-from baljan.models import ShiftSignup, OnCallDuty, TradeRequest, Shift
-from baljan.util import year_and_week
-from django.contrib.auth.models import User
-from django.template.defaultfilters import escape
 from datetime import date
-from django.utils.translation import ugettext as _ 
+
+from django import template
+from django.template.defaultfilters import escape
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
+
+from baljan.models import ShiftSignup, OnCallDuty
+from baljan.util import year_and_week
 
 register = template.Library()
 

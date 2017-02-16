@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-from celery.task.schedules import crontab
-from baljan.models import Order, Semester, Section
-from django.conf import settings
-from django.db.models import Avg, Count, Max, Min
-from django.db.models.query import QuerySet
-from django.contrib.auth.models import User, Permission, Group
-from datetime import datetime
-from django.core.cache import cache
 from datetime import datetime, date, timedelta
-from django.utils.translation import ugettext_lazy as _ 
-from baljan.util import year_and_week, week_dates, adjacent_weeks
+
+from celery.task.schedules import crontab
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.cache import cache
+from django.db.models import Count
+from django.utils.translation import ugettext_lazy as _
+
+from baljan.models import Order, Semester, Section
 from baljan.util import get_logger
+from baljan.util import year_and_week, week_dates, adjacent_weeks
 
 log = get_logger('baljan.stats', with_sentry=False)
 

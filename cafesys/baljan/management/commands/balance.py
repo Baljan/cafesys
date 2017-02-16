@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-from optparse import make_option
-from django.core.management.base import BaseCommand, CommandError
-from django.conf import settings
-from baljan.util import get_logger
-from django.utils.translation import ugettext as _
-from baljan.models import OldCoffeeCard, Good, BalanceCode
-from django.contrib.auth.models import User, Permission, Group
-from django.db.models import Count
 from datetime import date, datetime
+from optparse import make_option
+
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand, CommandError
+
 from baljan import ldapbackend
+from baljan.models import OldCoffeeCard, Good, BalanceCode
 
 _today = date.today()
 _klipp_worth = settings.KLIPP_WORTH
@@ -47,7 +46,6 @@ def dump_info(user):
 
 
 def union_info(user):
-    from pprint import pprint
     union_key = 'liuStudentUnionMembership'
     try:
         unions = ldapbackend.search(user.username)[0][1][union_key]

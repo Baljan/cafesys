@@ -1,19 +1,14 @@
 # -*- coding: utf-8 -*-
-from optparse import make_option
-import os
-import readline
 import sys
-import datetime
+from optparse import make_option
 
-from django.conf import settings
-from django.contrib.auth.models import User, Permission, Group
+from django.contrib.auth.models import User, Group
 from django.core.management.base import BaseCommand, CommandError
-from django.utils.translation import ugettext as _
 from django.db import transaction
 
-from baljan.util import get_logger, asciilize, random_string
-from baljan.models import ShiftCombination
 from baljan.models import Semester
+from baljan.models import ShiftCombination
+from baljan.util import get_logger, asciilize, random_string
 
 log = get_logger('baljan.commands.group')
 

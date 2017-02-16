@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from django.contrib.auth.models import User, Permission, Group
-from baljan.models import FriendRequest
-from django.db.models import Q
 from datetime import date
+
+from django.db.models import Q
+
+from baljan.models import FriendRequest
 from baljan.util import get_logger
 
 logger = get_logger('baljan.friends')

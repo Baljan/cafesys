@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
 from optparse import make_option
-import os
-import readline
-import sys
 
 from django.conf import settings
-from django.contrib.auth.models import User, Permission, Group
+from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
-from django.utils.translation import ugettext as _
-from django.db import transaction
 from django.core.paginator import Paginator
 
-from baljan.models import Semester
-from baljan.util import get_logger, asciilize, random_string
+from baljan.util import get_logger
 
 log = get_logger('baljan.commands.googlepaste')
 

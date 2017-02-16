@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from django.conf import settings
-from django.contrib.auth.models import User, check_password
-from baljan.util import get_logger, get_or_create_user
-import ldap
 import re
+
+import ldap
+from django.conf import settings
+from django.contrib.auth.models import User
+
+from baljan.util import get_logger, get_or_create_user
 
 log = get_logger('baljan.ldap')
 
@@ -34,7 +36,7 @@ def search(username, password=None, bind=False):
         result_id = l.search(base, scope, uid_kw, ret)
         result_type, result_data = l.result(result_id, 0)
     except ldap.LDAPError, e:
-        log.error('bad LDAP request')
+        log.error('bad LDAP request', exc_auto=True)
         return None
     return result_data
 

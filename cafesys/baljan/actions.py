@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext as _ 
-from django.core.urlresolvers import reverse
 from django.conf import settings
-from baljan.models import Semester
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
+
+from baljan.models import Semester
+
 
 class Action(object):
     def __init__(self, link_text, path, args=None, kwargs=None, resolve_func=reverse):

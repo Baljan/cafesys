@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from baljan.models import ShiftSignup, OnCallDuty
-from icalendar import Calendar, Event, UTC
-from django.db.models import Q
-from django.utils.translation import ugettext as _ 
 import pytz
 from django.conf import settings
-from datetime import datetime
+from django.utils.translation import ugettext as _
+from icalendar import Calendar, Event
+
+from baljan.models import ShiftSignup, OnCallDuty
+
 
 def to_utc(dt):
     tz = settings.TIME_ZONE

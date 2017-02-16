@@ -1,0 +1,17 @@
+# Runtime dependencies
+ca-certificates
+openldap
+python2
+py2-pip
+
+# Build dependencies
+gcc
+git
+jpeg-dev
+libffi-dev
+libpq
+musl-dev
+openldap-dev
+postgresql-dev
+python2-dev
+zlib-dev
