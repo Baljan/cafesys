@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.utils.translation import ugettext as _ 
-from django.utils.safestring import mark_safe 
-from baljan.models import ShiftSignup, Shift, TradeRequest
 from datetime import date
+
 from django.db.models import Q
+
+from baljan.models import ShiftSignup, Shift, TradeRequest
+
 
 def _requests(user, wanted):
     if wanted:

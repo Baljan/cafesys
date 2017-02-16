@@ -1,43 +1,34 @@
 # -*- coding: utf-8 -*-
-
-import re
-from django.core.mail import send_mail
-from email.MIMEBase import MIMEBase
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from django.core.mail import send_mail, EmailMultiAlternatives
-from datetime import date, datetime
-from dateutil.relativedelta import relativedelta
-from math import ceil
 from cStringIO import StringIO
-from urlparse import parse_qs
+from datetime import date, datetime
+from email.mime.text import MIMEText
 
-import requests
-from baljan.forms import OrderForm
-from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from django.core.paginator import Paginator
-from django.shortcuts import render_to_response, render
-from django.shortcuts import get_object_or_404
-from django.template import RequestContext
-from django.core.serializers import serialize
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.translation import ugettext as _ 
-from django.contrib import messages
-from django.contrib import auth
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.contrib.auth.models import User, Permission, Group
+from django.contrib import auth
+from django.contrib import messages
 from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.auth.models import User, Group
 from django.core.cache import cache
+from django.core.mail import EmailMultiAlternatives
+from django.core.paginator import Paginator
+from django.core.serializers import serialize
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render_to_response, render
+from django.template import RequestContext
+from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_exempt
 
 import baljan.forms
+import baljan.ical
 import baljan.models
 import baljan.search
-import baljan.ical
-from baljan import stats
 from baljan import pdf
-from baljan.util import get_logger, year_and_week, all_initials
+from baljan import stats
+from baljan.forms import OrderForm
 from baljan.util import adjacent_weeks, week_dates
+from baljan.util import get_logger, year_and_week, all_initials
 from baljan.util import htmlents
 
 if getattr(settings, 'LDAP_ENABLED', True):
@@ -51,7 +42,6 @@ else:
 
 from baljan import credits as creditsmodule
 from baljan import friendrequests, trades, planning, pseudogroups, workdist
-from baljan.grids import PriceListGrid
 import simplejson
 
 

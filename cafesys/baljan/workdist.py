@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-from pulp import LpProblem, LpMinimize, lpSum, LpVariable, LpStatus, LpInteger
-from pulp import GLPK
-from pulp import allcombinations, value
-from math import floor, ceil
-from baljan.models import Shift, Semester, ShiftCombination
-from django.contrib.auth.models import User, Permission, Group
-from baljan.util import Ring, get_logger, flatten
-from django.db.models import Count
-from math import ceil, floor
 from itertools import imap
+from math import ceil, floor
 from sys import maxint
+
+from django.contrib.auth.models import User
+from django.db.models import Count
+from pulp import GLPK
+from pulp import LpProblem, LpMinimize, lpSum, LpVariable, LpStatus, LpInteger
+
+from baljan.models import Shift, ShiftCombination
+from baljan.util import Ring, get_logger, flatten
 
 log = get_logger('baljan.workdist')
 

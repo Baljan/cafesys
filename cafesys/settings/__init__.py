@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Very, very, very ugly solution to weird linking problems...
 # See http://stackoverflow.com/questions/38740631
-import ldap
+import ldap  # noqa
 
 import logging
 import posixpath
@@ -9,6 +9,7 @@ import warnings
 
 import djcelery
 import environ
+
 
 djcelery.setup_loader()
 

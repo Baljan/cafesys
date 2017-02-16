@@ -1,16 +1,9 @@
 # -*- coding: utf-8 -*-
-from celery.decorators import task, periodic_task
-from celery.task.schedules import crontab
-import requests
-from baljan.sounds import play_sound
-from baljan.util import get_logger
-from django.conf import settings
-from django.contrib.auth.models import User, Group
-from datetime import datetime
-from baljan import orders
-from baljan import stats
-from baljan.models import Good
+from celery.decorators import periodic_task
 from django.core.cache import cache
+
+from baljan import stats
+from baljan.util import get_logger
 
 log = get_logger('baljan.tasks', with_sentry=False)
 

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.auth.models import User, Permission, Group
+from datetime import date
+
 from django.conf import settings
-from django.utils.translation import ugettext as _ 
+from django.contrib.auth.models import User, Group
+from django.db.models import Q
+
 from baljan.models import Semester, BoardPost
 from baljan.util import get_logger
-from django.db.models import Q
-from datetime import date, datetime
 
 log = get_logger('baljan.pseudogroups')
 

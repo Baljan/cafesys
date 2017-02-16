@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
-import os
 import datetime
 
 from django.core.management.base import BaseCommand, CommandError
-from django.conf import settings
 
 from baljan.models import User
-from baljan.models import BalanceCode
-from baljan.models import Order
 
 
 class Command(BaseCommand):

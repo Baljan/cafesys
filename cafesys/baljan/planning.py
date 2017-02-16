@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
+
 from baljan.models import Shift
-from baljan.util import year_and_week, get_logger
 from baljan.util import available_for_call_duty
-from baljan.util import initials, all_initials
-from django.contrib.auth.models import User, Permission, Group
+from baljan.util import year_and_week, get_logger
 
 log = get_logger('baljan.planning')
 

@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-from baljan.models import Order, OrderGood
-from baljan.models import OnCallDuty, Good
-from django.utils.translation import ugettext_lazy as _
-from datetime import date, datetime
-from django.conf import settings
-from django.contrib.auth.models import User, Group
-from baljan.util import get_logger
-from baljan.pseudogroups import was_worker, was_board
+from datetime import datetime
+
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
+
+from baljan.models import Good
+from baljan.models import Order, OrderGood
+from baljan.pseudogroups import was_worker, was_board
+from baljan.util import get_logger
 
 log = get_logger('baljan.orders', with_sentry=False)
 prelog = get_logger('baljan.orders.pre', with_sentry=False)

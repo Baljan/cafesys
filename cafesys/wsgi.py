@@ -1,7 +1,6 @@
 import os
 
 import django.core.handlers.wsgi
-
 from whitenoise.django import DjangoWhiteNoise
 
 

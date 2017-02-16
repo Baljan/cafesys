@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from optparse import make_option
+import collections
 import os
 import pickle
-import collections
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError

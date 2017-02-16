@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta
-from datetime import datetime, date
-from django.contrib.auth.models import User, Permission
-from django.db.models import Q
-from django.core.cache import cache
-from django.utils.hashcompat import md5_constructor
-from django.utils.http import urlquote
-from django.core.urlresolvers import reverse
-from django.conf import settings
-from django.contrib.sites.models import Site
-import logging
-from raven.contrib.django.handlers import SentryHandler
-import sys
 import itertools
-from itertools import izip, chain, repeat
-from dateutil.relativedelta import relativedelta
-from emailconfirmation.models import EmailAddress
-from django.template import defaultfilters
-from htmlentitydefs import codepoint2name
+import logging
 import random
 import string
+import sys
+from datetime import datetime, date
+from datetime import timedelta
+from htmlentitydefs import codepoint2name
+from itertools import izip, chain, repeat
+
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
+from django.core.cache import cache
+from django.template import defaultfilters
+from django.utils.hashcompat import md5_constructor
+from django.utils.http import urlquote
+from emailconfirmation.models import EmailAddress
+from raven.contrib.django.handlers import SentryHandler
+
 
 def escapejs(s):
     """Shortcut to default filter."""

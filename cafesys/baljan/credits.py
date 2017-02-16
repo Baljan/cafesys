@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from baljan.models import BalanceCode, OldCoffeeCard
 from datetime import datetime
-from baljan.util import get_logger
-from datetime import datetime
+
 from django.conf import settings
+
+from baljan.models import BalanceCode, OldCoffeeCard
+from baljan.util import get_logger
 
 log = get_logger('baljan.credits')
 

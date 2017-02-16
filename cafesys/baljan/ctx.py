@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from django.contrib.sites.models import Site
-import baljan.util
 
 import baljan.actions
+import baljan.util
+
 
 def actions(request):
     return {'action_categories': baljan.actions.categories_and_actions(request)}

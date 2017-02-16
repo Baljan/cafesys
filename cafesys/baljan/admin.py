@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-from django.contrib import admin
-import baljan.models
-from django.utils.translation import ugettext as _ 
-from baljan import pdf
 from cStringIO import StringIO
-from django.http import HttpResponse
 from datetime import date
-from django.utils.safestring import mark_safe
+
+from django.contrib import admin
+from django.http import HttpResponse
+from django.utils.translation import ugettext as _
+
+import baljan.models
+from baljan import pdf
 
 admin.site.register(baljan.models.Profile)
 

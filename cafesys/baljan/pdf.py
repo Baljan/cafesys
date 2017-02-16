@@ -2,21 +2,21 @@
 # FIXME: This module could need some attention and polishing.
 
 import os
-from django.utils.translation import ugettext as _
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import mm, cm
-from reportlab.pdfgen import canvas
-from reportlab.lib import colors
-from reportlab.platypus import Table, Paragraph, SimpleDocTemplate
-from pyPdf import PdfFileWriter, PdfFileReader
 from cStringIO import StringIO
-from baljan.util import grouper
-from datetime import date, datetime 
-from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_RIGHT, TA_CENTER
+from datetime import datetime
+
 from django.conf import settings
-from reportlab.pdfbase.ttfonts import TTFont
+from pyPdf import PdfFileWriter, PdfFileReader
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, Paragraph, SimpleDocTemplate
+
+from baljan.util import grouper
 
 if __name__ == '__main__':
     from pdfstimuli import gettext as _

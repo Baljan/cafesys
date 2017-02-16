@@ -3,7 +3,9 @@
 import random
 import string
 from datetime import date
+
 from mock import Mock
+
 
 def gettext(s):
     return s
