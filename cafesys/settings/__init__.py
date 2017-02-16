@@ -135,9 +135,7 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = "cafesys.urls"
 
-TEMPLATE_DIRS = [
-    str(APPS_DIR + "templates")
-]
+TEMPLATE_DIRS = []
 
 TEMPLATE_CONTEXT_PROCESSORS = [
     "django.contrib.auth.context_processors.auth",
