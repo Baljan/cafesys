@@ -2,7 +2,6 @@
 import itertools
 import logging
 import random
-import string
 import sys
 from datetime import datetime, date
 from datetime import timedelta
@@ -330,7 +329,7 @@ def get_or_create_user(
 
 
 def random_string(length):
-    pool = string.letters + string.digits
+    pool = 'abcdefghjkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ023456789'
     return ''.join(random.choice(pool) for dummy in range(length))
 
 
