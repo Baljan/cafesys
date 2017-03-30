@@ -13,6 +13,14 @@ RUN apk add --no-cache $(grep -vE "^\s*#" /app/requirements.alpine.txt | tr "\n"
     echo "TLS_CACERTDIR /etc/ssl/certs" > /etc/openldap/ldap.conf && \
     pip install -U pip setuptools
 
+# At this time, there is no Alpine package for GLPK, so we must build it
+# ourselves.
+RUN mkdir /src && \
+    curl https://ftp.gnu.org/gnu/glpk/glpk-4.61.tar.gz | tar -xzC /src && \
+    cd /src/glpk-4.61 && \
+    ./configure && \
+    make install
+
 COPY ./requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
 

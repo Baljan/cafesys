@@ -5,11 +5,13 @@ python2
 py2-pip
 
 # Build dependencies
+curl
 gcc
 git
 jpeg-dev
 libffi-dev
 libpq
+make
 musl-dev
 openldap-dev
 postgresql-dev
