@@ -16,9 +16,6 @@ log = get_logger('baljan.workdist')
 AM, LUNCH, PM = 0, 1, 2
 SPANS = (AM, LUNCH, PM)
 
-work_pairs = range(20)
-
-
 SHIFTS = ['morning', 'afternoon', 'exam']
 COSTS = {
     'morning': 5.0,
