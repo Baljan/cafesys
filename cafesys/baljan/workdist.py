@@ -145,7 +145,7 @@ def allocate_shifts_for_one_pair(work_pairs, avail_mornings, avail_afternoons, a
 
         prob.solve(GLPK()) # XXX: possibly GLPK(msg=0)
 
-        if LpStatus[prob.status] == 'Undefined':
+        if not LpStatus[prob.status] == 'Optimal':
             next_grace = req - 0.1
             assert 0.0 < next_grace 
             return _recurse(work_pairs, mae, next_grace)
