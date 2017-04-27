@@ -76,13 +76,13 @@ def was_board(user, day):
 
 class PseudoGroup(object):
     def members(self):
-        raise NotImplementerError()
+        raise NotImplementedError()
 
     def name(self):
-        raise NotImplementerError()
+        raise NotImplementedError()
 
     def link(self):
-        raise NotImplementerError()
+        raise NotImplementedError()
 
 
 class SemesterGroup(PseudoGroup):
