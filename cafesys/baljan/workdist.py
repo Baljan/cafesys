@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import itertools
 from itertools import imap
 from math import ceil, floor
 from sys import maxint
@@ -9,7 +10,7 @@ from pulp import GLPK_CMD
 from pulp import LpProblem, LpMinimize, lpSum, LpVariable, LpStatus, LpInteger
 
 from baljan.models import Shift, ShiftCombination
-from baljan.util import Ring, get_logger, flatten
+from baljan.util import get_logger
 
 log = get_logger('baljan.workdist')
 
@@ -22,6 +23,39 @@ COSTS = {
     'afternoon': 4.75,
     'exam': 1.5 * 5.0,
 }
+
+
+def flatten(lol):
+    return list(itertools.chain.from_iterable(lol))
+
+
+class Ring(object):
+    """http://code.activestate.com/recipes/52246-implementing-a-circular-data-structure-using-lists/
+    """
+
+    def __init__(self, l):
+        if not len(l):
+            raise Exception("ring must have at least one element")
+        self._data = l
+
+    def __repr__(self):
+        return repr(self._data)
+
+    def __len__(self):
+        return len(self._data)
+
+    def __getitem__(self, i):
+        return self._data[i]
+
+    def turn(self):
+        old_first = self._data.pop(0)
+        self._data.append(old_first)
+
+    def first(self):
+        return self._data[0]
+
+    def last(self):
+        return self._data[-1]
 
 
 class PairAlloc(object):
