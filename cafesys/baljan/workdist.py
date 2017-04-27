@@ -5,7 +5,7 @@ from sys import maxint
 
 from django.contrib.auth.models import User
 from django.db.models import Count
-from pulp import GLPK
+from pulp import GLPK_CMD
 from pulp import LpProblem, LpMinimize, lpSum, LpVariable, LpStatus, LpInteger
 
 from baljan.models import Shift, ShiftCombination
@@ -143,7 +143,7 @@ def allocate_shifts_for_one_pair(work_pairs, avail_mornings, avail_afternoons, a
             prob += lpSum([shift_vars[shift]]) >= low, "low %s" % shift
             prob += lpSum([shift_vars[shift]]) <= high, "high %s" % shift
 
-        prob.solve(GLPK()) # XXX: possibly GLPK(msg=0)
+        prob.solve(GLPK_CMD(msg=0))
 
         if not LpStatus[prob.status] == 'Optimal':
             next_grace = req - 0.1
