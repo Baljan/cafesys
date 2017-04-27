@@ -3,7 +3,7 @@
 BeautifulSoup==3.2.1
 Django==1.4.22
 Pillow
-PuLP==1.5.3
+PuLP==1.6.5
 SecretStorage==2.0.0
 South==0.7.6
 amqplib==1.0.2
