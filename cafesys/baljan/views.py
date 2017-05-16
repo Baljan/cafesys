@@ -155,19 +155,18 @@ def orderFromUs(request):
             else:
                 other = "Ingen &ouml;vrig information l&auml;mnades."
 
-            subject, from_email, to = '[Beställning '+str(date)+' | '+orderer.encode('utf-8')+' - '+association.encode('utf-8')+']',ordererEmail,'bestallning@baljan.org'
+            subject = '[Beställning '+str(date)+' | '+orderer.encode('utf-8')+' - '+association.encode('utf-8')+']'
+            from_email = 'cafesys@baljan.org'
+            to = 'bestallning@baljan.org'
 
-	    html_content = '<div style="border:1px dotted black;padding:2em;"><b> Kontaktuppgifter: </b><br> Namn: '+orderer+'<br> Email: '+ordererEmail+'<br>Telefon: '+phoneNumber +' <br> F&ouml;rening/Sektion: '+association+'<br><br><b>Uth&auml;mtare:</b><br> '+ordererIsSame+'<br><br><b>Best&auml;llning: </b> <br>'+items+ "Summa: <u>"+orderSum+"</u><br><br><b>&Ouml;vrigt:</b><br>" +other+'<br> <br><b>Datum och tid: <br> </b>Datum: '+date+'<br>Tid: '+pickup+' </div>'
-	    htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
-	    text_content = ("Beställning "+str(date))
-	    items = items.replace("&auml;","a")	    
-	    items = items.replace("<br>","\\n")
-	    calendarDescription = "Namn: "+orderer.encode('utf-8')+"\\nTelefon: "+str(phoneNumber)+"\\nEmail: "+str(ordererEmail)+"\\n \\n"+items.encode('utf-8')
+            html_content = '<div style="border:1px dotted black;padding:2em;"><b> Kontaktuppgifter: </b><br> Namn: '+orderer+'<br> Email: '+ordererEmail+'<br>Telefon: '+phoneNumber +' <br> F&ouml;rening/Sektion: '+association+'<br><br><b>Uth&auml;mtare:</b><br> '+ordererIsSame+'<br><br><b>Best&auml;llning: </b> <br>'+items+ "Summa: <u>"+orderSum+"</u><br><br><b>&Ouml;vrigt:</b><br>" +other+'<br> <br><b>Datum och tid: <br> </b>Datum: '+date+'<br>Tid: '+pickup+' </div>'
+            htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
+            items = items.replace("&auml;","a")
+            items = items.replace("<br>","\\n")
+            calendarDescription = "Namn: "+orderer.encode('utf-8')+"\\nTelefon: "+str(phoneNumber)+"\\nEmail: "+str(ordererEmail)+"\\n \\n"+items.encode('utf-8')
 
-
-	    msg = EmailMultiAlternatives(subject,"",from_email,[to])
-	    #msg = mailMultiAlternatives(subject,"",from_email,to)
-	    msg.attach(htmlpart)	  
+            msg = EmailMultiAlternatives(subject, "", from_email, [to], headers={'Reply-To': ordererEmail})
+            msg.attach(htmlpart)
 
             dtStart=""
             if "Morgon" in pickup:
@@ -205,8 +204,8 @@ SUMMARY:'''+association.encode('utf-8')+" - "+itemsDes.encode('utf-8')+'''
 TRANSP:OPAQUE
 END:VEVENT
 END:VCALENDAR'''
-            msg.attach('event.ics',ics_data,'text/calendar') 
-	    msg.send()	
+            msg.attach('event.ics',ics_data,'text/calendar')
+	    msg.send()
             messages.add_message(request, messages.SUCCESS, _("Thank you!"))
             return HttpResponseRedirect("bestallning")
     else:
@@ -216,7 +215,7 @@ END:VCALENDAR'''
         })
 
     return render_to_response('baljan/price_list.html', {"goods": goods},
-            context_instance=RequestContext(request)) 
+            context_instance=RequestContext(request))
 
 
 @login_required
@@ -396,8 +395,8 @@ def credits(request):
             else:
                 credits_log.error('illegal task %r' % request.POST['task'])
 
-    tpl['refill_form'] = refill_form 
-    tpl['import_form'] = import_form 
+    tpl['refill_form'] = refill_form
+    tpl['import_form'] = import_form
     tpl['currently_available'] = profile.balcur()
     tpl['used_cards'] = used_cards = creditsmodule.used_by(user)
     tpl['used_old_cards'] = used_old_cards = creditsmodule.used_by(user, old_card=True)
@@ -435,7 +434,7 @@ def see_user(request, who):
                 )
 
     if watching_self and request.method == 'POST':
-        profile_forms = [c(request.POST, request.FILES, instance=i) 
+        profile_forms = [c(request.POST, request.FILES, instance=i)
                 for c, i in profile_form_cls_inst]
 
         # Make sure all forms are valid before saving.
@@ -480,7 +479,7 @@ def see_user(request, who):
         tpl['trade_requests'] = tr_sent or tr_recd
         profile_forms = [c(instance=i) for c, i in profile_form_cls_inst]
         tpl['profile_forms'] = profile_forms
-    
+
     # Call duties come after work shifts because they are more frequent.
     tpl['signup_types'] = (
             (_("work shifts"), ['work'], signups_for(watched)),
@@ -588,7 +587,7 @@ def trade_take(request, signup_pk, redir):
         return render_to_response('baljan/trade.html', tpl,
                 context_instance=RequestContext(request))
     except trades.TakeRequest.DoubleSignup:
-        messages.add_message(request, messages.ERROR, 
+        messages.add_message(request, messages.ERROR,
                 _("This would result in a double booking."))
         return redirect_prepend_root(redir)
     except trades.TakeRequest.Error:
@@ -641,7 +640,7 @@ def job_opening_projector(request, semester_name):
     slots = _pair_matrix(pairs)
     tpl['now'] = now = datetime.now().strftime('%H:%M:%S')
 
-    if request.is_ajax(): 
+    if request.is_ajax():
         pair_info = []
         for pair in pairs:
             pair_info.append({
@@ -651,7 +650,7 @@ def job_opening_projector(request, semester_name):
         return HttpResponse(simplejson.dumps({'now': now, 'pairs': pair_info}))
 
     tpl['slots'] = slots
-    return render_to_response('baljan/job_opening_projector.html', tpl, 
+    return render_to_response('baljan/job_opening_projector.html', tpl,
             context_instance=RequestContext(request))
 
 
@@ -675,7 +674,7 @@ def job_opening(request, semester_name):
                     found_user = results[0]
 
             if valid_search and found_user is None:
-                # FIXME: User should not be created immediately. First we 
+                # FIXME: User should not be created immediately. First we
                 # should tell whether or not he exists, then the operator
                 # may choose to import the user.
                 if exists_in_ldap(searched_for):
@@ -693,7 +692,7 @@ def job_opening(request, semester_name):
                 info['user'] = {
                         'username': found_user.username,
                         'text': "%s (%s)" % (
-                            found_user.get_full_name(), 
+                            found_user.get_full_name(),
                             found_user.username
                         ),
                         'phone': found_user.get_profile().mobile_phone,
@@ -754,7 +753,7 @@ def job_opening(request, semester_name):
     tpl['pairs_taken'] = pairs_taken = len([p for p in pairs if p.is_taken()])
     tpl['pairs_total'] = pairs_total = pairs_free + pairs_taken
     tpl['pairs_taken_percent'] = int(round(pairs_taken * 100.0 / pairs_total))
-    return render_to_response('baljan/job_opening.html', tpl, 
+    return render_to_response('baljan/job_opening.html', tpl,
             context_instance=RequestContext(request))
 
 
@@ -814,7 +813,7 @@ def call_duty_week(request, year=None, week=None):
             old_users = User.objects.filter(oncallduty__shift=shift).distinct()
             new_users = []
             if request.POST.has_key(dom_id):
-                new_users = [initial_users[x] for x 
+                new_users = [initial_users[x] for x
                         in request.POST[dom_id].split('|')]
             for old_user in old_users:
                 if not old_user in new_users:
@@ -826,7 +825,7 @@ def call_duty_week(request, year=None, week=None):
                         user=new_user
                     )
                     assert created
-        messages.add_message(request, messages.SUCCESS, 
+        messages.add_message(request, messages.SUCCESS,
                 _("Your changes were saved."))
         return HttpResponse(simplejson.dumps({'OK':True}))
 
@@ -844,7 +843,7 @@ def call_duty_week(request, year=None, week=None):
     tpl['initials'] = simplejson.dumps(id_initials)
     tpl['pictures'] = simplejson.dumps(id_pics)
     tpl['uids'] = simplejson.dumps(uids)
-    return render_to_response('baljan/call_duty_week.html', tpl, 
+    return render_to_response('baljan/call_duty_week.html', tpl,
             context_instance=RequestContext(request))
 
 
@@ -864,7 +863,7 @@ def admin_semester(request, name=None):
         sem = baljan.models.Semester.objects.by_name(name)
 
     user = request.user
-    
+
     new_sem_form = baljan.forms.SemesterForm()
     if request.method == 'POST':
         if request.POST['task'] == 'new_semester':
@@ -899,10 +898,10 @@ def admin_semester(request, name=None):
     if new_sem_form.is_bound:
         if new_sem_form.is_valid():
             new_sem = new_sem_form.save()
-            new_sem_url = reverse('baljan.views.admin_semester', 
+            new_sem_url = reverse('baljan.views.admin_semester',
                 args=(new_sem.name,)
             )
-            messages.add_message(request, messages.SUCCESS, 
+            messages.add_message(request, messages.SUCCESS,
                 _("%s was added successfully.") % new_sem.name
             )
             return redirect_prepend_root(new_sem_url)
@@ -918,12 +917,12 @@ def admin_semester(request, name=None):
     if sem:
         tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span')
         tpl['day_count'] = len(list(sem.date_range()))
-        
+
         worker_shifts = shifts.exclude(enabled=False).exclude(span=1)
         tpl['worker_shift_count'] = worker_shifts.count()
         tpl['exam_period_count'] = worker_shifts.filter(exam_period=True).count()
 
-    return render_to_response('baljan/admin_semester.html', tpl, 
+    return render_to_response('baljan/admin_semester.html', tpl,
             context_instance=RequestContext(request))
 
 
@@ -958,7 +957,7 @@ def _shift_combinations_pdf(request, sem_name, form):
 
 def price_list(request):
     goods = baljan.models.Good.objects.order_by('position', 'title').all()
-    return render_to_response('baljan/price_list.html', {"goods": goods}, 
+    return render_to_response('baljan/price_list.html', {"goods": goods},
             context_instance=RequestContext(request))
 
 
@@ -987,7 +986,7 @@ def high_score(request, year=None, week=None):
         (relativedelta(days=90), _("Last %d Days") % 90),
         (relativedelta(days=2000), _("Forever")),
     ]
-    
+
     if request.GET.has_key('format'):
         format = request.GET['format']
         high_scores = []
@@ -1003,7 +1002,7 @@ def high_score(request, year=None, week=None):
 
         if format == 'json':
             return HttpResponse(
-                simplejson.dumps({'high_scores': high_scores}), 
+                simplejson.dumps({'high_scores': high_scores}),
                 mimetype='text/plain',
             )
         else:
@@ -1033,5 +1032,5 @@ def high_score(request, year=None, week=None):
 
     tpl['stats'] = fetched_stats
     tpl['section_stats'] = fetched_section_stats
-    return render_to_response('baljan/high_score.html', tpl, 
+    return render_to_response('baljan/high_score.html', tpl,
             context_instance=RequestContext(request))
