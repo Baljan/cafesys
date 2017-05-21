@@ -506,6 +506,9 @@ $(document).ready(function () {
                 data: postData,
                 type: 'post',
                 dataType: 'json',
+                beforSend: function () {
+                    $('.submit .save').html("Sparar...");
+                },
                 success: function(result) {
                     location.replace(document.location.pathname);
                 },
