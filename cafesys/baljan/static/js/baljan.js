@@ -506,7 +506,7 @@ $(document).ready(function () {
                 data: postData,
                 type: 'post',
                 dataType: 'json',
-                beforSend: function () {
+                beforeSend: function () {
                     $('.submit .save').html("Sparar...");
                 },
                 success: function(result) {
