@@ -254,6 +254,10 @@ DEBUG_TOOLBAR_CONFIG = {
 CELERYD_PREFETCH_MULTIPLIER = 128
 CELERY_DISABLE_RATE_LIMITS = True
 CELERY_DEFAULT_RATE_LIMIT = None
+STATS_REFRESH_RATE = 10  # seconds
+STATS_CACHE_KEY = 'baljan.stats'
+# How long the stats data live in the cache
+STATS_CACHE_TTL = 24 * 60 * 60  # seconds
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_CACHE_BACKEND_OPTIONS = {
@@ -261,9 +265,12 @@ CELERY_CACHE_BACKEND_OPTIONS = {
     'behaviors': {
         'tcp_nodelay': True,
     },
+CELERY_BEAT_SCHEDULE = {
+    'update-stats': {
+        'task': 'baljan.tasks.update_stats',
+        'schedule': STATS_REFRESH_RATE
+    }
 }
-
-STATS_CACHE = True
 
 TERMINAL_TORNADO_PORT = 3500
 
