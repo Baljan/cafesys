@@ -219,6 +219,7 @@ AUTHENTICATION_BACKENDS = [
     'baljan.ldapbackend.LDAPBackend',
     "django.contrib.auth.backends.ModelBackend"
 ]
+KOBRA_API_TOKEN = env.str('KOBRA_API_TOKEN', default='')
 
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = True

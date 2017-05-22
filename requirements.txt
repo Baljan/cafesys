@@ -74,3 +74,6 @@ ndg-httpsclient
 requests
 pytz
 ipython
+
+# HTTP client (for Kobra etc.)
+requests==2.14.2
