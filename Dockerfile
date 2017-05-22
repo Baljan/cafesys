@@ -1,17 +1,26 @@
 FROM alpine:3.5
 
-RUN mkdir /app
-WORKDIR /app
-
+# Kept separate to be substituted in next step
+ENV APP_ROOT=/app
 ENV DJANGO_SETTINGS_MODULE=cafesys.settings.production \
-    PYTHONPATH=/app:/app/cafesys:$PYTHONPATH \
+    PYTHONPATH=${APP_ROOT}:${APP_ROOT}/cafesys:${PYTHONPATH} \
     PYTHONUNBUFFERED=true
 
-COPY ./requirements.alpine.txt /app/requirements.alpine.txt
+# Build-only environment variables
+ARG DJANGO_DATABASE_URL=sqlite:////
+ARG DJANGO_DEBUG=False
+ARG DJANGO_EMAIL_URL=consolemail://
+ARG DJANGO_REDIS_URL=redis://
+ARG DJANGO_SECRET_KEY=build
+
+RUN mkdir ${APP_ROOT}
+WORKDIR ${APP_ROOT}
+
+COPY ./requirements.alpine.txt ${APP_ROOT}/requirements.alpine.txt
 # Installs packages and adds system CA cert directory to OpenLDAP config
-RUN apk add --no-cache $(grep -vE "^\s*#" /app/requirements.alpine.txt | tr "\n" " ") && \
+RUN apk add --no-cache $(grep -vE "^\s*#" ${APP_ROOT}/requirements.alpine.txt | tr "\n" " ") && \
     echo "TLS_CACERTDIR /etc/ssl/certs" > /etc/openldap/ldap.conf && \
-    pip install -U pip setuptools
+    pip3 install -U pip setuptools
 
 # At this time, there is no Alpine package for GLPK, so we must build it
 # ourselves.
@@ -21,13 +30,14 @@ RUN mkdir /src && \
     ./configure && \
     make install
 
-COPY ./requirements.txt /app/requirements.txt
-RUN pip install -r /app/requirements.txt
+COPY ./requirements.txt ${APP_ROOT}/requirements.txt
+RUN pip3 install -r ${APP_ROOT}/requirements.txt
 
-COPY . /app
+COPY . ${APP_ROOT}
 
-RUN DJANGO_SECRET_KEY=build DJANGO_DATABASE_URL=sqlite://// DJANGO_REDIS_URL=redis:// DJANGO_EMAIL_URL=consolemail:// django-admin.py collectstatic --noinput
+RUN django-admin collectstatic --noinput
 
 EXPOSE 80
+# It seems there's no way to do variable substitution here.
 ENTRYPOINT ["/app/bin/entrypoint"]
 CMD ["/app/bin/run-django"]
