@@ -17,9 +17,7 @@ RUN mkdir ${APP_ROOT}
 WORKDIR ${APP_ROOT}
 
 COPY ./requirements.alpine.txt ${APP_ROOT}/requirements.alpine.txt
-# Installs packages and adds system CA cert directory to OpenLDAP config
 RUN apk add --no-cache $(grep -vE "^\s*#" ${APP_ROOT}/requirements.alpine.txt | tr "\n" " ") && \
-    echo "TLS_CACERTDIR /etc/ssl/certs" > /etc/openldap/ldap.conf && \
     pip3 install -U pip setuptools
 
 # At this time, there is no Alpine package for GLPK, so we must build it
@@ -39,5 +37,4 @@ RUN django-admin collectstatic --noinput
 
 EXPOSE 80
 # It seems there's no way to do variable substitution here.
-ENTRYPOINT ["/app/bin/entrypoint"]
 CMD ["/app/bin/run-django"]
