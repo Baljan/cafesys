@@ -42,6 +42,6 @@ class Command(BaseCommand):
                 ).count())
             order_counts.append((m, counts))
 
-        print "month, %s" % ", ".join([str(y) for y in years])
+        print("month, %s" % ", ".join([str(y) for y in years]))
         for m, year_counts in reversed(order_counts):
-            print "%d, %s" % (m, ", ".join([str(yc) for yc in year_counts]))
+            print("%d, %s" % (m, ", ".join([str(yc) for yc in year_counts])))

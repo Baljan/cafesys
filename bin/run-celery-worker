@@ -1,2 +1,2 @@
 #!/bin/sh
-django-admin.py celery worker --uid nobody
+celery -A cafesys worker --uid nobody

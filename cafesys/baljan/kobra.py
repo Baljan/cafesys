@@ -23,6 +23,7 @@ def create_or_update_user(payload):
     return get_user_model().objects.update_or_create(
         username=payload['liu_id'],
         defaults=dict(
+            email=payload['email'],
             first_name=payload['first_name'],
             last_name=payload['last_name']
     ))

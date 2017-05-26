@@ -60,12 +60,12 @@ class Command(BaseCommand):
         for user in users:
             dump['users'].append(user.id)
             dump['user_name'][user.id] = user.first_name
-            user_profile = user.get_profile()
+            user_profile = user.profile
             if user_profile and user_profile.section:
                 dump['user_section'][user.id] = user_profile.section.name
             else:
                 dump['user_section'][user.id] = None
-        print "Finished with users"
+        print("Finished with users")
 
         for shift in shifts:
             dump['shifts'].append(shift.id)
@@ -84,25 +84,25 @@ class Command(BaseCommand):
                 dump['user_oncallshifts'][oncall.id].append(shift.id)
                 dump['semester_oncall'][shift.semester.id].add(oncall.id)
         for set_key in ['semester_workers', 'semester_oncall']:
-            for semester_id, user_set in dump[set_key].items():
+            for semester_id, user_set in list(dump[set_key].items()):
                 dump[set_key][semester_id] = sorted(list(user_set))
-        print "Finished with shifts"
+        print("Finished with shifts")
 
         for semester in semesters:
             dump['semesters'].append(semester.id)
             dump['semester_name'][semester.id] = semester.name
             dump['semester_startend'][semester.id] = (semester.start, semester.end)
-        print "Finished with semesters"
+        print("Finished with semesters")
 
         for section in sections:
             dump['sections'].append(section.name)
-        print "Finished with sections"
+        print("Finished with sections")
 
         for order in orders:
             dump['orders'].append(order.put_at)
             dump['user_orders'][order.user.id].append(order.put_at)
-        print "Finished with orders"
+        print("Finished with orders")
 
         with open(out_file, 'wb') as output:
             pickle.dump(dump, output)
-        print "Finished pickling to %s" % out_file
+        print("Finished pickling to %s" % out_file)

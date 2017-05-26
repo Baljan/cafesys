@@ -1,6 +1,6 @@
 {% extends "baljan/baljan.html" %}
 {% load i18n %}
-{% load uni_form_tags %}
+{% load crispy_forms_tags %}
 
 {% block head_title %}{% trans "Semesters" %}{% endblock %}
 
@@ -22,7 +22,7 @@
             <td>{{ semester.start|date:"Y-m-d" }}</td>
             <td>{{ semester.end|date:"Y-m-d" }}</td>
             <td>{{ semester.signup_possible|yesno }}</td>
-            <td><a href="{% url admin:baljan_semester_change semester.id %}">{% trans "admin" %}</a></td>
+            <td><a href="{% url 'admin:baljan_semester_change' semester.id %}">{% trans "admin" %}</a></td>
         </tr>
         {% empty %}
             <tr><td colspan="5">{% trans "No semesters available." %}</td></tr>
@@ -33,13 +33,13 @@
     <form action="" method="post" name="add" class="uniForm">
         {% csrf_token %}
         <input type="hidden" name="task" value="add"/>
-        {{ add_form|as_uni_form }}
+        {{ add_form|crispy }}
         <div class="ctrlHolder">
             <input type="submit" value="{% trans "Add" %}"/>
         </div>
     </form>
     <p>
-        <a href="{% url admin:baljan_semester_changelist %}">{% trans "manage on admin site" %}</a>
+        <a href="{% url 'admin:baljan_semester_changelist' %}">{% trans "manage on admin site" %}</a>
     </p>
 </div>
 {% endblock %}

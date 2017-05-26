@@ -1,7 +1,7 @@
 {% extends "baljan/baljan.html" %}
 {% load i18n %}
 {% load humanize %}
-{% load uni_form_tags %}
+{% load crispy_forms_tags %}
 {% load cache %}
 {% load baljan_extras %}
 
@@ -14,7 +14,7 @@
 
 {% if perms.baljan.change_semester and selected_semester %}
 <div class="admin-link">
-    <a href="{% url admin:baljan_semester_change selected_semester.id %}">{% trans "admin" %}</a>
+    <a href="{% url 'admin:baljan_semester_change' selected_semester.id %}">{% trans "admin" %}</a>
 </div>
 {% endif %}
 
@@ -127,7 +127,7 @@
             {% plural %}
                 A total of {{counter}} workers.
             {% endblocktrans %}
-            {% url group worker_group_name as worker_group_url %}
+            {% url 'group' worker_group_name as worker_group_url %}
             {% blocktrans %}
             <a href="{{worker_group_url}}">Full overview of the group</a>.
             {% endblocktrans %}
@@ -145,7 +145,7 @@
             {% plural %}
                 Total of {{counter}} people on the call duty list.
             {% endblocktrans %}
-            {% url group board_group_name as board_group_url %}
+            {% url 'group' board_group_name as board_group_url %}
             {% blocktrans %}
             <a href="{{board_group_url}}">Full overview of the group</a>.
             {% endblocktrans %}

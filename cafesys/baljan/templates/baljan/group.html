@@ -1,7 +1,7 @@
 {% extends "baljan/baljan.html" %}
 {% load i18n %}
 {% load humanize %}
-{% load uni_form_tags %}
+{% load crispy_forms_tags %}
 {% load baljan_extras %}
 {% load cache %}
 
@@ -60,7 +60,7 @@
         <ul>
             {% for group in other_groups %}
             <li>
-                <a href="{% url group group.name%}">{{group.name}}</a>
+                <a href="{% url 'group' group.name%}">{{group.name}}</a>
             </li>
             {% endfor %}
         </ul>

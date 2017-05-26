@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import itertools
-from itertools import imap
+from logging import getLogger
 from math import ceil, floor
-from sys import maxint
+from sys import maxsize
 
 from django.contrib.auth.models import User
 from django.db.models import Count
@@ -10,9 +10,8 @@ from pulp import GLPK_CMD
 from pulp import LpProblem, LpMinimize, lpSum, LpVariable, LpStatus, LpInteger
 
 from baljan.models import Shift, ShiftCombination
-from baljan.util import get_logger
 
-log = get_logger('baljan.workdist')
+log = getLogger(__name__)
 
 AM, LUNCH, PM = 0, 1, 2
 SPANS = (AM, LUNCH, PM)
@@ -60,7 +59,7 @@ class Ring(object):
 
 class PairAlloc(object):
     CANNOT_TAKE = -1
-    NOTHING_ASSIGNED = maxint
+    NOTHING_ASSIGNED = maxsize
 
     class Empty(Exception):
         pass
@@ -128,10 +127,10 @@ class PairAlloc(object):
         if len(self.shifts) == 0:
             return self.NOTHING_ASSIGNED
 
-        tigered = flatten(zip(
+        tigered = flatten(list(zip(
             self.shifts, 
             [shift] * len(self.shifts)
-        ))
+        )))
         handicap = 0
         return handicap + abs(min(shift_distances(tigered)).days)
 
@@ -214,7 +213,7 @@ def shift_distances(shifts):
         return 0
     def dates(shifts):
         return [sh.when for sh in shifts]
-    return imap(lambda a, b: a-b, dates(shifts[:-1]), dates(shifts[1:]))
+    return map(lambda a, b: a-b, dates(shifts[:-1]), dates(shifts[1:]))
 
 
 class PairAllocRing(object):
@@ -310,7 +309,7 @@ class PairAllocRing(object):
             for shift in shifts_left:
                 try:
                     pair = self.assign_and_turn(shift)
-                    if not pair_shifts.has_key(pair):
+                    if pair not in pair_shifts:
                         pair_shifts[pair] = []
                     pair_shifts[pair].append(shift)
                 except self.Empty:
@@ -323,7 +322,7 @@ class PairAllocRing(object):
             raise self.Unsolvable(msg)
 
         listed = []
-        for pair, shifts in pair_shifts.items():
+        for pair, shifts in list(pair_shifts.items()):
             listed.append(pair)
         listed.sort(key=lambda x: x.label)
         self._pair_pool = self.ring._data

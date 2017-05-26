@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 {% load humanize %}
 
 {% block head_title %}{% trans "Job Opening Projector" %}{% endblock %}
 {% block body_class %}job-opening-projector{% endblock %}
 
 {% block extra_head_base %}
-    <link type="text/css" href="{{ STATIC_URL}}css/flick/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/baljan.css" />
+    <link type="text/css" href="{% static 'css/flick/jquery-ui-1.8.2.custom.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/baljan.css' %}" />
     <!--[if IE]>
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/baljan-ie.css" />
+        <link rel="stylesheet" href="{% static 'css/baljan-ie.css' %}" />
     <![endif]-->
     {% block extra_head %}{% endblock %}
 {% endblock %}
@@ -21,11 +22,11 @@
             <tr>
             {% for pair in row %}
                 {% if pair %}
-                    <td id="pair-{{pair.label}}" 
+                    <td id="pair-{{pair.label}}"
                         {% if pair.is_taken %}
                             title="{{pair.taken_by|join:", "}}"
                         {% endif %}
-                        
+
                         class="
                             pair
                             {% if pair.is_free %}free{%else%}taken{%endif%}
@@ -42,8 +43,8 @@
         </p>
     </div>
 
-    <script src="{% block jquery_src %}{{ STATIC_URL }}js/jquery-1.4.2.min.js{% endblock %}" type="text/javascript"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.plugins.js"></script> 
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.2.custom.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/baljan.js"></script> 
+    <script src="{% block jquery_src %}{% static 'js/jquery-1.4.2.min.js' %}{% endblock %}" type="text/javascript"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.plugins.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-ui-1.8.2.custom.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/baljan.js' %}"></script>
 {% endblock body_base %}

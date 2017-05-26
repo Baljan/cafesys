@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 import logging
 import random
+import re
 import sys
+import string
 from datetime import datetime, date
 from datetime import timedelta
-from htmlentitydefs import codepoint2name
-from itertools import izip, chain, repeat
-
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.template import defaultfilters
-from django.utils.hashcompat import md5_constructor
 from django.utils.http import urlquote
-from emailconfirmation.models import EmailAddress
-from raven.contrib.django.handlers import SentryHandler
+from html.entities import codepoint2name
+from itertools import chain, repeat
 
 
 def escapejs(s):
@@ -30,22 +28,22 @@ def escape(s):
 
 
 def htmlents(s):
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         u = s
     else:
-        u = unicode(s, 'utf-8')
+        u = str(s, 'utf-8')
 
-    ented = u""
+    ented = ""
     for c in u:
         try:
-            ented += u'&%s;' % codepoint2name[ord(c)]
+            ented += '&%s;' % codepoint2name[ord(c)]
         except KeyError:
             ented += c
     return ented
 
 
-def year_and_week(some_date=None): 
-    """Returns a two-tuple (YEAR, WEEK). `some_date` defaults to 
+def year_and_week(some_date=None):
+    """Returns a two-tuple (YEAR, WEEK). `some_date` defaults to
     `date.today()`."""
     if some_date is None:
         some_date = date.today()
@@ -77,7 +75,7 @@ def week_range(start_date, end_date):
     got = {}
     for d in date_range(start_date, end_date):
         yw = year_and_week(d)
-        if not got.has_key(yw):
+        if yw not in got:
             weeks.append(yw)
         got[yw] = True
     return weeks
@@ -100,7 +98,7 @@ def initials(user, from_first_name=1, from_last_name=1, num=None):
     lmids = ''.join([m[0] for m in last_name.split()[:-1]])
 
     inits = "%s%s%s%s" % ( # FIXME: deuglify
-        first_name_first[0:from_first_name], 
+        first_name_first[0:from_first_name],
         fmids, lmids,
         last_name_last[0:from_last_name]
     )
@@ -115,7 +113,7 @@ def all_initials(users):
     used_inits = {}
     for user in users:
         inits = initials(user)
-        if used_inits.has_key(inits):
+        if inits in used_inits:
             used_inits[inits] += 1
             inits = initials(user, num=used_inits[inits]) # start at 2
         else:
@@ -134,8 +132,8 @@ def date_range(start_date, end_date):
         yield start_date + timedelta(n)
 
 
-def overlap((x1, x2), (y1, y2)):
-    return not (x2 < y1 or y2 < x1)
+def overlap(x, y):
+    return not (x[1] < y[0] or y[1] < x[0])
 
 
 ISO8601_1 = '%Y-%m-%d'
@@ -155,143 +153,10 @@ def available_for_call_duty():
     ).order_by('first_name', 'last_name').distinct()
     return users
 
-def invalidate_template_cache(fragment_name, *variables):
-    args = md5_constructor(u':'.join([urlquote(var) for var in variables]))
-    cache_key = 'template.cache.%s.%s' % (fragment_name, args.hexdigest())
-    print "key is", cache_key, 'got', cache.get(cache_key)
-    cache.delete(cache_key)
-
-
-class Logger(object):
-    """Wrapper around regular loggers.
-
-    Provide 'exc_auto=True' to add 'exc_info=sys.exc_info()' to the delegate
-    call.
-    """
-    def __init__(self, delegate_logger):
-        self.delegate = delegate_logger
-
-    def _wrap_call(self, level, *args, **kwargs):
-        call =  getattr(self.delegate, level, None)
-        if call is None:
-            self.delegate.error("bad level %r" % level)
-            return
-
-        if 'request' in kwargs:
-            req = kwargs['request']
-            kwargs.update({
-                'url': req.build_absolute_uri(),
-                })
-
-            if req.user.is_authenticated():
-                if 'data' in kwargs:
-                    kwargs['data'].update({
-                        'username': req.user.username,
-                        })
-                else:
-                    kwargs.update({
-                        'data': {'username': req.user.username},
-                        })
-        if kwargs.pop('exc_auto', False):
-            return call(*args, exc_info=sys.exc_info(), extra=kwargs)
-        return call(*args, extra=kwargs)
-
-    def debug(self, *args, **kwargs):
-        return self._wrap_call('debug', *args, **kwargs)
-    def info(self, *args, **kwargs):
-        return self._wrap_call('info', *args, **kwargs)
-    def warning(self, *args, **kwargs):
-        return self._wrap_call('warning', *args, **kwargs)
-    def error(self, *args, **kwargs):
-        return self._wrap_call('error', *args, **kwargs)
-    def critical(self, *args, **kwargs):
-        return self._wrap_call('critical', *args, **kwargs)
-
-
-class Borg(object):
-    _shared_state = {}
-
-    def __init__(self):
-        self.__dict__ = self._shared_state
-
-
-class Logging(Borg):
-    def _key(self, name):
-        return "_log_%s" % name
-
-    def _setup_logger(self, name, with_sentry):
-        logger = logging.getLogger(name)
-        if with_sentry:
-            logger.addHandler(SentryHandler())
-        # TODO: Add file handler.
-        #logger.propagate = False # FIXME: should this be done?
-        self.__dict__[self._key(name)] = Logger(logger)
-
-    def get_logger(self, name, with_sentry):
-        key = self._key(name)
-        d = self.__dict__
-        if not d.has_key(key):
-            self._setup_logger(name, with_sentry)
-        return d[key]
-
-
-def get_logger(name='baljan', with_sentry=True):
-    return Logging().get_logger(name, with_sentry)
-
 
 def grouper(n, iterable, padvalue=None):
     "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
-    return izip(*[chain(iterable, repeat(padvalue, n-1))]*n)
-
-
-def get_or_create_user(
-        username, 
-        first_name=None, 
-        last_name=None, 
-        email=None, 
-        phone=None,
-        show_email=None,
-        show_profile=None,
-        ):
-    from baljan.ldapbackend import valid_username
-    kwargs = { 'username': username, }
-    u, created = User.objects.get_or_create(**kwargs)
-
-    if first_name is not None:
-        u.first_name = first_name
-    if last_name is not None:
-        u.last_name = last_name
-    u.set_unusable_password()
-    u.save()
-
-    if valid_username(username):
-        liu_email = u"%s@%s" % (username, settings.USER_EMAIL_DOMAIN)
-        liu_eaddr, liu_eaddr_created = EmailAddress.objects.get_or_create(
-            user=u,
-            email=liu_email,
-            verified=True,
-        )
-        liu_eaddr.set_as_primary()
-
-    if email:
-        eaddr, eaddr_created = EmailAddress.objects.get_or_create(
-            user=u,
-            email=email,
-            verified=True,
-        )
-        eaddr.set_as_primary()
-
-    p = u.get_profile()
-    if show_email is not None:
-        p.show_email = show_email
-    if show_profile is not None:
-        p.show_profile = show_profile
-    if phone is not None:
-        p.mobile_phone = phone
-
-    p.save()
-
-    return u, created
+    return list(zip(*[chain(iterable, repeat(padvalue, n-1))]*n))
 
 
 def random_string(length):
@@ -306,12 +171,16 @@ def current_site():
 def asciilize(s):
     new = s
     for f, t in [
-            (u'Å', u'A'),
-            (u'Ä', u'A'),
-            (u'Ö', u'O'),
-            (u'å', u'a'),
-            (u'ä', u'a'),
-            (u'ö', u'o'),
+            ('Å', 'A'),
+            ('Ä', 'A'),
+            ('Ö', 'O'),
+            ('å', 'a'),
+            ('ä', 'a'),
+            ('ö', 'o'),
             ]:
         new = new.replace(f, t)
     return new
+
+
+def valid_username(username):
+    return re.match('^[a-z]{2,5}[0-9]{3,3}$', username) is not None

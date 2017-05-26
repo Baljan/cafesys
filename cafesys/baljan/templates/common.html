@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block body_base %}
     
@@ -9,7 +10,7 @@
     <div id="body" class="container container_12">
         <div class="grid_2">
             <div id="logo">
-                <a href="/"><img src="{{ STATIC_URL }}img/logo/baljan-logo.png" /></a>
+                <a href="/"><img src="{% static 'img/logo/baljan-logo.png' %}" /></a>
             </div>
             <div id="nav">
             {% block nav %}{% endblock %}

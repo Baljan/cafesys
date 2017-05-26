@@ -1,0 +1,11 @@
+{% extends 'admin/login.html' %}
+{% load i18n %}
+{% block content %}
+    <div style="clear: both; padding: 2em 0; text-align: center;">
+        <form action="{% url 'social:begin' 'liu' %}" method="get">
+            <input type="submit" value="{% trans 'Log in with LiU ID' %}" style="font-size: larger;">
+        </form>
+    </div>
+    <h2>Local account</h2>
+    {{ block.super }}
+{% endblock %}

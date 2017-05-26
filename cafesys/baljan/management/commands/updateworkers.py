@@ -50,4 +50,4 @@ class Command(BaseCommand):
         for new_worker in new_workers:
             worker_group.user_set.add(new_worker)
         worker_group.save()
-        print "done."
+        print("done.")

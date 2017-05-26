@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from logging import getLogger
 
 from django.conf import settings
 
 from baljan.models import BalanceCode, OldCoffeeCard
-from baljan.util import get_logger
 
-log = get_logger('baljan.credits')
+log = getLogger(__name__)
 
 class CreditsError(Exception):
     pass
@@ -78,7 +78,7 @@ def manual_refill(entered_code, by_user):
         use_code_on(bc, by_user)
         log.info('%s refilled %s using %s' % (by_user, bc.valcur(), bc))
         return True
-    except Exception, e:
+    except Exception as e:
         log.warning('manual_refill: %s tried bad code %s' % (by_user, entered_code), exc_auto=True)
         raise BadCode()
 
@@ -88,7 +88,7 @@ def manual_import(entered_code, by_user):
         oc = get_unused_code(entered_code, old_card=True)
         oc.user = by_user
         oc.imported = True
-        profile = by_user.get_profile()
+        profile = by_user.profile
         cur = 'SEK'
         assert profile.balance_currency == cur
         worth = oc.left * settings.KLIPP_WORTH
@@ -97,7 +97,7 @@ def manual_import(entered_code, by_user):
         oc.save()
         log.info('%s imported %s worth %s %s' % (by_user, oc, worth, cur))
         return True
-    except Exception, e:
+    except Exception as e:
         log.warning('manual_import: %s tried bad code %s' % (by_user, entered_code), exc_auto=True)
         raise BadCode()
 
@@ -105,7 +105,7 @@ def manual_import(entered_code, by_user):
 def use_code_on(bc, user):
     assert bc.used_by is None
     assert bc.used_at is None
-    profile = user.get_profile()
+    profile = user.profile
     assert bc.currency == profile.balance_currency
     bc.used_by = user
     bc.used_at = datetime.now()

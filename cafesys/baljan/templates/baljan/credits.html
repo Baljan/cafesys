@@ -1,7 +1,8 @@
 {% extends "baljan/baljan.html" %}
 {% load i18n %}
+{% load static %}
 {% load humanize %}
-{% load uni_form_tags %}
+{% load crispy_forms_tags %}
 {% load baljan_extras %}
 
 {% block head_title %}{% trans "Credits" %}{% endblock %}
@@ -24,51 +25,15 @@
         {% endblocktrans %}
         </p>
         <p>
-            <img src="{{STATIC_URL}}img/signs.png" 
+            <img src="{% static 'img/signs.png' %}"
                 width="364" height="121" alt="{% trans "old coffee card" %}"/>
         </p>
         <form autocomplete="off" method="POST" action="" class="uniForm">{% csrf_token %}
             <input type="hidden" name="task" value="refill" />
             <fieldset class="inlineLabels">
-                {{refill_form|as_uni_form}}
+                {{refill_form|crispy}}
                 <div class="form_block submit">
                     <input type="submit" value="{% trans "refill" %}"/>
-                </div>
-            </fieldset>
-        </form>
-    </div>
-
-    <div class="refill-old">
-        <h2 id="import-old">{% trans "Import Old Coffee Card" %}</h2>
-        <p style="text-align:center">
-            <img src="{{STATIC_URL}}img/kaffepil.gif" 
-                width="248" height="180" alt="{% trans "old coffee card" %}"/>
-        </p>
-        <p>
-        {% blocktrans %}
-            Cards (kaffeklippkort) that you have bought but haven't registrered
-            to your account must be imported manually, which you do here by
-            entering the number at your old coffee card.
-        {% endblocktrans %}
-        </p>
-        <p>
-        {% blocktrans %}
-            The new system uses RFID technology and can't read bar codes,
-            therefore you must register old paper cards and use your liu
-            identification card at the station.
-        {% endblocktrans %}
-        </p>
-        <p>
-        {% blocktrans with KLIPP_WORTH as worth %}
-            Each klipp is worth {{worth}} SEK (the price of one coffee or tea).
-        {% endblocktrans %}
-        </p>
-        <form autocomplete="off" method="POST" action="" class="uniForm">{% csrf_token %}
-            <input type="hidden" name="task" value="import-old" />
-            <fieldset class="inlineLabels">
-                {{import_form|as_uni_form}}
-                <div class="form_block submit">
-                    <input type="submit" value="{% trans "import" %}"/>
                 </div>
             </fieldset>
         </form>
@@ -99,7 +64,7 @@
         <h2>{% trans "LiU Cards Just Work&trade;" %}</h2>
         {% blocktrans %}
         <p>
-        LiU card numbers are imported automatically. This means that new 
+        LiU card numbers are imported automatically. This means that new
         users don't have to enter a number on the web site anymore.
         </p>
         {% endblocktrans %}
@@ -110,8 +75,8 @@
         {% blocktrans %}
         <p>
         If your wallet is made of regular wallet material and doesn't stash a
-        public transportation card (or any other RFID tag of the same type), 
-        you can blip through it. If you have mad blipping skills you might be 
+        public transportation card (or any other RFID tag of the same type),
+        you can blip through it. If you have mad blipping skills you might be
         able to use your wallet anyway (hint: LiU card closest to the reader).
         </p>
         {% endblocktrans %}

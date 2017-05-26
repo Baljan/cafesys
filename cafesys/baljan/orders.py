@@ -10,12 +10,12 @@ from baljan.models import Order, OrderGood
 from baljan.pseudogroups import was_worker, was_board
 from baljan.util import get_logger
 
-log = get_logger('baljan.orders', with_sentry=False)
-prelog = get_logger('baljan.orders.pre', with_sentry=False)
-rebatelog = get_logger('baljan.orders.rebate', with_sentry=False)
+log = get_logger('baljan.orders')
+prelog = get_logger('baljan.orders.pre')
+rebatelog = get_logger('baljan.orders.rebate')
 
 class Processed(object):
-    default_reason = _("The order was processed.") 
+    default_reason = _("The order was processed.")
 
     def __init__(self, preorder, reason=None):
         self.free = preorder.free
@@ -53,7 +53,7 @@ class Accepted(Processed):
             currency=cur,
             accepted=True)
         order.save()
-        profile = preorder.user.get_profile()
+        profile = preorder.user.profile
         profile.balance -= paid
         assert profile.balance_currency == cur
         profile.save()
@@ -139,7 +139,7 @@ class PreOrder(object):
         for good, count in self.goods:
             this_cost, this_cur = good.costcur(self.put_date)
             if cur != this_cur:
-                raise self.Error('goods must have the same currency') 
+                raise self.Error('goods must have the same currency')
             cost += this_cost * count
         return cost, cur
 
@@ -156,7 +156,7 @@ class FreePreOrder(PreOrder):
     def _profilize(self):
         self.free = True
 
-    def _polished_costcur(self, silent=False): 
+    def _polished_costcur(self, silent=False):
         raw_cost, cur = self._raw_costcur()
         self.rebate = raw_cost
         if not silent:
@@ -168,7 +168,7 @@ class BoardPreOrder(PreOrder):
     def _profilize(self):
         self.free = True
 
-    def _polished_costcur(self, silent=False): 
+    def _polished_costcur(self, silent=False):
         raw_cost, cur = self._raw_costcur()
         self.rebate = raw_cost
         if not silent:
@@ -177,7 +177,7 @@ class BoardPreOrder(PreOrder):
 
 
 class WorkerPreOrder(PreOrder):
-    def _polished_costcur(self, silent=False): 
+    def _polished_costcur(self, silent=False):
         raw_cost, cur = self._raw_costcur()
         cooldown = settings.WORKER_COOLDOWN_SECONDS
 
@@ -235,7 +235,7 @@ class Clerk(object):
 
     def process(self, preorder):
         user = preorder.user
-        profile = user.get_profile()
+        profile = user.profile
         balance = profile.balance
         balance_currency = profile.balance_currency
 
@@ -254,7 +254,7 @@ class Clerk(object):
 
 def default_goods():
     coffee = Good.objects.get(
-        title__exact=settings.DEFAULT_ORDER_NAME, 
+        title__exact=settings.DEFAULT_ORDER_NAME,
         description__exact=settings.DEFAULT_ORDER_DESC,
     )
     return [(coffee, 1)]

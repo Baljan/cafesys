@@ -160,7 +160,7 @@ class Meta(object):
                         'staff classes': std_staff_classes + ['old worker'],
                         'dates': list(sem_last.date_range()),
                         })
-            except Exception, e:
+            except Exception as e:
                 log.warning('could not fetch last semester: %s' % e)
 
         try:
@@ -172,7 +172,7 @@ class Meta(object):
                     'staff classes': std_staff_classes + ['old worker'],
                     'dates': list(sem_last.date_range()),
                 })
-        except Exception, e:
+        except Exception as e:
             log.warning('could not fetch last semester: %s' % e)
 
         self.intervals.append({

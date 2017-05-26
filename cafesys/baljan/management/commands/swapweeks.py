@@ -37,8 +37,8 @@ class Command(BaseCommand):
         _map_signups(assert_two_signups, dates_1, dates_2)
 
         def print_signups(signups_1, signups_2):
-            print "week 1", signups_1
-            print "week 2", signups_2
+            print("week 1", signups_1)
+            print("week 2", signups_2)
         _map_signups(print_signups, dates_1, dates_2)
 
         def swap_signups(signups_1, signups_2):

@@ -72,7 +72,7 @@ class Command(BaseCommand):
         signup_counts = sorted(set([w.shiftsignup_set.all().count() for w in workers]), reverse=True)
 
         if options['type'] == 'text':
-            print "%d worker(s):" % len(workers)
+            print("%d worker(s):" % len(workers))
         tot_count = 0
         indent = " " * 4
         for signup_count in signup_counts:
@@ -83,22 +83,22 @@ class Command(BaseCommand):
             if signup_count > upper_limit:
                 continue
             if options['type'] == 'text':
-                print "%3d shift(s): %3d (%.2G%%)" % (signup_count, c, 100.0*c/len(workers))
+                print("%3d shift(s): %3d (%.2G%%)" % (signup_count, c, 100.0*c/len(workers)))
             if signup_count < names_limit:
                 for w in workers_with_count_signups:
                     if future_count is not None:
                         if w.shiftsignup_set.filter(shift__when__gte=today).count() != future_count:
                             continue
                     if options['type'] == 'text':
-                        readable = u"%s%s (%s)" % (indent, w.get_full_name(), w.username)
+                        readable = "%s%s (%s)" % (indent, w.get_full_name(), w.username)
                     elif options['type'] == 'csv':
-                        readable = u"%s,%s,%s,%s" % (
+                        readable = "%s,%s,%s,%s" % (
                             signup_count, w.first_name, w.last_name, w.username)
                     else:
                         assert False, "bad type: %s" % options['type']
-                    print readable.encode('utf-8')
+                    print(readable.encode('utf-8'))
             else:
                 if options['type'] == 'text':
-                    print "%stoo many to print" % indent
+                    print("%stoo many to print" % indent)
 
         assert tot_count == len(workers)
