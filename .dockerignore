@@ -1,5 +1,10 @@
 *.sql
+
+# To avoid confusing overrides by the .env file when using environment variables defined in Docker, we exclude it from
+# the Docker environment.
 .env
+.env.docker
+
 cafesys.db
 cafesys/collected-static
 *.pyc

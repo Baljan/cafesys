@@ -1,4 +1,5 @@
 .env
+.env.docker
 cafesys.db
 cafesys/collected-static
 *.pyc

@@ -1,0 +1,62 @@
+version: "3.2"
+services:
+  blipp:
+    image: baljan/blipp
+    env_file: .env.docker
+    ports:
+      - "8001:80"
+    links:
+      - postgres
+
+  cafesys-celery-beat:
+    image: baljan/cafesys
+    build:
+      context: .
+    env_file: .env.docker
+    command: /app/bin/run-celery-beat
+    volumes:
+      - .:/app
+    links:
+      - redis
+      - postgres
+
+  cafesys-celery-worker:
+    image: baljan/cafesys
+    build:
+      context: .
+    env_file: .env.docker
+    command: /app/bin/run-celery-worker
+    volumes:
+      - .:/app
+    links:
+      - redis
+      - postgres
+
+  cafesys-django:
+    image: baljan/cafesys
+    build:
+      context: .
+    env_file: .env.docker
+    volumes:
+      - .:/app
+    ports:
+      - '8000:80'
+    links:
+      - redis
+      - postgres
+
+  postgres:
+    image: postgres:9.6-alpine
+    env_file: .env.docker
+    ports:
+      # This gives us a Postgres server listening on the host as well. This can be useful for development outside the
+      # Docker environment.
+      - "127.0.0.1:5432:5432"
+
+  redis:
+    image: redis:3-alpine
+    env_file: .env.docker
+    ports:
+      # This gives us a Redis server listening on the host as well. This can be useful for development outside the
+      # Docker environment.
+      - "127.0.0.1:6379:6379"
