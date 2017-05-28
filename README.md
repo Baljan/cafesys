@@ -9,9 +9,24 @@ cp .env.docker.tmpl .env.docker
 docker-compose up
 ```
 
+The first time, run in another shell session:
+```sh
+docker-compose run --rm cafesys-django django-admin.py syncdb
+docker-compose run --rm cafesys-django django-admin.py migrate
+docker-compose run --rm cafesys-django django-admin.py collectstatic --noinput
+docker-compose run --rm cafesys-django django-admin.py shell
+```
+
+In the Python shell, run
+```python
+from django.contrib.sites.models import Site
+Site.objects.create()
+```
+
 When making changes to the code, you might need to rebuild the environment:
 ```sh
 docker-compose build
+docker-compose run --rm cafesys-django django-admin.py collectstatic --noinput
 ```
 
 This environment will use the `.env.docker` file for environment variables, **not** `.env`.
