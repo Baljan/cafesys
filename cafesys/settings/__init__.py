@@ -171,8 +171,8 @@ CONTACT_EMAIL = "styrelsen@baljan.org"
 CONTACT_PHONE = "013259927"
 USER_EMAIL_DOMAIN = 'student.liu.se'
 SITE_NAME = "Sektionscafé Baljan"
-LOGIN_URL = "/login/"
-LOGOUT_URL = "/logout/"
+LOGIN_URL = "/auth/login/liu/"
+LOGOUT_URL = "/auth/logout/"
 LOGIN_REDIRECT_URL = "/"
 
 _EMAIL_CONFIG = env.email_url('DJANGO_EMAIL_URL')
