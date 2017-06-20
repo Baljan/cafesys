@@ -1,2 +1,3 @@
 #!/bin/sh
-django-admin.py celery beat
+# Start without a PID file
+django-admin.py celery beat --pidfile=
