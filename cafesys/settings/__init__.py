@@ -23,7 +23,6 @@ SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
 ANALYTICS_KEY = env.str('DJANGO_ANALYTICS_KEY', default='')
 CACHE_BACKEND = env.str('DJANGO_REDIS_URL')
-LDAP_SERVER = env.str('DJANGO_LDAP_URL', default='ldaps://baljan.lukas.unit.liu.se:636')
 
 ADMINS = [
     # ("Your Name", "your_email@domain.com"),
