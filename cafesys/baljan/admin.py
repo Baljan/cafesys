@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from cStringIO import StringIO
+from io import StringIO
 from datetime import date
 
 from django.contrib import admin
@@ -12,46 +12,10 @@ from baljan import pdf
 admin.site.register(baljan.models.Profile)
 
 
-class JoinGroupRequestAdmin(admin.ModelAdmin):
-    search_fields = (
-            'user__first_name',
-            'user__last_name',
-            'user__username', 
-            'group__name', 
-            )
-    list_display = ('__str__', 'user', 'group', 'made')
-
-    def confirm_requests(self, request, queryset):
-        for jgr in queryset:
-            user = jgr.user
-            group = jgr.group
-            user.groups.add(group)
-            user.save()
-            jgr.delete()
-    confirm_requests.short_description = _("Confirm and add to requested groups")
-
-    actions = ['confirm_requests']
-admin.site.register(baljan.models.JoinGroupRequest, JoinGroupRequestAdmin)
-
-
 class ShiftInline(admin.TabularInline):
     model = baljan.models.Shift
     extra = 0
     can_delete = False
-
-
-class FriendRequestAdmin(admin.ModelAdmin):
-    search_fields = (
-            'sent_by__first_name',
-            'sent_by__last_name',
-            'sent_by__username', 
-            'sent_to__first_name',
-            'sent_to__last_name',
-            'sent_to__username', 
-            )
-    list_display = ('__str__', 'sent_by', 'sent_to', 'accepted', 'answered_at')
-    list_filter = ('accepted',)
-admin.site.register(baljan.models.FriendRequest, FriendRequestAdmin)
 
 
 class TradeRequestAdmin(admin.ModelAdmin):
@@ -70,7 +34,7 @@ class SemesterAdmin(admin.ModelAdmin):
     #inlines = (ShiftInline,)
 admin.site.register(baljan.models.Semester, SemesterAdmin)
 
-signup_oncall_fields = ('shift__when', 'user__username', 'user__first_name', 
+signup_oncall_fields = ('shift__when', 'user__username', 'user__first_name',
         'user__last_name',
         'shift__semester__name',
         )
@@ -90,7 +54,7 @@ admin.site.register(baljan.models.ShiftSignup, ShiftSignupAdmin)
 
 class OnCallDutyAdmin(admin.ModelAdmin):
     search_fields = signup_oncall_fields
-    list_display = signup_oncall_display 
+    list_display = signup_oncall_display
 admin.site.register(baljan.models.OnCallDuty, OnCallDutyAdmin)
 
 
@@ -135,14 +99,14 @@ class GoodCostInline(admin.TabularInline):
 def good_cost(g):
     cost, cur = g.current_costcur()
     if cost is None:
-        return _(u"unset")
-    return u"%d %s" % (cost, cur)
+        return _("unset")
+    return "%d %s" % (cost, cur)
 good_cost.short_description = _('cost')
 
 class GoodAdmin(admin.ModelAdmin):
-    search_fields = ('title', 'description', 'goodcost__cost', 
+    search_fields = ('title', 'description', 'goodcost__cost',
             'goodcost__currency',)
-    list_display = ('__unicode__', good_cost, )
+    list_display = ('__str__', good_cost, )
     list_filter = ('title', )
     inlines = (GoodCostInline, )
 admin.site.register(baljan.models.Good, GoodAdmin)
@@ -159,7 +123,7 @@ class OrderGoodInline(admin.TabularInline):
 #admin.site.register(baljan.models.OrderGood)
 
 class OrderAdmin(admin.ModelAdmin):
-    search_fields = ('user__username', 'ordergood__good__title', 
+    search_fields = ('user__username', 'ordergood__good__title',
             'ordergood__good__description')
     list_display = ('user', 'put_at', 'paid', 'currency', 'accepted')
     list_filter = ('put_at', 'accepted')
@@ -172,8 +136,8 @@ class BalanceCodeAdmin(admin.ModelAdmin):
     fieldsets = (
         (_('Value and Identification'), {
             'fields': (
-                ('value', 'currency'), 
-                ('used_by', 'used_at'), 
+                ('value', 'currency'),
+                ('used_by', 'used_at'),
                 'refill_series',
             ),
         }),
@@ -183,15 +147,15 @@ class BalanceCodeAdmin(admin.ModelAdmin):
         }),
     )
     readonly_fields = (
-            'code', 
-            'value', 
-            'currency', 
+            'code',
+            'value',
+            'currency',
             'refill_series',
             'used_by',
             'used_at',
             )
     list_display = (
-            'id', 'refill_series', 'value', 'currency', 'used_by', 'used_at', 
+            'id', 'refill_series', 'value', 'currency', 'used_by', 'used_at',
             )
     list_filter = ('used_at', 'value', )
 
@@ -236,7 +200,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
     def _currency(series):
         return ", ".join(series.currencies())
     _currency.short_description = _('currency')
-    
+
     def _pdfs(series):
         gens = series.refillseriespdf_set.all()
         return '<a href="../refillseriespdf/?refill_series__id__exact=%d">%d</a>' % (
@@ -246,7 +210,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
     _pdfs.allow_tags = True
     _pdfs.short_description = _('# made PDFs')
 
-    list_display = ('id', 'value', _currency, _used_count, _unused_count, 
+    list_display = ('id', 'value', _currency, _used_count, _unused_count,
             'issued', 'made_by', _pdfs)
     list_filter = ('issued',)
 
@@ -270,7 +234,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
                 has_used = True
                 break
         if has_used:
-            self.message_user(request, 
+            self.message_user(request,
                 _("There are used codes in one or more of the series."))
             return
 
@@ -305,9 +269,9 @@ class BoardPostAdmin(admin.ModelAdmin):
     search_fields = (
             'user__first_name',
             'user__last_name',
-            'user__username', 
-            'semester__name', 
-            'post', 
+            'user__username',
+            'semester__name',
+            'post',
             )
     list_display = ('semester', 'user', 'post')
     list_filter = ('post',)
@@ -326,8 +290,8 @@ class OldCoffeeCardSetAdmin(admin.ModelAdmin):
     search_fields = (
             'made_by__first_name',
             'made_by__last_name',
-            'made_by__username', 
-            'set_id', 
+            'made_by__username',
+            'set_id',
             )
     list_display = ('set_id', 'made_by', 'file', 'created')
 admin.site.register(baljan.models.OldCoffeeCardSet, OldCoffeeCardSetAdmin)
@@ -337,16 +301,11 @@ class OldCoffeeCardAdmin(admin.ModelAdmin):
     search_fields = (
             'user__first_name',
             'user__last_name',
-            'user__username', 
-            'card_id', 
-            'code', 
-            'set__set_id', 
+            'user__username',
+            'card_id',
+            'code',
+            'set__set_id',
             )
     list_display = ('card_id', 'set', 'created', 'count', 'left', 'expires',
             'user', 'imported')
 admin.site.register(baljan.models.OldCoffeeCard, OldCoffeeCardAdmin)
-
-
-class SectionAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-admin.site.register(baljan.models.Section, SectionAdmin)

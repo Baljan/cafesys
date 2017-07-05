@@ -1,7 +1,7 @@
 {% extends "baljan/baljan.html" %}
 {% load i18n %}
 {% load humanize %}
-{% load uni_form_tags %}
+{% load crispy_forms_tags %}
 {% load baljan_extras %}
 
 {% block head_title %}{% trans "Job Opening" %} {{semester.name}}{% endblock %}
@@ -46,11 +46,11 @@
                 <tr>
                 {% for pair in row %}
                     {% if pair %}
-                        <td id="pair-{{pair.label}}" 
+                        <td id="pair-{{pair.label}}"
                             {% if pair.is_taken %}
                                 title="{{pair.taken_by|join:", "}}"
                             {% endif %}
-                            
+
                             class="
                                 pair
                                 {% if pair.is_free %}free{%else%}taken{%endif%}
@@ -102,7 +102,7 @@
         {% endblocktrans %}
         </p>
         <p>
-            <a href="{% url baljan.views.job_opening_projector semester.name %}">{% trans "open view" %}</a>
+            <a href="{% url 'job_opening_projector' semester.name %}">{% trans "open view" %}</a>
         </p>
     </div>
 </div><!--.secondary-->

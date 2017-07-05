@@ -31,9 +31,9 @@ class Command(BaseCommand):
         current_users_total_balance = sum([user.profile.balance for user in users])
         accumulated_excluded = excluded_orders_sum - excluded_balance_codes_sum
 
-        print "users", len(users)
-        print "excluded balance codes sum", excluded_balance_codes_sum
-        print "excluded orders sum", excluded_orders_sum
-        print "current total balance", current_users_total_balance
-        print "accumulated excluded", accumulated_excluded
-        print "total balance in year", current_users_total_balance + accumulated_excluded
+        print("users", len(users))
+        print("excluded balance codes sum", excluded_balance_codes_sum)
+        print("excluded orders sum", excluded_orders_sum)
+        print("current total balance", current_users_total_balance)
+        print("accumulated excluded", accumulated_excluded)
+        print("total balance in year", current_users_total_balance + accumulated_excluded)

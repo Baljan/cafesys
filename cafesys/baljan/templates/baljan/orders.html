@@ -1,7 +1,7 @@
 {% extends "baljan/baljan.html" %}
 {% load i18n %}
 {% load humanize %}
-{% load uni_form_tags %}
+{% load crispy_forms_tags %}
 {% load baljan_extras %}
 
 {% block head_title %}{% trans "Orders for" %} {{user.username}}{% endblock %}
@@ -17,7 +17,7 @@
             <tr>
                 <td class="date-change">
                     {% ifchanged put_at_date %}
-                        {{put_at_date}} 
+                        {{put_at_date}}
                     {% endifchanged %}
                 </td>
                 <td>
@@ -39,12 +39,12 @@
 
         {% if order_page.has_next %}
             <div style="float:left;">
-                <a href="{% url baljan.views.orders order_page.next_page_number %}">&laquo; {% trans "older" %}</a>
+                <a href="{% url 'orders' order_page.next_page_number %}">&laquo; {% trans "older" %}</a>
             </div>
         {% endif %}
         {% if order_page.has_previous %}
             <div style="float:right;">
-                <a href="{% url baljan.views.orders order_page.previous_page_number %}">{% trans "newer" %} &raquo;</a>
+                <a href="{% url 'orders' order_page.previous_page_number %}">{% trans "newer" %} &raquo;</a>
             </div>
         {% endif %}
         <div class="clear"></div>

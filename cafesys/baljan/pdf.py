@@ -2,11 +2,11 @@
 # FIXME: This module could need some attention and polishing.
 
 import os
-from cStringIO import StringIO
+from io import BytesIO
 from datetime import datetime
 
 from django.conf import settings
-from pyPdf import PdfFileWriter, PdfFileReader
+from PyPDF2 import PdfFileWriter, PdfFileReader
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -19,7 +19,7 @@ from reportlab.platypus import Table, Paragraph, SimpleDocTemplate
 from baljan.util import grouper
 
 if __name__ == '__main__':
-    from pdfstimuli import gettext as _
+    from .pdfstimuli import gettext as _
 else:
     from django.utils.translation import ugettext as _
 
@@ -60,13 +60,13 @@ class RefillCard(object):
         add_to_group = series.add_to_group
         if add_to_group:
             c.setFont(*group_font)
-            c.drawCentredString(w/2, h * 0.7, add_to_group.name.lstrip(u"_"))
-        
+            c.drawCentredString(w/2, h * 0.7, add_to_group.name.lstrip("_"))
+
         c.setFont(*code_font)
         c.drawCentredString(w/2, h * 0.46, code.code)
 
         c.setFont(*footer_font)
-        c.drawString(pad, pad, 
+        c.drawString(pad, pad,
                 _('expires no sooner than %s') \
                     % series.least_valid_until.strftime(DATE_FORMAT))
         c.drawRightString(w-pad, pad, '%d.%d' % (series.pk, code.pk))
@@ -81,7 +81,7 @@ def refill_series(file_object, list_of_series):
         balance_codes = series.balancecode_set.all().order_by('pk')
         for balance_code in balance_codes:
             card = RefillCard(balance_code)
-            buf = StringIO()
+            buf = BytesIO()
             card.save(buf)
             buf.seek(0)
             pdfbuf = PdfFileReader(buf)
@@ -90,7 +90,7 @@ def refill_series(file_object, list_of_series):
     return out_pdf
 
 
-def shift_combinations(file_object, scheduler, 
+def shift_combinations(file_object, scheduler,
         empty_cells=False, cell_title=None):
     """`scheduler` as in the `workdist` module."""
     if cell_title is None:
@@ -107,7 +107,7 @@ def shift_combinations(file_object, scheduler,
     now = datetime.now()
 
     elems.append(
-        Paragraph(_("Job Opening %s") % scheduler.sem.name, 
+        Paragraph(_("Job Opening %s") % scheduler.sem.name,
             styles['Heading1']))
 
     data = []
@@ -119,13 +119,13 @@ def shift_combinations(file_object, scheduler,
     for i, (p1, p2) in enumerate(grouper(2, pairs, None)):
         if p1.is_taken():
             taken_indexes.append((0, i))
-        
-        sh1 = [] if empty_cells else [unicode(sh.name_short()) for sh 
+
+        sh1 = [] if empty_cells else [str(sh.name_short()) for sh
                 in p1.shifts]
         if p2 is None:
             data.append([p1.label, ', '.join(sh1), '', ''])
         else:
-            sh2 = [] if empty_cells else [unicode(sh.name_short()) for sh 
+            sh2 = [] if empty_cells else [str(sh.name_short()) for sh
                     in p2.shifts]
             if p2.is_taken():
                 taken_indexes.append((2, i))
@@ -164,7 +164,7 @@ def shift_combinations(file_object, scheduler,
 def shift_combination_form(file_object, scheduler):
     """`scheduler` as in the `workdist` module."""
     pad = 30 # ugly way of getting enough room for text
-    return shift_combinations(file_object, scheduler, 
+    return shift_combinations(file_object, scheduler,
             empty_cells=True,
-            cell_title=u" "*pad + _("liu ids") + u" "*pad,
+            cell_title=" "*pad + _("liu ids") + " "*pad,
     )

@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-
 from datetime import date
+from logging import getLogger
 
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.db.models import Q
 
 from baljan.models import Semester, BoardPost
-from baljan.util import get_logger
 
-log = get_logger('baljan.pseudogroups')
+log = getLogger(__name__)
 
 def real_only():
     return Group.objects.all().exclude(name__startswith='_')
@@ -76,13 +75,13 @@ def was_board(user, day):
 
 class PseudoGroup(object):
     def members(self):
-        raise NotImplementerError()
+        raise NotImplementedError()
 
     def name(self):
-        raise NotImplementerError()
+        raise NotImplementedError()
 
     def link(self):
-        raise NotImplementerError()
+        raise NotImplementedError()
 
 
 class SemesterGroup(PseudoGroup):
@@ -94,7 +93,7 @@ class SemesterGroup(PseudoGroup):
 
     def name(self):
         if self.base_group:
-            return u"%s %s" % (
+            return "%s %s" % (
                     self.base_group,
                     self._semester.name,
                     )
@@ -152,7 +151,7 @@ def for_group(group):
             settings.BOARD_GROUP: for_board_group,
             }
     name = group.name
-    if lookups.has_key(name):
+    if name in lookups:
         return lookups[name]()
     return []
 

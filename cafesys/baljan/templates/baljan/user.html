@@ -1,7 +1,7 @@
 {% extends "baljan/baljan.html" %}
 {% load i18n %}
 {% load humanize %}
-{% load uni_form_tags %}
+{% load crispy_forms_tags %}
 {% load baljan_extras %}
 
 {# “user” refers to the logged in user, therefore “watched” is used instead. #}
@@ -11,43 +11,6 @@
 {% block body %}
 <h1>{{watched.get_full_name}} ({{watched.username}})</h1>
 <div class="grid_4 alpha main">
-
-    <div class="friend-request {{friend_request_classes|join:" "}}">
-        {% if watching_self %}
-            <p>{% trans "this is you" %}</p>
-        {% else %}
-            {% if are_friends %}
-                {% blocktrans %}
-                <p>
-                <strong>you are friends</strong>
-                and can sign each other up for work shifts
-                </p>
-                {% endblocktrans %}
-            {% else %}
-                {% url baljan.views.toggle_friend_request watched.username request.path as request_link %}
-                {% if pending_friends %}
-                    {% if pending_friends.sent_by == watched %}
-                        <p>
-                            {% trans "user wants to be friends with you" %}:
-                            <a class="deny" href="{% url baljan.views.deny_friend_request_from watched request.path %}">{% trans "deny" %}</a> /
-                            <a class="accept" href="{% url baljan.views.accept_friend_request_from watched request.path %}">{% trans "accept" %}</a>
-                        </p>
-                    {% else %}
-                        <p>
-                        {% trans "awaiting friend confirmation" %}
-                        (<a href="{{request_link}}">cancel</a>)
-                        </p>
-                    {% endif %}
-                {% else %}
-                    <p><a href="{{request_link}}">{% trans "send friend request" %}</a></p>
-                {% endif %}
-                <p>
-                {% trans "(friends can sign each other up for work shifts)" %}
-                </p>
-            {% endif %}
-        {% endif %}
-    </div>
-
     <div class="profile">
         {% if profile_forms %}
             <div class="box-actions">
@@ -55,13 +18,7 @@
             </div>
         {% endif %}
         <h2>{% trans "profile"|title %}</h2>
-        {% with watched.get_profile as prof %}
-
-        {% if prof.picture %}
-        <div class="picture">
-            <img src="{{MEDIA_URL}}{{prof.picture}}"/>
-        </div>
-        {% endif %}
+        {% with watched.profile as prof %}
 
         <dl>
             <dt>{% trans "name" %}</dt>
@@ -78,7 +35,7 @@
             <dd>{{watched.last_login|date}} {{watched.last_login|time}}</dd>
             {% if watching_self %}
                 <dt>{% trans "calendar" %}</dt>
-                <dd><a href="{% url baljan.views.user_calendar watched.get_profile.private_key %}">
+                <dd><a href="{% url 'user_calendar' watched.profile.private_key %}">
                     {% trans "iCal format" %}</a></dd>
 
                 <dt>{% trans "motto" %}</dt>
@@ -87,15 +44,6 @@
                 {% else %}
                     <dd>
                     {% trans "None set. It is displayed in the high scores." %}
-                    </dd>
-                {% endif %}
-
-                <dt>{% trans "section" %}</dt>
-                {% if prof.section %}
-                    <dd>{{prof.section.name}}</dd>
-                {% else %}
-                    <dd>
-                    {% trans "None set." %}
                     </dd>
                 {% endif %}
 
@@ -111,12 +59,12 @@
             <ul>
             {% for group in groups %}
                 <li>
-                <a href="{% url group group.name %}">{{ group.name }}</a>
+                <a href="{% url 'group' group.name %}">{{ group.name }}</a>
                 </li>
             {% endfor %}
             </ul>
         {% else %}
-        {% url become_worker as become_worker_link %}
+        {% url 'become_worker' as become_worker_link %}
         <p>
         {% blocktrans %}
         None. To work in Baljan, one must <a href="{{become_worker_link}}">become a member of the workers' group</a>.
@@ -141,28 +89,10 @@
 <div class="grid_6 omega secondary">
     {% if perms.auth.change_user %}
         <div class="admin-link">
-            admin: 
-            <a href="{% url admin:auth_user_change watched.id %}">{% trans "user" %}</a>,
-            <a href="{% url admin:baljan_profile_change watched.get_profile.id %}">{% trans "profile" %}</a>
+            admin:
+            <a href="{% url 'admin:auth_user_change' watched.id %}">{% trans "user" %}</a>,
+            <a href="{% url 'admin:baljan_profile_change' watched.profile.id %}">{% trans "profile" %}</a>
         </div>
-    {% endif %}
-
-    {% if join_group_requests %}
-    <div class="pending-highlight">
-        <h2>{% trans "Requesting to Join" %}</h2>
-        <ul>
-            {% for jgr in join_group_requests %}
-                <li>
-                <a href="{% url group jgr.group %}">{{jgr.group.name}}</a>
-                </li>
-                <ul>
-                    <li>
-                        <a href="{% url baljan.views.toggle_become_worker_request request.path %}">{% trans "recall" %}</a>
-                    </li>
-                </ul>
-            {% endfor %}
-        </ul>
-    </div>
     {% endif %}
 
     {% if trade_requests %}
@@ -200,13 +130,13 @@
                         </td>
                     {% endwith %}
                     <td class="action">
-                        <a class="deny" 
-                            href="{% url deny_trade recd.pk request.path %}"
+                        <a class="deny"
+                            href="{% url 'deny_trade' recd.pk request.path %}"
                             >{% trans "deny" %}</a>
                     </td>
                     <td class="action">
-                        <a class="accept" 
-                            href="{% url accept_trade recd.pk request.path %}"
+                        <a class="accept"
+                            href="{% url 'accept_trade' recd.pk request.path %}"
                             >{% trans "accept" %}</a>
                     </td>
                 </tr>
@@ -247,7 +177,7 @@
                         {% endwith %}
                         <td class="action">
                             {% ifchanged wanted %}
-                                <a href="{% url baljan.views.trade_take wanted.pk request.path%}">{% trans "edit" %}</a>
+                                <a href="{% url 'take_signup' wanted.pk request.path%}">{% trans "edit" %}</a>
                             {% endifchanged %}
                         </td>
                     {% endwith %}
@@ -259,39 +189,6 @@
     </div>
     {% endif %}
 
-
-    {% if received_friend_requests %}
-    <div class="pending-highlight">
-        <h2>{% trans "Received Friend Requests From" %}</h2>
-        <ul>
-            {% for fr in received_friend_requests %}
-                <li>
-                <a href="{{fr.sent_by.get_absolute_url}}">{{fr.sent_by.get_full_name}} ({{fr.sent_by.username}})</a>
-                </li>
-                <ul>
-                    <li><a href="{% url baljan.views.deny_friend_request_from fr.sent_by request.path %}">{% trans "deny" %}</a> /
-                    <a href="{% url baljan.views.accept_friend_request_from fr.sent_by request.path %}">{% trans "accept" %}</a></li>
-                </ul>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-
-    {% if sent_friend_requests %}
-    <div class="pending-highlight">
-        <h2>{% trans "Awaiting Friend Confirmations From" %}</h2>
-        <ul>
-            {% for fr in sent_friend_requests %}
-                <li>
-                <a href="{{fr.sent_to.get_absolute_url}}">{{fr.sent_to.get_full_name}} ({{fr.sent_to.username}})</a>
-
-                <ul><li><a href="{% url baljan.views.toggle_friend_request fr.sent_to request.path %}">{% trans "cancel" %}</a></li></ul>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-    
     {% for type_title, type_classes, grouped_signups in signup_types %}
         {% if grouped_signups|length %}
         <div class="signups {{type_classes|join:" "}}">
@@ -331,7 +228,7 @@
         {% endif %}
     {% endfor %}
 </div><!--.secondary-->
-        
+
 {% if profile_forms %}
 <div class="init-hidden" id="profile-dialog" title="{% trans "Edit Profile" %}">
     <form enctype="multipart/form-data" method="POST" action="">{% csrf_token %}

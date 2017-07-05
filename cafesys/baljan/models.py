@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date, datetime
+from logging import getLogger
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -14,8 +15,10 @@ from django.utils.translation import ugettext as _nl
 from django.utils.translation import ugettext_lazy as _
 
 import baljan.util
-import notifications
-from baljan.util import get_logger, week_dates, year_and_week, random_string
+from . import notifications
+from baljan.util import week_dates, year_and_week, random_string
+
+logger = getLogger(__name__)
 
 
 class Made(models.Model):
@@ -31,53 +34,30 @@ def generate_private_key():
         private_key = random_string(PRIVATE_KEY_LENGTH)
     return private_key
 
+
 class Profile(Made):
-    user = models.OneToOneField('auth.User', verbose_name=_("user"), editable=False)
-    friend_profiles = models.ManyToManyField('self', verbose_name=_("friend profiles"), null=True, blank=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='profile', verbose_name=_("user"), editable=False)
     mobile_phone = models.CharField(_("mobile phone number"), max_length=10, blank=True, null=True)
     balance = models.IntegerField(default=0)
-    balance_currency = models.CharField(_("balance currency"), max_length=5, default=u"SEK", 
+    balance_currency = models.CharField(_("balance currency"), max_length=5, default="SEK",
             help_text=_("currency"))
-    picture = models.ImageField(_("picture"), upload_to='profile_pics', null=True, blank=True)
     show_email = models.BooleanField(_("show email address"), default=False)
     show_profile = models.BooleanField(_("show profile"), default=True)
     motto = models.CharField(_("motto"), max_length=40, blank=True, null=True,
             help_text=_("displayed in high scores"))
 
-    private_key = models.CharField(_("private key"), max_length=PRIVATE_KEY_LENGTH, unique=True, 
+    private_key = models.CharField(_("private key"), max_length=PRIVATE_KEY_LENGTH, unique=True,
             default=generate_private_key)
 
-    card_id = models.BigIntegerField(_("card id"), blank=True, null=True, 
+    card_id = models.BigIntegerField(_("card id"), blank=True, null=True,
             unique=True,
             help_text=_("card ids can be manually set"))
-    section = models.ForeignKey('baljan.Section', verbose_name=_("section"), blank=True, null=True)
-
-    fb_access_token = models.CharField(_("Facebook access token"), max_length=150, blank=True, null=True, default=u'')
 
     def balcur(self):
-        return u"%s %s" % (self.balance, self.balance_currency)
+        return "%s %s" % (self.balance, self.balance_currency)
 
     def get_absolute_url(self):
         return self.user.get_absolute_url()
-
-    def friend_users(self, distinct=True):
-        f = User.objects.filter(profile__friend_profiles__user=self.user)
-        if distinct:
-            return f.distinct()
-        return f
-
-    def self_and_friend_profiles(self):
-        f = Profile.objects.filter(pk__exact=self.pk) | self.friend_profiles.all()
-        return f.distinct()
-
-    def self_and_friend_users(self):
-        f = User.objects.filter(pk__exact=self.user.pk) | self.friend_users(distinct=False)
-        return f.distinct()
-
-    def pending_become_worker_request(self):
-        return JoinGroupRequest.objects.filter(
-                user=self.user,
-                group__name=settings.WORKER_GROUP).count() != 0
 
     class Meta:
         verbose_name = _("profile")
@@ -88,8 +68,9 @@ class Profile(Made):
                 ('free_coffee_with_cooldown', _nl("Free coffee with cooldown")),
                 )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
+
 
 def create_profile(sender, instance=None, **kwargs):
     if instance is None:
@@ -103,116 +84,27 @@ def profile_post_save(sender, instance=None, **kwargs):
 signals.post_save.connect(profile_post_save, sender=Profile)
 
 
-class JoinGroupRequest(Made):
-    user = models.ForeignKey('auth.User', verbose_name=_("user"))
-    group = models.ForeignKey('auth.Group', verbose_name=_("group"))
-
-    class Meta:
-        verbose_name = _("join group request")
-        verbose_name_plural = _("join group requests")
-        permissions = (
-                ('can_request_group', _nl("Can request group")), # for workers
-                )
-
-    def __unicode__(self):
-        return u"%(user)s wants to be in %(group)s" % {
-                'user': self.user, 
-                'group': self.group,
-                }
-
-
-class FriendRequest(Made):
-    sent_by = models.ForeignKey('auth.User', verbose_name=_("sent by"),
-            related_name='friendrequests_sent')
-    sent_to = models.ForeignKey('auth.User', verbose_name=_("sent to"),
-            related_name='friendrequests_received')
-
-    # FIXME: Verify that only one of these are set.
-    accepted = models.BooleanField(_("accepted"))
-    answered_at = models.DateTimeField(_("answered at"), default=None, null=True, blank=True)
-
-    class Meta:
-        verbose_name = _("friend request")
-        verbose_name_plural = _("friend requests")
-        unique_together = ("sent_by", "sent_to")
-
-    def __unicode__(self):
-        return u"%(sent_by)s wants to be friends with %(sent_to)s" % {
-                'sent_by': self.sent_by,
-                'sent_to': self.sent_to,
-                }
-
-
-def friendrequest_post_save(sender, instance=None, **kwargs):
-    if instance is None:
-        return
-    fr = instance
-    sent_to = fr.sent_to
-    sent_by = fr.sent_by
-
-    extra_msgs = []
-    if fr.answered_at:
-        extra_msgs.append('answered_at=%s' % fr.answered_at.strftime('%Y-%m-%d'))
-        extra_msgs.append('accepted=%s' % fr.accepted)
-
-    extra = ''
-    if len(extra_msgs):
-        extra = ', ' + ', '.join(extra_msgs)
-    get_logger('baljan.friends').info(
-            'friend request %s → %s saved%s' % (
-                sent_by, sent_to, extra))
-
-    if fr.answered_at:
-        if fr.accepted:
-            send_type = 'friend_request_accepted'
-        else:
-            send_type = 'friend_request_denied'
-        notifications.send(send_type, sent_by, 
-            requestee=sent_to.get_full_name())
-    else:
-        notifications.send('friend_request_received', 
-            sent_to, requestor=sent_by.get_full_name())
-signals.post_save.connect(friendrequest_post_save, sender=FriendRequest)
-
-
-def friendrequest_post_delete(sender, instance=None, **kwargs):
-    if instance is None:
-        return
-    fr = instance
-    sent_to = fr.sent_to
-    sent_by = fr.sent_by
-
-    get_logger('baljan.friends').info('friend request %s → %s deleted' % (
-        fr.sent_by, fr.sent_to))
-    if fr.answered_at:
-        pass # a notification has already been sent in this case
-    else:
-        notifications.send('friend_request_canceled', 
-            sent_to, requestor=sent_by.get_full_name())
-signals.post_delete.connect(friendrequest_post_delete, sender=FriendRequest)
-
-
 class TradeRequest(Made):
     """Trade sign-up requests. To make synchronization easier, sign-ups are
     deleted and new ones are created when trades are confirmed.
-    
+
     The typical life of a trade request is:
 
         1.  created, answered set to false;
         2a. possibly deleted by its creator (requester);
         2b. possibly denied by its answering user;
         2c. possibly accepted by its answering user;
-        2d. possibly deleted because of dependency on some other request; 
-        3.  deleted, dependent requests also deleted; and last, 
+        2d. possibly deleted because of dependency on some other request;
+        3.  deleted, dependent requests also deleted; and last,
         4   if accepted, perform the trade.
 
     The important thing to remember is that the deletion of a trade request
     triggers the trade, if both `answered` and `accepted` are true.
     """
-    wanted_signup = models.ForeignKey('baljan.ShiftSignup', 
+    wanted_signup = models.ForeignKey('baljan.ShiftSignup',
             verbose_name=_("wanted sign-up"),
             related_name='traderequests_wanted')
-    offered_signup = models.ForeignKey('baljan.ShiftSignup', 
+    offered_signup = models.ForeignKey('baljan.ShiftSignup',
             verbose_name=_("offered sign-up"),
             related_name='traderequests_offered')
     accepted = models.BooleanField(_("accepted"), default=False)
@@ -223,8 +115,8 @@ class TradeRequest(Made):
         verbose_name = _("trade request")
         verbose_name_plural = _("trade requests")
 
-    def __unicode__(self):
-        return u"%(requester)s wants %(shift)s" % {
+    def __str__(self):
+        return "%(requester)s wants %(shift)s" % {
                 'requester': self.offered_signup.user,
                 'shift': self.wanted_signup.shift,
                 }
@@ -249,7 +141,6 @@ def traderequest_notice_delete(tr):
         if tr.offered_signup.shift.when < date.today():
             cancel = True
         if cancel:
-            logger = get_logger('baljan.trades')
             logger.info('not sending message about trade request deletion because the offered or wanted shift was in the past')
             return
 
@@ -283,15 +174,14 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
     if tr.accepted:
         answerer = tr.wanted_signup.user
         requester = tr.offered_signup.user
-        logger = get_logger('baljan.trades')
         logger.info('%s accepted' % tr, trade_request=tr)
         TradeRequest.objects.filter(
                 Q(wanted_signup=tr.wanted_signup) |
                 Q(wanted_signup=tr.offered_signup) |
                 Q(offered_signup=tr.wanted_signup) |
                 Q(offered_signup=tr.offered_signup)).exclude(
-                        Q(pk=tr.pk) | 
-                        Q(offered_signup__user=requester, 
+                        Q(pk=tr.pk) |
+                        Q(offered_signup__user=requester,
                             wanted_signup=tr.wanted_signup)).update(
                             accepted=False, answered=True)
         accepter_kwargs = {
@@ -310,14 +200,14 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
 
         requester_signup = ShiftSignup(**requester_kwargs)
         requester_signup.save()
-        
+
     #traderequest_notice_delete(tr)
 signals.post_delete.connect(traderequest_post_delete, sender=TradeRequest)
 
 
 def traderequest_notice_save(tr):
     if tr.answered:
-        pass 
+        pass
     else:
         if tr.wanted_signup.shift.when < date.today():
             return
@@ -327,7 +217,7 @@ def traderequest_notice_save(tr):
         requestee = tr.wanted_signup.user
         requestor = tr.offered_signup.user
         notifications.send('new_trade_request',
-            requestee, 
+            requestee,
             requestor=requestor.get_full_name(),
             wanted_shift=tr.wanted_signup.shift.name(),
             offered_shift=tr.offered_signup.shift.name(),
@@ -368,7 +258,7 @@ class Semester(Made):
 
     start = models.DateField(_("first day"), unique=True)
     end = models.DateField(_("last day"), unique=True)
-    name = models.CharField(_("name"), max_length=6, unique=True, 
+    name = models.CharField(_("name"), max_length=6, unique=True,
             help_text=_("must be something like HT2010")) # TODO: validation
     signup_possible = models.BooleanField(_("sign-up possible"), default=False,
             help_text=_('if workers can sign up to work on this semester'))
@@ -406,9 +296,9 @@ class Semester(Made):
     def clean(self):
         from django.core.exceptions import ValidationError
         if not self.start <= self.end:
-            raise ValidationError(_(u"bad combination of start and end dates"))
+            raise ValidationError(_("bad combination of start and end dates"))
         if not (self.name[:2] in ('HT', 'VT') and len(self.name) == len("HT2010")):
-            raise ValidationError(_(u"bad semester name"))
+            raise ValidationError(_("bad semester name"))
 
         sems = Semester.objects.all()
         inter = []
@@ -418,9 +308,9 @@ class Semester(Made):
             if self.overlaps_with(sem):
                 inter += [sem]
         if len(inter):
-            raise ValidationError(_(u"semester overlaps with %s") 
+            raise ValidationError(_("semester overlaps with %s")
                     % ", ".join([str(i) for i in inter]))
-    
+
     def _group_name(self, prefix):
         return prefix + settings.AUTO_GROUP_SPLIT + self.name
 
@@ -432,10 +322,10 @@ class Semester(Made):
 
     def group_names(self):
         return [self.worker_group_name(), self.board_group_name()]
-    
+
     @models.permalink
     def get_absolute_url(self):
-        return ('baljan.views.semester', (), {'name': self.name})
+        return ('semester', (), {'name': self.name})
 
     class Meta:
         verbose_name = _("semester")
@@ -444,7 +334,7 @@ class Semester(Made):
                 ('manage_job_openings', _nl("Can manage job openings")),
                 )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -459,7 +349,7 @@ def semester_post_save(sender, instance, **kwargs):
     created_count = 0
     for day in sem.date_range():
         if day.weekday() in weekdays:
-            continue 
+            continue
         for early_or_lunch_or_late in (0, 1, 2):
             obj, created = Shift.objects.get_or_create(
                     semester=sem,
@@ -467,7 +357,6 @@ def semester_post_save(sender, instance, **kwargs):
                     when=day)
             if created:
                 created_count += 1
-    logger = get_logger('baljan.semesters')
     logger.info('%s: %d/%d shifts added/deleted, signups=%s' % (
         sem.name, created_count, deleted_count, sem.signup_possible))
 
@@ -486,7 +375,6 @@ def semester_post_delete(sender, instance, **kwargs):
     if instance is None:
         return
     sem = instance
-    logger = get_logger('baljan.semesters')
     logger.info('%s: deleted' % sem.name)
 signals.post_delete.connect(semester_post_delete, sender=Semester)
 
@@ -514,9 +402,9 @@ class ShiftCombination(Made):
         verbose_name_plural = _("shift combinations")
         ordering = ('shifts__when', 'shifts__span')
 
-    def __unicode__(self):
-        return u"%s: %s (%s)" % (
-            self.label, 
+    def __str__(self):
+        return "%s: %s (%s)" % (
+            self.label,
             ', '.join([str(sh) for sh in self.shifts.all().order_by('when', 'span')]),
             self.semester,
         )
@@ -542,12 +430,12 @@ class Shift(Made):
 
     semester = models.ForeignKey(Semester, verbose_name=_("semester"))
     when = models.DateField(_("what day the shift is on"))
-    span = models.PositiveSmallIntegerField(_("time span"), 
+    span = models.PositiveSmallIntegerField(_("time span"),
             default=0, choices=SPAN_CHOICES)
-    exam_period = models.BooleanField(_("exam period"), 
-            help_text=_('the work scheduler takes this field into account'), 
+    exam_period = models.BooleanField(_("exam period"),
+            help_text=_('the work scheduler takes this field into account'),
             default=False)
-    enabled = models.BooleanField(_("enabled"), 
+    enabled = models.BooleanField(_("enabled"),
             help_text=_('shifts can be disabled on special days'), default=True)
 
     def timeofday(self):
@@ -625,7 +513,7 @@ class Shift(Made):
         return self.when == date.today()
 
     def week_url(self):
-        return reverse('baljan.views.call_duty_week',
+        return reverse('call_duty_week',
             args=year_and_week(self.when)
         )
 
@@ -633,7 +521,7 @@ class Shift(Made):
         return self.upcoming() and self.semester.signup_possible and self.signups().count() < 2 and self.span != 1
 
     def accepts_callduty(self):
-        return self.upcoming() 
+        return self.upcoming()
 
     def signed_up(self):
         return [su.user for su in self.signups()]
@@ -657,23 +545,22 @@ class Shift(Made):
         return self._url()
 
     def _url(self):
-        return ('baljan.views.day_shifts', (), 
-                {'day': baljan.util.to_iso8601(self.when)})
+        return ('day_shifts', (), {'day': baljan.util.to_iso8601(self.when)})
 
-    def __unicode__(self):
-        return u"%s %s" % (self.ampm(i18n=False), self.when.strftime('%Y-%m-%d'))
+    def __str__(self):
+        return "%s %s" % (self.ampm(i18n=False), self.when.strftime('%Y-%m-%d'))
 
 
 class ShiftSignup(Made):
     shift = models.ForeignKey(Shift, verbose_name=_("shift"))
-    user = models.ForeignKey('auth.User', verbose_name=_("worker"))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("worker"))
     tradable = models.BooleanField(
-            _('the user wants to switch this shift for some other'), 
+            _('the user wants to switch this shift for some other'),
             help_text=_('remember that trade requests of sign-ups are removed whenever the sign-up is altered'),
             default=False)
 
     def can_trade(self):
-        return self.tradable and self.shift.upcoming() 
+        return self.tradable and self.shift.upcoming()
 
     class Meta:
         verbose_name = _("shift sign-up")
@@ -687,9 +574,9 @@ class ShiftSignup(Made):
     def get_absolute_url(self):
         return self.shift._url()
 
-    def __unicode__(self):
-        return u"%(user)s on %(shift)s" % {
-                'user': self.user, 
+    def __str__(self):
+        return "%(user)s on %(shift)s" % {
+                'user': self.user,
                 'shift': self.shift,
                 }
 
@@ -729,7 +616,7 @@ def signup_pre_save(sender, instance=None, **kwargs):
 
     signup = instance
     signup_post(sender, signup, **kwargs)
-    
+
     # Remove pending trade requests that, if accepted, would result in a user
     # being double-booked for a shift.
     trs_possible_doubles = TradeRequest.objects.filter(
@@ -740,9 +627,9 @@ def signup_pre_save(sender, instance=None, **kwargs):
     trs_possible_doubles.delete()
 
     if signup.tradable:
-        get_logger('baljan.signups').info("%s saved (tradable)" % signup)
+        logger.info("%s saved (tradable)" % signup)
     else:
-        get_logger('baljan.signups').info("%s saved (not tradable)" % signup)
+        logger.info("%s saved (not tradable)" % signup)
         signup_notice_save(signup)
 
 signals.pre_save.connect(signup_pre_save, sender=ShiftSignup)
@@ -755,14 +642,14 @@ def signup_pre_delete(sender, instance=None, **kwargs):
     signup_post(sender, signup, **kwargs)
 
     signup_notice_delete(signup)
-    get_logger('baljan.signups').info("%s deleted" % instance)
+    logger.info("%s deleted" % instance)
 
 signals.pre_delete.connect(signup_pre_delete, sender=ShiftSignup)
 
 
 class OnCallDuty(Made):
     shift = models.ForeignKey(Shift, verbose_name=_("shift"))
-    user = models.ForeignKey('auth.User', verbose_name=_("user"))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"))
 
     class Meta:
         verbose_name = _("on call duty")
@@ -773,9 +660,9 @@ class OnCallDuty(Made):
     def get_absolute_url(self):
         return self.shift._url()
 
-    def __unicode__(self):
-        return u"%(user)s on %(shift)s" % {
-                'user': self.user, 
+    def __str__(self):
+        return "%(user)s on %(shift)s" % {
+                'user': self.user,
                 'shift': self.shift,
                 }
 
@@ -783,14 +670,14 @@ class OnCallDuty(Made):
 def oncallduty_post_save(sender, instance=None, **kwargs):
     if instance is None:
         return
-    get_logger('baljan.signups').info("%s saved" % instance)
+    logger.info("%s saved" % instance)
     signup_notice_save(instance)
 
 def oncallduty_post_delete(sender, instance=None, **kwargs):
     if instance is None:
         return
     signup_notice_delete(instance)
-    get_logger('baljan.signups').info("%s deleted" % instance)
+    logger.info("%s deleted" % instance)
 
 signals.post_save.connect(oncallduty_post_save, sender=OnCallDuty)
 signals.post_delete.connect(oncallduty_post_delete, sender=OnCallDuty)
@@ -799,7 +686,6 @@ signals.post_delete.connect(oncallduty_post_delete, sender=OnCallDuty)
 class Good(Made):
     title = models.CharField(_("title"), max_length=50)
     description = models.CharField(_("short description"), blank=True, max_length=100)
-    img = models.ImageField(_("image"), upload_to='img/goods', blank=True)
     position = models.PositiveIntegerField(_("position"), default=0,
         help_text=_("when listing goods, this value tells at what position this good should be put"))
 
@@ -834,9 +720,9 @@ class Good(Made):
         verbose_name = _("good")
         verbose_name_plural = _("goods")
 
-    def __unicode__(self):
-        return _(u"%(title)s (%(desc)s)") % {
-                'title': self.title, 
+    def __str__(self):
+        return _("%(title)s (%(desc)s)") % {
+                'title': self.title,
                 'desc': self.description,
                 }
 
@@ -844,7 +730,7 @@ class Good(Made):
 class GoodCost(Made):
     good = models.ForeignKey(Good, verbose_name=_("good"))
     cost = models.PositiveIntegerField(_("cost"))
-    currency = models.CharField(_("currency"), max_length=5, default=u"SEK")
+    currency = models.CharField(_("currency"), max_length=5, default="SEK")
     from_date = models.DateField(_("from date"), default=date.today)
 
     class Meta:
@@ -852,19 +738,19 @@ class GoodCost(Made):
         verbose_name_plural = _("good costs")
         ordering = ['-from_date']
 
-    def __unicode__(self):
-        return u"%(title)s %(cost)s %(currency)s" % {
-                'title': self.good.title, 
-                'cost': self.cost, 
+    def __str__(self):
+        return "%(title)s %(cost)s %(currency)s" % {
+                'title': self.good.title,
+                'cost': self.cost,
                 'currency': self.currency,
                 }
 
 
 class Order(Made):
     put_at = models.DateTimeField(_("put at"), default=datetime.now, db_index=True)
-    user = models.ForeignKey('auth.User', verbose_name=_("user"), db_index=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), db_index=True)
     paid = models.PositiveIntegerField(_("paid"))
-    currency = models.CharField(_("currency"), max_length=5, default=u"SEK")
+    currency = models.CharField(_("currency"), max_length=5, default="SEK")
     accepted = models.BooleanField(_("accepted"), default=True)
 
     def paid_costcur(self):
@@ -881,7 +767,7 @@ class Order(Made):
         for og in ordergoods:
             this_cost, this_cur = og.good.costcur(self.put_at)
             if cur != this_cur:
-                raise Exception('order goods must have the same currency') 
+                raise Exception('order goods must have the same currency')
             cost += this_cost * og.count
         return cost, cur
 
@@ -890,8 +776,8 @@ class Order(Made):
         verbose_name_plural = _("orders")
         ordering = ['-put_at']
 
-    def __unicode__(self):
-        return u"order by %s" % self.user.username
+    def __str__(self):
+        return "order by %s" % self.user.username
 
 
 class OrderGood(Made):
@@ -903,10 +789,10 @@ class OrderGood(Made):
         verbose_name = _("order good")
         verbose_name_plural = _("order goods")
 
-    def __unicode__(self):
-        return u"%(count)dx %(good)s" % {
+    def __str__(self):
+        return "%(count)dx %(good)s" % {
                 'count': self.count,
-                'good': self.good, 
+                'good': self.good,
                 }
 
 
@@ -932,17 +818,17 @@ def generate_balance_code():
 
 class RefillSeries(Made):
     issued = models.DateField(_("issued"), default=default_issued)
-    least_valid_until = models.DateField(_("least valid until"), 
+    least_valid_until = models.DateField(_("least valid until"),
             default=default_least_valid_until)
-    made_by = models.ForeignKey('auth.User', verbose_name=_("made by"), editable=False)
+    made_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("made by"), editable=False)
 
-    code_count = models.PositiveIntegerField(_("code count"), 
+    code_count = models.PositiveIntegerField(_("code count"),
             default=SERIES_CODE_DEFAULT_COUNT,
             help_text=_("multiple of 16 recommended (4x4 on A4 paper), total value can be at most %d SEK") % SERIES_MAX_VALUE)
-    code_value = models.PositiveIntegerField(_("code value"), 
+    code_value = models.PositiveIntegerField(_("code value"),
             default=BALANCE_CODE_DEFAULT_VALUE,
             help_text=_("maximum value is %d SEK") % BALANCE_CODE_MAX_VALUE)
-    code_currency = models.CharField(_("code currency"), max_length=5, default=u"SEK")
+    code_currency = models.CharField(_("code currency"), max_length=5, default="SEK")
 
     add_to_group = models.ForeignKey("auth.Group", verbose_name=_("add to group"),
             help_text=_("if set, users will be added to this group"),
@@ -998,7 +884,7 @@ class RefillSeries(Made):
 class RefillSeriesPDF(Made):
     refill_series = models.ForeignKey(RefillSeries, verbose_name=_("series"),
             editable=False)
-    generated_by = models.ForeignKey('auth.User', verbose_name=_("generated by"),
+    generated_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("generated by"),
             editable=False)
 
     @models.permalink
@@ -1014,24 +900,24 @@ class RefillSeriesPDF(Made):
 code_help = _("To create a bulk of codes, <a href='../../refillseries/add'>create a new refill series</a> instead.")
 
 class BalanceCode(Made):
-    code = models.CharField(_("code"), max_length=BALANCE_CODE_LENGTH, unique=True, 
+    code = models.CharField(_("code"), max_length=BALANCE_CODE_LENGTH, unique=True,
             default=generate_balance_code, help_text=code_help)
     value = models.PositiveIntegerField(_("value"), default=BALANCE_CODE_DEFAULT_VALUE)
-    currency = models.CharField(_("currency"), max_length=5, default=u"SEK", 
+    currency = models.CharField(_("currency"), max_length=5, default="SEK",
             help_text=_("currency"))
     refill_series = models.ForeignKey(RefillSeries, verbose_name=_("refill series"))
-    used_by = models.ForeignKey('auth.User', null=True, blank=True, 
+    used_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
             verbose_name=_("used by"))
     used_at = models.DateField(_("used at"), blank=True, null=True)
 
     def serid(self):
-        return u"%d.%d" % (self.refill_series.id, self.id)
+        return "%d.%d" % (self.refill_series.id, self.id)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.serid()
 
     def valcur(self):
-        return u"%s %s" % (self.value, self.currency)
+        return "%s %s" % (self.value, self.currency)
 
     class Meta:
         verbose_name = _('balance code')
@@ -1041,7 +927,7 @@ class BalanceCode(Made):
 
 class BoardPost(Made):
     semester = models.ForeignKey(Semester, verbose_name=_("semester"))
-    user = models.ForeignKey('auth.User', verbose_name=_("user"))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"))
     post = models.CharField(_("post"), max_length=50)
 
     class Meta:
@@ -1049,17 +935,17 @@ class BoardPost(Made):
         verbose_name_plural = _('board posts')
         ordering = ('-semester__start', 'user__first_name', 'user__last_name')
 
-    def __unicode__(self):
-        return u"%(user)s %(post)s in %(sem)s" % {
-            'user': self.user.username, 
-            'post': self.post, 
+    def __str__(self):
+        return "%(user)s %(post)s in %(sem)s" % {
+            'user': self.user.username,
+            'post': self.post,
             'sem': self.semester.name,
         }
 
 
 class OldCoffeeCardSet(models.Model):
     set_id = models.IntegerField(_("set id"))
-    made_by = models.ForeignKey('auth.User', verbose_name=_("made by"))
+    made_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("made by"))
     file = models.CharField(_("file"), max_length=100, blank=True, null=True)
 
     created = models.DateTimeField(_("created"))
@@ -1070,14 +956,14 @@ class OldCoffeeCardSet(models.Model):
         verbose_name_plural = _('old coffee card sets')
         ordering = ('-set_id',)
 
-    def __unicode__(self):
-        return u"%d" % self.set_id
+    def __str__(self):
+        return "%d" % self.set_id
 
 
 class OldCoffeeCard(models.Model):
     set = models.ForeignKey(OldCoffeeCardSet, verbose_name=_("set"))
     card_id = models.IntegerField(_("card id"))
-    user = models.ForeignKey('auth.User', verbose_name=_("user"), blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True)
 
     created = models.DateTimeField(_("created"), blank=True, null=True)
     time_stamp = models.DateTimeField(_("time stamp"), blank=True, null=True)
@@ -1087,7 +973,7 @@ class OldCoffeeCard(models.Model):
     count = models.IntegerField(_("count"), blank=True, null=True)
     left = models.IntegerField(_("left"), blank=True, null=True)
 
-    user = models.ForeignKey('auth.User', verbose_name=_("user"), blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True)
 
     imported = models.BooleanField(_("imported"), default=False)
 
@@ -1096,17 +982,5 @@ class OldCoffeeCard(models.Model):
         verbose_name_plural = _('old coffee cards')
         ordering = ('-card_id',)
 
-    def __unicode__(self):
-        return u"%d.%d (old)" % (self.set.set_id, self.card_id)
-
-
-class Section(models.Model):
-    name = models.CharField(_("name"), max_length=30)
-
-    class Meta:
-        verbose_name = _('section')
-        verbose_name_plural = _('sections')
-        ordering = ('name',)
-
-    def __unicode__(self):
-        return u"%s" % self.name
+    def __str__(self):
+        return "%d.%d (old)" % (self.set.set_id, self.card_id)

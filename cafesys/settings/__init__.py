@@ -1,49 +1,36 @@
 # -*- coding: utf-8 -*-
-# Very, very, very ugly solution to weird linking problems...
-# See http://stackoverflow.com/questions/38740631
-import ldap  # noqa
-
-import logging
+import os
 import posixpath
 import warnings
 
-import djcelery
 import environ
 
-
-djcelery.setup_loader()
-
-logging.basicConfig(level=logging.INFO)
 
 env = environ.Env()
 
 ROOT_DIR = environ.Path(__file__) - 3  # (/a/b/myfile.py - 3 = /)
 APPS_DIR = ROOT_DIR.path('cafesys')
+ENV_FILE = ROOT_DIR.path(env.str('ENV_FILE', default='.env'))
 
 # Ignores warnings if .env does not exist
 # https://docs.python.org/3/library/warnings.html#temporarily-suppressing-warnings
 with warnings.catch_warnings():
     warnings.simplefilter('ignore')
-    env.read_env(str(ROOT_DIR.path('.env')))
+    env.read_env(str(ENV_FILE))
+
+DEBUG = env.bool('DJANGO_DEBUG')
+SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
 ANALYTICS_KEY = env.str('DJANGO_ANALYTICS_KEY', default='')
-BROKER_URL = CELERY_RESULT_BACKEND = CELERY_CACHE_BACKEND = CACHE_BACKEND = env.str('DJANGO_REDIS_URL')
-LDAP_SERVER = env.str('DJANGO_LDAP_URL', default='ldaps://baljan.lukas.unit.liu.se:636')
-
-CACHE_MIDDLEWARE_KEY_PREFIX = 'cafesys'
-JOHNNY_MIDDLEWARE_KEY_PREFIX = 'jc_cafesys'
-
-COMPRESS_ENABLED = False
-
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
+CACHE_BACKEND = env.str('DJANGO_REDIS_URL')
 
 ADMINS = [
     # ("Your Name", "your_email@domain.com"),
 ]
 
 MANAGERS = ADMINS
+
+ALLOWED_HOSTS = ('*',)
 
 DATABASES = {
     "default": env.db_url('DJANGO_DATABASE_URL')
@@ -72,29 +59,20 @@ TIME_ZONE = "Europe/Stockholm"
 
 USE_L10N = True
 
-# FORMAT_MODULE_PATH = 'formats' # FIXME: not working
-
 DATE_FORMAT = 'Y-m-d'
 DATETIME_FORMAT = 'Y-m-d H:i'
 TIME_FORMAT = 'H:i'
 
-# FIXME: These two settings have no effect.
-NUMBER_GROUPING = 3
-THOUSAND_SEPARATOR = ' '
-
-# Language code for this installation. All choices can be found here:
-# http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
-# http://blogs.law.harvard.edu/tech/stories/storyReader$15
-LANGUAGE_CODE = "sv"
-
 SITE_ID = 1
 
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
 USE_I18N = True
+LANGUAGE_CODE = 'sv'
 LANGUAGES = (
-    ('sv', u'Svenska'),
-    ('en', u'English'),
+    ('sv', 'Svenska'),
+    ('en', 'English'),
+)
+LOCALE_PATHS = (
+    str(APPS_DIR + 'locale'),
 )
 
 MEDIA_ROOT = str(APPS_DIR + "media")
@@ -102,56 +80,44 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = str(APPS_DIR + "collected-static")
 STATIC_URL = "/static/"
 
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'compressor.finders.CompressorFinder',
-)
-
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = posixpath.join(STATIC_URL, "admin/")
-
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = [
-    "django.template.loaders.filesystem.Loader",
-    "django.template.loaders.app_directories.Loader",
-    'django.template.loaders.eggs.Loader',
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
+                "baljan.ctx.actions",
+                "baljan.ctx.analytics",
+                "baljan.ctx.common",
+            ]
+        }
+    },
 ]
 
-MIDDLEWARE_CLASSES = [
+# CRISPY_TEMPLATE_PACK = 'uni_form'
+
+MIDDLEWARE = [
     'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
-    "django.middleware.gzip.GZipMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.doc.XViewMiddleware",
-    "pagination.middleware.PaginationMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
-    'django.middleware.transaction.TransactionMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = "cafesys.urls"
 
-TEMPLATE_DIRS = []
-
-TEMPLATE_CONTEXT_PROCESSORS = [
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.request",
-    "django.contrib.messages.context_processors.messages",
-    "baljan.ctx.actions",
-    "baljan.ctx.analytics",
-    "baljan.ctx.common",
-]
-
 INSTALLED_APPS = [
+    # Project
+    # Must come before admin app to override login template
+    'baljan',
+
     # Django
     "django.contrib.admin",
     "django.contrib.auth",
@@ -162,33 +128,12 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.staticfiles",
 
-    "django.contrib.databrowse",
-
     # external
+    'django_extensions',
     'opbeat.contrib.django',
-    "pagination",
-    "uni_form",
-    "debug_toolbar",
-    "compressor",
-    "emailconfirmation",
-
-    # project
-    "baljan",
-
-    "djcelery",
-    "gunicorn",
-    "indexer",
-    "paging",
-    "raven.contrib.django",
-    "datagrid",
-
-    # Migrations
-    "south",
+    'crispy_forms',
+    'social_django',
 ]
-
-SOUTH_MIGRATION_MODULES = {
-    'djcelery': 'djcelery.south_migrations',
-}
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
@@ -197,28 +142,27 @@ ABSOLUTE_URL_OVERRIDES = {
     "auth.group": lambda o: "/baljan/group/%s" % o.name,
 }
 
-MARKUP_FILTER_FALLBACK = "none"
-MARKUP_CHOICES = [
-    ("restructuredtext", u"reStructuredText"),
-    ("textile", u"Textile"),
-    ("markdown", u"Markdown"),
-    ("creole", u"Creole"),
-]
-WIKI_MARKUP_CHOICES = MARKUP_CHOICES
+AUTHENTICATION_BACKENDS = (
+    'social_liu.LiuBackend',
+    'django.contrib.auth.backends.ModelBackend'
+)
 
-AUTH_PROFILE_MODULE = "baljan.Profile"
-NOTIFICATION_LANGUAGE_MODULE = "account.Account"
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.social_auth.associate_by_email',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
 
-ACCOUNT_OPEN_SIGNUP = False
-ACCOUNT_REQUIRED_EMAIL = False
-ACCOUNT_EMAIL_VERIFICATION = False
-ACCOUNT_EMAIL_AUTHENTICATION = False
-ACCOUNT_UNIQUE_EMAIL = EMAIL_CONFIRMATION_UNIQUE_EMAIL = False
+SOCIAL_AUTH_LIU_KEY = env.str('AUTH_LIU_CLIENT_ID', default='')
+SOCIAL_AUTH_LIU_SCOPE = env.list('AUTH_LIU_RESOURCE', default=[])
 
-AUTHENTICATION_BACKENDS = [
-    'baljan.ldapbackend.LDAPBackend',
-    "django.contrib.auth.backends.ModelBackend"
-]
+KOBRA_API_TOKEN = env.str('KOBRA_API_TOKEN', default='')
 
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = True
@@ -226,9 +170,18 @@ CONTACT_EMAIL = "styrelsen@baljan.org"
 CONTACT_PHONE = "013259927"
 USER_EMAIL_DOMAIN = 'student.liu.se'
 SITE_NAME = "Sektionscafé Baljan"
-LOGIN_URL = "/login/"
-LOGOUT_URL = "/logout/"
+LOGIN_URL = "/auth/login/liu/"
+LOGOUT_URL = "/auth/logout/"
 LOGIN_REDIRECT_URL = "/"
+
+_EMAIL_CONFIG = env.email_url('DJANGO_EMAIL_URL')
+EMAIL_BACKEND = _EMAIL_CONFIG.get('EMAIL_BACKEND')
+EMAIL_HOST = _EMAIL_CONFIG.get('EMAIL_HOST')
+EMAIL_HOST_USER = _EMAIL_CONFIG.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = _EMAIL_CONFIG.get('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = _EMAIL_CONFIG.get('EMAIL_PORT')
+EMAIL_USE_TLS = _EMAIL_CONFIG.get('EMAIL_USE_TLS', True)
+DEFAULT_FROM_EMAIL = CONTACT_EMAIL
 
 WORKER_COOLDOWN_SECONDS = 5 * 60
 WORKER_MAX_COST_REDUCE = 5  # SEK
@@ -243,28 +196,24 @@ PSEUDO_GROUP_FORMAT = "_%s"
 
 PRICE_LIST_ROW_HEIGHT = 40  # px
 
-MUNIN_PORT = 8800
-MUNIN_PATH = 'munin/localhost/localhost/index.html'
-
 DEBUG_TOOLBAR_CONFIG = {
     "INTERCEPT_REDIRECTS": False,
 }
 
-CELERYD_PREFETCH_MULTIPLIER = 128
-CELERY_DISABLE_RATE_LIMITS = True
-CELERY_DEFAULT_RATE_LIMIT = None
+STATS_REFRESH_RATE = 5 * 60  # seconds
+STATS_CACHE_KEY = 'baljan.stats'
+# How long the stats data live in the cache
+STATS_CACHE_TTL = 24 * 60 * 60  # seconds
+
+CELERY_BROKER_URL = CACHE_BACKEND
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
-CELERY_CACHE_BACKEND_OPTIONS = {
-    'binary': True,
-    'behaviors': {
-        'tcp_nodelay': True,
-    },
+CELERY_BEAT_SCHEDULE = {
+    'update-stats': {
+        'task': 'baljan.tasks.update_stats',
+        'schedule': STATS_REFRESH_RATE
+    }
 }
-
-STATS_CACHE = True
-
-TERMINAL_TORNADO_PORT = 3500
 
 OPBEAT = {
     'ORGANIZATION_ID': env.str('OPBEAT_ORGANIZATION_ID', default=''),

@@ -22,7 +22,7 @@ def google_apps_identifier(user, ctx):
 def full_identifier(user, ctx):
     name = user.get_full_name()
     uname = user.username
-    full = u"%s, %s" % (name, uname)
+    full = "%s, %s" % (name, uname)
     return full.encode('latin-1')
 
 def csv_identifier(user, ctx):
@@ -50,7 +50,7 @@ def csv_identifier(user, ctx):
                     comb_name = "MULTI: %s" % "+".join(uniq)
         fields.append(comb_name)
 
-    csv = u",".join(map(unicode, fields))
+    csv = ",".join(map(str, fields))
     return csv.encode('utf-8')
 
         
@@ -90,12 +90,12 @@ def task_list(from_groups, to_groups, opts):
         raise CommandError("-t/--to can not be used when listing users")
     users = get_members(from_groups).order_by(*sort_order)
     if opts['identifier'] in id_header:
-        print id_header[opts['identifier']]
+        print(id_header[opts['identifier']])
     ctx = dict(opts=opts)
     if opts["semester"] is not None:
         ctx["semester"] = sem = Semester.objects.by_name(opts["semester"])
         ctx["combinations"] = ShiftCombination.objects.filter(semester=sem).distinct()
-    print "\n".join(id(m, ctx) for m in users)
+    print("\n".join(id(m, ctx) for m in users))
 
 @transaction.commit_manually
 def task_add(from_groups, to_groups, opts):
@@ -168,7 +168,7 @@ class Command(BaseCommand):
             metavar='TASK',
             dest='do',
             default=[],
-            help='Tasks to do. Choices: %s.' % ", ".join(tasks.keys()),
+            help='Tasks to do. Choices: %s.' % ", ".join(list(tasks.keys())),
         ),
         make_option('-l', '--list',
             action='store_true',
@@ -191,7 +191,7 @@ class Command(BaseCommand):
             dest='identifier',
             default='username',
             help='Set identifier to use and/or show. Choices are: %s (default: %s).' % (
-                ", ".join(id_funs.keys()), "%default"),
+                ", ".join(list(id_funs.keys())), "%default"),
         ),
         make_option('-s', '--semester',
             type='string',
@@ -211,7 +211,7 @@ class Command(BaseCommand):
         all_groups = Group.objects.all().order_by('name')
         all_group_names = get_group_names(all_groups)
         if options['list_groups']:
-            print "\n".join(all_group_names)
+            print("\n".join(all_group_names))
             return
 
         group_to_add = options['add_group']
@@ -228,7 +228,7 @@ class Command(BaseCommand):
         # See that all tasks exist.
         task_names = options['do']
         for task_name in task_names:
-            if not tasks.has_key(task_name):
+            if task_name not in tasks:
                 raise CommandError("bad task: %s" % task_name)
 
         for task_name in task_names:

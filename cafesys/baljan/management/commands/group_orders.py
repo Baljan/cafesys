@@ -38,13 +38,13 @@ class Command(BaseCommand):
 		total_sum += orders
 		user_order.append((u,orders))
 	
-        print "\nTotal (free) orders by %s between %s and %s:" % (group.name, str(start),str(end))
-        print "Username\t#"
-	print "------------------------------"
+        print("\nTotal (free) orders by %s between %s and %s:" % (group.name, str(start),str(end)))
+        print("Username\t#")
+	print("------------------------------")
 
 	for u, orders in user_order:
-		print "%s:\t%i\torders" % (u.username,orders)
+		print("%s:\t%i\torders" % (u.username,orders))
 
-	print "------------------------------"
-	print "Total:\t\t%i\torders" % total_sum
-	print "Most orders: %s (%.1f %%)\n" % (str("i dont know who"),(max(b for (a,b) in user_order))/float(total_sum)*101)
+	print("------------------------------")
+	print("Total:\t\t%i\torders" % total_sum)
+	print("Most orders: %s (%.1f %%)\n" % (str("i dont know who"),(max(b for (a,b) in user_order))/float(total_sum)*101))

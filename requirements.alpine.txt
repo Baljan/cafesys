@@ -1,8 +1,7 @@
 # Runtime dependencies
 ca-certificates
-openldap
-python2
-py2-pip
+python3
+py3-pip
 
 # Build dependencies
 curl
@@ -13,7 +12,6 @@ libffi-dev
 libpq
 make
 musl-dev
-openldap-dev
 postgresql-dev
-python2-dev
+python3-dev
 zlib-dev

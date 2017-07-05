@@ -1,10 +1,8 @@
 {% extends "baljan/baljan.html" %}
 {% load i18n %}
 {% load humanize %}
-{% load uni_form_tags %}
+{% load crispy_forms_tags %}
 {% load baljan_extras %}
-
-{% url baljan.views.profile as profile_url %}
 
 {% block head_title %}{% trans "High Score" %}{% endblock %}
 
@@ -23,14 +21,6 @@
         If you have suggestions, feel free to <a href="mailto:{{CONTACT_EMAIL}}">contact us</a>.
         {% endblocktrans %}
     </div>
-
-    <div class="info">
-        {% blocktrans %}
-        go to: <a href="#individual">individual</a>, <a href="#sections">groups</a>
-        {% endblocktrans %}
-    </div>
-
-    <h1 id="individual">{% trans "Individual" %}</h1>
 
     {% for stat in stats %}
     {% if not stat.empty %}
@@ -71,57 +61,6 @@
     </div>
     {% endif %}
     {% endfor %}
-
-    <h1 id="sections">{% trans "Sections" %}</h1>
-
-    {% if request.user.is_authenticated %}
-    <div class="info">
-        {% blocktrans %}
-        set one at <a href="/baljan/profile">your profile page</a>
-        {% endblocktrans %}
-    </div>
-    {% endif %}
-
-    {% for stat in section_stats %}
-    {% if not stat.empty %}
-    <div class="score clearfix">
-        <h2>{{stat.name}}</h2>
-        {% for group in stat.groups %}
-        <div class="layout" style="float:left;width:50%">
-            <h3>{{group.title}}</h3>
-            <table style="width:98%">
-                <thead>
-                    <tr>
-                        <th colspan="2">{% trans "section" %}</th>
-                        <th class="blips-total">{% trans "blips" %}</th>
-                        <th class="people">{% trans "people" %}</th>
-                        <th class="blips-avg">{% trans "blips/person" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for top in group.top_sections %}
-                    <tr class="{% cycle "even" "odd" %}">
-                        <td class="pos">
-                            {% ifchanged top.num_orders %}
-                            {{forloop.counter}}.
-                            {% endifchanged %}
-                        </td>
-                        <td class="name">
-                            {{top.name}}
-                        </td>
-                        <td class="blips-total">{{top.num_orders}}</td>
-                        <td class="people">{{top.num_users}}</td>
-                        <td class="blips-avg">{{top.avg_orders|floatformat}}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    {% endfor %}
-
 </div><!--.main-->
 <div class="clear"></div>
 {% endblock %}

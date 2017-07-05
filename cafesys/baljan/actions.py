@@ -20,10 +20,6 @@ class Action(object):
 
 def categories_and_actions(request):
     user = request.user
-    if user.is_authenticated():
-        student = user.get_profile()
-    else:
-        student = None
 
     current_site = Site.objects.get_current()
     domain = current_site.domain
@@ -37,53 +33,45 @@ def categories_and_actions(request):
         name = upc.name
         action = Action(
             _('job opening %s') % name,
-            'baljan.views.job_opening',
+            'job_opening',
             args=(name,)
         )
         upcoming_sem_actions.append(action)
-        
 
     levels = (
         ('superusers', _('superusers'), (
-            # nil
-            )),
+
+        )),
         (settings.BOARD_GROUP, _('board tasks'), (
-            Action(_('week planning'), 'baljan.views.call_duty_week'),
-            #Action(_('work applications'), '#', resolve_func=None),
+            Action(_('week planning'), 'call_duty_week'),
             ) + tuple(upcoming_sem_actions) + (
-            Action(_('semesters'), 'baljan.views.admin_semester'),
+            Action(_('semesters'), 'admin_semester'),
             )
         ),
         ('sysadmins', _('sysadmins'), (
             Action(_('django admin site'), 'admin:index'),
-            Action(_('sentry'), 'https://sentry.baljan.org/', resolve_func=None),
-            #Action(_('munin'), 'http://%s:%s/%s' % (domain, settings.MUNIN_PORT, settings.MUNIN_PATH), resolve_func=None),
             Action(_('github'), 'http://github.com/Baljan/cafesys', resolve_func=None),
             )),
         (settings.WORKER_GROUP, _('workers'), (
             Action(_('guide'), settings.STATIC_URL + 'guide.pdf', resolve_func=None),
             Action(_('contract'), settings.STATIC_URL + 'kontrakt2012.docx', resolve_func=None),
             Action(_('add shifts to calendar program'), settings.STATIC_URL + 'ical-calendar.pdf', resolve_func=None),
-            #Action(_('schedule'), 'cal.views.worker_calendar'),
-            #Action(_('swaps'), 'cal.views.swappable'),
             )),
         ('regulars', _('your account'), (
-            Action(_('profile'), 'baljan.views.profile'),
-            Action(_('credits'), 'baljan.views.credits'),
-            Action(_('orders'), 'baljan.views.orders', args=(1,)),
+            Action(_('profile'), 'profile'),
+            Action(_('credits'), 'credits'),
+            Action(_('orders'), 'orders', args=(1,)),
             )),
         ('anyone', _('users'), (
-            Action(_('work planning'), 'baljan.views.current_semester'),
+            Action(_('work planning'), 'current_semester'),
             Action(_('work for Baljan'), 'become_worker'),
-            Action(_('people and groups'), 'baljan.views.search_person'),
-            Action(_('high score'), 'baljan.views.high_score'),
-            Action(_('price list'), 'baljan.views.price_list'),
-	    Action(_('order from Baljan'),'baljan.views.orderFromUs'),
-	    #Action(_('apply board'), 'baljan.views.board_posts'),
-            #Action(_('login'), 'acct_login') if student is None else Action(_('logout'), 'acct_logout'),
-            )),
-        )
-    
+            Action(_('people and groups'), 'search_person'),
+            Action(_('high score'), 'high_score'),
+            Action(_('price list'), 'price_list'),
+            Action(_('order from Baljan'),'order_from_us'),
+        )),
+    )
+
     if user.is_authenticated():
         for real_group in (settings.BOARD_GROUP, settings.WORKER_GROUP):
             if len(user.groups.filter(name__exact=real_group)):
@@ -97,14 +85,13 @@ def categories_and_actions(request):
     else:
         group = 'anyone'
 
-     
-    avail_levels = [] 
+    avail_levels = []
     for i, action_category in enumerate(levels):
         if group == action_category[0]:
             avail_levels = [list(ita) for ita in levels[i:]]
             break
-    
-    # Try to find the active section in the accordion. If an exact match is 
+
+    # Try to find the active section in the accordion. If an exact match is
     # unfound, a reserve might be. If a reserve is unfound, the last section
     # will be unfolded.
     got_link = False
@@ -122,7 +109,7 @@ def categories_and_actions(request):
                 break
         if got_link:
             break
-    
+
     if got_link:
         pass
     elif len(avail_levels):

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -6,9 +7,8 @@ from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy
 
-from baljan.util import get_logger
 
-logger = get_logger('baljan.notifications')
+logger = logging.getLogger(__name__)
 
 TITLE_TEMPLATES = {
     'friend_request_denied': ugettext_lazy("""%(requestee)s denied your friend request"""),
@@ -82,7 +82,7 @@ def send(notification_type, to_user, **kwargs):
     assert notification_type in BODY_TEMPLATES
     assert to_user.email
     current_site = Site.objects.get_current()
-    profile_path = reverse('baljan.views.profile')
+    profile_path = reverse('profile')
     profile_url = "http://%s%s" % (current_site.domain, profile_path)
     kwargs.update({
         'profile_url': profile_url

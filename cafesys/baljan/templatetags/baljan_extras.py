@@ -31,7 +31,7 @@ def user_link(user, autoescape=None):
     user = _find_user(user)
     if user:
         full_name = escape(user.get_full_name())
-        return mark_safe(u'<a href="%s">%s (%s)</a>' % (
+        return mark_safe('<a href="%s">%s (%s)</a>' % (
                 user.get_absolute_url(),
                 full_name,
                 user.username))
@@ -48,7 +48,7 @@ def name_link(user, autoescape=None):
     user = _find_user(user)
     if user:
         full_name = escape(user.get_full_name())
-        return mark_safe(u'<a href="%s">%s</a>' % (
+        return mark_safe('<a href="%s">%s</a>' % (
                 user.get_absolute_url(),
                 full_name))
     return mark_safe(_("unnamed"))
@@ -69,7 +69,7 @@ def _shift_link(shift, short):
     else:
         pre = shift.timeofday()
 
-    return mark_safe(u'<a href="%s">%s %s</a>' % (
+    return mark_safe('<a href="%s">%s %s</a>' % (
             shift.get_absolute_url(),
             pre,
             shift.when.strftime('%Y-%m-%d')))

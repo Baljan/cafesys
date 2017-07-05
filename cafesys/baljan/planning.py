@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+from logging import getLogger
+
 from django.contrib.auth.models import User
 
 from baljan.models import Shift
 from baljan.util import available_for_call_duty
-from baljan.util import year_and_week, get_logger
+from baljan.util import year_and_week
 
-log = get_logger('baljan.planning')
+log = getLogger(__name__)
 
 class BoardWeek(object):
     """Board activities of a week. Used for editing people on call and such

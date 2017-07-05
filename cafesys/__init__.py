@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 
-__about__ = """
-This project comes with the bare minimum set of applications and templates
-to get you started. It includes no extra tabs, only the profile and notices
-tabs are included by default. From here you can add any extra functionality
-and applications that you would like.
-"""
+# This will make sure the Celery app is always imported when Django starts so that shared_task will use this app.
+from .celery import app as celery_app
+
+__all__ = ['celery_app']

@@ -47,7 +47,7 @@ class Command(BaseCommand):
         paginator = Paginator(all_emails, page_size)
         pages = [paginator.page(p).object_list for p in paginator.page_range]
         for i, emails in enumerate(pages):
-            print "\n".join(emails)
-            raw_input("\n\nHit return to show next page... (%s of %s)" % (
+            print("\n".join(emails))
+            input("\n\nHit return to show next page... (%s of %s)" % (
                 i + 1, len(pages)))
-            print chr(27) + "[2J"
+            print(chr(27) + "[2J")
