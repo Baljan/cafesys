@@ -128,7 +128,7 @@ class PairAlloc(object):
             return self.NOTHING_ASSIGNED
 
         tigered = flatten(list(zip(
-            self.shifts, 
+            self.shifts,
             [shift] * len(self.shifts)
         )))
         handicap = 0
@@ -161,7 +161,7 @@ def allocate_shifts_for_one_pair(work_pairs, avail_mornings, avail_afternoons, a
 
         target = req * total_avg * float(sum([COSTS[i] for i in SHIFTS])) / len(SHIFTS)
 
-        prob = LpProblem("Work Distribution", LpMinimize) 
+        prob = LpProblem("Work Distribution", LpMinimize)
         var_prefix = "shift"
         shift_vars = LpVariable.dicts(var_prefix, SHIFTS, 0, cat=LpInteger)
         prob += lpSum([COSTS[i] * shift_vars[i] for i in SHIFTS]), "cost of combination"
@@ -177,9 +177,9 @@ def allocate_shifts_for_one_pair(work_pairs, avail_mornings, avail_afternoons, a
 
         if not LpStatus[prob.status] == 'Optimal':
             next_grace = req - 0.1
-            assert 0.0 < next_grace 
+            assert 0.0 < next_grace
             return _recurse(work_pairs, mae, next_grace)
-        
+
         new_mae = [0, 0, 0]
         solution = [0, 0, 0]
         for v in prob.variables():
@@ -189,7 +189,7 @@ def allocate_shifts_for_one_pair(work_pairs, avail_mornings, avail_afternoons, a
                     new_mae[pos] = mae[pos] - solution[pos]
 
         return (PairAlloc(solution), work_pairs - 1) + tuple(new_mae)
-    
+
     return _recurse(work_pairs, mae)
 
 
@@ -360,7 +360,7 @@ class LabeledPairAlloc(PairAlloc):
         sem = shifts[0].semester
         assert sum([1 if sh.semester == sem else 0 for sh in shifts]) \
                 == len(shifts)
-        
+
         comb, created = ShiftCombination.objects.get_or_create(
             semester=sem,
             label=self.label,
@@ -400,7 +400,7 @@ class Scheduler(object):
     def needed_pairs(self):
         assert self.target_pair_shift_count != 0
         return max(self.shifts.count() // self.target_pair_shift_count, 1)
-    
+
     def pair_allocs(self):
         work_pairs = self.needed_pairs()
         m, a, e = self.span_counts()

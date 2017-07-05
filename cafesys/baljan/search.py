@@ -7,7 +7,7 @@ from django.db.models import Q
 def for_person(terms, use_cache=True):
     cache_minutes = 30
 
-    # Each term is cached. 
+    # Each term is cached.
     term_list = terms.lower().split() # lower() for reusing cache keys
     all_term_hits = [] # will be a list of lists
     for term in term_list:
@@ -30,7 +30,7 @@ def for_person(terms, use_cache=True):
     ids = set()
     if len(all_term_hits):
         ath = all_term_hits
-        ids = set(ath[0]).intersection(*ath) 
+        ids = set(ath[0]).intersection(*ath)
 
     hits = User.objects.filter(pk__in=ids).order_by('first_name', 'last_name').distinct()
     return hits

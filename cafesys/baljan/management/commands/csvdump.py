@@ -11,7 +11,7 @@ class Command(BaseCommand):
     help = 'Dump orders per month in CSV format.'
 
     def handle(self, *args, **options):
-        valid = True 
+        valid = True
         if not valid:
             raise CommandError('invalid config')
 

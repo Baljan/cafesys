@@ -6,7 +6,7 @@ from baljan.models import Semester, Order
 
 class Command(BaseCommand):
     args = 'group semester'
-    help = 'Command to retrieve all orders from a given group' 
+    help = 'Command to retrieve all orders from a given group'
 
     def handle(self, *args, **options):
 	if len(args) != 2:
@@ -37,7 +37,7 @@ class Command(BaseCommand):
 		orders = len(Order.objects.filter(user = u).filter(made__gte=start, made__lte=end))
 		total_sum += orders
 		user_order.append((u,orders))
-	
+
         print("\nTotal (free) orders by %s between %s and %s:" % (group.name, str(start),str(end)))
         print("Username\t#")
 	print("------------------------------")

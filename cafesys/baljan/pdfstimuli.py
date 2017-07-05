@@ -21,4 +21,3 @@ def dummy_balance_code():
     m.refill_series.pk = random.randint(1, 99)
     m.refill_series.least_valid_until = date.today()
     return m
-

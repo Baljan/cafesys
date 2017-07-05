@@ -27,10 +27,10 @@ def full_identifier(user, ctx):
 
 def csv_identifier(user, ctx):
     fields = [
-        user.first_name, 
-        user.last_name, 
-        user.username, 
-        "%s@student.liu.se" % user.username, 
+        user.first_name,
+        user.last_name,
+        user.username,
+        "%s@student.liu.se" % user.username,
         user.shiftsignup_set.count(),
     ]
     if 'semester' in ctx and 'combinations' in ctx:
@@ -53,7 +53,7 @@ def csv_identifier(user, ctx):
     csv = ",".join(map(str, fields))
     return csv.encode('utf-8')
 
-        
+
 id_funs = {
     'username': (lambda u, ctx: "%s" % u.username, ('username',)),
     'email': (lambda u, ctx: "%s" % u.email, ('email',)),
@@ -204,7 +204,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        valid = True 
+        valid = True
         if not valid:
             raise CommandError('invalid config')
 

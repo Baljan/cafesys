@@ -120,5 +120,3 @@ def categories_and_actions(request):
 
     no_empty = [lev for lev in avail_levels if len(lev[2])]
     return no_empty
-
-

@@ -56,7 +56,7 @@ class TakeRequest(object):
         if requester == signup.user:
             raise self.DoubleSignup()
         if ShiftSignup.objects.filter( # prevent double bookings
-                shift=signup.shift, 
+                shift=signup.shift,
                 user=requester):
             raise self.DoubleSignup()
         if not signup.tradable:
@@ -111,7 +111,7 @@ class TakeRequest(object):
 
     def _current_trade_requests(self):
         return TradeRequest.objects.filter(
-                wanted_signup=self.signup, 
+                wanted_signup=self.signup,
                 offered_signup__user=self.requester)
 
     def load(self):

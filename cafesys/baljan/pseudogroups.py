@@ -132,7 +132,7 @@ class BoardSemesterGroup(SemesterGroup):
         return User.objects.filter(
             Q(oncallduty__shift__semester=sem) | Q(groups=manual_group)
         ).all().distinct().order_by(*USER_ORDER)
-    
+
     def members_with_titles(self):
         members = self.members()
         member_titles = []

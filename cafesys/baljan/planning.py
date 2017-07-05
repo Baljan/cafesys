@@ -20,7 +20,7 @@ class BoardWeek(object):
 
     def __init__(self, year, week):
         self.shifts = Shift.objects.for_week(year, week)
-    
+
     @staticmethod
     def dom_id(shift):
         daynum = int(shift.when.strftime('%w'))

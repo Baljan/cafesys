@@ -76,7 +76,7 @@ class Command(BaseCommand):
         tot_count = 0
         indent = " " * 4
         for signup_count in signup_counts:
-            workers_with_count_signups = [w for w in workers 
+            workers_with_count_signups = [w for w in workers
                     if w.shiftsignup_set.all().count()==signup_count]
             c = len(workers_with_count_signups)
             tot_count += c
