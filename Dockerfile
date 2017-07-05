@@ -1,4 +1,4 @@
-FROM alpine:3.5
+FROM alpine:3.6
 
 # Kept separate to be substituted in next step
 ENV APP_ROOT=/app
