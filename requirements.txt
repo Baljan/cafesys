@@ -13,7 +13,7 @@ celery==4.0.2
 # Social (i.e. LiU ID) login
 social-auth-core==1.3.0
 social-auth-app-django==1.2.0
-social-auth-liu==0.0.1
+social-auth-liu==0.0.2
 
 # Linear programming (optimization for work distribution)
 PuLP==1.6.5
