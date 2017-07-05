@@ -439,7 +439,7 @@ def search_person(request):
     hits = []
     if request.method == 'POST':
         terms = request.POST['search-terms']
-        hits = baljan.search.for_person(terms)
+        hits = search.for_person(terms)
 
     if request.is_ajax():
         ser = serialize('json', hits, fields=(
@@ -558,7 +558,7 @@ def job_opening(request, semester_name):
             valid_search = valid_username(searched_for)
 
             if valid_search:
-                results = baljan.search.for_person(searched_for, use_cache=False)
+                results = search.for_person(searched_for, use_cache=False)
                 if len(results) == 1:
                     found_user = results[0]
 
