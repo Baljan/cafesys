@@ -1,9 +1,8 @@
 import os
 
-import django.core.handlers.wsgi
-from whitenoise.django import DjangoWhiteNoise
+from django.core.wsgi import get_wsgi_application
 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cafesys.settings.development')
-application = django.core.handlers.wsgi.WSGIHandler()
-application = DjangoWhiteNoise(application)
+
+application = get_wsgi_application()
