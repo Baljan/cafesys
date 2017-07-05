@@ -6,7 +6,8 @@ from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.db.models import Q
 
-from baljan.models import Semester, BoardPost
+from .models import Semester, BoardPost
+
 
 log = getLogger(__name__)
 

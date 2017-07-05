@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
 from django.core.paginator import Paginator
 
-from baljan.util import get_logger
+from ...util import get_logger
 
 log = get_logger('baljan.commands.googlepaste')
 

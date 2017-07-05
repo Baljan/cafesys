@@ -3,9 +3,10 @@ from logging import getLogger
 
 from django.contrib.auth.models import User
 
-from baljan.models import Shift
-from baljan.util import available_for_call_duty
-from baljan.util import year_and_week
+from .models import Shift
+from .util import available_for_call_duty
+from .util import year_and_week
+
 
 log = getLogger(__name__)
 

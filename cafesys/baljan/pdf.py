@@ -16,7 +16,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, Paragraph, SimpleDocTemplate
 
-from baljan.util import grouper
+from .util import grouper
+
 
 if __name__ == '__main__':
     from .pdfstimuli import gettext as _

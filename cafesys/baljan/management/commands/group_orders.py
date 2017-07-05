@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
 
-from baljan.models import Semester, Order
+from ...models import Semester, Order
 
 
 class Command(BaseCommand):

@@ -6,9 +6,8 @@ from django.contrib.auth.models import User, Group
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from baljan.models import Semester
-from baljan.models import ShiftCombination
-from baljan.util import get_logger, asciilize, random_string
+from ...models import Semester, ShiftCombination
+from ...util import get_logger, asciilize, random_string
 
 log = get_logger('baljan.commands.group')
 

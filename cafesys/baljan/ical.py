@@ -4,7 +4,7 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 from icalendar import Calendar, Event
 
-from baljan.models import ShiftSignup, OnCallDuty
+from .models import ShiftSignup, OnCallDuty
 
 
 def to_utc(dt):

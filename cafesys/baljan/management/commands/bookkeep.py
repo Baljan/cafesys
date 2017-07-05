@@ -3,7 +3,7 @@ import datetime
 
 from django.core.management.base import BaseCommand, CommandError
 
-from baljan.models import User
+from ...models import User
 
 
 class Command(BaseCommand):

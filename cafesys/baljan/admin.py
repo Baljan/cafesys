@@ -6,14 +6,13 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 
-import baljan.models
-from baljan import pdf
+from . import models, pdf
 
-admin.site.register(baljan.models.Profile)
+admin.site.register(models.Profile)
 
 
 class ShiftInline(admin.TabularInline):
-    model = baljan.models.Shift
+    model = models.Shift
     extra = 0
     can_delete = False
 
@@ -24,7 +23,7 @@ class TradeRequestAdmin(admin.ModelAdmin):
             'offered_signup__user',
             )
     list_display = ('__str__', 'wanted_signup', 'offered_signup',)
-admin.site.register(baljan.models.TradeRequest, TradeRequestAdmin)
+admin.site.register(models.TradeRequest, TradeRequestAdmin)
 
 
 class SemesterAdmin(admin.ModelAdmin):
@@ -32,7 +31,7 @@ class SemesterAdmin(admin.ModelAdmin):
     list_display = ('name', 'start', 'end', 'signup_possible')
     list_filter = ('signup_possible',)
     #inlines = (ShiftInline,)
-admin.site.register(baljan.models.Semester, SemesterAdmin)
+admin.site.register(models.Semester, SemesterAdmin)
 
 signup_oncall_fields = ('shift__when', 'user__username', 'user__first_name',
         'user__last_name',
@@ -41,7 +40,7 @@ signup_oncall_fields = ('shift__when', 'user__username', 'user__first_name',
 signup_oncall_display = ('shift', 'user', )
 
 class ShiftSignupInline(admin.TabularInline):
-    model = baljan.models.ShiftSignup
+    model = models.ShiftSignup
     max_num = 2
 
 
@@ -49,17 +48,17 @@ class ShiftSignupAdmin(admin.ModelAdmin):
     search_fields = signup_oncall_fields
     list_display = signup_oncall_display + ('tradable',)
     list_filter = ('tradable', )
-admin.site.register(baljan.models.ShiftSignup, ShiftSignupAdmin)
+admin.site.register(models.ShiftSignup, ShiftSignupAdmin)
 
 
 class OnCallDutyAdmin(admin.ModelAdmin):
     search_fields = signup_oncall_fields
     list_display = signup_oncall_display
-admin.site.register(baljan.models.OnCallDuty, OnCallDutyAdmin)
+admin.site.register(models.OnCallDuty, OnCallDutyAdmin)
 
 
 class OnCallDutyInline(admin.TabularInline):
-    model = baljan.models.OnCallDuty
+    model = models.OnCallDuty
     max_num = 1
 
 
@@ -82,18 +81,18 @@ class ShiftAdmin(admin.ModelAdmin):
     toggle_enabled.short_description = _("Toggle enabled")
 
     actions = ['toggle_exam_period', 'toggle_enabled']
-admin.site.register(baljan.models.Shift, ShiftAdmin)
+admin.site.register(models.Shift, ShiftAdmin)
 
 
 class ShiftCombinationAdmin(admin.ModelAdmin):
     search_fields = ('semester__name', 'label')
     list_display = ('label', 'semester',)
     list_filter = ('semester',)
-admin.site.register(baljan.models.ShiftCombination, ShiftCombinationAdmin)
+admin.site.register(models.ShiftCombination, ShiftCombinationAdmin)
 
 
 class GoodCostInline(admin.TabularInline):
-    model = baljan.models.GoodCost
+    model = models.GoodCost
     extra = 1
 
 def good_cost(g):
@@ -109,18 +108,18 @@ class GoodAdmin(admin.ModelAdmin):
     list_display = ('__str__', good_cost, )
     list_filter = ('title', )
     inlines = (GoodCostInline, )
-admin.site.register(baljan.models.Good, GoodAdmin)
+admin.site.register(models.Good, GoodAdmin)
 
 class GoodCostAdmin(admin.ModelAdmin):
     search_fields = ('good__title', 'cost', 'currency', )
     list_display = ('good', 'cost', 'currency')
-admin.site.register(baljan.models.GoodCost, GoodCostAdmin)
+admin.site.register(models.GoodCost, GoodCostAdmin)
 
 
 class OrderGoodInline(admin.TabularInline):
-    model = baljan.models.OrderGood
+    model = models.OrderGood
     extra = 1
-#admin.site.register(baljan.models.OrderGood)
+#admin.site.register(models.OrderGood)
 
 class OrderAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'ordergood__good__title',
@@ -128,7 +127,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('user', 'put_at', 'paid', 'currency', 'accepted')
     list_filter = ('put_at', 'accepted')
     inlines = (OrderGoodInline, )
-admin.site.register(baljan.models.Order, OrderAdmin)
+admin.site.register(models.Order, OrderAdmin)
 
 
 class BalanceCodeAdmin(admin.ModelAdmin):
@@ -159,7 +158,7 @@ class BalanceCodeAdmin(admin.ModelAdmin):
             )
     list_filter = ('used_at', 'value', )
 
-admin.site.register(baljan.models.BalanceCode, BalanceCodeAdmin)
+admin.site.register(models.BalanceCode, BalanceCodeAdmin)
 
 
 class RefillSeriesPDFAdmin(admin.ModelAdmin):
@@ -179,7 +178,7 @@ class RefillSeriesPDFAdmin(admin.ModelAdmin):
     list_display = ('generated_by', 'made', _series)
     search_fields = ('refill_series__id', 'generated_by__username')
 
-admin.site.register(baljan.models.RefillSeriesPDF, RefillSeriesPDFAdmin)
+admin.site.register(models.RefillSeriesPDF, RefillSeriesPDFAdmin)
 
 
 class RefillSeriesAdmin(admin.ModelAdmin):
@@ -221,7 +220,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
             obj.made_by = request.user
             obj.save()
             for i in range(obj.code_count):
-                code = baljan.models.BalanceCode(
+                code = models.BalanceCode(
                         refill_series=obj,
                         currency=obj.code_currency,
                         value=obj.code_value)
@@ -248,7 +247,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
         response['Content-Disposition'] = 'attachment; filename=%s' % name
 
         for series in queryset:
-            gen = baljan.models.RefillSeriesPDF(
+            gen = models.RefillSeriesPDF(
                     generated_by=request.user,
                     refill_series=series)
             gen.save()
@@ -262,7 +261,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
         'least_valid_until',
     )
 
-admin.site.register(baljan.models.RefillSeries, RefillSeriesAdmin)
+admin.site.register(models.RefillSeries, RefillSeriesAdmin)
 
 
 class BoardPostAdmin(admin.ModelAdmin):
@@ -276,12 +275,12 @@ class BoardPostAdmin(admin.ModelAdmin):
     list_display = ('semester', 'user', 'post')
     list_filter = ('post',)
 
-admin.site.register(baljan.models.BoardPost, BoardPostAdmin)
+admin.site.register(models.BoardPost, BoardPostAdmin)
 
 
 class OldCoffeeCardInline(admin.TabularInline):
     fields = ('card_id', 'user', 'time_stamp', 'count', 'left', 'expires', 'imported')
-    model = baljan.models.OldCoffeeCard
+    model = models.OldCoffeeCard
     extra = 0
     can_delete = False
 
@@ -294,7 +293,7 @@ class OldCoffeeCardSetAdmin(admin.ModelAdmin):
             'set_id',
             )
     list_display = ('set_id', 'made_by', 'file', 'created')
-admin.site.register(baljan.models.OldCoffeeCardSet, OldCoffeeCardSetAdmin)
+admin.site.register(models.OldCoffeeCardSet, OldCoffeeCardSetAdmin)
 
 
 class OldCoffeeCardAdmin(admin.ModelAdmin):
@@ -308,4 +307,4 @@ class OldCoffeeCardAdmin(admin.ModelAdmin):
             )
     list_display = ('card_id', 'set', 'created', 'count', 'left', 'expires',
             'user', 'imported')
-admin.site.register(baljan.models.OldCoffeeCard, OldCoffeeCardAdmin)
+admin.site.register(models.OldCoffeeCard, OldCoffeeCardAdmin)

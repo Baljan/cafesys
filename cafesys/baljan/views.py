@@ -21,18 +21,11 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
-import baljan.forms
-import baljan.ical
-import baljan.models
-import baljan.search
-from baljan import pdf
-from baljan import stats
-from baljan.forms import OrderForm
-from baljan.util import adjacent_weeks, week_dates
-from baljan.util import year_and_week, all_initials
-from baljan.util import htmlents, valid_username
-from baljan import credits as creditsmodule
-from baljan import trades, planning, pseudogroups, workdist, kobra
+from . import credits as creditsmodule, forms, ical, kobra, models, pdf, planning, pseudogroups, search, stats, trades, workdist
+from .forms import OrderForm
+from .util import adjacent_weeks, week_dates
+from .util import year_and_week, all_initials
+from .util import htmlents, valid_username
 
 
 logger = getLogger(__name__)
@@ -65,25 +58,25 @@ def semesters(request):
     if request.method == 'POST':
         task = request.POST['task']
         if task == 'add':
-            sem = baljan.models.Semester()
-            semform = baljan.forms.SemesterForm(request.POST, instance=sem)
+            sem = models.Semester()
+            semform = forms.SemesterForm(request.POST, instance=sem)
             if semform.is_valid():
                 sem.save()
                 messages.add_message(request, messages.SUCCESS, _("%s was added successfully.") % sem.name)
     else:
-        semform = baljan.forms.SemesterForm()
+        semform = forms.SemesterForm()
 
     tpl['add_form'] = semform
-    tpl['semesters'] = baljan.models.Semester.objects.filter(end__gte=date.today()).order_by('start')
+    tpl['semesters'] = models.Semester.objects.filter(end__gte=date.today()).order_by('start')
     return render(request, 'baljan/semesters.html', tpl)
 
 
 @login_required
 def current_semester(request):
-    sem = baljan.models.Semester.objects.current()
+    sem = models.Semester.objects.current()
     if sem is None:
         try:
-            upcoming_sems = baljan.models.Semester.objects.upcoming()
+            upcoming_sems = models.Semester.objects.upcoming()
             sem = upcoming_sems[0]
         except:
             pass
@@ -214,12 +207,12 @@ END:VCALENDAR'''
 
 @login_required
 def semester(request, name):
-    return _semester(request, baljan.models.Semester.objects.by_name(name))
+    return _semester(request, models.Semester.objects.by_name(name))
 
 
 def _semester(request, sem):
     tpl = {}
-    tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
+    tpl['semesters'] = models.Semester.objects.order_by('-start').all()
     tpl['selected_semester'] = sem
     tpl['worker_group_name'] = settings.WORKER_GROUP
     tpl['board_group_name'] = settings.BOARD_GROUP
@@ -234,19 +227,19 @@ def _semester(request, sem):
 
 @permission_required('baljan.delete_shiftsignup')
 def delete_signup(request, pk, redir):
-    baljan.models.ShiftSignup.objects.get(pk=int(pk)).delete()
+    models.ShiftSignup.objects.get(pk=int(pk)).delete()
     return redirect_prepend_root(redir)
 
 
 @permission_required('baljan.delete_oncallduty')
 def delete_callduty(request, pk, redir):
-    baljan.models.OnCallDuty.objects.get(pk=int(pk)).delete()
+    models.OnCallDuty.objects.get(pk=int(pk)).delete()
     return redirect_prepend_root(redir)
 
 
 @login_required
 def toggle_tradable(request, pk, redir):
-    su = baljan.models.ShiftSignup.objects.get(pk=int(pk))
+    su = models.ShiftSignup.objects.get(pk=int(pk))
     assert su.user == request.user #or request.user.has_perm('baljan.change_shiftsignup')
     su.tradable = not su.tradable
     su.save()
@@ -256,9 +249,9 @@ def toggle_tradable(request, pk, redir):
 @login_required
 def day_shifts(request, day):
     tpl = {}
-    tpl['day'] = day = baljan.util.from_iso8601(day)
-    tpl['shifts'] = shifts = baljan.models.Shift.objects.filter(when=day, enabled=True).order_by('span')
-    tpl['available_for_call_duty'] = avail_call_duty = baljan.util.available_for_call_duty()
+    tpl['day'] = day = util.from_iso8601(day)
+    tpl['shifts'] = shifts = models.Shift.objects.filter(when=day, enabled=True).order_by('span')
+    tpl['available_for_call_duty'] = avail_call_duty = util.available_for_call_duty()
 
     worker_friends = []
     if request.user.is_authenticated():
@@ -270,7 +263,7 @@ def day_shifts(request, day):
         assert request.user.is_authenticated()
         span = int(request.POST['span'])
         assert span in (0, 1, 2)
-        shift = baljan.models.Shift.objects.get(when__exact=day, span=span)
+        shift = models.Shift.objects.get(when__exact=day, span=span)
         assert shift.enabled
 
         uid = int(request.POST['user'])
@@ -280,21 +273,21 @@ def day_shifts(request, day):
         if signup_for == 'call-duty':
             assert signup_user not in shift.on_callduty()
             assert signup_user in avail_call_duty
-            signup = baljan.models.OnCallDuty(user=signup_user, shift=shift)
+            signup = models.OnCallDuty(user=signup_user, shift=shift)
         elif signup_for == 'work':
             allowed_uids = [f.pk for f in worker_friends]
             assert shift.semester.signup_possible
             assert uid in allowed_uids
             assert shift.shiftsignup_set.all().count() < 2
             assert signup_user not in shift.signed_up()
-            signup = baljan.models.ShiftSignup(user=signup_user, shift=shift)
+            signup = models.ShiftSignup(user=signup_user, shift=shift)
         else:
             assert False
         signup.save()
 
     if len(shifts) == 0:
         messages.add_message(request, messages.ERROR, _("Nothing scheduled for this shift (yet)."))
-    tpl['semester'] = semester = baljan.models.Semester.objects.for_date(day)
+    tpl['semester'] = semester = models.Semester.objects.for_date(day)
     return render(request, 'baljan/day.html', tpl)
 
 
@@ -338,7 +331,7 @@ def credits(request):
     profile = user.profile
     tpl = {}
 
-    refill_form = baljan.forms.RefillForm()
+    refill_form = forms.RefillForm()
 
     if request.method == 'POST':
         try:
@@ -347,7 +340,7 @@ def credits(request):
             logger.error('no task in form!')
         else:
             if request.POST['task'] == 'refill':
-                refill_form = baljan.forms.RefillForm(request.POST)
+                refill_form = forms.RefillForm(request.POST)
                 if refill_form.is_valid():
                     entered_code = refill_form.cleaned_data['code']
                     creditsmodule.is_used(entered_code, user) # for logging
@@ -372,7 +365,7 @@ def orders(request, page_no):
     user = request.user
     page_no = int(page_no)
     tpl = {}
-    tpl['orders'] = orders = baljan.models.Order.objects \
+    tpl['orders'] = orders = models.Order.objects \
         .filter(user=user).order_by('-put_at')
     page_size = 50
     pages = Paginator(orders, page_size)
@@ -390,8 +383,8 @@ def see_user(request, who):
     watching_self = u == watched
     if u.is_authenticated():
         profile_form_cls_inst = (
-                (baljan.forms.UserForm, u),
-                (baljan.forms.ProfileForm, u.profile),
+                (forms.UserForm, u),
+                (forms.ProfileForm, u.profile),
                 )
 
     if watching_self and request.method == 'POST':
@@ -464,7 +457,7 @@ def search_person(request):
 def trade_take(request, signup_pk, redir):
     u = request.user
     tpl = {}
-    signup = baljan.models.ShiftSignup.objects.get(pk=signup_pk)
+    signup = models.ShiftSignup.objects.get(pk=signup_pk)
 
     try:
         tpl['take'] = take = trades.TakeRequest(signup, u)
@@ -475,7 +468,7 @@ def trade_take(request, signup_pk, redir):
                 if not field.startswith('signup_'):
                     continue
                 pk = int(value)
-                offers.append(baljan.models.ShiftSignup.objects.get(pk=pk))
+                offers.append(models.ShiftSignup.objects.get(pk=pk))
             [take.add_offer(o) for o in offers]
             take.save()
             tpl['saved'] = True
@@ -496,7 +489,7 @@ def trade_take(request, signup_pk, redir):
 
 def _trade_answer(request, request_pk, redir, accept):
     u = request.user
-    tr = baljan.models.TradeRequest.objects.get(pk=int(request_pk))
+    tr = models.TradeRequest.objects.get(pk=int(request_pk))
     assert tr in trades.requests_sent_to(u)
     if accept:
         tr.accept()
@@ -530,7 +523,7 @@ def _pair_matrix(pairs):
 @permission_required('baljan.manage_job_openings')
 def job_opening_projector(request, semester_name):
     tpl = {}
-    tpl['semester'] = sem = baljan.models.Semester.objects.get(name__exact=semester_name)
+    tpl['semester'] = sem = models.Semester.objects.get(name__exact=semester_name)
     user = request.user
 
     sched = workdist.Scheduler(sem)
@@ -555,7 +548,7 @@ def job_opening_projector(request, semester_name):
 @csrf_exempt
 def job_opening(request, semester_name):
     tpl = {}
-    tpl['semester'] = sem = baljan.models.Semester.objects.get(name__exact=semester_name)
+    tpl['semester'] = sem = models.Semester.objects.get(name__exact=semester_name)
     user = request.user
 
     found_user = None
@@ -613,7 +606,7 @@ def job_opening(request, semester_name):
             # Update phone numbers.
             for uname, phone in zip(usernames, phones):
                 try:
-                    to_update = baljan.models.Profile.objects.get(
+                    to_update = models.Profile.objects.get(
                         user__username__exact=uname
                     )
                     to_update.mobile_phone = phone
@@ -622,11 +615,11 @@ def job_opening(request, semester_name):
                     logger.error('invalid phone for %s: %r' % (uname, phone))
 
             # Assign to shifts.
-            shifts_to_save = baljan.models.Shift.objects.filter(pk__in=shift_ids)
+            shifts_to_save = models.Shift.objects.filter(pk__in=shift_ids)
             users_to_save = User.objects.filter(username__in=usernames)
             for shift_to_save in shifts_to_save:
                 for user_to_save in users_to_save:
-                    signup, created = baljan.models.ShiftSignup.objects.get_or_create(
+                    signup, created = models.ShiftSignup.objects.get_or_create(
                         user=user_to_save,
                         shift=shift_to_save
                     )
@@ -707,7 +700,7 @@ def call_duty_week(request, year=None, week=None):
                     shift.oncallduty_set.filter(user=old_user).delete()
             for new_user in new_users:
                 if not new_user in old_users:
-                    o, created = baljan.models.OnCallDuty.objects.get_or_create(
+                    o, created = models.OnCallDuty.objects.get_or_create(
                         shift=shift,
                         user=new_user
                     )
@@ -737,22 +730,22 @@ def call_duty_week(request, year=None, week=None):
 @permission_required('baljan.delete_semester')
 def admin_semester(request, name=None):
     if name is None:
-        sem = baljan.models.Semester.objects.current()
+        sem = models.Semester.objects.current()
         if sem is None:
             try:
-                upcoming_sems = baljan.models.Semester.objects.upcoming()
+                upcoming_sems = models.Semester.objects.upcoming()
                 sem = upcoming_sems[0]
             except:
                 pass
     else:
-        sem = baljan.models.Semester.objects.by_name(name)
+        sem = models.Semester.objects.by_name(name)
 
     user = request.user
 
-    new_sem_form = baljan.forms.SemesterForm()
+    new_sem_form = forms.SemesterForm()
     if request.method == 'POST':
         if request.POST['task'] == 'new_semester':
-            new_sem_form = baljan.forms.SemesterForm(request.POST)
+            new_sem_form = forms.SemesterForm(request.POST)
         elif request.POST['task'] == 'edit_shifts':
             assert sem is not None
             raw_ids = request.POST['shift-ids'].strip()
@@ -761,7 +754,7 @@ def admin_semester(request, name=None):
                 edit_shift_ids = [int(x) for x in raw_ids.split('|')]
 
             make = request.POST['make']
-            shifts_to_edit = baljan.models.Shift.objects.filter(
+            shifts_to_edit = models.Shift.objects.filter(
                 id__in=edit_shift_ids).distinct()
 
             if make == 'normal':
@@ -796,7 +789,7 @@ def admin_semester(request, name=None):
     tpl = {}
     tpl['semester'] = sem
     tpl['new_semester_form'] = new_sem_form
-    tpl['semesters'] = baljan.models.Semester.objects.order_by('-start').all()
+    tpl['semesters'] = models.Semester.objects.order_by('-start').all()
     tpl['admin_semester_base_url'] = reverse('admin_semester')
     tpl['new_semester_failed'] = new_sem_failed
     if sem:
@@ -820,7 +813,7 @@ def shift_combination_form_pdf(request, sem_name):
 
 def _shift_combinations_pdf(request, sem_name, form):
     buf = BytesIO()
-    sem = baljan.models.Semester.objects.by_name(sem_name)
+    sem = models.Semester.objects.by_name(sem_name)
     sched = workdist.Scheduler(sem)
     pairs = sched.pairs_from_db()
     if form:
@@ -840,13 +833,13 @@ def _shift_combinations_pdf(request, sem_name, form):
 
 
 def price_list(request):
-    goods = baljan.models.Good.objects.order_by('position', 'title').all()
+    goods = models.Good.objects.order_by('position', 'title').all()
     return render(request, 'baljan/price_list.html', {"goods": goods})
 
 
 def user_calendar(request, private_key):
     user = User.objects.get(profile__private_key__exact=private_key)
-    cal = baljan.ical.for_user(user)
+    cal = ical.for_user(user)
     return HttpResponse(str(cal), content_type="text/calendar")
 
 

@@ -5,10 +5,10 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from baljan.models import Good
-from baljan.models import Order, OrderGood
-from baljan.pseudogroups import was_worker, was_board
-from baljan.util import get_logger
+from .models import Good, Order, OrderGood
+from .pseudogroups import was_worker, was_board
+from .util import get_logger
+
 
 log = get_logger('baljan.orders')
 prelog = get_logger('baljan.orders.pre')

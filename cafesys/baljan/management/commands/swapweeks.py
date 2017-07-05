@@ -5,8 +5,8 @@ from dateutil import rrule
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from baljan.models import ShiftSignup
-from baljan.util import get_logger
+from ...models import ShiftSignup
+from ...util import get_logger
 
 log = get_logger('baljan.commands.swapweeks')
 MORNING, AFTERNOON = 0, 2

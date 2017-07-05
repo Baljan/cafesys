@@ -4,7 +4,7 @@ from logging import getLogger
 
 from django.conf import settings
 
-from baljan.models import BalanceCode, OldCoffeeCard
+from .models import BalanceCode, OldCoffeeCard
 
 log = getLogger(__name__)
 

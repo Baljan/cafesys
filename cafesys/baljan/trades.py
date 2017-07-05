@@ -3,7 +3,7 @@ from datetime import date
 
 from django.db.models import Q
 
-from baljan.models import ShiftSignup, Shift, TradeRequest
+from .models import ShiftSignup, Shift, TradeRequest
 
 
 def _requests(user, wanted):

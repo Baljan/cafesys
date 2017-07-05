@@ -14,9 +14,8 @@ from django.utils.translation import string_concat
 from django.utils.translation import ugettext as _nl
 from django.utils.translation import ugettext_lazy as _
 
-import baljan.util
-from . import notifications
-from baljan.util import week_dates, year_and_week, random_string
+from . import notifications, util
+from .util import week_dates, year_and_week, random_string
 
 logger = getLogger(__name__)
 
@@ -264,18 +263,18 @@ class Semester(Made):
             help_text=_('if workers can sign up to work on this semester'))
 
     def date_range(self):
-        """Uses `baljan.util.date_range` internally."""
-        return baljan.util.date_range(self.start, self.end)
+        """Uses `util.date_range` internally."""
+        return util.date_range(self.start, self.end)
 
     def week_range(self):
-        """Uses `baljan.util.week_range` internally."""
-        return baljan.util.week_range(self.start, self.end)
+        """Uses `util.week_range` internally."""
+        return util.week_range(self.start, self.end)
 
     def range(self):
         return (self.start, self.end)
 
     def overlaps_with(self, sem):
-        return baljan.util.overlap(self.range(), sem.range())
+        return util.overlap(self.range(), sem.range())
 
     def past(self):
         return self.end < date.today()
@@ -361,7 +360,7 @@ def semester_post_save(sender, instance, **kwargs):
         sem.name, created_count, deleted_count, sem.signup_possible))
 
     # Create new shift combinations for job openings.
-    from baljan import workdist
+    from . import workdist
     sched = workdist.Scheduler(sem)
     try:
         sched.save()
@@ -412,7 +411,7 @@ class ShiftCombination(Made):
 
 class ShiftManager(models.Manager):
     def current_week(self):
-        return self.for_week(*baljan.util.year_and_week())
+        return self.for_week(*util.year_and_week())
 
     def for_week(self, year, week_number):
         dates = week_dates(year, week_number)
@@ -545,7 +544,7 @@ class Shift(Made):
         return self._url()
 
     def _url(self):
-        return ('day_shifts', (), {'day': baljan.util.to_iso8601(self.when)})
+        return ('day_shifts', (), {'day': util.to_iso8601(self.when)})
 
     def __str__(self):
         return "%s %s" % (self.ampm(i18n=False), self.when.strftime('%Y-%m-%d'))

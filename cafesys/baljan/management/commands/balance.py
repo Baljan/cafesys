@@ -6,8 +6,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 
-from baljan import ldapbackend
-from baljan.models import OldCoffeeCard, Good, BalanceCode
+from ... import ldapbackend
+from ...models import OldCoffeeCard, Good, BalanceCode
 
 _today = date.today()
 _klipp_worth = settings.KLIPP_WORTH

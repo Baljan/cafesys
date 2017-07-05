@@ -2,12 +2,11 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
 
-import baljan.actions
-import baljan.util
+from .actions import categories_and_actions
 
 
 def actions(request):
-    return {'action_categories': baljan.actions.categories_and_actions(request)}
+    return {'action_categories': categories_and_actions(request)}
 
 def analytics(request):
     return {'ANALYTICS_KEY': settings.ANALYTICS_KEY}

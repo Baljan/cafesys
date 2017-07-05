@@ -4,12 +4,12 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
-import baljan.models
+from . import models
 
 
 class SemesterForm(forms.ModelForm):
     class Meta:
-        model = baljan.models.Semester
+        model = models.Semester
         fields = (
             'name',
             'start',
@@ -28,7 +28,7 @@ class UserForm(forms.ModelForm):
 
 class ProfileForm(forms.ModelForm):
     class Meta:
-        model = baljan.models.Profile
+        model = models.Profile
         fields = (
                 'mobile_phone',
                 'show_profile',
@@ -68,7 +68,7 @@ class OrderForm(forms.Form):
     klaggSelected = forms.BooleanField(required=False)
 
 class RefillForm(forms.Form):
-    code = forms.CharField(max_length=baljan.models.BALANCE_CODE_LENGTH,
+    code = forms.CharField(max_length=models.BALANCE_CODE_LENGTH,
             label=_("code"),
             help_text=_("found on your value card"))
 

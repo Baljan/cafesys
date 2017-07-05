@@ -6,8 +6,8 @@ from django.template.defaultfilters import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from baljan.models import ShiftSignup, OnCallDuty
-from baljan.util import year_and_week
+from ..models import ShiftSignup, OnCallDuty
+from ..util import year_and_week
 
 register = template.Library()
 

@@ -9,7 +9,7 @@ from django.db.models import Count
 from pulp import GLPK_CMD
 from pulp import LpProblem, LpMinimize, lpSum, LpVariable, LpStatus, LpInteger
 
-from baljan.models import Shift, ShiftCombination
+from .models import Shift, ShiftCombination
 
 log = getLogger(__name__)
 

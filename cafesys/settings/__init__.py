@@ -90,9 +90,9 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
-                "baljan.ctx.actions",
-                "baljan.ctx.analytics",
-                "baljan.ctx.common",
+                "cafesys.baljan.ctx.actions",
+                "cafesys.baljan.ctx.analytics",
+                "cafesys.baljan.ctx.common",
             ]
         }
     },
@@ -117,7 +117,7 @@ ROOT_URLCONF = "cafesys.urls"
 INSTALLED_APPS = [
     # Project
     # Must come before admin app to override login template
-    'baljan',
+    'cafesys.baljan',
 
     # Django
     "django.contrib.admin",
@@ -211,7 +211,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_BEAT_SCHEDULE = {
     'update-stats': {
-        'task': 'baljan.tasks.update_stats',
+        'task': 'cafesys.baljan.tasks.update_stats',
         'schedule': STATS_REFRESH_RATE
     }
 }
