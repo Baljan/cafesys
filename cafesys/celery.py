@@ -4,9 +4,6 @@ import sys
 
 from celery import Celery
 
-# Add the cafesys package to the PYTHONPATH so we can reference the baljan
-# package as just baljan (instead of cafesys.baljan)
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cafesys.settings.development')

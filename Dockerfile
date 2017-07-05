@@ -3,7 +3,7 @@ FROM alpine:3.6
 # Kept separate to be substituted in next step
 ENV APP_ROOT=/app
 ENV DJANGO_SETTINGS_MODULE=cafesys.settings.production \
-    PYTHONPATH=${APP_ROOT}:${APP_ROOT}/cafesys:${PYTHONPATH} \
+    PYTHONPATH=${APP_ROOT}:${PYTHONPATH} \
     PYTHONUNBUFFERED=true
 
 # Build-only environment variables
