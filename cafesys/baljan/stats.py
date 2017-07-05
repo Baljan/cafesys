@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
 
-from baljan.models import Order, Semester
+from baljan.models import Semester
 from baljan.util import year_and_week, week_dates, adjacent_weeks
 
 log = getLogger(__name__)

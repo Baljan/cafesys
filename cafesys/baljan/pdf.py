@@ -2,7 +2,7 @@
 # FIXME: This module could need some attention and polishing.
 
 import os
-from io import BytesIO, StringIO
+from io import BytesIO
 from datetime import datetime
 
 from django.conf import settings

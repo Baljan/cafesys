@@ -446,7 +446,6 @@ class Scheduler(object):
 
 
     def save(self, clear_db=True):
-        sem = self.sem
         if clear_db:
             self.clear_db()
         if len(self.shifts):

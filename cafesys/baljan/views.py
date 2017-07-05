@@ -354,7 +354,7 @@ def credits(request):
                     try:
                         creditsmodule.manual_refill(entered_code, user)
                         tpl['used_card'] = True
-                    except creditsmodule.BadCode as e:
+                    except creditsmodule.BadCode:
                         tpl['invalid_card'] = True
             else:
                 logger.error('illegal task %r' % request.POST['task'])
@@ -685,7 +685,6 @@ def call_duty_week(request, year=None, week=None):
     disp_names = ["%s (%s)" % (name, inits) for name, inits in zip(names, initials)]
     disp_names = [htmlents(dn) for dn in disp_names]
     disp_names = ["&nbsp;".join(dn.split()) for dn in disp_names]
-    id_disp_names = dict(list(zip(uids, disp_names)))
 
     drag_ids = ['drag-%s' % i for i in initials]
     drags = []
@@ -696,7 +695,6 @@ def call_duty_week(request, year=None, week=None):
 
     if request.method == 'POST' and request.is_ajax():
         initial_users = dict(list(zip(initials, avails)))
-        dom_id_shifts = dict(list(zip(dom_ids, plan.shifts)))
         for dom_id, shift in zip(dom_ids, plan.shifts):
             old_users = User.objects.filter(oncallduty__shift=shift).distinct()
             new_users = []

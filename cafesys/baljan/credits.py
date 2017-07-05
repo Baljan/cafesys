@@ -78,7 +78,7 @@ def manual_refill(entered_code, by_user):
         use_code_on(bc, by_user)
         log.info('%s refilled %s using %s' % (by_user, bc.valcur(), bc))
         return True
-    except Exception as e:
+    except Exception:
         log.warning('manual_refill: %s tried bad code %s' % (by_user, entered_code), exc_auto=True)
         raise BadCode()
 

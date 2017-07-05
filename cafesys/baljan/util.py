@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
-import logging
 import random
 import re
-import sys
-import string
 from datetime import datetime, date
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.core.cache import cache
 from django.template import defaultfilters
-from django.utils.http import urlquote
 from html.entities import codepoint2name
 from itertools import chain, repeat
 

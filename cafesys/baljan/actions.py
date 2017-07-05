@@ -20,10 +20,6 @@ class Action(object):
 
 def categories_and_actions(request):
     user = request.user
-    if user.is_authenticated():
-        student = user.profile
-    else:
-        student = None
 
     current_site = Site.objects.get_current()
     domain = current_site.domain
