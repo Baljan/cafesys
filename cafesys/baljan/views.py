@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-from io import BytesIO, StringIO
-from logging import getLogger
 import json
 from datetime import date, datetime
 from email.mime.text import MIMEText
+from io import BytesIO, StringIO
+from logging import getLogger
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.contrib import auth
-from django.contrib import messages
-from django.contrib.auth.decorators import permission_required, login_required
-from django.contrib.auth.models import User, Group
+from django.contrib import auth, messages
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.models import Group, User
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
@@ -21,12 +20,13 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
-from . import credits as creditsmodule, forms, ical, kobra, models, pdf, planning, pseudogroups, search, stats, trades, workdist
+from . import credits as creditsmodule
+from . import (forms, ical, kobra, models, pdf, planning, pseudogroups, search,
+               stats, trades, workdist)
 from .forms import OrderForm
-from .util import adjacent_weeks, week_dates
-from .util import year_and_week, all_initials
-from .util import htmlents, valid_username, from_iso8601, available_for_call_duty
-
+from .util import (adjacent_weeks, all_initials, available_for_call_duty,
+                   from_iso8601, htmlents, valid_username, week_dates,
+                   year_and_week)
 
 logger = getLogger(__name__)
 
