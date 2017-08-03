@@ -25,7 +25,7 @@ from . import credits as creditsmodule, forms, ical, kobra, models, pdf, plannin
 from .forms import OrderForm
 from .util import adjacent_weeks, week_dates
 from .util import year_and_week, all_initials
-from .util import htmlents, valid_username
+from .util import htmlents, valid_username, from_iso8601, available_for_call_duty
 
 
 logger = getLogger(__name__)
@@ -249,9 +249,9 @@ def toggle_tradable(request, pk, redir):
 @login_required
 def day_shifts(request, day):
     tpl = {}
-    tpl['day'] = day = util.from_iso8601(day)
+    tpl['day'] = day = from_iso8601(day)
     tpl['shifts'] = shifts = models.Shift.objects.filter(when=day, enabled=True).order_by('span')
-    tpl['available_for_call_duty'] = avail_call_duty = util.available_for_call_duty()
+    tpl['available_for_call_duty'] = avail_call_duty = available_for_call_duty()
 
     worker_friends = []
     if request.user.is_authenticated():
