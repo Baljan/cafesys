@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from io import StringIO
+from io import BytesIO
 from datetime import date
 
 from django.contrib import admin
@@ -237,11 +237,11 @@ class RefillSeriesAdmin(admin.ModelAdmin):
                 _("There are used codes in one or more of the series."))
             return
 
-        buf = StringIO()
+        buf = BytesIO()
         pdf.refill_series(buf, queryset)
         buf.seek(0)
         datestr = date.today().strftime('%Y-%m-%d')
-        response = HttpResponse(buf.read(), mimetype="application/pdf")
+        response = HttpResponse(buf.read(), content_type="application/pdf")
         name = 'refill_series_%s_generated_at_%s.pdf' \
                 % ('-'.join([str(s.pk) for s in queryset]), datestr)
         response['Content-Disposition'] = 'attachment; filename=%s' % name
