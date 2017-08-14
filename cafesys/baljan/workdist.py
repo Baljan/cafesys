@@ -282,7 +282,7 @@ class PairAllocRing(object):
                 pass
             else:
                 if spins == allocs:
-                    log.error('work pair/shift mismatch', exc_auto=True)
+                    log.error('work pair/shift mismatch', exc_info=True)
                     raise self.Empty()
 
         pairalloc.assign_to(shift)
