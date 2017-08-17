@@ -7,9 +7,10 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from ...models import Semester, ShiftCombination
-from ...util import get_logger, asciilize, random_string
+from ...util import asciilize, random_string
 
-log = get_logger('baljan.commands.group')
+from logging import getLogger
+log = getLogger(__name__)
 
 
 def google_apps_identifier(user, ctx):

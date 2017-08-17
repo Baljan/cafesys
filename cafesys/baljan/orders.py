@@ -7,12 +7,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from .models import Good, Order, OrderGood
 from .pseudogroups import was_worker, was_board
-from .util import get_logger
 
+from logging import getLogger
 
-log = get_logger('baljan.orders')
-prelog = get_logger('baljan.orders.pre')
-rebatelog = get_logger('baljan.orders.rebate')
+log = getLogger('baljan.orders')
+prelog = getLogger('baljan.orders.pre')
+rebatelog = getLogger('baljan.orders.rebate')
 
 class Processed(object):
     default_reason = _("The order was processed.")

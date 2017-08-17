@@ -6,9 +6,8 @@ from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
 from django.core.paginator import Paginator
 
-from ...util import get_logger
-
-log = get_logger('baljan.commands.googlepaste')
+from logging import getLogger
+log = getLogger(__name__)
 
 class Command(BaseCommand):
     help = 'Utility for updating email addresses in a Google group.'

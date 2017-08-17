@@ -6,9 +6,10 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from ...models import ShiftSignup
-from ...util import get_logger
 
-log = get_logger('baljan.commands.swapweeks')
+from logging import getLogger
+log = getLogger(__name__)
+
 MORNING, AFTERNOON = 0, 2
 SPANS = [MORNING, AFTERNOON]
 
