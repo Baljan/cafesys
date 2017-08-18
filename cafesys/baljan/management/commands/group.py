@@ -144,63 +144,69 @@ class Command(BaseCommand):
     args = ''
     help = 'Do stuff with and show information about groups'
 
-    option_list = BaseCommand.option_list + (
-        make_option('-f', '--from',
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-f', '--from',
             type='string',
             action='append',
             metavar='GROUP',
             dest='from_groups',
             default=[],
-            help='From groups. Used with -d/--do.',
-        ),
-        make_option('-t', '--to',
+            help='From groups. Used with -d/--do.'
+        )
+        parser.add_argument(
+            '-t', '--to',
             type='string',
             action='append',
             metavar='GROUP',
             dest='to_groups',
             default=[],
-            help='To groups. Used with -d/--do.',
-        ),
-        make_option('-d', '--do',
+            help='To groups. Used with -d/--do.'
+        )
+        parser.add_argument(
+            '-d', '--do',
             type='string',
             action='append',
             metavar='TASK',
             dest='do',
             default=[],
-            help='Tasks to do. Choices: %s.' % ", ".join(list(tasks.keys())),
-        ),
-        make_option('-l', '--list',
+            help='Tasks to do. Choices: %s.' % ", ".join(list(tasks.keys()))
+        )
+        parser.add_argument(
+            '-l', '--list',
             action='store_true',
             dest='list_groups',
             default=False,
-            help='List groups.',
-        ),
-        make_option('-a', '--add',
+            help='List groups.'
+        )
+        parser.add_argument(
+            '-a', '--add',
             type='string',
             action='store',
             metavar='GROUP',
             dest='add_group',
             default=None,
-            help='Add group to system.',
-        ),
-        make_option('-i', '--identifier',
+            help='Add group to system.'
+        )
+        parser.add_argument(
+            '-i', '--identifier',
             type='string',
             action='store',
             metavar='IDENTIFIER',
             dest='identifier',
             default='username',
             help='Set identifier to use and/or show. Choices are: %s (default: %s).' % (
-                ", ".join(list(id_funs.keys())), "%default"),
-        ),
-        make_option('-s', '--semester',
+                ", ".join(list(id_funs.keys())), "%default")
+        )
+        parser.add_argument(
+            '-s', '--semester',
             type='string',
             action='store',
             metavar='SEMESTER',
             dest='semester',
             default=None,
-            help='Semester (used by some tasks)',
-        ),
-    )
+            help='Semester (used by some tasks)'
+        )
 
     def handle(self, *args, **options):
         valid = True
