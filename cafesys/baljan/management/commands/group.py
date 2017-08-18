@@ -147,7 +147,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '-f', '--from',
-            type='string',
+            type=str,
             action='append',
             metavar='GROUP',
             dest='from_groups',
@@ -156,7 +156,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '-t', '--to',
-            type='string',
+            type=str,
             action='append',
             metavar='GROUP',
             dest='to_groups',
@@ -165,7 +165,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '-d', '--do',
-            type='string',
+            type=str,
             action='append',
             metavar='TASK',
             dest='do',
@@ -181,7 +181,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '-a', '--add',
-            type='string',
+            type=str,
             action='store',
             metavar='GROUP',
             dest='add_group',
@@ -190,7 +190,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '-i', '--identifier',
-            type='string',
+            type=str,
             action='store',
             metavar='IDENTIFIER',
             dest='identifier',
@@ -200,7 +200,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '-s', '--semester',
-            type='string',
+            type=str,
             action='store',
             metavar='SEMESTER',
             dest='semester',
