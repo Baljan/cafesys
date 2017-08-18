@@ -9,10 +9,16 @@ from logging import getLogger
 log = getLogger(__name__)
 
 class Command(BaseCommand):
-    args = 'SEMESTER'
     help = 'Set workers to everyone signed up for a shift in SEMESTER.'
 
     def add_arguments(self, parser):
+        # Positional arguments
+        parser.add_argument(
+            'semester',
+            nargs='+',
+            type=str
+        )
+        # Named (optional) arguments
         parser.add_argument(
             '-g', '--group',
             type=str,
@@ -28,13 +34,10 @@ class Command(BaseCommand):
         if not valid:
             raise CommandError('invalid config')
 
-        if len(args) != 1:
-            raise CommandError('usage: updateworkers [-g GROUP] SEMESTER')
-
         try:
-            semester = Semester.objects.by_name(args[0])
+            semester = Semester.objects.by_name(options['semester'])
         except Semester.DoesNotExist:
-            raise CommandError('bad semester: %s' % args[0])
+            raise CommandError('bad semester: %s' % options['semester'])
 
         try:
             worker_group = Group.objects.get(name__exact=options["group"])

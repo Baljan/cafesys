@@ -113,10 +113,16 @@ task_funs = {
 }
 
 class Command(BaseCommand):
-    args = 'TASK'
     help = 'List, show, or update balance for accounts.'
 
     def add_arguments(self, parser):
+        # Positional arguments
+        parser.add_argument(
+            'task',
+            nargs='+',
+            type=str
+        )
+        # Named (optional) arguments
         parser.add_argument(
             '-f', '--from',
             type=str,
@@ -155,15 +161,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         task_str = "valid tasks are: %s" % ", ".join(list(task_funs.keys()))
 
-        if len(args) != 1:
-            raise CommandError('need one TASK, got %r. %s' % (
-                args,
-                task_str,
-            ))
-
-        if args[0] not in task_funs:
+        if options['task'] not in task_funs:
             raise CommandError('invalid task %s. %s' % (
-                args[0],
+                options['task'],
                 task_str,
             ))
 
@@ -186,7 +186,7 @@ class Command(BaseCommand):
         else:
             print(("%s user(s)" % user_count))
 
-        task_name = args[0]
+        task_name = options['task']
         task_fun = task_funs[task_name]
         for user in users:
             task_fun(user)

@@ -10,7 +10,6 @@ log = getLogger(__name__)
 class Command(BaseCommand):
     help = 'Utility for updating email addresses in a Google group.'
     _page_size = 25
-    _default_group = settings.WORKER_GROUP
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -19,8 +18,8 @@ class Command(BaseCommand):
             action='store',
             metavar='PAGE_SIZE',
             dest='page_size',
-            default=_page_size,
-            help='Page size (default: %s)' % _page_size
+            default=self._page_size,
+            help='Page size (default: %s)' % self._page_size
         )
         parser.add_argument(
             '-g', '--group',

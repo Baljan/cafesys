@@ -8,10 +8,17 @@ from ...models import Semester
 
 
 class Command(BaseCommand):
-    args = 'semester name'
     help = 'Show worker statistics for semestser.'
+    missing_args_message = "no semester name given."
 
     def add_arguments(self, parser):
+        # Positional arguments
+        parser.add_argument(
+            'semester',
+            nargs='+',
+            type=str
+        )
+        # Named (optional) arguments
         parser.add_argument(
             '-n', '--names-limit',
             type=str,
@@ -51,10 +58,8 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        if not len(args) == 1:
-            raise CommandError('no semester name given')
 
-        semester_name = args[0]
+        semester_name = options['semester']
         try:
             semester = Semester.objects.get(name=semester_name)
         except:
