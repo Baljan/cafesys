@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from optparse import make_option
 
 from django.conf import settings
 from django.contrib.auth.models import User, Group
@@ -13,16 +12,16 @@ class Command(BaseCommand):
     args = 'SEMESTER'
     help = 'Set workers to everyone signed up for a shift in SEMESTER.'
 
-    option_list = BaseCommand.option_list + (
-        make_option('-g', '--group',
-            type='string',
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-g', '--group',
+            type=str,
             action='store',
             metavar='GROUP',
             dest='group',
             default=settings.WORKER_GROUP,
             help='Worker group (default: %s)' % settings.WORKER_GROUP,
-        ),
-    )
+        )
 
     def handle(self, *args, **options):
         valid = True

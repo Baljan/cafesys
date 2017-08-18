@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from datetime import date
-from optparse import make_option
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
@@ -12,40 +11,43 @@ class Command(BaseCommand):
     args = 'semester name'
     help = 'Show worker statistics for semestser.'
 
-    option_list = BaseCommand.option_list + (
-        make_option('-n', '--names-limit',
-            type='string',
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-n', '--names-limit',
+            type=str,
             action='store',
             metavar='LIMIT',
             dest='names_limit',
             default='999',
             help='Do not show more than these many names for a "level."'
-        ),
-        make_option('-u', '--upper-limit',
-            type='string',
+        )
+        parser.add_argument(
+            '-u', '--upper-limit',
+            type=str,
             action='store',
             metavar='UPPER',
             dest='upper_limit',
             default='999',
             help='Do not show workers with more shift signups.'
         ),
-        make_option('-f', '--future-count',
-            type='string',
+        parser.add_argument(
+            '-f', '--future-count',
+            type=str,
             action='store',
             metavar='FUTURE',
             dest='future_count',
             default='',
             help='Show only users that have these many shifts in the future.'
-        ),
-        make_option('-t', '--type',
-            type='string',
+        )
+        parser.add_argument(
+            '-t', '--type',
+            type=str,
             action='store',
             metavar='TYPE',
             dest='type',
             default='text',
             help='Output type. Can be text or csv.'
-        ),
-    )
+        )
 
 
     def handle(self, *args, **options):

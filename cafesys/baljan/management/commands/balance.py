@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from datetime import date, datetime
-from optparse import make_option
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -117,38 +116,41 @@ class Command(BaseCommand):
     args = 'TASK'
     help = 'List, show, or update balance for accounts.'
 
-    option_list = BaseCommand.option_list + (
-        make_option('-f', '--from',
-            type='string',
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-f', '--from',
+            type=str,
             action='append',
             metavar='GROUP',
             dest='from_groups',
             default=[],
-            help='From groups. Used with -d/--do.',
-        ),
-        make_option('-a', '--all',
+            help='From groups. Used with -d/--do.'
+        )
+        parser.add_argument(
+            '-a', '--all',
             action='store_true',
             dest='all_users',
             default=False,
-            help='Apply for all users.',
-        ),
-        make_option('-u', '--user',
-            type='string',
+            help='Apply for all users.'
+        )
+        parser.add_argument(
+            '-u', '--user',
+            type=str,
             action='append',
             metavar='USER',
             dest='users',
             default=[],
-            help='Apply for user.',
-        ),
-        make_option('-s', '--ordered-since',
-            type='string',
+            help='Apply for user.'
+        )
+        parser.add_argument(
+            '-s', '--ordered-since',
+            type=str,
             action='store',
             metavar='YYYY-MM-DD',
             dest='ordered_since',
             default=False,
-            help='Apply for users that have ordered since a date.',
-        ),
-    )
+            help='Apply for users that have ordered since a date.'
+        )
 
     def handle(self, *args, **options):
         task_str = "valid tasks are: %s" % ", ".join(list(task_funs.keys()))

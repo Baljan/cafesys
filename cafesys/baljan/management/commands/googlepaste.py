@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from optparse import make_option
-
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
@@ -14,24 +12,25 @@ class Command(BaseCommand):
     _page_size = 25
     _default_group = settings.WORKER_GROUP
 
-    option_list = BaseCommand.option_list + (
-        make_option('-n', '--page-size',
-            type='int',
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-n', '--page-size',
+            type=int,
             action='store',
             metavar='PAGE_SIZE',
             dest='page_size',
             default=_page_size,
-            help='Page size (default: %s)' % _page_size,
-        ),
-        make_option('-g', '--group',
-            type='string',
+            help='Page size (default: %s)' % _page_size
+        )
+        parser.add_argument(
+            '-g', '--group',
+            type=str,
             action='store',
             metavar='GROUP',
             dest='group',
             default=settings.WORKER_GROUP,
             help='Worker group (default: %s)' % settings.WORKER_GROUP,
-        ),
-    )
+        )
 
     def handle(self, *args, **options):
         page_size = int(options["page_size"])
