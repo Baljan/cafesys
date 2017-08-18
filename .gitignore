@@ -3,3 +3,4 @@
 cafesys.db
 cafesys/collected-static
 *.pyc
+.idea/

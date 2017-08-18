@@ -97,7 +97,7 @@ def task_list(from_groups, to_groups, opts):
         ctx["combinations"] = ShiftCombination.objects.filter(semester=sem).distinct()
     print("\n".join(id(m, ctx) for m in users))
 
-@transaction.commit_manually
+@transaction.atomic
 def task_add(from_groups, to_groups, opts):
     try:
         id, sort_order = id_funs[opts['identifier']]
@@ -113,9 +113,9 @@ def task_add(from_groups, to_groups, opts):
         [user.groups.add(g) for g in to_groups]
         sys.stderr.write('added %s to %s\n' % (
             id(user, ctx), ", ".join(to_group_names)))
-    transaction.commit()
 
-@transaction.commit_manually
+
+@transaction.atomic
 def task_delete(from_groups, to_groups, opts):
     try:
         id, sort_order = id_funs[opts['identifier']]
@@ -133,7 +133,6 @@ def task_delete(from_groups, to_groups, opts):
         [user.groups.remove(g) for g in from_groups]
         sys.stderr.write('removed %s from %s\n' % (
             id(user, ctx), ", ".join(from_group_names)))
-    transaction.commit()
 
 tasks = {
     'list': task_list,

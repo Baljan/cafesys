@@ -50,7 +50,7 @@ class Command(BaseCommand):
                 new2.save()
                 s1.delete()
                 s2.delete()
-        with transaction.commit_on_success():
+        with transaction.atomic():
             _map_signups(swap_signups, dates_1, dates_2)
 
 
