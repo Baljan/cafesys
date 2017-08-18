@@ -15,7 +15,6 @@ class Command(BaseCommand):
         # Positional arguments
         parser.add_argument(
             'semester',
-            nargs='+',
             type=str
         )
         # Named (optional) arguments

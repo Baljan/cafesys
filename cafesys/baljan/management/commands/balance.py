@@ -119,7 +119,6 @@ class Command(BaseCommand):
         # Positional arguments
         parser.add_argument(
             'task',
-            nargs='+',
             type=str
         )
         # Named (optional) arguments
