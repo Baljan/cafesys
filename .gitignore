@@ -4,3 +4,7 @@ cafesys.db
 cafesys/collected-static
 *.pyc
 .idea/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid

@@ -43,21 +43,36 @@ brew install python3 postgresql glpk
 ```
 *FIXME:* the list of Homebrew packages is probably incomplete.
 
-Create a virtualenv with a Python 3 interpreter, using your preferred method (`virtualenvwrapper` etc.) and activate it.
+Create a virtualenv with a Python 3 interpreter and activate it:
+```sh
+# Install virtualenv if not already installed
+pip install virtualenv
+
+# Setup and activate virtualenv
+virtualenv -p python3 .venv
+source .venv/bin/activate
+```
+
 Then install the needed Python dependencies:
 ```sh
 pip install -r requirements.txt
 ```
 
-(optional) Start the `postgres` and `redis` services with Docker:
+Start the `postgres` and `redis` services with Docker:
 ```sh
 cp .env.docker.tmpl .env.docker
 docker-compose up -d postgres redis
 ```
 
-Start the Django development server and Celery daemons. You will need to open at least three shell sessions.
+The first time, run in another shell session:
 ```sh
 cp .env.tmpl .env
+./manage.py migrate
+```
+
+Start the Django development server and Celery daemons. You will need to open at least three shell sessions.
+Make sure to activate the virtualenv with `source .venv/bin/activate` in every new shell session.
+```sh
 ./manage.py runserver
 celery -A cafesys beat
 celery -A cafesys worker
