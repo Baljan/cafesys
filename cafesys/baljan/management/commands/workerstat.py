@@ -102,7 +102,7 @@ class Command(BaseCommand):
                             signup_count, w.first_name, w.last_name, w.username)
                     else:
                         assert False, "bad type: %s" % options['type']
-                    print(readable.encode('utf-8'))
+                    print(readable)
             else:
                 if options['type'] == 'text':
                     print("%stoo many to print" % indent)
