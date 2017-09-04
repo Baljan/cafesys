@@ -79,3 +79,20 @@ celery -A cafesys worker
 ```
 
 This environment will use the `.env` file for environment variables, **not** `.env.docker`.
+
+### Vagrant
+Start by downloading and installing Vagrant from https://www.vagrantup.com/.
+
+Open a terminal in the root of the git repository and run `vagrant up`. This process may take a while, but please be patient.
+
+Migrate the database by running manage.py locally:
+```sh
+./manage.py migrate
+```
+
+Start the server on the interface `0.0.0.0` by running:
+```sh
+./manage.py runserver 0.0.0.0:8000
+```
+
+Any additional management command you run will be executed in the Vagrant virtual environment.
