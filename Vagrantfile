@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
     pip3 install virtualenv
     cd /vagrant
     cp -n .env.tmpl .env
-    virtualenv -p python3.6 .venv
+    virtualenv -p python3.6 .venv --always-copy
   SHELL
 
   config.vm.provision "shell", run: 'always', inline: <<-SHELL
