@@ -2,6 +2,8 @@
 # vi: set ft=ruby :
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
+  config.vm.network "forwarded_port", guest: 8000, host: 8000
+
 
   config.vm.provision "docker" do |d|
     d.run "postgres", args: "-p 5432:5432 --env-file /vagrant/.env.docker.tmpl"
@@ -22,7 +24,5 @@ Vagrant.configure("2") do |config|
     cd /vagrant
     source .venv/bin/activate
     pip3 install -r requirements.txt
-      ./manage.py migrate
-      ./manage.py runserver
   SHELL
 end
