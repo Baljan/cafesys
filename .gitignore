@@ -8,3 +8,6 @@ cafesys/collected-static
 # Celery
 celerybeat-schedule
 celerybeat.pid
+
+# Vagrant
+.vagrant/
