@@ -253,6 +253,12 @@ def day_shifts(request, day):
     tpl['shifts'] = shifts = models.Shift.objects.filter(when=day, enabled=True).order_by('span')
     tpl['available_for_call_duty'] = avail_call_duty = available_for_call_duty()
 
+    worker_friends = []
+    if request.user.is_authenticated():
+        friends = request.user.profile.self_and_friend_users()
+        worker_friends = [f for f in friends if f.has_perm('baljan.self_and_friend_signup')]
+    tpl['worker_friends'] = worker_friends
+
     if request.method == 'POST':
         assert request.user.is_authenticated()
         span = int(request.POST['span'])
@@ -269,7 +275,9 @@ def day_shifts(request, day):
             assert signup_user in avail_call_duty
             signup = models.OnCallDuty(user=signup_user, shift=shift)
         elif signup_for == 'work':
+            allowed_uids = [f.pk for f in worker_friends]
             assert shift.semester.signup_possible
+            assert uid in allowed_uids
             assert shift.shiftsignup_set.all().count() < 2
             assert signup_user not in shift.signed_up()
             signup = models.ShiftSignup(user=signup_user, shift=shift)
