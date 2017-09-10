@@ -22,7 +22,7 @@ def full_identifier(user, ctx):
     name = user.get_full_name()
     uname = user.username
     full = "%s, %s" % (name, uname)
-    return full.encode('latin-1')
+    return full
 
 def csv_identifier(user, ctx):
     fields = [
@@ -50,13 +50,13 @@ def csv_identifier(user, ctx):
         fields.append(comb_name)
 
     csv = ",".join(map(str, fields))
-    return csv.encode('utf-8')
+    return csv
 
 
 id_funs = {
     'username': (lambda u, ctx: "%s" % u.username, ('username',)),
     'email': (lambda u, ctx: "%s" % u.email, ('email',)),
-    'name': (lambda u, ctx: u.get_full_name().encode('latin-1'), ('first_name', 'last_name')),
+    'name': (lambda u, ctx: u.get_full_name(), ('first_name', 'last_name')),
     'googleapps': (google_apps_identifier, ('first_name', 'last_name')),
     'full': (full_identifier, ('last_name', 'first_name')),
     'csv': (csv_identifier, ('first_name', 'last_name', 'username')),
