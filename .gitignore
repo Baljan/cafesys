@@ -9,5 +9,7 @@ cafesys/collected-static
 celerybeat-schedule
 celerybeat.pid
 
+# Vagrant
+.vagrant/
 .venv/
 ubuntu-xenial-16.04-cloudimg-console.log

@@ -79,3 +79,22 @@ celery -A cafesys worker
 ```
 
 This environment will use the `.env` file for environment variables, **not** `.env.docker`.
+
+### Vagrant
+Start by downloading and installing Vagrant from https://www.vagrantup.com/.
+
+Open a terminal in the root of the git repository and run `vagrant up`. This process may take a while, but please be patient.
+
+Now you have a virtual machine setup for the entire Baljan stack. This stack can be accessed using a wrapper 
+around `manage.py` named `vmanage.py`. This means that the normal commands has been replaced with the wrapped
+version. As a consequence of the wrapper implementation, it introduces some delay before every command is executed.
+
+Migrate the database by running manage.py locally:
+```sh
+python vmanage.py migrate
+```
+
+Start the server on the interface `0.0.0.0` by running:
+```sh
+python vmanage.py runserver 0.0.0.0:8000
+```
