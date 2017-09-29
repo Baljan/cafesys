@@ -45,72 +45,68 @@ Här kan ni skicka beställningar till Baljan! <br>Saknar ni något fält eller 
                 	{% if form.pickupNumber.errors %}<p> <FONT COLOR ="red"> {{ form.pickupNumber.errors }}</FONT> </p> {% endif %}
 
 		<script>
-		  function calcSum(highlight) {
-		    highlight = typeof highlight !== 'undefined' ? highlight : true;
-		    var userInput = 30*document.getElementById('id_numberOfJochen').value + 6*document.getElementById('id_numberOfCoffee').value
-                                    + 6*document.getElementById('id_numberOfTea').value + 5*document.getElementById('id_numberOfSoda').value
-                                    + 6*document.getElementById('id_numberOfKlagg').value;
+            function calcSum(highlight) {
+                highlight = typeof highlight !== 'undefined' ? highlight : true;
+                var userInput = 30*document.getElementById('id_numberOfJochen').value + 6*document.getElementById('id_numberOfCoffee').value
+                    + 6*document.getElementById('id_numberOfTea').value + 5*document.getElementById('id_numberOfSoda').value
+                    + 6*document.getElementById('id_numberOfKlagg').value;
 		    document.getElementById('currentSum').innerHTML = userInput;
-                    document.getElementById("id_orderSum").value = userInput;
+                document.getElementById("id_orderSum").value = userInput;
+                if (highlight) {
+                    $("#currentSum").effect("highlight");
+                }
+            }
+            window.onload=function justdoit(){
+                $("#id_sameAsOrderer").live('change',function(){
+                    $("#id_pickupName").effect("highlight");
+                    $("#id_pickupEmail").effect("highlight");
+                    $("#id_pickupNumber").effect("highlight");
 
-                    if (highlight) {
-		      $("#currentSum").effect("highlight");
-		    }
-		  }
-
-
-		window.onload=function justdoit(){
-
-			$("#id_sameAsOrderer").live('change',function(){
-                        	$("#id_pickupName").effect("highlight");
-                        	$("#id_pickupEmail").effect("highlight");
-                        	$("#id_pickupNumber").effect("highlight");
-
- 				if($(this).is(':checked')){
-                                	document.getElementById('id_pickupName').value=document.getElementById('id_orderer').value
-                                	document.getElementById('id_pickupName').readOnly=true
-                                	document.getElementById('id_pickupEmail').value=document.getElementById('id_ordererEmail').value
-                                	document.getElementById('id_pickupEmail').readOnly=true
-                                	document.getElementById('id_pickupNumber').value=document.getElementById('id_phoneNumber').value
-                                	document.getElementById('id_pickupNumber').readOnly=true
-                        	}
-                       	 	else{
-                                	document.getElementById('id_pickupName').value=""
-                                	document.getElementById('id_pickupName').readOnly=false
-                                	document.getElementById('id_pickupEmail').value=""
-                                	document.getElementById('id_pickupEmail').readOnly=false
-                                	document.getElementById('id_pickupNumber').value=""
-                                	document.getElementById('id_pickupNumber').readOnly=false
-                        	}
-                     	});
+                    if($(this).is(':checked')){
+                        document.getElementById('id_pickupName').value=document.getElementById('id_orderer').value;
+                        document.getElementById('id_pickupName').readOnly=true;
+                        document.getElementById('id_pickupEmail').value=document.getElementById('id_ordererEmail').value;
+                        document.getElementById('id_pickupEmail').readOnly=true;
+                        document.getElementById('id_pickupNumber').value=document.getElementById('id_phoneNumber').value;
+                        document.getElementById('id_pickupNumber').readOnly=true;
+                    }
+                    else{
+                        document.getElementById('id_pickupName').value="";
+                        document.getElementById('id_pickupName').readOnly=false;
+                        document.getElementById('id_pickupEmail').value="";
+                        document.getElementById('id_pickupEmail').readOnly=false;
+                        document.getElementById('id_pickupNumber').value="";
+                        document.getElementById('id_pickupNumber').readOnly=false;
+                    }
+                });
 
 			$('#id_orderer').bind('input', function() {
-                              	document.getElementById('id_pickupName').readOnly=true
-                                document.getElementById('id_pickupEmail').readOnly=true
-                                document.getElementById('id_pickupNumber').readOnly=true
-				if(document.getElementById('id_sameAsOrderer').checked){
-                               		document.getElementById('id_pickupName').value=document.getElementById('id_orderer').value
-				}
-                        });
-                        $('#id_ordererEmail').bind('input', function() {
-		                document.getElementById('id_pickupName').readOnly=true
-                                document.getElementById('id_pickupEmail').readOnly=true
-                                document.getElementById('id_pickupNumber').readOnly=true
-				if(document.getElementById('id_sameAsOrderer').checked){
-                          	      	document.getElementById('id_pickupEmail').value=document.getElementById('id_ordererEmail').value
-				}
-                        });
-                        $('#id_phoneNumber').bind('input', function() {
-		                document.getElementById('id_pickupName').readOnly=true
-                                document.getElementById('id_pickupEmail').readOnly=true
-                                document.getElementById('id_pickupNumber').readOnly=true
-				if(document.getElementById('id_sameAsOrderer').checked){
-                        	        document.getElementById('id_pickupNumber').value=document.getElementById('id_phoneNumber').value
-				}
-                        });
-			}
+                document.getElementById('id_pickupName').readOnly=true;
+                document.getElementById('id_pickupEmail').readOnly=true;
+                document.getElementById('id_pickupNumber').readOnly=true;
+                if(document.getElementById('id_sameAsOrderer').checked){
+                    document.getElementById('id_pickupName').value=document.getElementById('id_orderer').value;
+                }
+            });
+                $('#id_ordererEmail').bind('input', function() {
+                    document.getElementById('id_pickupName').readOnly=true;
+                    document.getElementById('id_pickupEmail').readOnly=true;
+                    document.getElementById('id_pickupNumber').readOnly=true;
 
-        	</script>
+                    if(document.getElementById('id_sameAsOrderer').checked){
+                        document.getElementById('id_pickupEmail').value=document.getElementById('id_ordererEmail').value;
+                    }
+                });
+                $('#id_phoneNumber').bind('input', function() {
+                    document.getElementById('id_pickupName').readOnly=true;
+                    document.getElementById('id_pickupEmail').readOnly=true;
+                    document.getElementById('id_pickupNumber').readOnly=true;
+                    if(document.getElementById('id_sameAsOrderer').checked){
+                        document.getElementById('id_pickupNumber').value=document.getElementById('id_phoneNumber').value;
+                    }
+                });
+            }
+        </script>
 	</div> <!-- End pickupInfo -->
 
 
@@ -130,7 +126,7 @@ Här kan ni skicka beställningar till Baljan! <br>Saknar ni något fält eller 
                 		}
         			else{
                 			$("#jochen").hide("fast");
-        				document.getElementById('id_numberOfJochen').value=""
+        				document.getElementById('id_numberOfJochen').value="";
 			                calcSum();
 
 				}
@@ -143,7 +139,7 @@ Här kan ni skicka beställningar till Baljan! <br>Saknar ni något fält eller 
                			}
         			else{
         				$("#coffee").hide("fast");
-					document.getElementById('id_numberOfCoffee').value=""
+					document.getElementById('id_numberOfCoffee').value="";
 			                calcSum();
        			       	}
 			});
@@ -155,7 +151,7 @@ Här kan ni skicka beställningar till Baljan! <br>Saknar ni något fält eller 
         			}
         			else{
         				$("#tea").hide("fast");
-                                        document.getElementById('id_numberOfTea').value=""
+                                        document.getElementById('id_numberOfTea').value="";
                                         calcSum();
         			}
 			});
@@ -167,7 +163,7 @@ Här kan ni skicka beställningar till Baljan! <br>Saknar ni något fält eller 
         			}
         			else{
        					$("#soda").hide("fast");
-					document.getElementById('id_numberOfSoda').value=""
+					document.getElementById('id_numberOfSoda').value="";
 			                calcSum();
 				}
 			});
@@ -179,7 +175,7 @@ Här kan ni skicka beställningar till Baljan! <br>Saknar ni något fält eller 
         			}
         			else{
         				$("#klagg").hide("fast");
-					document.getElementById('id_numberOfKlagg').value=""
+					document.getElementById('id_numberOfKlagg').value="";
                                         calcSum();
         			}
 
@@ -346,7 +342,7 @@ Här kan ni skicka beställningar till Baljan! <br>Saknar ni något fält eller 
 				<span class="ui-icon ui-icon-info" style="float:left"></span>
 				Ni kommer få en bekräftelse att er beställning är tillagd när styrelsen har tagit emot den.
 			</div> <!-- End deliveryInfo -->
-	<input type="submit" value="Skicka beställning" onclick="return validate()"/>
+	<input type="submit" value="Skicka beställning"/>
 	</div> <!-- End timeAndDate -->
 
 </form>

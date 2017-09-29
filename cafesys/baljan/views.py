@@ -107,7 +107,7 @@ def orderFromUs(request):
             if sameAsOrderer:
                 ordererIsSame = "Samma som best&auml;llare"
             else:
-                ordererIsSame = "Namn: "+pickupName+"<br>Email: "+pickupEmail+"<br>Telefon: "+pickupNumber+'<br>'
+                ordererIsSame = "Namn: "+pickupName+"<br>Email: "+pickupEmail+"<br>Telefon: "+pickupNumber+"<br>"
             items = ""
             # String for calendar summary
             itemsDes = ""
@@ -134,7 +134,7 @@ def orderFromUs(request):
             if orderSum:
                 orderSum += " SEK"
             else:
-                orderSum = "0";
+                orderSum = "0"
 
             if other:
                  pass
@@ -198,11 +198,8 @@ END:VCALENDAR'''
             return HttpResponseRedirect("bestallning")
     else:
         form = OrderForm()
-        return render(request,'baljan/orderForm.html', {
-            'form':form,
-        })
 
-    return render(request, 'baljan/price_list.html', {"goods": goods})
+    return render(request, 'baljan/orderForm.html', {'form': form,})
 
 
 @login_required
