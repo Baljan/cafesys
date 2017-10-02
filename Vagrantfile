@@ -13,15 +13,12 @@ Vagrant.configure("2") do |config|
     add-apt-repository -y ppa:jonathonf/python-3.6
     apt-get update
     apt-get install -y python3.6 python3.6-dev python3-pip libpq-dev build-essential libssl-dev g++ libffi-dev python3-dev pypy
-    pip3 install virtualenv
     cd /vagrant
     cp -n .env.tmpl .env
-    virtualenv -p python3.6 .venv --always-copy
   SHELL
 
   config.vm.provision "shell", run: 'always', inline: <<-SHELL
     cd /vagrant
-    source .venv/bin/activate
-    pip3 install -r requirements.txt
+    python3.6 -m pip install -r requirements.txt
   SHELL
 end
