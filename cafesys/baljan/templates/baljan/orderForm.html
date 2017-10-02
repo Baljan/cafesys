@@ -18,32 +18,20 @@ Här kan ni skicka beställningar till Baljan! <br>Saknar ni något fält eller 
 	{% csrf_token %}
 	<div class ="contactInfo">
                 <h2> Kontaktuppgiter </h2>
-                <p> Namn: <br>  {{ form.orderer }} </p>
-                {% if form.orderer.errors %}<p><FONT COLOR="red"> {{ form.orderer.errors}} </FONT> </p> {% endif %}
 
-                <p> Email: <br> {{ form.ordererEmail }}</p>
-                {% if form.ordererEmail.errors %} <p><FONT COLOR = "red"> {{ form.ordererEmail.errors }}</FONT> </p> {% endif %}
-
-                <p> Telefon:<br>{{form.phoneNumber}}
-                {% if form.phoneNumber.errors %}<p> <FONT COLOR ="red"> {{ form.phoneNumber.errors }}</FONT> </p> {% endif %}
-
-                <p> Sektion/Förening: <br> {{form.association}}
-                {% if form.association.errors %}<p> <FONT COLOR = "red"> {{ form.association.errors}}</FONT> </p> {% endif %}
+                {% field form.orderer %}
+                {% field form.ordererEmail %}
+                {% field form.phoneNumber %}
+                {% field form.association %}
 	</div> <!-- End contactInfo -->
 
 	<div class="pickupInfo">
         	<h2> Kontaktuppgiter uthämtare</h2>
         	        <p> Samma som beställare:{{form.sameAsOrderer}}</p>
 
-			<p> Namn: <br>  {{ form.pickupName }} </p>
-               		{% if form.pickupName.errors %}<p><FONT COLOR="red"> {{ form.pickupName.errors}} </FONT> </p> {% endif %}
-
-                	<p> Email: <br> {{ form.pickupEmail }}</p>
-                	{% if form.pickupEmail.errors %} <p><FONT COLOR = "red"> {{ form.pickupEmail.errors }}</FONT> </p> {% endif %}
-
-                	<p> Telefon:<br>{{form.pickupNumber}}
-                	{% if form.pickupNumber.errors %}<p> <FONT COLOR ="red"> {{ form.pickupNumber.errors }}</FONT> </p> {% endif %}
-
+            {% field form.pickupName %}
+            {% field form.pickupEmail %}
+            {% field form.pickupNumber %}
 		<script>
 		  function calcSum(highlight) {
 		    highlight = typeof highlight !== 'undefined' ? highlight : true;

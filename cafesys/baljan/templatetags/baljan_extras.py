@@ -103,3 +103,8 @@ week.needs_autoescape = True
 def monthname(num, autoescape=None):
     return _(date(2000, num, 1).strftime('%B'))
 monthname.needs_autoescape = True
+
+
+@register.inclusion_tag('baljan/_field.html')
+def field(data):
+    return {'field': data}
