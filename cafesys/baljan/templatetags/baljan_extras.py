@@ -108,3 +108,25 @@ monthname.needs_autoescape = True
 @register.inclusion_tag('baljan/_field.html')
 def field(data):
     return {'field': data}
+
+
+@register.inclusion_tag('baljan/_labeled_field.html')
+def labeled_field(data):
+    return {'field': data}
+
+
+@register.inclusion_tag('baljan/_order_item.html')
+def order_item(form, field_name):
+    limit_field = form[field_name + 'Selected']
+    input_field = form['numberOf' + field_name.title()]
+
+    if limit_field.value is True:
+        display = 'block'
+    else:
+        display = 'none'
+
+    return {
+        'field_name': field_name,
+        'display': display,
+        'field': input_field
+    }
