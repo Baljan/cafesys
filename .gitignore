@@ -13,3 +13,4 @@ celerybeat.pid
 .vagrant/
 .venv/
 ubuntu-xenial-16.04-cloudimg-console.log
+vagrant-*

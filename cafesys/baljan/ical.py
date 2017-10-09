@@ -60,4 +60,4 @@ def for_user(user):
         ev.add('dtstamp', encode_dt(oncall.made), encode=False)
         cal.add_component(ev)
 
-    return cal
+    return cal.to_ical().decode('utf-8')
