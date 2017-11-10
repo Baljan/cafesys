@@ -3,19 +3,36 @@
 {% load static %}
 
 {% block body_base %}
-    
-    <div id="login">{% block login %}{% endblock %}{% block locale_switcher %}{% endblock %}</div>
-    
     {% block body_outer %}
-    <div id="body" class="container container_12">
-        <div class="grid_2">
-            <div id="logo">
-                <a href="/"><img src="{% static 'img/logo/baljan-logo.png' %}" /></a>
-            </div>
-            <div id="nav">
-            {% block nav %}{% endblock %}
-            </div>
+      <header class="navbar navbar-expand flex-column flex-md-row bd-navbar">
+        <div class="container">
+        <a class="navbar-brand" href="/"><img src="{% static 'img/svg/logo.svg' %}" width="78"/></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/"><i class="fa fa-home"></i> Hem <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/baljan/high-score"><i class="fa fa-trophy"></i> Topplistan</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/baljan/bestallning"><i class="fa fa-shopping-cart"></i> Beställa</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/baljan/credits"><i class="fa fa-coffee"></i> Kaffekort</a>
+            </li>
+
+          </ul>
+            <a href="#" class="contact-btn">Kontakta oss</a>
+            <button class="btn btn-outline-primary my-2 my-sm-0" type="submit"><i class="fa fa-sign-in"></i> Logga in</button>
         </div>
+      </div>
+    </header>
+
+    <div id="body" class="container container_12">
         {#<div id="logo" class="9" dir="ltr">{% block logo_link_image %}{% endblock %}</div>#}
         <div id="main" class="grid_10">
             {% if messages %}

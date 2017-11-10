@@ -1,24 +1,22 @@
 {% load i18n %}
 {% load static %}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" xml:lang="{{ LANGUAGE_CODE }}" lang="{{ LANGUAGE_CODE }}">
+<!DOCTYPE html>
+<html lang="sv">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <title>{% block head_title_base %}{% if SITE_NAME %}{{ SITE_NAME }} : {% endif %}{% block head_title %}{% endblock %}{% endblock %}</title>
-        <link rel="shortcut icon" href="{% static 'img/logo/favicon.ico' %}" />
-	<!--<link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon" />-->
-        <!--[if IE]><style>
-            div {
-                zoom: 1; /* trigger hasLayout */
-            }
-        </style><![endif]-->
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!--
+            Icons for different devices you can generate with - http://realfavicongenerator.net
+            Place generated files in the dev/static/favicons directory.
+        -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+        <link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
-        <link href='//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:light,regular&subset=latin' rel='stylesheet' type='text/css'>
-
-        <link rel="stylesheet" href="{% static 'css/960.css' %}">
-        <link rel="stylesheet" href="{% static 'jquery-ui-1.8.24/themes/base/minified/jquery-ui.min.css' %}">
-   	<link rel="stylesheet" href="{% static 'css/baljan.css' %}">
-
+        <link rel="stylesheet" href="{% static 'css/bundle.css' %}">
 
         <script type="text/javascript" src="{% static 'js/jquery-1.4.2.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/jquery.plugins.js' %}"></script>
@@ -26,20 +24,12 @@
         <script type="text/javascript" src="{% static 'js/uni-form.jquery.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/baljan.js' %}"></script>
 
-        {% if LANGUAGE_BIDI %}
-        <style type="text/css" media="screen">
-            div.right_panel {
-                float: left; /* hotfix for sidebar */
-            }
-        </style>
-        {% endif %}
         {% block extra_head_base %}
             {% block extra_head %}{% endblock %}
         {% endblock %}
+    </head>
 
-	</head>
-
-    <body class="{% block body_class %}{% endblock %}">
+    <body>
         {% block body_base %}{% endblock %}
     </body>
 </html>

@@ -3,41 +3,7 @@
 {% load i18n %}
 {% load static %}
 
-{% block extra_head_base %}
-    <!--[if IE]>
-        <link rel="stylesheet" href="{% static 'css/baljan-ie.css' %}" />
-    <![endif]-->
-    {% block extra_head %}{% endblock %}
-{% endblock %}
-
-{% block login %}
-    {% if user.is_authenticated %}
-        <a href="{{user.get_absolute_url}}">{{user}}</a>
-        <span class="delim">|</span>
-        <a href="{% url 'logout' %}">{% trans "logout" %}</a>
-    {% else %}
-        <a href="{% url 'social:begin' 'liu' %}">{% trans "login" %}</a>
-    {% endif %}
-{% endblock %}
-
-{% block logo_link_image %}<a href="{% url 'home' %}"><img src="{% static 'img/logo/baljan.png' %}" alt="Sectionscafé Baljan"/></a>{% endblock %}
-
 {% block right_tabs %}
-{% endblock %}
-
-{% block nav %}
-    <div id="links-for">
-        {% for id, action_title, actions in action_categories %}
-            <h3><a class="{{ id }}" href="#">{{ action_title }}</a></h3>
-            <div>
-                <ul>
-                {% for action in actions %}
-                    <li class="{% if action.active %}active{% endif %}"><a href="{{ action.link }}">{{ action.text }}</a></li>
-                {% endfor %}
-                </ul>
-            </div>
-        {% endfor %}
-    </div>
 {% endblock %}
 
 {% block footer %}
