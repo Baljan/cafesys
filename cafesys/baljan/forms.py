@@ -68,9 +68,12 @@ class OrderForm(forms.Form):
     klaggSelected = forms.BooleanField(required=False, label='Klägg', label_suffix='')
 
 class RefillForm(forms.Form):
-    code = forms.CharField(max_length=models.BALANCE_CODE_LENGTH,
-            label=_("code"),
-            help_text=_("found on your value card"))
+    code = forms.CharField(
+        max_length=models.BALANCE_CODE_LENGTH,
+        label="Kod",
+        help_text="Koden står på ditt värdekort",
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
 
 
 class ShiftSelectionForm(forms.Form):
