@@ -39,17 +39,17 @@ class ProfileForm(forms.ModelForm):
 class OrderForm(forms.Form):
     orderer = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     ordererEmail = forms.EmailField(required=True, label="Email:")
-    phoneNumber = forms.RegexField(max_length=11, required = True,label="Telefonnummer:",regex=r'[0-9]{6,11}')
-    association = forms.CharField(min_length=2, max_length=40, required = True)
+    phoneNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
+    association = forms.CharField(min_length=2, max_length=40, required = True, label="Sektion/Förening:")
     pickupName = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     pickupEmail = forms.EmailField(required=True, label="Email:")
-    pickupNumber = forms.RegexField(max_length=11, required = True,label="Telefonnummer:",regex=r'[0-9]{6,11}')
+    pickupNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
     numberOfJochen = forms.IntegerField(min_value=5, max_value=200, required = False, label="Antal Jochen:")
     numberOfCoffee = forms.IntegerField(min_value=5, max_value=135, required = False, label="Antal kaffe:")
     numberOfTea = forms.IntegerField(min_value=5, max_value=135, required = False,label="Antal te:")
     numberOfSoda = forms.IntegerField(min_value=5, max_value=200, required = False, label="Antal läsk:")
     numberOfKlagg = forms.IntegerField(min_value=5, max_value=200, required = False, label="Antal klägg:")
-    other = forms.CharField(widget=forms.Textarea(attrs={'cols':33,'rows':5}), required=False)
+    other = forms.CharField(widget=forms.Textarea(attrs={'cols':33,'rows':5}), required=False, label='Övrig information:')
 
     PICKUP_CHOICES = (
         ('Morgon 07:30-08:00','Morgon 07:30-08:00'),
@@ -57,15 +57,15 @@ class OrderForm(forms.Form):
         ('Eftermiddag 16:15-17:00','Eftermiddag 16:15-17:00'),
     )
 
-    pickup = forms.ChoiceField(choices=PICKUP_CHOICES)
-    date = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}),required=True)
+    pickup = forms.ChoiceField(choices=PICKUP_CHOICES, label='Tid för uthämtning')
+    date = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}),required=True, label="Datum:")
     sameAsOrderer = forms.BooleanField(initial=True, required=False)
     orderSum = forms.CharField(required=False)
-    jochenSelected = forms.BooleanField(required=False)
-    coffeeSelected= forms.BooleanField(required=False)
-    teaSelected = forms.BooleanField(required=False)
-    sodaSelected = forms.BooleanField(required=False)
-    klaggSelected = forms.BooleanField(required=False)
+    jochenSelected = forms.BooleanField(required=False, label='Jochen', label_suffix='')
+    coffeeSelected= forms.BooleanField(required=False, label='Kaffe', label_suffix='')
+    teaSelected = forms.BooleanField(required=False, label='Te', label_suffix='')
+    sodaSelected = forms.BooleanField(required=False, label='Läsk', label_suffix='')
+    klaggSelected = forms.BooleanField(required=False, label='Klägg', label_suffix='')
 
 class RefillForm(forms.Form):
     code = forms.CharField(max_length=models.BALANCE_CODE_LENGTH,

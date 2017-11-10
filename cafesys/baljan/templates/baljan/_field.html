@@ -1,0 +1,6 @@
+{% load baljan_extras %}
+
+<div class="form-group">
+    <p> {{ field.label }} <br> {{ field|addcss:"form-control" }} </p>
+    {% if field.errors %}<p><FONT COLOR="red"> {{ field.errors }} </FONT></p> {% endif %}
+</div>

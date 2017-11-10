@@ -103,3 +103,35 @@ week.needs_autoescape = True
 def monthname(num, autoescape=None):
     return _(date(2000, num, 1).strftime('%B'))
 monthname.needs_autoescape = True
+
+
+@register.inclusion_tag('baljan/_field.html')
+def field(data):
+    return {'field': data}
+
+
+@register.inclusion_tag('baljan/_labeled_field.html')
+def labeled_field(data):
+    return {'field': data}
+
+
+@register.inclusion_tag('baljan/_order_item.html')
+def order_item(form, field_name):
+    limit_field = form[field_name + 'Selected']
+    input_field = form['numberOf' + field_name.title()]
+
+    if limit_field.value is True:
+        display = 'block'
+    else:
+        display = 'none'
+
+    return {
+        'field_name': field_name,
+        'display': display,
+        'field': input_field
+    }
+
+
+@register.filter(name='addcss')
+def addcss(f, css):
+    return f.as_widget(attrs={"class": css})
