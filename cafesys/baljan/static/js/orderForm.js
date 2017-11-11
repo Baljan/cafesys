@@ -84,7 +84,6 @@ window.onload = function justdoit() {
 
 $(function () {
     $("#check").button();
-    $("#items").buttonset();
 
 
     $("#id_jochenSelected").on('change', function () {
