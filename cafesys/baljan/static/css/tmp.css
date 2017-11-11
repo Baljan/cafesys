@@ -1,0 +1,29 @@
+#id_date.form-control[readonly] {
+    background-color: #fff !important;
+    cursor: pointer;
+}
+
+h2, h3, h4 {
+    margin-top: 1.5rem;
+}
+
+ul {
+    margin-top: 0.5rem;
+}
+
+.alert h2 {
+    margin-top: 0.5rem;
+}
+
+.form-check-label span {
+    display: inline-block;
+    padding-top: 3px;
+}
+
+footer {
+    margin-top: 40px;
+}
+
+.Baljan__footer .pattern {
+    margin-bottom: 8px;
+}

@@ -9,6 +9,17 @@ function calcSum(highlight) {
     if (highlight) {
         $("#currentSum").effect("highlight");
     }
+
+    $(".order-item").each(function() {
+        var amount = parseInt($(this).find("input").val());
+        var cost = parseInt($(this).find(".cost").text());
+        var total = amount * cost;
+        if (isNaN(total)) {
+            total = 0;
+        }
+
+        $(this).find(".total").text(total.toString());
+    });
 }
 
 function disablePickupFields() {

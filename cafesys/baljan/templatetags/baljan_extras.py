@@ -116,7 +116,7 @@ def labeled_field(data):
 
 
 @register.inclusion_tag('baljan/_order_item.html')
-def order_item(form, field_name):
+def order_item(form, field_name, cost):
     limit_field = form[field_name + 'Selected']
     input_field = form['numberOf' + field_name.title()]
 
@@ -128,7 +128,8 @@ def order_item(form, field_name):
     return {
         'field_name': field_name,
         'display': display,
-        'field': input_field
+        'field': input_field,
+        'cost': cost
     }
 
 

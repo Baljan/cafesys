@@ -1,5 +1,13 @@
 {% load baljan_extras %}
 
-<div id="{{ field_name }}" style="display:{{ display }};">
-    {% field field %}
+<div id="field_name" class="form-group row order-item" style="line-height: 34px;">
+    <span class="col-4">{{ field.label }}</span>
+    {{ field|addcss:"form-control col-2" }}
+
+    <div class="col-3">
+        á <span class="cost">{{ cost }}</span> SEK
+    </div>
+    <div class="col-3">
+        = <b><span class="total">0</span> SEK</b>
+    </div>
 </div>

@@ -14,13 +14,6 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.standalone.min.css">
 
-    <style>
-         #id_date.form-control:disabled, #id_date.form-control[readonly] {
-             background-color: #fff !important;
-             cursor: pointer;
-         }
-    </style>
-
     {% block extra_head %}{% endblock %}
 {% endblock %}
 
@@ -39,17 +32,26 @@
         <form method="post">
             {% csrf_token %}
             <div class="contactInfo">
-                <h2> Kontaktuppgiter </h2>
+                <h2> Kontaktuppgifter </h2>
 
                 {% field form.orderer %}
                 {% field form.ordererEmail %}
                 {% field form.phoneNumber %}
                 {% field form.association %}
+                <small id="passwordHelpBlock" class="form-text text-muted">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                    Baljan tar inte emot beställningar från privatpersoner.
+                </small>
             </div>
 
             <div class="pickupInfo">
-                <h2> Kontaktuppgiter uthämtare</h2>
-                <p> Samma som beställare:{{ form.sameAsOrderer }}</p>
+                <h2> Kontaktuppgifter uthämtare</h2>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        {{ form.sameAsOrderer|addcss:"form-check-input" }}
+                        <span>Samma som beställare</span>
+                    </label>
+                </div>
 
                 {% field form.pickupName %}
                 {% field form.pickupEmail %}
@@ -59,32 +61,23 @@
 
             <div id="items">
                 <h2> Beställning </h2>
-                <div align="center">
-                    {% labeled_field form.jochenSelected %}
-                    {% labeled_field form.coffeeSelected %}
-                    {% labeled_field form.teaSelected %}
-                    {% labeled_field form.sodaSelected %}
-                    {% labeled_field form.klaggSelected %}
-                </div>
 
-                {% order_item form 'jochen' %}
-                {% order_item form 'coffee' %}
-                {% order_item form 'tea' %}
-                {% order_item form 'soda' %}
-                {% order_item form 'klagg' %}
-            </div>
+                {% order_item form 'jochen' 30 %}
+                {% order_item form 'coffee' 6 %}
+                {% order_item form 'tea' 6 %}
+                {% order_item form 'soda' 5 %}
+                {% order_item form 'klagg' 6 %}
 
-            <div id="sum">
-                <h2> Summa </h2>
-                <div class="sum" id="divsum" style=" border: 1px solid #ccc;
-    background-color: #eee;
-    text-align: center;
-    font-size: 2em;
-    font-weight: bold;">
-                    <a id="currentSum">0 </a><a> SEK</a>
-                    {{ form.orderSum.as_hidden }}
+                <div class="row">
+                    <div class="col-9">
+                        <b>TOTALT</b>
+                    </div>
+                    <div class="col-3">
+                        = <b><span id="currentSum">0</span> SEK</b>
+                    </div>
                 </div>
-                {% if form.orderSum.errors %}<p><FONT COLOR="red"> {{ form.orderSum.errors }} </FONT></p> {% endif %}
+                {{ form.orderSum.as_hidden }}
+                <br/>
             </div>
 
             <div id="timeAndDate">
@@ -94,10 +87,11 @@
                 {% field form.pickup %}
                 {% field form.other %}
 
-                <div class="ui-state-highlight" id="deliveryInfo">
-                    <span class="ui-icon ui-icon-info" style="float:left"></span>
+                <div class="alert alert-info" role="alert">
+                    <i class="fa fa-info-circle" aria-hidden="true"></i>
                     Ni kommer få en bekräftelse att er beställning är tillagd när styrelsen har tagit emot den.
                 </div>
+
                 <input type="submit" class="btn btn-primary" value="Skicka beställning" onclick="return validate()"/>
             </div>
 
@@ -108,7 +102,7 @@
     <div class="col">
     <div class="grid_5 omega secondary">
 
-        <div class="ui-state-highlight" id="generalInfo">
+        <div class="alert alert-warning" role="alert">
             <h2> Observera! </h2>
 
             Jobbare i Baljan har inte möjlighet att lämna ut beställningar, det är enbart Baljans styrelsemedlemmar som lämnar ut beställningar.
