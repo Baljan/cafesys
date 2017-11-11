@@ -71,7 +71,6 @@ class RefillForm(forms.Form):
     code = forms.CharField(
         max_length=models.BALANCE_CODE_LENGTH,
         label="Kod",
-        help_text="Koden står på ditt värdekort",
         widget=forms.TextInput(attrs={'class': 'form-control'}),
     )
 
