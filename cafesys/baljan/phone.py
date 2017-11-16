@@ -86,7 +86,7 @@ def _append(lst, element):
     if isinstance(element, list):
         for e in element:
             _append(lst, e)
-    else:
+    elif element is not None:
         element = _format_phone(element)
         if element not in lst:
             lst.append(element)
@@ -115,4 +115,4 @@ def _build_46elks_response(phone_numbers):
 
         return data
     else:
-        return None
+        return {}
