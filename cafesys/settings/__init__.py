@@ -80,6 +80,14 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = str(APPS_DIR + "collected-static")
 STATIC_URL = "/static/"
 
+# Django-sass-processor
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'sass_processor.finders.CssFinder',
+]
+SASS_OUTPUT_STYLE = 'expanded'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -134,6 +142,7 @@ INSTALLED_APPS = [
     'opbeat.contrib.django',
     'crispy_forms',
     'social_django',
+    'sass_processor',
 ]
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"

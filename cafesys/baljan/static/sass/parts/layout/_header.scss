@@ -1,0 +1,99 @@
+//==============================================
+// Layout/header
+//==============================================
+
+//  +media-breakpoint-up(sm) {
+//   body {
+//     background: #000;
+//   }
+// }
+//
+
+body.fixed-navbar main.bd-masthead {
+  padding-top: (82px + 40px); // navbar-height + main-toppadding
+}
+.Baljan__header {
+	margin-top: $margin;
+}
+.navbar-brand {
+  padding-right: 10px;
+}
+.navbar {
+  transition: all 300ms;
+  width: 100%;
+  z-index: 10;
+  &.fixed {
+    position: fixed;
+    background: #FFF;
+    box-shadow: 0 2px 5px -1px rgba(0,0,0,.09);
+    .btn {
+      background-color: $pink;
+      color: white;
+      &:hover {
+        background-color: transparent;
+        color: $pink;
+      }
+    }
+  }
+  ul {
+    li
+    {
+      a {
+        font-family: $font-second;
+        color: $dark-blue;
+        font-size: 1.2rem;
+        border: 2px solid transparent;
+
+        &:hover {
+          color: $blue;
+          // background: $pink;
+          // border: 2px solid $pink;
+          // border-radius: 5px;
+          i {
+            // color: $dark-blue;
+            opacity: 0.8;
+          }
+          // &:after {
+          //   transform: scaleX(0.7);
+          // }
+        }
+
+        i {
+          color: $pink;
+          margin-right: 5px;
+          font-size: 1.5rem;
+        }
+
+        // &:after {
+        //   display:block;
+        //   content: '';
+        //   border-bottom: solid 3px $pink;
+        //   transform: scaleX(0);
+        //   border-radius: 25px;
+        //   transition: transform 250ms ease-in-out;
+        //   margin-top: 5px;
+        // }
+
+        +media-breakpoint-down(md) {
+          color: green;
+              background: green;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+        }
+      }
+    }
+  }
+
+}
+
+.contact-btn {
+  font-weight: bold;
+  margin-right: $margin;
+  color: $dark-blue;
+  &:hover {
+    text-decoration: none;
+    color: $blue;
+  }
+}

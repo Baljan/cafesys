@@ -1,5 +1,7 @@
 {% load i18n %}
 {% load static %}
+{% load sass_tags %}
+
 <!DOCTYPE html>
 <html lang="sv">
     <head>
@@ -16,7 +18,7 @@
         <link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
-        <link rel="stylesheet" href="{% static 'css/bundle.css' %}">
+        <link href="{% sass_src 'sass/bundle.scss' %}" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="{% static 'css/tmp.css' %}">
 
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
