@@ -111,7 +111,7 @@ def _build_46elks_response(phone_numbers):
 
         busy = _build_46elks_response(phone_numbers[1:])
         if busy:
-            data['busy'] = busy
+            data['failed'] = busy
 
         return data
     else:
