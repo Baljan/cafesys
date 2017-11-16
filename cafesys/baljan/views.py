@@ -885,5 +885,6 @@ def high_score(request, year=None, week=None):
     return render(request, 'baljan/high_score.html', tpl)
 
 
+@csrf_exempt
 def incoming_call(request):
     return JsonResponse(phone.compile_incoming_call_response())
