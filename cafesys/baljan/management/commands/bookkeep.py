@@ -7,14 +7,17 @@ from ...models import User
 
 
 class Command(BaseCommand):
-    args = 'year'
     help = 'Show customer debt for year.'
 
-    def handle(self, *args, **options):
-        if len(args) != 1:
-            raise CommandError('need a year')
+    def add_arguments(self, parser):
+        # Positional arguments
+        parser.add_argument(
+            'year',
+            type=int
+        )
 
-        year = int(args[0])
+    def handle(self, *args, **options):
+        year = options['year']
         year_start = datetime.datetime(year, 1, 1)
         year_end = datetime.datetime(year, 12, 31)
 
