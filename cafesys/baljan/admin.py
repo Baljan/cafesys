@@ -308,3 +308,10 @@ class OldCoffeeCardAdmin(admin.ModelAdmin):
     list_display = ('card_id', 'set', 'created', 'count', 'left', 'expires',
             'user', 'imported')
 admin.site.register(models.OldCoffeeCard, OldCoffeeCardAdmin)
+
+
+class IncomingCallFallback(admin.ModelAdmin):
+    list_display = ('user', 'priority')
+
+
+admin.site.register(models.IncomingCallFallback, IncomingCallFallback)
