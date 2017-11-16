@@ -92,6 +92,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'APP_DIRS': True,
+        'DIRS': [],
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
@@ -118,6 +119,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'livereload.middleware.LiveReloadScript',
 ]
 
 ROOT_URLCONF = "cafesys.urls"
@@ -143,6 +145,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'social_django',
     'sass_processor',
+    'livereload',
 ]
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"

@@ -33,3 +33,11 @@ requests==2.14.2
 
 # Make the shell great again
 ipython==6.0.0
+
+# Sass processor
+libsass==0.13.4
+django-compressor==2.2
+django-sass-processor==0.5.5
+
+# Livereload
+django-livereload-server==0.2.3
