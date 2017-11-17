@@ -2,7 +2,7 @@
 import datetime
 
 from django.core.management.base import BaseCommand
-from django.db.models import Sum
+from django.db.models import Sum, Count
 
 from ...models import Profile, BalanceCode
 
@@ -26,6 +26,8 @@ class Command(BaseCommand):
         unused_balance_before = Profile.objects.filter(user__order__put_at__lt=year_start).exclude(user__order__put_at__range=(year_start, year_end)).distinct().aggregate(Sum('balance'))
         unused_balance_after = Profile.objects.filter(user__order__put_at__gt=year_end).exclude(user__order__put_at__range=(year_start, year_end)).distinct().aggregate(Sum('balance'))
         unused_balance_dubble = Profile.objects.filter(user__order__put_at__lt=year_start).filter(user__order__put_at__gt=year_end).exclude(user__order__put_at__range=(year_start, year_end)).distinct().aggregate(Sum('balance'))
+        unused_balance_never = Profile.objects.annotate(num_orders=Count('user__order')).filter(num_orders=0).aggregate(Sum('balance'))
+
         total_balance = Profile.objects.all().aggregate(Sum('balance'))
 
         if balance_code_sum["value__sum"] is None:
@@ -38,10 +40,10 @@ class Command(BaseCommand):
             unused_balance_after["balance__sum"] = 0
         if unused_balance_dubble["balance__sum"] is None:
             unused_balance_dubble["balance__sum"] = 0
+        if unused_balance_never["balance__sum"] is None:
+            unused_balance_never["balance__sum"] = 0
         if total_balance["balance__sum"] is None:
             total_balance["balance__sum"] = 0
-
-        unused_balance_never = total_balance["balance__sum"]-active_balance["balance__sum"]-unused_balance_before["balance__sum"]-unused_balance_after["balance__sum"]+unused_balance_dubble["balance__sum"]
 
         print("Bokföringsinformation för år", year)
         print("(1) Summan för aktiverade kaffekort under året:", balance_code_sum["value__sum"], "SEK")
@@ -49,5 +51,5 @@ class Command(BaseCommand):
         print("(3) Kontosumman för de som blippat tidigare men inte under detta år:", unused_balance_before["balance__sum"], "SEK")
         print("(4) Kontosumman för de som blippat efter men inte under detta år:", unused_balance_after["balance__sum"], "SEK")
         print("(5) Kontosumman för de som finns med i  både (3) och (4), dvs. haft blippuppehåll:", unused_balance_dubble["balance__sum"], "SEK")
-        print("(6) Kontosumman för de som aldrig någonsin blippat:", unused_balance_never, "SEK")
+        print("(6) Kontosumman för de som aldrig någonsin blippat:", unused_balance_never["balance__sum"], "SEK")
         print("(7) Kontosumman för alla konton (2)+(3)+(4)-(5)+(6)=(7):", total_balance["balance__sum"], "SEK")
