@@ -86,7 +86,7 @@ def _append(lst, element):
     if isinstance(element, list):
         for e in element:
             _append(lst, e)
-    elif element is not None:
+    elif element:
         element = _format_phone(element)
         if element not in lst:
             lst.append(element)
