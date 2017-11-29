@@ -116,7 +116,7 @@ def _build_46elks_response(phone_numbers):
 
         busy = _build_46elks_response(phone_numbers[1:])
         if busy:
-            data['timeout'] = '12'
+            data['timeout'] = '20'
             data['busy'] = busy
             data['failed'] = busy
 
