@@ -6,16 +6,20 @@ busy the call will be routed to the other staff that is on duty the current
 week. If both members on duty are busy, or if a call is made outside of
 office hours, the call will be routed to a backup list stored in the database.
 """
-from datetime import datetime, date, time
+import pytz
+from datetime import date, datetime, time
+from django.conf import settings
 
 from cafesys.baljan import planning
 from cafesys.baljan.models import Shift, IncomingCallFallback
 
+tz = pytz.timezone(settings.TIME_ZONE)
+
 # Mapping from office hours to shift indexes
 DUTY_CALL_ROUTING = {
-    (time(7, 0, 0), time(12, 0, 0)): 0,
-    (time(12, 0, 0), time(13, 0, 0)): 1,
-    (time(13, 0, 0), time(18, 0, 0)): 2,
+    (time(7, 0, 0, tzinfo=tz), time(12, 0, 0, tzinfo=tz)): 0,
+    (time(12, 0, 0, tzinfo=tz), time(13, 0, 0, tzinfo=tz)): 1,
+    (time(13, 0, 0, tzinfo=tz), time(18, 0, 0, tzinfo=tz)): 2,
 }
 
 
@@ -51,7 +55,7 @@ def _get_current_duty_phone_numbers():
     or None if outside office hours.
     """
 
-    current_time = datetime.now().time()
+    current_time = datetime.now(tz).time()
     shifts_today = Shift.objects.filter(when=date.today())
 
     for time_range, shift_index in DUTY_CALL_ROUTING.items():

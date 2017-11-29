@@ -33,3 +33,6 @@ requests==2.14.2
 
 # Make the shell great again
 ipython==6.0.0
+
+# Handle time better
+pytz==2017.2
