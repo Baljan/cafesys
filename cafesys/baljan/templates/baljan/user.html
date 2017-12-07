@@ -5,253 +5,285 @@
 {% load baljan_extras %}
 
 {# “user” refers to the logged in user, therefore “watched” is used instead. #}
-{% block head_title %}{{watched.get_full_name}}{% endblock %}
+{% block head_title %}{{ watched.get_full_name }}{% endblock %}
 
 {% block body_class %}user{% endblock %}
 {% block body %}
-<h1>{{watched.get_full_name}} ({{watched.username}})</h1>
-<div class="grid_4 alpha main">
-    <div class="profile">
-        {% if profile_forms %}
-            <div class="box-actions">
-                <span class="link show-profile-dialog">{% trans "edit" %}</span>
-            </div>
-        {% endif %}
-        <h2>{% trans "profile"|title %}</h2>
-        {% with watched.profile as prof %}
-
-        <dl>
-            <dt>{% trans "name" %}</dt>
-            <dd>{{watched.get_full_name}}</dd>
-                {% if watching_self or perms.baljan.self_and_friend_signup %}
-                    <dt>{% trans "phone" %}</dt>
-                    {% if prof.mobile_phone %}
-                        <dd>{{prof.mobile_phone }}</dd>
-                    {% else %}
-                        <dd>{% trans "unset" %}</dd>
-                    {% endif %}
-                {% endif %}
-            <dt>{% trans "last login" %}</dt>
-            <dd>{{watched.last_login|date}} {{watched.last_login|time}}</dd>
-            {% if watching_self %}
-                <dt>{% trans "calendar" %}</dt>
-                <dd><a href="{% url 'user_calendar' watched.profile.private_key %}">
-                    {% trans "iCal format" %}</a></dd>
-
-                <dt>{% trans "motto" %}</dt>
-                {% if prof.motto %}
-                    <dd>{{prof.motto}}</dd>
-                {% else %}
-                    <dd>
-                    {% trans "None set. It is displayed in the high scores." %}
-                    </dd>
-                {% endif %}
-
-            {% endif %}
-        </dl>
-        {% endwith %}
-    </div>
-
-    {% with watched_groups as groups %}
-    <div class="groups">
-        <h2>{% trans "Groups" %}</h2>
-        {% if groups|length %}
-            <ul>
-            {% for group in groups %}
-                <li>
-                <a href="{% url 'group' group.name %}">{{ group.name }}</a>
-                </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-        {% url 'become_worker' as become_worker_link %}
-        <p>
-        {% blocktrans %}
-        None. To work in Baljan, one must <a href="{{become_worker_link}}">become a member of the workers' group</a>.
-        {% endblocktrans %}
-        </p>
-        {% endif %}
-    </div>
-    {% endwith %}
-
-    {% if friends %}
-    <div class="friends">
-        <h2>{% trans "Friends" %}</h2>
-        <ul>
-            {% for friend in friends %}
-                <li>{{friend|user_link}}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-
-</div><!--.main-->
-<div class="grid_6 omega secondary">
+    <h1>{{ watched.get_full_name }} ({{ watched.username }})
+        <div class="btn-group pull-right" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-secondary" disabled><i class="fa fa-lock" aria-hidden="true"></i></button>
+            <a href="{% url 'admin:auth_user_change' watched.id %}" role="button" class="btn btn-secondary">Visa användare</a>
+            <a href="{% url 'admin:baljan_profile_change' watched.profile.id %}" role="button" class="btn btn-secondary">Visa profil</a>
+        </div>
+    </h1>
     {% if perms.auth.change_user %}
-        <div class="admin-link">
-            admin:
-            <a href="{% url 'admin:auth_user_change' watched.id %}">{% trans "user" %}</a>,
-            <a href="{% url 'admin:baljan_profile_change' watched.profile.id %}">{% trans "profile" %}</a>
-        </div>
+
     {% endif %}
+    <div class="row">
+        <div class="col">
+            <div class="grid_4 alpha main">
+                <div class="profile">
+                    <h2>{% trans "profile"|title %}
+                        {% if profile_forms %}
+                            <small style="vertical-align: middle;">
+                                <button type="button" class="btn badge badge-primary" data-toggle="modal" data-target="#edit-profile-modal">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                    Ändra
+                                </button>
+                            </small>
+                        {% endif %}
+                    </h2>
+                    {% with watched.profile as prof %}
 
-    {% if trade_requests %}
-    <div class="pending-highlight">
-        <h2>{% trans "Trade Requests" %}</h2>
-        {% if received_trade_requests %}
-            <strong>{% trans "Received" %}</strong>
-            <table>
-                <thead>
-                    <tr>
-                        <th>{% trans "wanted" %}</th>
-                        <th>{% trans "offered" %}</th>
-                        <th>{% trans "from" %}</th>
-                        <th class="action" colspan="2">{% trans "answer" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for recd in received_trade_requests %}
-                <tr>
-                    {% with recd.wanted_signup as wanted %}
-                        <td>
-                            {% ifchanged wanted %}
-                                {{wanted|shift_link_short}}
-                            {% endifchanged %}
-                        </td>
-                    {% endwith %}
-                    {% with recd.offered_signup as offered %}
-                        <td>
-                            {% ifchanged offered %}
-                                {{offered|shift_link_short}}
-                            {% endifchanged %}
-                        </td>
-                        <td>
-                            {{offered|name_link}}
-                        </td>
-                    {% endwith %}
-                    <td class="action">
-                        <a class="deny"
-                            href="{% url 'deny_trade' recd.pk request.path %}"
-                            >{% trans "deny" %}</a>
-                    </td>
-                    <td class="action">
-                        <a class="accept"
-                            href="{% url 'accept_trade' recd.pk request.path %}"
-                            >{% trans "accept" %}</a>
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
+                        <dl>
+                            <dt>Namn</dt>
+                            <dd>{{ watched.get_full_name }}</dd>
+                            {% if watching_self or perms.baljan.self_and_friend_signup %}
+                                <dt>Telefon</dt>
+                                {% if prof.mobile_phone %}
+                                    <dd>{{ prof.mobile_phone }}</dd>
+                                {% else %}
+                                    <dd>{% trans "unset" %}</dd>
+                                {% endif %}
+                            {% endif %}
+                            <dt>Senast inloggad</dt>
+                            <dd>{{ watched.last_login|date }} {{ watched.last_login|time }}</dd>
+                            {% if watching_self %}
+                                <dt>Kalender</dt>
+                                <dd><a href="{% url 'user_calendar' watched.profile.private_key %}">
+                                    {% trans "iCal format" %}</a></dd>
 
-        {% if sent_trade_requests %}
-            <strong>{% trans "Sent" %}</strong>
-            <table>
-                <thead>
-                    <tr>
-                        <th>{% trans "wanted" %}</th>
-                        <th>{% trans "offered" %}</th>
-                        <th>{% trans "to" %}</th>
-                        <th class="action">{% trans "action" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for sent in sent_trade_requests %}
-                <tr>
-                    {% with sent.wanted_signup as wanted %}
-                        <td>
-                            {% ifchanged wanted %}
-                                {{wanted|shift_link_short}}
-                            {% endifchanged %}
-                        </td>
-                        {% with sent.offered_signup as offered %}
-                        <td>
-                            {% ifchanged offered %}
-                                {{offered|shift_link_short}}
-                            {% endifchanged %}
-                        </td>
-                        <td>
-                            {{wanted|name_link}}
-                        </td>
-                        {% endwith %}
-                        <td class="action">
-                            {% ifchanged wanted %}
-                                <a href="{% url 'take_signup' wanted.pk request.path%}">{% trans "edit" %}</a>
-                            {% endifchanged %}
-                        </td>
-                    {% endwith %}
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
-    </div>
-    {% endif %}
+                                <dt>Motto</dt>
+                                {% if prof.motto %}
+                                    <dd>{{ prof.motto }}</dd>
+                                {% else %}
+                                    <dd>
+                                        {% trans "None set. It is displayed in the high scores." %}
+                                    </dd>
+                                {% endif %}
 
-    {% for type_title, type_classes, grouped_signups in signup_types %}
-        {% if grouped_signups|length %}
-        <div class="signups {{type_classes|join:" "}}">
-            <h2>{{ type_title|title }}</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>{% trans "semester" %}</th>
-                        <th>{% trans "date" %}</th>
-                        <th>{% trans "am/pm" %}</th>
-                    </tr>
-                </thead>
-                {% for gtitle, gclass, gsignups in grouped_signups %}
-                    <tr class="group {{glclass|join:" "}}"><td colspan="3">{{gtitle}}</td></tr>
-                    {% for signup in gsignups %}
-                        <tr>
-                            {% with signup.shift as shift %}
-                            <td>
-                                {% with shift.semester as sem %}
-                                    {% ifchanged sem %}
-                                    <a href="{{sem.get_absolute_url}}">{{sem.name}}</a>
-                                    {% endifchanged %}
-                                {% endwith %}
-                            </td>
-                            <td class="{% if signup.can_trade %}tradable{% endif %}">
-                                <a href="{{shift.get_absolute_url}}">{{shift.when|naturalday}}</a>
-                            </td>
-                            <td>
-                                {{ shift.ampm }}
-                            </td>
+                            {% endif %}
+
+                            {% with watched_groups as groups %}
+                                <dt>{% trans "Groups" %}</dt>
+                                {% if not groups|length %}
+                                    <ul>
+                                        {% for group in groups %}
+                                            <li>
+                                                <a href="{% url 'group' group.name %}">{{ group.name }}</a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    {% url 'become_worker' as become_worker_link %}
+                                    <p>
+                                        {% blocktrans %}
+                                            Inga.
+                                        {% endblocktrans %}
+                                    </p>
+                                {% endif %}
                             {% endwith %}
-                        </tr>
-                    {% endfor %}
-                {% endfor %}
-            </table>
-        </div>
-        {% endif %}
-    {% endfor %}
-</div><!--.secondary-->
+                        </dl>
+                    {% endwith %}
+                </div>
 
-{% if profile_forms %}
-<div class="init-hidden" id="profile-dialog" title="{% trans "Edit Profile" %}">
-    <form enctype="multipart/form-data" method="POST" action="">{% csrf_token %}
-        <table>
-        {% for profile_form in profile_forms %}
-            {{profile_form.as_table}}
-        {% endfor %}
-        </table>
-    </form>
-</div>
-{% endif %}
-<div class="clear"></div>
+                {% if friends %}
+                    <div class="friends">
+                        <h2>{% trans "Friends" %}</h2>
+                        <ul>
+                            {% for friend in friends %}
+                                <li>{{ friend|user_link }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+            </div><!--.main-->
+        </div>
+        <div class="col">
+            <div class="grid_6 omega secondary">
+                {% if trade_requests %}
+                    <div class="pending-highlight">
+                        <h2>{% trans "Trade Requests" %}</h2>
+                        {% if received_trade_requests %}
+                            <strong>{% trans "Received" %}</strong>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>{% trans "wanted" %}</th>
+                                    <th>{% trans "offered" %}</th>
+                                    <th>{% trans "from" %}</th>
+                                    <th class="action" colspan="2">{% trans "answer" %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for recd in received_trade_requests %}
+                                    <tr>
+                                        {% with recd.wanted_signup as wanted %}
+                                            <td>
+                                                {% ifchanged wanted %}
+                                                    {{ wanted|shift_link_short }}
+                                                {% endifchanged %}
+                                            </td>
+                                        {% endwith %}
+                                        {% with recd.offered_signup as offered %}
+                                            <td>
+                                                {% ifchanged offered %}
+                                                    {{ offered|shift_link_short }}
+                                                {% endifchanged %}
+                                            </td>
+                                            <td>
+                                                {{ offered|name_link }}
+                                            </td>
+                                        {% endwith %}
+                                        <td class="action">
+                                            <a class="deny"
+                                               href="{% url 'deny_trade' recd.pk request.path %}"
+                                            >{% trans "deny" %}</a>
+                                        </td>
+                                        <td class="action">
+                                            <a class="accept"
+                                               href="{% url 'accept_trade' recd.pk request.path %}"
+                                            >{% trans "accept" %}</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+
+                        {% if sent_trade_requests %}
+                            <strong>{% trans "Sent" %}</strong>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>{% trans "wanted" %}</th>
+                                    <th>{% trans "offered" %}</th>
+                                    <th>{% trans "to" %}</th>
+                                    <th class="action">{% trans "action" %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for sent in sent_trade_requests %}
+                                    <tr>
+                                        {% with sent.wanted_signup as wanted %}
+                                            <td>
+                                                {% ifchanged wanted %}
+                                                    {{ wanted|shift_link_short }}
+                                                {% endifchanged %}
+                                            </td>
+                                            {% with sent.offered_signup as offered %}
+                                                <td>
+                                                    {% ifchanged offered %}
+                                                        {{ offered|shift_link_short }}
+                                                    {% endifchanged %}
+                                                </td>
+                                                <td>
+                                                    {{ wanted|name_link }}
+                                                </td>
+                                            {% endwith %}
+                                            <td class="action">
+                                                {% ifchanged wanted %}
+                                                    <a href="{% url 'take_signup' wanted.pk request.path %}">{% trans "edit" %}</a>
+                                                {% endifchanged %}
+                                            </td>
+                                        {% endwith %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {% for type_title, type_classes, grouped_signups in signup_types %}
+                    {% if grouped_signups|length %}
+                        <div class="signups {{ type_classes|join:" " }}">
+                            <h2>{{ type_title|title }}</h2>
+                            <table class="table table-sm">
+                                <thead>
+                                <tr>
+                                    <th>Termin</th>
+                                    <th>Datum</th>
+                                    <th>fm/em</th>
+                                </tr>
+                                </thead>
+                                {% for gtitle, gclass, gsignups in grouped_signups %}
+                                    <tr class="group {{ glclass|join:" " }}">
+                                        <td colspan="3">{{ gtitle }}</td>
+                                    </tr>
+                                    {% for signup in gsignups %}
+                                        <tr>
+                                            {% with signup.shift as shift %}
+                                                <td>
+                                                    {% with shift.semester as sem %}
+                                                        {% ifchanged sem %}
+                                                            <a href="{{ sem.get_absolute_url }}">{{ sem.name }}</a>
+                                                        {% endifchanged %}
+                                                    {% endwith %}
+                                                </td>
+                                                <td class="{% if signup.can_trade %}tradable{% endif %}">
+                                                    <a href="{{ shift.get_absolute_url }}">{{ shift.when|naturalday }}</a>
+                                                </td>
+                                                <td>
+                                                    {{ shift.ampm }}
+                                                </td>
+                                            {% endwith %}
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div><!--.secondary-->
+        </div>
+    </div>
+
+
+    {% if profile_forms %}
+        <div id="edit-profile-modal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Ändra profil</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form enctype="multipart/form-data" method="POST" action="">{% csrf_token %}
+                    <div class="modal-body">
+
+                            <table>
+                                {% for profile_form in profile_forms %}
+                                    {% for test in profile_form %}
+                                        {% field test %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </table>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Spara ändringar</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Avbryt</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <div class="clear"></div>
 
 {% endblock %}
 
 {% block extra_body %}
-<script type="text/javascript">
-// <![CDATA[
-    SAVE_MSG = "{% trans "save" %}";
-    CANCEL_MSG = "{% trans "cancel" %}";
-    CONFIRM_MSG = "{% trans "Are you sure?" %}";
-    CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
-    CONFIRM_DELETE = CONFIRM_MSG;
-// ]]>
-</script>
+    <script type="text/javascript">
+        // <![CDATA[
+        SAVE_MSG = "{% trans "save" %}";
+        CANCEL_MSG = "{% trans "cancel" %}";
+        CONFIRM_MSG = "{% trans "Are you sure?" %}";
+        CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
+        CONFIRM_DELETE = CONFIRM_MSG;
+        // ]]>
+    </script>
 {% endblock %}

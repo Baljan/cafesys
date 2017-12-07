@@ -2,6 +2,7 @@
 from datetime import date
 
 from django import template
+from django.forms import BooleanField
 from django.template.defaultfilters import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
@@ -107,7 +108,7 @@ monthname.needs_autoescape = True
 
 @register.inclusion_tag('baljan/_field.html')
 def field(data):
-    return {'field': data}
+    return {'field': data, 'checkbox': isinstance(data.field, BooleanField)}
 
 
 @register.inclusion_tag('baljan/_labeled_field.html')
