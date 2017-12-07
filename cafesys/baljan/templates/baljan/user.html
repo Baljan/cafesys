@@ -10,93 +10,77 @@
 {% block body_class %}user{% endblock %}
 {% block body %}
     <h1>{{ watched.get_full_name }} ({{ watched.username }})
-        <div class="btn-group pull-right" role="group" aria-label="Basic example">
-            <button type="button" class="btn btn-secondary" disabled><i class="fa fa-lock" aria-hidden="true"></i></button>
-            <a href="{% url 'admin:auth_user_change' watched.id %}" role="button" class="btn btn-secondary">Visa användare</a>
-            <a href="{% url 'admin:baljan_profile_change' watched.profile.id %}" role="button" class="btn btn-secondary">Visa profil</a>
-        </div>
+        {% if perms.auth.change_user %}
+            <div class="btn-group pull-right" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-secondary" disabled><i class="fa fa-lock" aria-hidden="true"></i></button>
+                <a href="{% url 'admin:auth_user_change' watched.id %}" role="button" class="btn btn-secondary">Visa användare</a>
+                <a href="{% url 'admin:baljan_profile_change' watched.profile.id %}" role="button" class="btn btn-secondary">Visa profil</a>
+            </div>
+        {% endif %}
     </h1>
-    {% if perms.auth.change_user %}
 
-    {% endif %}
     <div class="row">
         <div class="col">
-            <div class="grid_4 alpha main">
-                <div class="profile">
-                    <h2>{% trans "profile"|title %}
-                        {% if profile_forms %}
-                            <small style="vertical-align: middle;">
-                                <button type="button" class="btn badge badge-primary" data-toggle="modal" data-target="#edit-profile-modal">
-                                    <i class="fa fa-pencil" aria-hidden="true"></i>
-                                    Ändra
-                                </button>
-                            </small>
-                        {% endif %}
-                    </h2>
-                    {% with watched.profile as prof %}
-
-                        <dl>
-                            <dt>Namn</dt>
-                            <dd>{{ watched.get_full_name }}</dd>
-                            {% if watching_self or perms.baljan.self_and_friend_signup %}
-                                <dt>Telefon</dt>
-                                {% if prof.mobile_phone %}
-                                    <dd>{{ prof.mobile_phone }}</dd>
-                                {% else %}
-                                    <dd>{% trans "unset" %}</dd>
-                                {% endif %}
-                            {% endif %}
-                            <dt>Senast inloggad</dt>
-                            <dd>{{ watched.last_login|date }} {{ watched.last_login|time }}</dd>
-                            {% if watching_self %}
-                                <dt>Kalender</dt>
-                                <dd><a href="{% url 'user_calendar' watched.profile.private_key %}">
-                                    {% trans "iCal format" %}</a></dd>
-
-                                <dt>Motto</dt>
-                                {% if prof.motto %}
-                                    <dd>{{ prof.motto }}</dd>
-                                {% else %}
-                                    <dd>
-                                        {% trans "None set. It is displayed in the high scores." %}
-                                    </dd>
-                                {% endif %}
-
-                            {% endif %}
-
-                            {% with watched_groups as groups %}
-                                <dt>{% trans "Groups" %}</dt>
-                                {% if not groups|length %}
-                                    <ul>
-                                        {% for group in groups %}
-                                            <li>
-                                                <a href="{% url 'group' group.name %}">{{ group.name }}</a>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    {% url 'become_worker' as become_worker_link %}
-                                    <p>
-                                        Inga.
-                                    </p>
-                                {% endif %}
-                            {% endwith %}
-                        </dl>
-                    {% endwith %}
-                </div>
-
-                {% if friends %}
-                    <div class="friends">
-                        <h2>{% trans "Friends" %}</h2>
-                        <ul>
-                            {% for friend in friends %}
-                                <li>{{ friend|user_link }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+            <h2>Profil
+                {% if profile_forms %}
+                    <small style="vertical-align: middle;">
+                        <button type="button" class="btn badge badge-primary" data-toggle="modal" data-target="#edit-profile-modal">
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                            Ändra
+                        </button>
+                    </small>
                 {% endif %}
+            </h2>
+            {% with watched.profile as prof %}
 
-            </div><!--.main-->
+                <dl>
+                    <dt>Namn</dt>
+                    <dd>{{ watched.get_full_name }}</dd>
+                    {% if watching_self or perms.baljan.self_and_friend_signup %}
+                        <dt>Telefon</dt>
+                        {% if prof.mobile_phone %}
+                            <dd>{{ prof.mobile_phone }}</dd>
+                        {% else %}
+                            <dd>{% trans "unset" %}</dd>
+                        {% endif %}
+                    {% endif %}
+                    <dt>Senast inloggad</dt>
+                    <dd>{{ watched.last_login|date }} {{ watched.last_login|time }}</dd>
+                    {% if watching_self %}
+                        <dt>Kalender</dt>
+                        <dd><a href="{% url 'user_calendar' watched.profile.private_key %}">
+                            {% trans "iCal format" %}</a></dd>
+
+                        <dt>Motto</dt>
+                        {% if prof.motto %}
+                            <dd>{{ prof.motto }}</dd>
+                        {% else %}
+                            <dd>
+                                {% trans "None set. It is displayed in the high scores." %}
+                            </dd>
+                        {% endif %}
+
+                    {% endif %}
+
+                    {% with watched_groups as groups %}
+                        <dt>{% trans "Groups" %}</dt>
+                        {% if not groups|length %}
+                            <ul>
+                                {% for group in groups %}
+                                    <li>
+                                        <a href="{% url 'group' group.name %}">{{ group.name }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            {% url 'become_worker' as become_worker_link %}
+                            <p>
+                                Inga.
+                            </p>
+                        {% endif %}
+                    {% endwith %}
+                </dl>
+            {% endwith %}
         </div>
         <div class="col">
             <div class="grid_6 omega secondary">
@@ -104,14 +88,14 @@
                     <div class="pending-highlight">
                         <h2>{% trans "Trade Requests" %}</h2>
                         {% if received_trade_requests %}
-                            <strong>{% trans "Received" %}</strong>
+                            <h4>Mottagna</h4>
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th>{% trans "wanted" %}</th>
-                                    <th>{% trans "offered" %}</th>
-                                    <th>{% trans "from" %}</th>
-                                    <th class="action" colspan="2">{% trans "answer" %}</th>
+                                    <th>Begärt</th>
+                                    <th>Erbjudet</th>
+                                    <th>Från</th>
+                                    <th>Svar</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -134,15 +118,13 @@
                                                 {{ offered|name_link }}
                                             </td>
                                         {% endwith %}
-                                        <td class="action">
+                                        <td>
                                             <a class="deny"
                                                href="{% url 'deny_trade' recd.pk request.path %}"
-                                            >{% trans "deny" %}</a>
-                                        </td>
-                                        <td class="action">
+                                            >Neka</a>
                                             <a class="accept"
                                                href="{% url 'accept_trade' recd.pk request.path %}"
-                                            >{% trans "accept" %}</a>
+                                            >Acceptera</a>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -151,14 +133,14 @@
                         {% endif %}
 
                         {% if sent_trade_requests %}
-                            <strong>{% trans "Sent" %}</strong>
+                            <h4>Skickade</h4>
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th>{% trans "wanted" %}</th>
-                                    <th>{% trans "offered" %}</th>
-                                    <th>{% trans "to" %}</th>
-                                    <th class="action">{% trans "action" %}</th>
+                                    <th>Begärt</th>
+                                    <th>Erbjudet</th>
+                                    <th>Till</th>
+                                    <th>Åtgärd</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -180,9 +162,9 @@
                                                     {{ wanted|name_link }}
                                                 </td>
                                             {% endwith %}
-                                            <td class="action">
+                                            <td>
                                                 {% ifchanged wanted %}
-                                                    <a href="{% url 'take_signup' wanted.pk request.path %}">{% trans "edit" %}</a>
+                                                    <a href="{% url 'take_signup' wanted.pk request.path %}">Redigera</a>
                                                 {% endifchanged %}
                                             </td>
                                         {% endwith %}
@@ -270,7 +252,6 @@
             </div>
         </div>
     {% endif %}
-    <div class="clear"></div>
 
 {% endblock %}
 
