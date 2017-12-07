@@ -4,93 +4,154 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block head_title %}{% trans "About Baljan" %}{% endblock %}
-
 {% block body_class %}about{% endblock %}
 {% block body %}
+<main class="bd-masthead wrapper--md" id="content" role="main">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-8 mx-auto col-md-6 order-md-2">
+        <img src="{% static 'img/svg/sparkle.svg' %}" alt="baljan30-sparkles" class="img-fluid mb-3 mb-md-0">
+      </div>
+      <div class="col-md-6 order-md-1 text-center text-md-left pr-md-5">
+        <h1 class="mb-3 bd-text-purple-bright">Baljan fyller 30 år!</h1>
+        <p class="lead">
+          Snart är det dags för Baljans fantastiska 30-års jubileum går av stapeln. Hoppas att ni är toktaggade på alla tokigheter
+          som kommer hända under veckan. Vi har hört rykten om tårtkalas, tåg och tivoli (men du har inte hört det från oss).
+          Sen självklart också vagnslass av vårt kära kaffe med klägg. Håll i hatten, snart fyller Baljan år!!
+        </p>
+
+      </div>
+    </div>
+  </div>
+  <!-- container -->
+</main>
+<!-- main#content -->
+
+<section class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h3>Mer kaffe åt folket!</h3>
+    <p class="lead mb-4">
+      Kaffe åt folket! — helt enkelt. Vi säljer kaffe, te, varm choklad, läsk, mackor och klägg till studentanpassade priser. Vi
+      är helt ideella. Allt överskott återinvesteras i utrustning, möbler och vår fantastiska personal.
+    </p>
+
+    <div class="d-flex flex-column flex-md-row lead mb-3">
+      <a href="/baljan/bestallning" class="btn btn-lg mb-3 mb-md-0 btn-primary mr-md-3">
+        <i class="fa fa-shopping-cart"></i> Beställa</a>
+      <a href="/baljan/credits" class="btn btn-lg btn-outline-info">
+        <i class="fa fa-coffee"></i> Fyll på kaffekort</a>
+    </div>
+
+
+  </div>
+</section>
+
+
+<section class="Baljan__timeline wrapper" style="padding-bottom: 40px">
+  <div class="container">
+
+
+    <div class="row align-items-center">
+
+      <div class="col-12 mx-auto col-md-6">
+        <img src="{% static 'img/baljan30.jpg' %}" alt="" class="img-fluid mb-3 mb-md-0">
+      </div>
+      <div class="col-md-6 order-md-1 text-center text-md-left pr-md-5">
+        <h1 class="mb-3 bd-text-purple-bright">Baljan genom tiderna</h1>
+        <p class="lead">
+          Snart är det dags för Baljans fantastiska 30-års jubileum går av stapeln. Hoppas att ni är toktaggade på alla tokigheter
+          som kommer hända under veckan. Vi har hört rykten om tårtkalas, tåg och tivoli (men du har inte hört det från oss).
+          Sen självklart också vagnslass av vårt kära kaffe med klägg. Håll i hatten, snart fyller Baljan år!!
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 
 <h1>{% trans "About Baljan" %}</h1>
 <div class="grid_7 alpha main">
 
-    <div>
-        {# TODO: Translate. #}
-        <h2>Mål och mening</h2>
-        <p>
-            Kaffe åt folket! &mdash; helt enkelt. Vi säljer kaffe, te,
-            varm choklad, läsk, mackor och <span style="border-bottom:1px
-            dotted" title="dammsugare, chokladbollar, osv">klägg</span> till
-            studentanpassade priser. Vi är helt idéella. Allt överskott
-            återinvesteras i utrustning, möbler och vår fantastiska personal.
-        </p>
-    </div>
+  <div>
+    {# TODO: Translate. #}
+    <h2>Mål och mening</h2>
+    <p>
+      Kaffe åt folket! &mdash; helt enkelt. Vi säljer kaffe, te, varm choklad, läsk, mackor och
+      <span style="border-bottom:1px
+            dotted" title="dammsugare, chokladbollar, osv">klägg</span> till studentanpassade priser. Vi är helt idéella. Allt överskott återinvesteras i utrustning, möbler och
+      vår fantastiska personal.
+    </p>
+  </div>
 
- 
-    <div style="padding:10px">
-        <iframe src="//www.facebook.com/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FSektionscafe-Baljan%2F135878346468778&amp;width=520&amp;colorscheme=light&amp;connections=18&amp;stream=true&amp;header=false&amp;height=537" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:520px; height:537px;" allowTransparency="true"></iframe>
-    </div>
 
-    {% comment %}
-    TODO: This is a good place to include updates and whatnot. Facebook
-    integration, perhaps?
-    {% endcomment %}
-</div><!--.main-->
+  <div style="padding:10px">
+    <iframe src="//www.facebook.com/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FSektionscafe-Baljan%2F135878346468778&amp;width=520&amp;colorscheme=light&amp;connections=18&amp;stream=true&amp;header=false&amp;height=537"
+      scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:520px; height:537px;" allowTransparency="true"></iframe>
+  </div>
+
+  {% comment %} TODO: This is a good place to include updates and whatnot. Facebook integration, perhaps? {% endcomment %}
+</div>
+<!--.main-->
 <div class="grid_3 omega secondary">
-    <div>
-        <a href="http://www.flickr.com/photos/chipgriffin/2210297177/">
-            <img title="chipgriffin @ flickr"
-                 src="{% static 'img/flickr/2210297177_d5a88290b3.jpg' %}"/>
-        </a>
+  <div>
+    <a href="http://www.flickr.com/photos/chipgriffin/2210297177/">
+      <img title="chipgriffin @ flickr" src="{% static 'img/flickr/2210297177_d5a88290b3.jpg' %}" />
+    </a>
 
-        <dl>
-            <dt>{% trans 'weekdays' %}</dt>
-            <dd>{% trans '8:00 pm to 4:15 pm' %}<dd>
-            <dt>{% trans 'weekends, holidays' %}</dt>
-            <dd>{% trans 'closed' %}<dd>
-        </dl>
-        <p>
-            {% trans 'Open normal hours during mid-terms and final exams, but closed during re-exams.' %}
-        </p>
-    </div>
+    <dl>
+      <dt>{% trans 'weekdays' %}</dt>
+      <dd>{% trans '8:00 pm to 4:15 pm' %}
+        <dd>
+          <dt>{% trans 'weekends, holidays' %}</dt>
+          <dd>{% trans 'closed' %}
+            <dd>
+    </dl>
+    <p>
+      {% trans 'Open normal hours during mid-terms and final exams, but closed during re-exams.' %}
+    </p>
+  </div>
 
 
-    <div>
-        <a href="http://www.flickr.com/photos/20988296@N03/2133238064/">
-            <img title="MINGHE*luciano @ flickr" 
-                 src="{% static 'img/flickr/2133238064_b7a6f87cf2.jpg' %}"/>
-        </a>
-        <p>
-            {% blocktrans %}
-                Baljan is located at the bottom floor of
-                <a href="http://www.karservice.se/karallen/">Kårallen</a>,
-                campus Valla, Linköping.
-            {% endblocktrans %}
-        </p>
+  <div>
+    <a href="http://www.flickr.com/photos/20988296@N03/2133238064/">
+      <img title="MINGHE*luciano @ flickr" src="{% static 'img/flickr/2133238064_b7a6f87cf2.jpg' %}" />
+    </a>
+    <p>
+      {% blocktrans %} Baljan is located at the bottom floor of
+      <a href="http://www.karservice.se/karallen/">Kårallen</a>, campus Valla, Linköping. {% endblocktrans %}
+    </p>
 
-        <p>
-            <strong>{% trans 'email' %}</strong><br/>
-            Styrelsen <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a>
-            Ordförande <a href="mailto:ordf@baljan.org">ordf@baljan.org</a>
-            Kassör <a href="mailto:kassor@baljan.org">kassor@baljan.org</a>
-            Nördarna (IT) <a href="mailto:1337@baljan.org">1337@baljan.org</a>
+    <p>
+      <strong>{% trans 'email' %}</strong>
+      <br/> Styrelsen
+      <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a>
+      Ordförande
+      <a href="mailto:ordf@baljan.org">ordf@baljan.org</a>
+      Kassör
+      <a href="mailto:kassor@baljan.org">kassor@baljan.org</a>
+      Nördarna (IT)
+      <a href="mailto:1337@baljan.org">1337@baljan.org</a>
 
-        <p>
-            {% blocktrans %}
-                <strong>snail mail</strong><br/>
-                Sektionscafé Baljan<br/>
-                Kårallen, universitetet<br/>
-                581 83 Linköping<br/>
-                Sweden
-            {% endblocktrans %}
-        </p>
+      <p>
+        {% blocktrans %}
+        <strong>snail mail</strong>
+        <br/> Sektionscafé Baljan
+        <br/> Kårallen, universitetet
+        <br/> 581 83 Linköping
+        <br/> Sweden {% endblocktrans %}
+      </p>
 
-        <p>
-        <strong>{% trans 'phone' %}</strong><br/>
+      <p>
+        <strong>{% trans 'phone' %}</strong>
+        <br/>
         <a href="tel:{{CONTACT_PHONE}}">{{CONTACT_PHONE}}</a>
-        </p>
+      </p>
 
-    </div>
+  </div>
 
-</div><!--.secondary-->
+</div>
+<!--.secondary-->
 <div class="clean"></div>
 
 {% endblock %}

@@ -24,15 +24,21 @@
             <li class="nav-item">
               <a class="nav-link" href="/baljan/credits"><i class="fa fa-coffee"></i> Kaffekort</a>
             </li>
-
+<!-- PROFIL KÖP JOBBPLANERING PERSONER OCH GRUPPER -->
           </ul>
-            <a href="#" class="contact-btn">Kontakta oss</a>
-            <button class="btn btn-outline-primary my-2 my-sm-0" type="submit"><i class="fa fa-sign-in"></i> Logga in</button>
+            <a href="#footer" class="contact-btn mr-2">Kontakta oss</a>
+            {% block login %} {% if user.is_authenticated %}
+            <i class="fa fa-user usericon mr-1" aria-hidden="true"></i>
+            <a href="{{user.get_absolute_url}}" class="mr-2">{{user}}</a>
+            <a href="{% url 'logout' %}" class="btn btn-outline-primary my-2 my-sm-0"><i class="fa fa-sign-out" aria-hidden="true"></i> Logga ut</a>
+            {% else %}
+            <a href="{% url 'social:begin' 'liu' %}" class="btn btn-outline-primary my-2 my-sm-0"><i class="fa fa-sign-in"></i> Logga in</a>
+            {% endif %} {% endblock %}
         </div>
       </div>
     </header>
 
-    <div id="body" class="container container_12">
+    
         {#<div id="logo" class="9" dir="ltr">{% block logo_link_image %}{% endblock %}</div>#}
         <div id="main" class="grid_10">
             {% if messages %}
@@ -47,7 +53,7 @@
             {% endif %}
         {% block body %}
         {% endblock %}
-        </div>
+
 
         <!--[if IE]>
             <div class="clear"></div>
@@ -65,7 +71,7 @@
         {% block extra_body %}{% endblock %}
     {% endblock %}
 
-    <footer class="Baljan__footer">
+    <footer class="Baljan__footer" id="footer">
       <div class="pattern"></div>
 
       <div class="block gray-box">

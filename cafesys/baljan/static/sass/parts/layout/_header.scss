@@ -90,10 +90,18 @@ body.fixed-navbar main.bd-masthead {
 
 .contact-btn {
   font-weight: bold;
-  margin-right: $margin;
+  // margin-right: $margin;
   color: $dark-blue;
   &:hover {
     text-decoration: none;
     color: $blue;
   }
+}
+
+.usericon {
+  color: $dark-blue;
+  // background-color: $dark-blue;;
+  padding: 6px 8px;
+  border: 1px solid $dark-blue;
+  border-radius: 50%;
 }
