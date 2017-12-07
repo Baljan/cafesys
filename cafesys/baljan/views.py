@@ -873,9 +873,8 @@ def high_score(request, year=None, week=None):
         else:
             return HttpResponse("INVALID FORMAT", content_type='text/plain')
 
-    fetched_stats = []
     if settings.STATS_CACHE_KEY:
-        fetched_stats += cache.get(settings.STATS_CACHE_KEY)
+        fetched_stats = cache.get(settings.STATS_CACHE_KEY)
     else:
         s = stats.Stats()
         fetched_stats = [s.get_interval(i) for i in stats.ALL_INTERVALS]
