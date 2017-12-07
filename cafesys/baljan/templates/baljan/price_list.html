@@ -9,10 +9,17 @@
 {% block body_class %}price-list{% endblock %}
 {% block body %}
 <h1>{% trans "Price List" %}</h1>
-<div class="grid_4 alpha main">
-    <div>
-        <h2>{% trans "Assortment" %}</h2>
-        <table>
+<div class="row">
+    <div class="col-6">
+        <h2>Sortiment</h2>
+        <table class="table table-baljan">
+        <thead>
+            <tr>
+                <th scope="col">Vara</th>
+                <th scope="col">Beskrivning</th>
+                <th scope="col">Pris</th>
+            </tr>
+        </thead>
         {% for good in goods %}
             <tr>
             <td>{{good.title}}</td>
@@ -24,106 +31,7 @@
         {% endfor %}
         </table>
     </div>
-    <div>
-        <div class="ui-state-error">
-            <span class="ui-icon ui-icon-alert" style="float:left"></span>
-            Observera att personalen <strong>inte</strong> har möjlig&shy;het
-            att ta emot eller lämna ut be&shy;ställningar! Mot&shy;svarande
-            gäller för termos&shy;ar och andra saker som ut&shy;lånas: endast
-            styr&shy;else&shy;med&shy;lemmar kan ta emot och lämna ut dem!
-        </div>
-        <div class="ui-state-highlight">
-            <span class="ui-icon ui-icon-info" style="float:left"></span>
-            Termosar, mjölk, socker och plast&shy;skedar ingår vid be&shy;ställning av
-            kaffe/te/choklad.
-        </div>
-    </div>
 </div><!--.main-->
-<div class="grid_6 omega secondary">
-    <div>
-        <h2>{% trans "Ordering From Us" %}</h2>
-        <p>
-            Sektioner och andra studentföreningar har möjligheten att beställa fika från oss mot faktura. Vi vill
-            ha er beställning senast kl 12 två vecko­dagar i förväg för att kunna garantera att ni får det ni vill ha.
-            Detta gäller särskilt om ni vill be­ställa baguetter eller större mängder kaffe.
-        </p>
-        <p>
-            För att göra en beställning eller hämta ut beställda varor måste ni kontakta någon ur styrelsen
-            (använd gärna vårt <a href="/baljan/bestallning">beställningsformulär</a>).
-            Tider då det säkert finns någon i styrelserummet som kan ta emot och lämna ut
-            beställningar är vardagar kl 7.30-8.00, 12.00-12.30 och 16.15-17.00. Vi tar varken emot eller lämnar
-            ut beställningar på fredag lunch. Om ni vill hämta ut ert fika vid någon annan tid kan ni alltid fråga
-            jourhavande styrelsemedlem, men vi lovar inte att det går att ordna.
-        </p>
-        <p>
-            Självklart går det bra att beställa från hela sortimentet. Önskas någonting specifikt är det bara att
-            ange detta i beställningen och tveka aldrig att fråga om det är någonting speciellt som önskas eller
-            om någonting är oklart.
-        </p>
-        <p>Se till att dessa saker kommer med när ni skickar en beställning så går hela processen smidigare:
-            <li>Namn och studentförening</li>
-            <li>Telefonnummer till personen som ska hämta ut</li>
-            <li>Vilken jourtid beställningen ska hämtas ut</li>
-            <li>Antal på det som ska beställas. Matcha antalet kaffe/te mot våra termosstorlekar.</li>
-        </p>
-        <p>
-        Nedan följer några regler för de vanligaste typerna av beställningar.
-        </p>
-
-        <h3>Jochen</h3>
-        <p>
-            Vi tar bara emot beställningar på minst fem jochen.
-            Utöver vårt ordinarie sortiment går det bra att beställa laktosfria samt veganjochen, ej glutenfria.
-            Totala maxtaket för antal jochen/dag är 200.
-            Vid beställningar över 100 jochen måste ni hämta ut er beställning på morgonen
-            då vi inte har möjlighet att förvara så stora kvantiteter i våra kylskåp.
-        </p>
-
-        <h3>Kaffe och te</h3>
-        <p>
-            När man beställer kaffe eller te av större kvantiteter beställer man antalet koppar som är våra standardkoppar på 23 cl.
-            Samma priser som i kassan gäller. Följande begränsningar finns för beställningar och utlämnande av kaffe minst 5,
-            morgon max 45, lunch max 90, eftermiddag max 135
-        </p>
-        <p>
-            Vi tar endast emot beställningar enligt våra termosstorlekar. Dessa är:
-        </p>
-
-        <h4>Kaffe</h4>
-        <ul>
-            <li>45 koppar</li>
-            <li>22 koppar</li>
-            <li>15 koppar</li>
-            <li>6 koppar</li>
-            <li>5 koppar</li>
-        </ul>
-
-        <h4>Te</h4>
-        <ul>
-            <li>10 koppar</li>
-			<li>6 koppar</li>
-            <li>5 koppar</li>
-        </ul>
-
-        <p>
-            Baljans termosar är bra, så om ni vill ha kaffet till kl 15 men måste hämta det vid kl 13 så kommer det att
-            hålla sig varmt. Ingenting att oroa sig för. Vid beställning ingår självklart mjölk, socker och skedar.
-        </p>
-        <p>
-            Det går även bra att hyra stora termosar av oss (ej de som vi brygger ur). De stora (45, 22 och 15 koppar)
-            kostar 50 kr/dygn och små för 10 kr/dygn. Det är många som vill beställa kaffe/hyra termosar från
-            Baljan, därför ska termosarna lämnas tillbaka färdigdiskade dagen efter, om inget annat bestäms.
-        </p>
-
-        <h3>Läsk</h3>
-        <p>
-            Baljan har ett stort läskförråd, men vid beställningar på ungefär 100 st av samma sort är det bra att
-            kontakta Baljan i god tid. Vid köp av fulla backar betalar man även pant. Lämnar man tillbaka fulla
-            backar kan panten skrivas av från fakturan om den lämnas tillbaka senast dagen efter.
-        </p>
-    </div>
-</div><!--.secondary-->
-<div class="clear"></div>
 {% endblock %}
 
 {% block extra_body %}

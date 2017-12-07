@@ -48,12 +48,7 @@
 
                     <div>
                         <h2> Kontaktuppgifter uthämtare</h2>
-                        <div class="form-check">
-                            <label class="form-check-label">
-                                {{ form.sameAsOrderer|addcss:"form-check-input" }}
-                                <span>Samma som beställare</span>
-                            </label>
-                        </div>
+                        {% field form.sameAsOrderer %}
 
                         {% field form.pickupName %}
                         {% field form.pickupEmail %}
