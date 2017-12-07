@@ -59,4 +59,5 @@ class Command(BaseCommand):
         print("\n")
         print("Kaffekort aktiverade under året:", balance_code_sum["value__sum"], "SEK")
         print("Summa på alla blipp under året:", order_sum["paid__sum"], "SEK")
-        print("Baljan har ", balance_code_sum["value__sum"]-order_sum["paid__sum"], "mer på hemsidan efter året. (Kaffekort-blipp)")
+        print("Balans", balance_code_sum["value__sum"]-order_sum["paid__sum"], "SEK. (Insatt-uttaget)")
+        print("\n")
