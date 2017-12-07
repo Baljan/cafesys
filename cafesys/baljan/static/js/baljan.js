@@ -7,7 +7,6 @@ $(document).ready(function () {
         changeMonth: true,
         changeYear: true
     });
-
     /* Semester View */
     $('body.semesters #id_start').change(function() {
         var dparts = $(this).attr('value').split('-'),
@@ -20,68 +19,6 @@ $(document).ready(function () {
     $('body.semesters .cancel').click(function() {
         history.go(-1);
     });
-
-    /* Work Planning View */
-    $('body.semester .tabs').tabs();
-
-    var updateShifts = function() {
-        var sem = $('.sem :selected:first').html(),
-            upcomingOnly = $('#upcoming-only').attr('checked'),
-            needWorkers = $('#need-workers').attr('checked'),
-            needCallDuty = $('#need-call-duty').attr('checked'),
-            onlySwitchable = $('#only-tradable').attr('checked'),
-            filters = [],
-            rows = '.tabs table tbody tr';
-
-        if (needWorkers || needCallDuty || onlySwitchable) {
-            $("#schedule table").addClass('plain');
-            $('#upcoming-only').attr('checked', true).attr('disabled', true);
-            upcomingOnly = true;
-        }
-        else {
-            if ($(this).hasClass('past')) {
-                // keep disabled
-            }
-            else {
-                $('#upcoming-only').attr('disabled', false);
-                $("#schedule table").removeClass('plain');
-            }
-        }
-
-        if (upcomingOnly) {
-            filters.push(function(row) {
-                return $(row).hasClass('upcoming');
-            });
-        }
-        if (needWorkers) {
-            filters.push(function(row) {
-                return $(row).find('.workers').hasClass('accepts');
-            });
-        }
-        if (needCallDuty) {
-            filters.push(function(row) {
-                return $(row).find('.on-call').hasClass('empty');
-            });
-        }
-        if (onlySwitchable) {
-            filters.push(function(row) {
-                return $(row).find('.tradable').length != 0;
-            });
-        }
-
-        $(rows).hide().filter(function() {
-            for (i in filters) {
-                if (filters[i](this) == false) {
-                    return false;
-                }
-            }
-            return true;
-        }).show();
-    }
-
-    if ($('body').hasClass('semester')) {
-        $('.filter').change(updateShifts).trigger('change');
-    }
     
     /* Day View */
     // Disable sign-up if there are no user options to choose from.
