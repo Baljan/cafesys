@@ -59,7 +59,7 @@ class OrderForm(forms.Form):
 
     pickup = forms.ChoiceField(choices=PICKUP_CHOICES, label='Tid för uthämtning')
     date = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}),required=True, label="Datum:")
-    sameAsOrderer = forms.BooleanField(initial=True, required=False)
+    sameAsOrderer = forms.BooleanField(initial=True, required=False, label="Samma som beställare")
     orderSum = forms.CharField(required=False)
     jochenSelected = forms.BooleanField(required=False, label='Jochen', label_suffix='')
     coffeeSelected= forms.BooleanField(required=False, label='Kaffe', label_suffix='')
