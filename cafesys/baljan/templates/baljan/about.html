@@ -69,90 +69,105 @@
 </section>
 
 
+<section>
+  <div class="block box">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-lg-6">
+          <div class="fb-page" data-href="https://www.facebook.com/sektionscafe.baljan/" data-tabs="timeline" data-width="500" data-height="600" data-small-header="false"
+            data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true">
+            <blockquote cite="https://www.facebook.com/sektionscafe.baljan/" class="fb-xfbml-parse-ignore">
+              <a href="https://www.facebook.com/sektionscafe.baljan/">Sektionscafé Baljan</a>
+            </blockquote>
+          </div>
 
-<h1>{% trans "About Baljan" %}</h1>
-<div class="grid_7 alpha main">
 
-  <div>
-    {# TODO: Translate. #}
-    <h2>Mål och mening</h2>
-    <p>
-      Kaffe åt folket! &mdash; helt enkelt. Vi säljer kaffe, te, varm choklad, läsk, mackor och
-      <span style="border-bottom:1px
-            dotted" title="dammsugare, chokladbollar, osv">klägg</span> till studentanpassade priser. Vi är helt idéella. Allt överskott återinvesteras i utrustning, möbler och
-      vår fantastiska personal.
-    </p>
+          
+          
+          <!-- <div class="fb-page" data-href="https://www.facebook.com/sektionscafe.baljan" data-height="500" data-width="400" data-small-header="true"
+            data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true" data-show-posts="true">
+            <div class="fb-xfbml-parse-ignore">
+              <blockquote cite="https://www.facebook.com/sektionscafe.baljan">
+                <a href="https://www.facebook.com/sektionscafe.baljan">Sektionscafé Baljan</a>
+              </blockquote>
+            </div>
+          </div> -->
+        </div>
+        <div class="col-12 col-lg-6 info-panel">
+          <div class="row">
+            <div class="col-4 col-sm-3 info-icon">
+              <i class="fa fa-clock-o"></i>
+            </div>
+            <div class="col-8 col-sm-9 info-text">
+              <h2>Öppettider</h2>
+              <table class="table">
+                <tr>
+                  <td><strong>Vardagar</strong></td>
+                  <td>8:00 till 16:15</td>
+                </tr>
+                <tr>
+                  <td><strong>helger, högtider</strong></td>
+                  <td>stängt</td>
+                </tr>
+
+              </table>
+             <p>Öppet vanliga tider under tenta-p, stängt under omtenta-p.</p>
+        
+            </div>
+
+            <div class="col-4 col-sm-3 info-icon">
+              <i class="fa fa-group"></i>
+            </div>
+            <div class="col-8 col-sm-9 info-text">
+              
+              <h2>Jourtider</h2>
+              <table class="table">
+                <tr>
+                  <td><strong>7:30 - 8:00</strong></td>
+                  <td>måndag - fredag</td>
+                </tr>
+                <tr>
+                  <td><strong>12:15 - 13:00</strong></td>
+                  <td>måndag - torsdag<br> <u>OBS: ej fredag!</u></td>
+                </tr>
+                <tr>
+                  <td><strong>16:15 - 17:00</strong></td>
+                  <td>måndag - fredag</td>
+                </tr>
+              </table>
+              <p>Under dessa tider finns en styrelsemedlem i vårt kontor, Nollberga.</p>
+            
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+</section>
 
+  <section class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-6">
+          <h2 class="pt-4">Jobba i Baljan</h2>
+          <p>Det är personalen som håller igång vårt fik! Det är dem du träffar när du handlar hos oss. Som personal i baljan
+            jobbar man tre halvdagar under en termin. Som tack för detta får man gratis kaffe/te hela terminen, en duktigt
+            subventionerad P-fest och den beryktade P-presenten&trade;.</p>
+          <p>För höstterminens jobbpass har vi ett jobbsläpp, i slutet av vårterminen. För vårens jobbpass är släppet strax före
+            jul-tenta-p. Jobbsläppen brukar vara tidigt på morgonen i Baljan.</p>
+        </div>
+        <div class="col-sm-6">
+          <div class="happy-workers">
+            <img src="{% static 'img/jobbare.jpg' %}" alt="Glada jobbare" style="border-radius: 25px;" /><br>
+            <p class="text-center pink baljan-font mt-2">Glada jobbare!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+    
+  <div id="map-container"></div>
 
-  <div style="padding:10px">
-    <iframe src="//www.facebook.com/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FSektionscafe-Baljan%2F135878346468778&amp;width=520&amp;colorscheme=light&amp;connections=18&amp;stream=true&amp;header=false&amp;height=537"
-      scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:520px; height:537px;" allowTransparency="true"></iframe>
-  </div>
-
-  {% comment %} TODO: This is a good place to include updates and whatnot. Facebook integration, perhaps? {% endcomment %}
-</div>
-<!--.main-->
-<div class="grid_3 omega secondary">
-  <div>
-    <a href="http://www.flickr.com/photos/chipgriffin/2210297177/">
-      <img title="chipgriffin @ flickr" src="{% static 'img/flickr/2210297177_d5a88290b3.jpg' %}" />
-    </a>
-
-    <dl>
-      <dt>{% trans 'weekdays' %}</dt>
-      <dd>{% trans '8:00 pm to 4:15 pm' %}
-        <dd>
-          <dt>{% trans 'weekends, holidays' %}</dt>
-          <dd>{% trans 'closed' %}
-            <dd>
-    </dl>
-    <p>
-      {% trans 'Open normal hours during mid-terms and final exams, but closed during re-exams.' %}
-    </p>
-  </div>
-
-
-  <div>
-    <a href="http://www.flickr.com/photos/20988296@N03/2133238064/">
-      <img title="MINGHE*luciano @ flickr" src="{% static 'img/flickr/2133238064_b7a6f87cf2.jpg' %}" />
-    </a>
-    <p>
-      {% blocktrans %} Baljan is located at the bottom floor of
-      <a href="http://www.karservice.se/karallen/">Kårallen</a>, campus Valla, Linköping. {% endblocktrans %}
-    </p>
-
-    <p>
-      <strong>{% trans 'email' %}</strong>
-      <br/> Styrelsen
-      <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a>
-      Ordförande
-      <a href="mailto:ordf@baljan.org">ordf@baljan.org</a>
-      Kassör
-      <a href="mailto:kassor@baljan.org">kassor@baljan.org</a>
-      Nördarna (IT)
-      <a href="mailto:1337@baljan.org">1337@baljan.org</a>
-
-      <p>
-        {% blocktrans %}
-        <strong>snail mail</strong>
-        <br/> Sektionscafé Baljan
-        <br/> Kårallen, universitetet
-        <br/> 581 83 Linköping
-        <br/> Sweden {% endblocktrans %}
-      </p>
-
-      <p>
-        <strong>{% trans 'phone' %}</strong>
-        <br/>
-        <a href="tel:{{CONTACT_PHONE}}">{{CONTACT_PHONE}}</a>
-      </p>
-
-  </div>
-
-</div>
-<!--.secondary-->
-<div class="clean"></div>
 
 {% endblock %}
 

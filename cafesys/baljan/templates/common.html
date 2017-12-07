@@ -38,8 +38,18 @@
       </div>
     </header>
 
+    {% if request.path == "/" %} löajdklöasjkdkasjdklasjdasdas
     
-        {#<div id="logo" class="9" dir="ltr">{% block logo_link_image %}{% endblock %}</div>#}
+    asdasdsa
+    dasd
+    sadasd{% endif %}
+{{ request.path }} {{ request.get_full_path }}
+
+    <main class="bd-masthead wrapper--md" id="content" role="main">
+      <div class="container">
+
+
+        <!-- {#<div id="logo" class="9" dir="ltr">{% block logo_link_image %}{% endblock %}</div>#} -->
         <div id="main" class="grid_10">
             {% if messages %}
                 <ul id="messages">
@@ -53,6 +63,11 @@
             {% endif %}
         {% block body %}
         {% endblock %}
+
+        {% if request.get_full_path == home_url %}
+           </div>
+        </main>
+        {% endif %}
 
 
         <!--[if IE]>

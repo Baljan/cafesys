@@ -11,6 +11,10 @@ $pink:          rgb(230, 0, 139)   !default;
 $blue:          rgb(0, 164, 224)   !default;
 $dark-blue:     rgb(47, 48, 140)   !default;
 
+.pink { color: $pink }
+.blue { color: $blue }
+.dark-blue { color: $dark-blue }
+
 // Other
 $black-light:   lighten(#000, 25%) !default;
 $white-darken:	darken($white, 35%);
