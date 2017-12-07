@@ -38,16 +38,10 @@
       </div>
     </header>
 
-    {% if request.path == "/" %} löajdklöasjkdkasjdklasjdasdas
-    
-    asdasdsa
-    dasd
-    sadasd{% endif %}
 {{ request.path }} {{ request.get_full_path }}
 
     <main class="bd-masthead wrapper--md" id="content" role="main">
       <div class="container">
-
 
         <!-- {#<div id="logo" class="9" dir="ltr">{% block logo_link_image %}{% endblock %}</div>#} -->
         <div id="main" class="grid_10">
@@ -64,11 +58,8 @@
         {% block body %}
         {% endblock %}
 
-        {% if request.get_full_path == home_url %}
            </div>
         </main>
-        {% endif %}
-
 
         <!--[if IE]>
             <div class="clear"></div>
@@ -81,10 +72,7 @@
         <![endif]-->
     </div>
     {% endblock %}
-    
-    {% block extra_body_base %}
-        {% block extra_body %}{% endblock %}
-    {% endblock %}
+  
 
     <footer class="Baljan__footer" id="footer">
       <div class="pattern"></div>
@@ -179,3 +167,6 @@
         </div>
     </footer>
 {% endblock body_base %}
+
+
+{% block extra_body_base %} {% block extra_body %}{% endblock %} {% endblock %}
