@@ -28,6 +28,7 @@ from .forms import OrderForm
 from .util import (adjacent_weeks, all_initials, available_for_call_duty,
                    from_iso8601, htmlents, valid_username, week_dates,
                    year_and_week)
+import pytz
 
 logger = getLogger(__name__)
 
@@ -519,7 +520,8 @@ def job_opening_projector(request, semester_name):
     sched = workdist.Scheduler(sem)
     pairs = sched.pairs_from_db()
     slots = _pair_matrix(pairs)
-    tpl['now'] = now = datetime.now().strftime('%H:%M:%S')
+    tz = pytz.timezone(settings.TIME_ZONE)
+    tpl['now'] = now = datetime.now(tz).strftime('%H:%M:%S')
 
     if request.is_ajax():
         pair_info = []
