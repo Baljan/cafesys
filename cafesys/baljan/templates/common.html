@@ -9,7 +9,7 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav mr-auto">
+      <ul class="navbar-nav">
         <li class="nav-item active">
           <a class="nav-link" href="/">
             <i class="fa fa-home"></i> Hem
@@ -30,16 +30,24 @@
         </li>
         <!-- PROFIL KÖP JOBBPLANERING PERSONER OCH GRUPPER -->
       </ul>
-      <a href="#footer" class="contact-btn mr-2">Kontakta oss</a>
+      {% if user.is_authenticated %}
+      <i class="fa fa-user usericon ml-2 mr-1" aria-hidden="true"></i>
+      <a href="{{user.get_absolute_url}}" class="mr-2 username">{{user}}</a>
+      {% endif %}
+
+      <div class="ml-auto">
       {% block login %} {% if user.is_authenticated %}
-      <i class="fa fa-user usericon mr-1" aria-hidden="true"></i>
-      <a href="{{user.get_absolute_url}}" class="mr-2">{{user}}</a>
+      
+      <a href="#footer" class="contact-btn mr-2">Kontakta oss</a>
       <a href="{% url 'logout' %}" class="btn btn-outline-primary my-2 my-sm-0">
         <i class="fa fa-sign-out" aria-hidden="true"></i> Logga ut</a>
       {% else %}
+      <a href="#footer" class="contact-btn mr-2">Kontakta oss</a>
       <a href="{% url 'social:begin' 'liu' %}" class="btn btn-outline-primary my-2 my-sm-0">
         <i class="fa fa-sign-in"></i> Logga in</a>
       {% endif %} {% endblock %}
+      </div>
+
     </div>
   </div>
 </header>
