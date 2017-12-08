@@ -43,6 +43,7 @@ body.fixed-navbar main.bd-masthead {
         color: $dark-blue;
         font-size: 1.2rem;
         border: 2px solid transparent;
+        text-align: center;
         &:hover {
           color: $blue; // background: $pink;
           // border: 2px solid $pink;
@@ -90,9 +91,9 @@ body.fixed-navbar main.bd-masthead {
 
 .usericon {
   color: $dark-blue; 
-  background-color: #f2f2f2;
-  padding: 4px 6px;
-  border: 1px solid #cecece;
+  background-color: #f8f8f8;
+  padding: 7px 10px;
+  border: 1px solid #e0e0e0;
   border-radius: 50%;
   margin-top: 4px;
 }
@@ -102,4 +103,9 @@ body.fixed-navbar main.bd-masthead {
   font-weight: bold;
   margin-top: 4px;
 
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
 }

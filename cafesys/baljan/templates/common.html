@@ -1,15 +1,12 @@
 {% extends "base.html" %} {% load i18n %} {% load static %} {% block body_base %} {% block body_outer %}
-<header class="navbar navbar-expand flex-column flex-md-row bd-navbar">
-  <div class="container">
+<header class="navbar navbar-expand-lg flex-column flex-md-row">
+  <div class="container d-flex">
     <a class="navbar-brand" href="/">
-      <img src="{% static 'img/svg/logo.svg' %}" width="78" />
+      <img src="{% static 'img/svg/logo.svg' %}" width="62" />
     </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse"
-      aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav">
+
+    <div class="collapse navbar-collapse order-2" id="navbarCollapse">
+      <ul class="navbar-nav flex-row d-flex justify-content-around">
         <li class="nav-item active">
           <a class="nav-link" href="/">
             <i class="fa fa-home"></i> Hem
@@ -31,24 +28,36 @@
         <!-- PROFIL KÖP JOBBPLANERING PERSONER OCH GRUPPER -->
       </ul>
       {% if user.is_authenticated %}
-      <i class="fa fa-user usericon ml-2 mr-1" aria-hidden="true"></i>
-      <a href="{{user.get_absolute_url}}" class="mr-2 username">{{user}}</a>
-      {% endif %}
+      <!-- if we want user here -->
+      {% endif %} {{request.get_absolute_url}} {{request.get_full_path}}
 
-      <div class="ml-auto">
+    </div>
+    <!-- collapse -->
+
+
+    <div class="ml-auto button-container order-lg-3">
       {% block login %} {% if user.is_authenticated %}
-      
-      <a href="#footer" class="contact-btn mr-2">Kontakta oss</a>
-      <a href="{% url 'logout' %}" class="btn btn-outline-primary my-2 my-sm-0">
+      <i class="fa fa-user usericon ml-3 mr-1" aria-hidden="true"></i>
+      <a href="{{user.get_absolute_url}}" class="mr-2 username">{{user}}</a>
+      <a href="#footer" class="contact-btn mr-2 d-none d-xl-inline">Kontakta oss</a>
+      <a href="{% url 'logout' %}" class="btn btn-outline-primary my-2 my-sm-0 d-none d-sm-inline-block">
         <i class="fa fa-sign-out" aria-hidden="true"></i> Logga ut</a>
       {% else %}
       <a href="#footer" class="contact-btn mr-2">Kontakta oss</a>
       <a href="{% url 'social:begin' 'liu' %}" class="btn btn-outline-primary my-2 my-sm-0">
         <i class="fa fa-sign-in"></i> Logga in</a>
       {% endif %} {% endblock %}
-      </div>
+      <button class="navbar-toggler hamburger hamburger--collapse" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" id="hamburger">
+        <!-- <span class="navbar-toggler-icon"></span> -->
+        <span class="hamburger-box">
+          <span class="hamburger-inner"></span>
+        </span>
+      </button>
 
+      </button>
     </div>
+
   </div>
 </header>
 
