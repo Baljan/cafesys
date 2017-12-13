@@ -33,7 +33,7 @@
                 <form method="post">
                     {% csrf_token %}
 
-                    <div>
+                    <div class="wrapper">
                         <h2> Kontaktuppgifter </h2>
 
                         {% field form.orderer %}
@@ -56,7 +56,7 @@
                     </div>
 
 
-                    <div>
+                    <div class="wrapper">
                         <h2> Beställning </h2>
 
                         {% order_item form 'jochen' 30 %}
@@ -129,7 +129,7 @@
 
             </div>
 
-            <div>
+            <div class="wrapper">
                 <h2> Vad gäller? </h2>
                 Följade gäller vid beställningar:
                 <h3> Kaffe/te </h3>
