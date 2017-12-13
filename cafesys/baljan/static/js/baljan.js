@@ -1,12 +1,7 @@
 $(document).ready(function () {
     $('.init-hidden').css('visibility', 'visible').show();
     $('#nav .active').click();
-
-    $('input.dateinput').datepicker({ // TODO: i18n
-        dateFormat:"yy-mm-dd",
-        changeMonth: true,
-        changeYear: true
-    });
+    
     /* Semester View */
     $('body.semesters #id_start').change(function() {
         var dparts = $(this).attr('value').split('-'),
