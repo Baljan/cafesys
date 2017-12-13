@@ -71,7 +71,7 @@ window.onload = function justdoit() {
 };
 
 $(function () {
-    $(".order-item").on('change', function () {
+    $(".order-item").on('input', function () {
             calcSum();
     });
     var datepicker=$("#id_date");
