@@ -18,14 +18,31 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
   <link href="{% sass_src 'sass/bundle.scss' %}" rel="stylesheet" type="text/css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
   <link rel="stylesheet" href="{% static 'css/tmp.css' %}"> {% block extra_head_base %} {% block extra_head %}{% endblock %} {% endblock %}
+
+  <!--
+  __________         .__        __                                              
+  \______   \_____   |  |      |__|_____     ____        ____  _______    ____  
+   |    |  _/\__  \  |  |      |  |\__  \   /    \      /  _ \ \_  __ \  / ___\ 
+   |    |   \ / __ \_|  |__    |  | / __ \_|   |  \    (  <_> ) |  | \/ / /_/  >
+   |______  /(____  /|____//\__|  |(____  /|___|  / /\  \____/  |__|    \___  / 
+          \/      \/       \______|     \/      \/  \/                 /_____/  
+  
+    / 1337(at)baljan.org
+    - Olle Widner
+    - Tobias Lundgren 
+    - Robert Pettersson  
+    - Patrik Sletmo
+  -->
+
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
   {% block body_base %} {% endblock %}
 
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script type="text/javascript" src="{% static 'js/jquery.plugins.js' %}"></script>
   <script type="text/javascript" src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
   <script type="text/javascript" src="{% static 'js/uni-form.jquery.js' %}"></script>

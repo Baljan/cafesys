@@ -43,7 +43,7 @@
       <a href="{% url 'logout' %}" class="btn btn-outline-primary my-2 my-sm-0 d-none d-sm-inline-block">
         <i class="fa fa-sign-out" aria-hidden="true"></i> Logga ut</a>
       {% else %}
-      <a href="#footer" class="contact-btn mr-2">Kontakta oss</a>
+      <a href="#footer" class="contact-btn mr-2 d-none d-xl-inline">Kontakta oss</a>
       <a href="{% url 'social:begin' 'liu' %}" class="btn btn-outline-primary my-2 my-sm-0">
         <i class="fa fa-sign-in"></i> Logga in</a>
       {% endif %} {% endblock %}
