@@ -145,7 +145,27 @@ def orderFromUs(request):
             from_email = 'cafesys@baljan.org'
             to = 'bestallning@baljan.org'
 
-            html_content = '<div style="border:1px dotted black;padding:2em;"><b> Kontaktuppgifter: </b><br> Namn: '+orderer+'<br> Email: '+ordererEmail+'<br>Telefon: '+phoneNumber +' <br> F&ouml;rening/Sektion: '+association+'<br><br><b>Uth&auml;mtare:</b><br> '+ordererIsSame+'<br><br><b>Best&auml;llning: </b> <br>'+items+ "Summa: <u>"+orderSum+"</u><br><br><b>&Ouml;vrigt:</b><br>" +other+'<br> <br><b>Datum och tid: <br> </b>Datum: '+date+'<br>Tid: '+pickup+' </div>'
+            pickuptext
+            if pickup == 0:
+                pickuptext = 'Morgon 07:30-08:00'
+            elif pickup == 1:
+                pickuptext = 'Lunch 12:15-13:00'
+            else:
+                pickuptext = 'Eftermiddag 16:15-17:00'
+
+            html_content = '<div style="border:1px dotted black;padding:2em;">'+\
+                           '<b> Kontaktuppgifter: </b><br>'+\
+                           'Namn: '+orderer+'<br>'+\
+                           'Email: '+ordererEmail+'<br>'+\
+                           'Telefon: '+phoneNumber +' <br>'+\
+                           'F&ouml;rening/Sektion: '+association+'<br><br>'+\
+                           '<b>Uth&auml;mtare:</b><br> '+\
+                           ordererIsSame+'<br><br>'+\
+                           '<b>Best&auml;llning: </b> <br>'+items+\
+                           'Summa: <u>'+orderSum+'</u><br><br>' + \
+                           '<b>&Ouml;vrigt:</b><br>' +other+\
+                           '<br> <br><b>Datum och tid: </b><br>'+\
+                           'Datum: '+date+'<br>Tid: '+pickuptext+' </div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
 
             items = items.replace("&auml;","a")
@@ -157,15 +177,15 @@ def orderFromUs(request):
             msg.attach(htmlpart)
 
             dtStart=""
-            if "Morgon" in pickup:
+            if pickup == 0:  # Morgon
                 dPickUp=date.replace("-","")
                 dtStart=dPickUp+"T073000Z"
                 dtEnd=dPickUp+"T080000Z"
-            if "Lunch" in pickup:
+            if pickup == 1:  # Lunch
                 dPickUp=date.replace("-","")
                 dtStart=dPickUp+"T121500Z"
                 dtEnd=dPickUp+"T130000Z"
-            if "Eftermiddag" in pickup:
+            if pickup == 2:  # Eftermiddag
                 dPickUp=date.replace("-","")
                 dtStart=dPickUp+"T161500Z"
                 dtEnd=dPickUp+"T170000Z"

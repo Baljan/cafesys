@@ -127,12 +127,12 @@ $(document).ready(function () {
             $(this).dialog('close');
         }
     }
-    var profileDialog = $('body.user #profile-dialog').dialog({
+    /*var profileDialog = $('body.user #profile-dialog').dialog({
         modal: true,
         autoOpen: false,
         buttons: profileDialogButtons,
         width: 500
-    });
+    });  Dosen't work any more*/
     $('body.user .show-profile-dialog').click(function() {
         profileDialog.dialog('open');
     });

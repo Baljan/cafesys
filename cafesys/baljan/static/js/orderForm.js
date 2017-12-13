@@ -1,14 +1,5 @@
-function calcSum(highlight) {
-    highlight = typeof highlight !== 'undefined' ? highlight : true;
-    var userInput = 30 * document.getElementById('id_numberOfJochen').value + 6 * document.getElementById('id_numberOfCoffee').value
-        + 6 * document.getElementById('id_numberOfTea').value + 5 * document.getElementById('id_numberOfSoda').value
-        + 6 * document.getElementById('id_numberOfKlagg').value;
-    document.getElementById('currentSum').innerHTML = userInput;
-    document.getElementById("id_orderSum").value = userInput;
-
-    if (highlight) {
-        $("#currentSum").effect("highlight");
-    }
+function calcSum() {
+    var grandTotal=0;
 
     $(".order-item").each(function() {
         var amount = parseInt($(this).find("input").val());
@@ -17,165 +8,89 @@ function calcSum(highlight) {
         if (isNaN(total)) {
             total = 0;
         }
-
+        grandTotal+=total;
         $(this).find(".total").text(total.toString());
     });
-}
 
-function disablePickupFields() {
-    document.getElementById('id_pickupName').value = document.getElementById('id_orderer').value
-    document.getElementById('id_pickupName').readOnly = true
-    document.getElementById('id_pickupEmail').value = document.getElementById('id_ordererEmail').value
-    document.getElementById('id_pickupEmail').readOnly = true
-    document.getElementById('id_pickupNumber').value = document.getElementById('id_phoneNumber').value
-    document.getElementById('id_pickupNumber').readOnly = true
+    $('#currentSum').text(grandTotal);
+    $('#id_orderSum').val(grandTotal);
 }
 
 
-window.onload = function justdoit() {
-    if ($("#id_sameAsOrderer").is(':checked')) {
-        disablePickupFields();
+function disablePickupFields(disable) {
+    var pickupName = $('#id_pickupName');
+    var pickupEmail = $('#id_pickupEmail');
+    var pickupNumber = $('#id_pickupNumber');
+
+    pickupName.prop('readonly', disable);
+    pickupEmail.prop('readonly', disable);
+    pickupNumber.prop('readonly', disable);
+
+    if (disable){
+        pickupName.val($('#id_orderer').val());
+        pickupEmail.val($('#id_ordererEmail').val());
+        pickupNumber.val($('#id_phoneNumber').val());
+    }else{
+        pickupName.val("");
+        pickupEmail.val("");
+        pickupNumber.val("");
     }
 
-    $("#id_sameAsOrderer").on('change', function () {
-        if ($(this).is(':checked')) {
-            document.getElementById('id_pickupName').value = document.getElementById('id_orderer').value
-            document.getElementById('id_pickupName').readOnly = true
-            document.getElementById('id_pickupEmail').value = document.getElementById('id_ordererEmail').value
-            document.getElementById('id_pickupEmail').readOnly = true
-            document.getElementById('id_pickupNumber').value = document.getElementById('id_phoneNumber').value
-            document.getElementById('id_pickupNumber').readOnly = true
-        }
-        else {
-            document.getElementById('id_pickupName').value = ""
-            document.getElementById('id_pickupName').readOnly = false
-            document.getElementById('id_pickupEmail').value = ""
-            document.getElementById('id_pickupEmail').readOnly = false
-            document.getElementById('id_pickupNumber').value = ""
-            document.getElementById('id_pickupNumber').readOnly = false
-        }
-    });
-
-    $('#id_orderer').bind('input', function () {
-        document.getElementById('id_pickupName').readOnly = true
-        document.getElementById('id_pickupEmail').readOnly = true
-        document.getElementById('id_pickupNumber').readOnly = true
-        if (document.getElementById('id_sameAsOrderer').checked) {
-            document.getElementById('id_pickupName').value = document.getElementById('id_orderer').value
-        }
-    });
-    $('#id_ordererEmail').bind('input', function () {
-        document.getElementById('id_pickupName').readOnly = true
-        document.getElementById('id_pickupEmail').readOnly = true
-        document.getElementById('id_pickupNumber').readOnly = true
-        if (document.getElementById('id_sameAsOrderer').checked) {
-            document.getElementById('id_pickupEmail').value = document.getElementById('id_ordererEmail').value
-        }
-    });
-    $('#id_phoneNumber').bind('input', function () {
-        document.getElementById('id_pickupName').readOnly = true
-        document.getElementById('id_pickupEmail').readOnly = true
-        document.getElementById('id_pickupNumber').readOnly = true
-        if (document.getElementById('id_sameAsOrderer').checked) {
-            document.getElementById('id_pickupNumber').value = document.getElementById('id_phoneNumber').value
-        }
-    });
 }
 
-$(function () {
-    $("#check").button();
+window.onload = function justdoit() {
+    var sameAsOrderer = $("#id_sameAsOrderer");
+    if (sameAsOrderer.is(':checked')) {
+        disablePickupFields(true);
+    }
 
-
-    $("#id_jochenSelected").on('change', function () {
+    sameAsOrderer.on('change', function () {
         if ($(this).is(':checked')) {
-            $("#jochen").show("fast");
-            $("#id_numberOfJochen").focus();
+            disablePickupFields(true);
         }
         else {
-            $("#jochen").hide("fast");
-            document.getElementById('id_numberOfJochen').value = ""
-            calcSum();
-
+            disablePickupFields(false);
         }
     });
 
-    $("#id_coffeeSelected").on('change', function () {
-        if ($(this).is(':checked')) {
-            $("#coffee").show("fast");
-            $("#id_numberOfCoffee").focus();
-        }
-        else {
-            $("#coffee").hide("fast");
-            document.getElementById('id_numberOfCoffee').value = ""
-            calcSum();
+    $('#id_orderer').on('change', function () {
+        if ($("#id_sameAsOrderer").is(':checked')) {
+            $('#id_pickupName').val($('#id_orderer').val());
         }
     });
-
-    $("#id_teaSelected").on('change', function () {
-        if ($(this).is(':checked')) {
-            $("#tea").show("fast");
-            $("#id_numberOfTea").focus();
-        }
-        else {
-            $("#tea").hide("fast");
-            document.getElementById('id_numberOfTea').value = ""
-            calcSum();
+    $('#id_ordererEmail').on('change',function () {
+        if ($("#id_sameAsOrderer").is(':checked')) {
+            $('#id_pickupEmail').val($('#id_ordererEmail').val());
         }
     });
-
-    $("#id_sodaSelected").on('change', function () {
-        if ($(this).is(':checked')) {
-            $("#soda").show("fast");
-            $("#id_numberOfSoda").focus();
-        }
-        else {
-            $("#soda").hide("fast");
-            document.getElementById('id_numberOfSoda').value = ""
-            calcSum();
+    $('#id_phoneNumber').on('change', function () {
+        if ($("#id_sameAsOrderer").is(':checked')) {
+            $('#id_pickupNumber').val($('#id_phoneNumber').val());
         }
     });
-
-    $("#id_klaggSelected").on('change', function () {
-        if ($(this).is(':checked')) {
-            $("#klagg").show("fast");
-            $("#id_numberOfKlagg").focus();
-        }
-        else {
-            $("#klagg").hide("fast");
-            document.getElementById('id_numberOfKlagg').value = ""
-            calcSum();
-        }
-
-    });
-});
-
-$(document).ready(function () {
-    calcSum(false);
-
-    //	<span> {{form.orderSum.value|default_if_none:"0"}} SEK </span>
-    $('#id_numberOfJochen').bind('input', function () {
-        calcSum();
-        //$.datepicker({minDate:+30});
-
-    });
-    $('#id_numberOfCoffee').bind('input', function () {
-        calcSum();
-    });
-    $('#id_numberOfTea').bind('input', function () {
-        calcSum();
-    });
-    $('#id_numberOfSoda').bind('input', function () {
-        calcSum();
-    });
-    $('#id_numberOfKlagg').bind('input', function () {
-        calcSum();
-    });
-});
-
-//document.getElementById('id_orderSum').value = userInput;
+};
 
 $(function () {
-    $("#id_date").datepicker({
-        language: "sv"
+    $(".order-item").on('change', function () {
+            calcSum();
+    });
+    var datepicker=$("#id_date");
+    datepicker.datepicker({
+        language: "sv",
+        startDate: '0d',
+        daysOfWeekDisabled: '06'
+    });
+
+    datepicker.datepicker().on('changeDate', function() {
+        var date=$(this).datepicker('getDate').getDay();
+        if (date===5) {
+            if ($("#id_pickup").val() == 1){
+                $("#id_pickup").val(0);
+            }
+            $("option[value=1]").prop('disabled', true);
+
+        }else{
+            $("option[value=1]").prop('disabled', false);
+        }
     });
 });

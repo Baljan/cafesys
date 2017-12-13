@@ -52,9 +52,9 @@ class OrderForm(forms.Form):
     other = forms.CharField(widget=forms.Textarea(attrs={'cols':33,'rows':5}), required=False, label='Övrig information:')
 
     PICKUP_CHOICES = (
-        ('Morgon 07:30-08:00','Morgon 07:30-08:00'),
-        ('Lunch 12:15-13:00 (ej fredagar)','Lunch 12:15-13:00 (ej fredagar)'),
-        ('Eftermiddag 16:15-17:00','Eftermiddag 16:15-17:00'),
+        (0,'Morgon 07:30-08:00'),
+        (1,'Lunch 12:15-13:00 (ej fredagar)'),
+        (2,'Eftermiddag 16:15-17:00'),
     )
 
     pickup = forms.ChoiceField(choices=PICKUP_CHOICES, label='Tid för uthämtning')
