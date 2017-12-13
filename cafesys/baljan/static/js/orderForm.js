@@ -177,7 +177,6 @@ $(function () {
         dayNamesMin: ['Sö', 'Må', 'Ti', 'On', 'To', 'Fr', 'Lö'],
         weekHeader: 'Ve',
         dateFormat: 'yy-mm-dd',
-        maxDate: "17-12-20",
         firstDay: 1,
         isRTL: false,
         showMonthAfterYear: false,
