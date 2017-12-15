@@ -37,14 +37,14 @@
 
     <div class="ml-auto button-container order-lg-3">
       {% block login %} {% if user.is_authenticated %}
-      <i class="fa fa-user usericon ml-3 mr-1" aria-hidden="true"></i>
+      <i class="fa fa-user usericon ml-3 mr-1 d-none d-sm-inline-block" aria-hidden="true"></i>
       <a href="{{user.get_absolute_url}}" class="mr-2 username">{{user.get_full_name}}</a>
-      <a href="#footer" class="contact-btn mr-2 d-none d-xl-inline">Kontakta oss</a>
-      <a href="{% url 'logout' %}" class="btn btn-outline-primary my-2 my-sm-0 d-none d-sm-inline-block">
+      <a href="#footer" class="contact-btn d-none d-xl-inline">Kontakta oss</a>
+      <a href="{% url 'logout' %}" class="btn my-2 my-sm-0 d-none d-sm-inline-block">
         <i class="fa fa-sign-out" aria-hidden="true"></i> Logga ut</a>
       {% else %}
       <a href="#footer" class="contact-btn mr-2 d-none d-xl-inline">Kontakta oss</a>
-      <a href="{% url 'social:begin' 'liu' %}" class="btn btn-outline-primary my-2 my-sm-0">
+      <a href="{% url 'social:begin' 'liu' %}" class="btn btn-outline-primary btn-attention my-2 my-sm-0">
         <i class="fa fa-sign-in"></i> Logga in</a>
       {% endif %} {% endblock %}
       <button class="navbar-toggler hamburger hamburger--collapse" type="button" data-toggle="collapse" data-target="#navbarCollapse"

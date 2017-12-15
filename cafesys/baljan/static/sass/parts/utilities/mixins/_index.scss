@@ -13,6 +13,7 @@
 @import "resets";
 @import "hover";
 @import "if-no-supported";
+@import "bootstrap_mixins";
 
 // @usage - include z($zindex-object-property-from-_config.scss)
 @mixin z($zindex) {

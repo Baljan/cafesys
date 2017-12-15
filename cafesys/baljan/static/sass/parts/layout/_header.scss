@@ -28,7 +28,7 @@ body.fixed-navbar main.bd-masthead{
     position: fixed;
     background: #FFF;
     box-shadow: 0 2px 5px -1px rgba(0, 0, 0, .09);
-    .btn {
+    .btn-attention {
       background-color: $pink;
       color: white;
       &:hover {
@@ -102,6 +102,9 @@ body.fixed-navbar main.bd-masthead{
 .username {
   font-size: 90%;
   font-weight: bold;
+  @include media-breakpoint-down(sm) {
+    font-size: 80%;
+  }
 }
 
 .button-container {
