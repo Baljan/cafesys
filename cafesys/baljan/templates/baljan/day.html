@@ -10,44 +10,38 @@
 {% block body %}
 
 {% if semester %}
-<div class="top-nav">
-    {% blocktrans with semester.get_absolute_url as sem_url and semester.name as sem_name %}
-        <a href="{{sem_url}}">&laquo; semester {{sem_name}}</a>
-    {% endblocktrans %}
-</div>
+    <a href="{{semester.get_absolute_url}}">&laquo; Termin {{semester.name}}</a>
 {% endif %}
 
-<h1>
+<h2>
     {{day|naturalday}}: {{day|date:'l'}}
 
     {% if perms.baljan.change_oncallduty %}
     <a href="{% url 'call_duty_week' day|year day|week %}">
-        {% trans "week" %}
+        vecka
         {{day|week}}
     </a>
     {% else %}
-        {% trans "week" %}
+        vecka
         {{day|week}}
     {% endif %}
-</h1>
+</h2>
 
 {% for sh in shifts %}
-    <div class="shift-top">
-        <h2 style="float:left" class="early-or-late">
-            {{ sh.timeofday|title }}
-        </h2>
+    <div class="row">
+
+        <div class="col">
+            <h3>{{ sh.timeofday|title }}</h3>
+        </div>
         {% if perms.baljan.change_shift %}
-            <div style="float:right" class="admin-link">
+            <div class="col ml-auto">
                 <a href="{% url 'admin:baljan_shift_change' sh.id %}">{% trans "admin" %}</a>
             </div>
         {% endif %}
-        <div class="clear"></div>
     </div>
-    <div class="schedule grid_6 alpha">
+    <div class="row">
         {% for signup in sh.signups %}
-            <div class="worker
-                {% if forloop.first%}alpha {% endif %}
-                {% if forloop.last%}omega {% endif %}grid_3">
+            <div class="col">
                 <div class="person{% if signup.can_trade %} tradable undo-highlight{% endif %}">
                     <strong class="type">
                         {% if signup.can_trade %}
@@ -85,16 +79,15 @@
                 </div>
             </div>
         {% empty %}
-            <div class="worker person empty">
+            <div class="col">
                 {% if sh.span == 1 %}
-                    {% trans "The morning and afternoon shifts for workers overlap here." %}
+                    För- och eftermiddagspassen för jobbare överlappar varandra här.
                 {% else %}
-                    {% trans "No workers have signed up." %}
-                    {% trans "The working hours are" %} {{ sh.worker_timedesc }}.
+                    Inga jobbare har anmält sig.
+                    Arbetstiden är {{ sh.worker_timedesc }}.
                 {% endif %}
             </div>
         {% endfor %}
-        <div class="clear"></div>
         {% if sh.accepts_signups and perms.baljan.self_and_friend_signup %}
             <div class="sign-up person worker">
                 <form method="post" class="init-hidden">{% csrf_token %}
@@ -121,7 +114,7 @@
             </div>
         {% endif %}
     </div>
-    <div class="grid_4 omega on-calls">
+    <div class="col">
         {% for oncall in sh.callduties %}
             <div class="on-call person">
                 <strong class="type">{% trans "on call" %}</strong><br/>
@@ -138,7 +131,6 @@
                 {% trans "The working hours are" %} {{ sh.oncall_timedesc }}.
             </div>
         {% endfor %}
-        <div class="clear"></div>
         {% if sh.accepts_callduty and perms.baljan.add_oncallduty and perms.baljan.change_oncallduty %}
             <div class="sign-up person call-duty">
                 <form method="post" class="init-hidden">{% csrf_token %}
@@ -158,9 +150,7 @@
             </div>
         {% endif %}
     </div>
-    <div class="clear"></div>
 {% endfor %}
-<div class="clear"></div>
 {% endblock %}
 
 {% block extra_body %}
