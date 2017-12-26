@@ -15,20 +15,8 @@ $(document).ready(function () {
         history.go(-1);
     });
     
-    /* Day View */
-    // Disable sign-up if there are no user options to choose from.
-    $('body.day form').each(function() {
-        if ($(this).find('select[name=user] option').length == 0) {
-            $(this).find('select[name=user]').hide();
-            $(this).find('input[type=submit]').attr('disabled', true);
-        }
-    });
-    $('body.day .worker input[type=submit]').click(function() {
-        return confirm(CONFIRM_SIGNUP);
-    });
-    $('body.day .delete').click(function() {
-        return confirm(CONFIRM_DELETE);
-    });
+
+
 
     /* Search Person View */
     if ($('body').hasClass('search-person')) {

@@ -29,7 +29,7 @@
       </ul>
       {% if user.is_authenticated %}
       <!-- if we want user here -->
-      {% endif %} {{request.get_absolute_url}} {{request.get_full_path}}
+      {% endif %}
 
     </div>
     <!-- collapse -->
@@ -64,7 +64,6 @@
 
 <main class="bd-masthead wrapper--md" id="content" role="main">
   <div class="container">
-    {{ request.path }} {{ request.get_full_path }}
 
     <!-- {#<div id="logo" class="9" dir="ltr">{% block logo_link_image %}{% endblock %}</div>#} -->
     {% if messages %}
