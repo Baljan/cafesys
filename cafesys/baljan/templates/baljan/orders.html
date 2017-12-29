@@ -8,52 +8,59 @@
 
 {% block body_class %}orders{% endblock %}
 {% block body %}
-<h1>{% trans "Orders for" %} {{user.username}} ({{orders|length}})</h1>
-<div class="grid_6 alpha main">
-    <div>
-        <table>
+<h1>Köp av {{user.username}} ({{orders|length}})</h1>
+<div class="row">
+    <div class="col">
+        <table class="table table-baljan">
+            <thead>
+            <th>
+                Datum
+            </th>
+            <th>
+                Klockslag
+            </th>
+            <th>
+                Vara
+            </th>
+            </thead>
             {% for order in order_page.object_list %}
-            {% with order.put_at|date as put_at_date %}
-            <tr>
-                <td class="date-change">
-                    {% ifchanged put_at_date %}
-                        {{put_at_date}}
-                    {% endifchanged %}
-                </td>
-                <td>
-                    {{order.put_at|time }}
-                </td>
-                <td>
-                    {{order.ordergood_set.all|join:", "}}
-                </td>
-            </tr>
-            {% endwith %}
+                {% with order.put_at|date as put_at_date %}
+                    <tr>
+                        <td class="date-change">
+                            {% ifchanged put_at_date %}
+                                {{put_at_date}}
+                            {% endifchanged %}
+                        </td>
+                        <td>
+                            {{order.put_at|time }}
+                        </td>
+                        <td>
+                            {{order.ordergood_set.all|join:", "}}
+                        </td>
+                    </tr>
+                {% endwith %}
             {% empty %}
             <tr>
                 <td colspan="3">
-                    {% trans "nothing ordered" %}
+                    Inga köp registrerade.
                 </td>
             </tr>
             {% endfor %}
         </table>
 
         {% if order_page.has_next %}
-            <div style="float:left;">
-                <a href="{% url 'orders' order_page.next_page_number %}">&laquo; {% trans "older" %}</a>
+            <div class="float-left">
+                <a href="{% url 'orders' order_page.next_page_number %}">&laquo; Äldre</a>
             </div>
         {% endif %}
         {% if order_page.has_previous %}
-            <div style="float:right;">
-                <a href="{% url 'orders' order_page.previous_page_number %}">{% trans "newer" %} &raquo;</a>
+            <div class="float-right">
+                <a href="{% url 'orders' order_page.previous_page_number %}">Nyare &raquo;</a>
             </div>
         {% endif %}
         <div class="clear"></div>
     </div>
-</div><!--.main-->
-<div class="grid_4 omega secondary">
-
-</div><!--.secondary-->
-<div class="clear"></div>
+</div>
 {% endblock %}
 
 {% block extra_body %}{% endblock %}

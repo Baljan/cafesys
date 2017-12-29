@@ -4,12 +4,12 @@
 {% load crispy_forms_tags %}
 {% load baljan_extras %}
 
-{% block head_title %}{{year}} {% trans "wk." %} {{week}}{% endblock %}
+{% block head_title %}{{year}} vecka {{week}}{% endblock %}
 
 {% block body_class %}board-week{% endblock %}
 {% block body %}
 <div class="chalkboard">
-    <table>
+    <table class="table table-baljan">
         <thead>
         <tr>
             <th class="week">
@@ -17,44 +17,44 @@
                     &laquo;
                 </a>
                 <span class="num">{{year}}</span>
-                    {%trans "wk."%}
+                    vecka
                 <span class="num">{{week}}</span>
                 <a href="{% url 'call_duty_week' next_y next_w %}">
                     &raquo;
                 </a>
             </th>
-            <th>{% trans "morning" %}</th>
-            <th>{% trans "lunch" %}</th>
-            <th>{% trans "afternoon" %}</th>
+            <th>Förmiddag</th>
+            <th>Lunch</th>
+            <th>Eftermiddag</th>
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td class="day">{% trans "Monday" %}</td>
+            <td class="day">Måndag</td>
             <td class="droppable" id="shift-1-0"></td>
             <td class="droppable" id="shift-1-1"></td>
             <td class="droppable" id="shift-1-2"></td>
         </tr>
         <tr>
-            <td class="day">{% trans "Tuesday" %}</td>
+            <td class="day">Tisdag</td>
             <td class="droppable" id="shift-2-0"></td>
             <td class="droppable" id="shift-2-1"></td>
             <td class="droppable" id="shift-2-2"></td>
         </tr>
         <tr>
-            <td class="day">{% trans "Wednesday" %}</td>
+            <td class="day">Onsdag</td>
             <td class="droppable" id="shift-3-0"></td>
             <td class="droppable" id="shift-3-1"></td>
             <td class="droppable" id="shift-3-2"></td>
         </tr>
         <tr>
-            <td class="day">{% trans "Thursday" %}</td>
+            <td class="day">Torsdag</td>
             <td class="droppable" id="shift-4-0"></td>
             <td class="droppable" id="shift-4-1"></td>
             <td class="droppable" id="shift-4-2"></td>
         </tr>
         <tr>
-            <td class="day">{% trans "Friday" %}</td>
+            <td class="day">Fredag</td>
             <td class="droppable" id="shift-5-0"></td>
             <td class="droppable" id="shift-5-1"></td>
             <td class="droppable" id="shift-5-2"></td>
@@ -64,26 +64,159 @@
     <h2>{% trans "Available Users" %} ({%trans "drag and drop"%})</h2>
     <div class="available-users"></div>
     <div class="submit">
-        <a href="{{request.path}}">{% trans "revert unsaved changes" %}</a>
-        <span class="link save">{% trans "save" %}</span>
+        <h3><a href="{{request.path}}">Ångra osparade ändringar</a></h3>
+        <h3><a href="#" class="save">Spara</a></h3>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_body %}
-<script type="text/javascript">
-// <![CDATA[
-    CONFIRM_MSG = "{% trans "Are you sure?" %}";
-    CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
-    CONFIRM_DELETE = CONFIRM_MSG;
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+    <script type="text/javascript">
+    {% autoescape off %}
+        REAL_IDS = {{real_ids}};
+        ON_CALL = {{oncall}};
+        USER_IDS = {{uids}};
+        DRAGS = {{drags}};
+        INITIALS = {{initials}};
+    {% endautoescape %}
 
-{% autoescape off %}
-    REAL_IDS = {{real_ids}};
-    ON_CALL = {{oncall}};
-    USER_IDS = {{uids}};
-    DRAGS = {{drags}};
-    INITIALS = {{initials}};
-{% endautoescape %}
-// ]]>
-</script>
+        var availUsers = $('.available-users');
+        var names = [];
+
+        for (i in USER_IDS) {
+            names.push(DRAGS[USER_IDS[i]]);
+        }
+        availUsers.html(names.join(', '));
+
+        var redrawContained = function(cell) {
+            var listed = [],
+                containedInits = $(cell).data('initials');
+            for (i in containedInits) {
+                listed.push([
+                    '<span class="drag-',containedInits[i],'">',
+                    containedInits[i],'</span>'
+                ].join(''));
+            }
+            $(cell).html(listed.join(', '));
+            $(cell).children().each(function() {
+                $(this).click(function() {
+                    var newContained = [];
+                    for (j in containedInits) {
+                        if (containedInits[j] != $(this).text()) {
+                            newContained.push(containedInits[j]);
+                        }
+                        $(cell).data('initials', newContained);
+                    }
+                    $(this).trigger('mouseleave').remove();
+                    redrawContained(cell);
+                });
+            });
+
+            $(containedInits).each(function() {
+                var cls = $('.drag-' + this),
+                    id = $("#drag-" + this);
+                cls.hover(
+                    function() {
+                        cls.addClass('active')
+                           .parent().addClass('active');
+                        id.addClass('active')
+                    },
+                    function() {
+                        cls.removeClass('active')
+                           .parent().removeClass('active');
+                        id.removeClass('active')
+                    }
+                );
+            });
+        }
+
+        /* Load initial data. */
+        $('.droppable').each(function() {
+            var id = $(this).attr('id');
+            if (!REAL_IDS[id]) {
+                $(this).addClass('disabled');
+            }
+            var onCallUids = ON_CALL[id],
+                inits = [];
+            for (i in onCallUids) {
+                inits.push(INITIALS[onCallUids[i]]);
+            }
+            $(this).data('initials', inits);
+            redrawContained(this);
+        });
+
+        $('.droppable').each(function() {
+            var drop = this;
+            $(this).droppable({
+                accept: function(drag) {
+                    if ($(this).hasClass('disabled')) return false;
+                    return $(drop).find('.'+drag.attr('id')).length == 0;
+                },
+                activeClass: 'active',
+                hoverClass: 'hover',
+                drop: function(ev, ui) {
+                    var dragId = $(ui.draggable).attr('id');
+                    var droppedInit = dragId.split('-')[1],
+                        containedInits = $(this).data('initials'),
+                        cell = this;
+                    if (!containedInits) containedInits = [droppedInit];
+                    else containedInits.push(droppedInit);
+                    $(this).data('initials', containedInits);
+                    redrawContained(cell);
+                }
+            });
+        });
+
+        availUsers.children().each(function() {
+            var initials = $(this).attr('id').split('-')[1]
+                cls = 'drag-' + $(this).attr('id').split('-')[1],
+                drag = this;
+
+            $(this).draggable({
+                cursorAt: {right: 3, bottom: 3},
+                helper: function(ev) {
+                    var ui = $("<span class='drag "+cls+"'>"+initials+"</span>");
+                    return ui;
+                },
+                opacity: 0.7
+            });
+
+            $(this).hover(function() {
+                var ui = $('.'+$(this).attr('id'));
+                ui.addClass('active')
+                  .parent().addClass('active');
+                $(this).addClass('active');
+            }, function() {
+                var ui = $('.'+$(this).attr('id'));
+                ui.removeClass('active')
+                  .parent().removeClass('active');
+                $(this).removeClass('active');
+            });
+        });
+
+        $('.submit .save').click(function() {
+            var postData = {};
+            $('.droppable').each(function() {
+                var containedInits = $(this).data('initials');
+                if (!containedInits || containedInits.length == 0) return;
+
+                postData[$(this).attr('id')] = containedInits.join('|');
+            });
+            curSearch = $.ajax({
+                data: postData,
+                type: 'post',
+                dataType: 'json',
+                beforeSend: function () {
+                    $('.submit .save').html("Sparar...");
+                },
+                success: function(result) {
+                    location.replace(document.location.pathname);
+                },
+                error: function() {
+                    location.replace(document.location.pathname);
+                }
+            });
+        });
+    </script>
 {% endblock %}
