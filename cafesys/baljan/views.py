@@ -46,9 +46,6 @@ def redirect_prepend_root(where):
         return HttpResponseRedirect(where)
     return HttpResponseRedirect('/%s' % where)
 
-def board_posts(request):
-    return render(request, 'baljan/board_seats.html')
-
 
 @permission_required('baljan.add_semester')
 @permission_required('baljan.change_semester')
