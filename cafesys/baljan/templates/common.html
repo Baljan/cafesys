@@ -66,18 +66,10 @@
   <div class="container">
 
     <!-- {#<div id="logo" class="9" dir="ltr">{% block logo_link_image %}{% endblock %}</div>#} -->
-    {% if messages %}
-    <ul id="messages">
       {% for message in messages %}
-      <li id="message_{{ forloop.counter }}" {% if message.tags %} class="{{ message.tags }}" {% endif %}>
-        <a href="#">
-          <small>{% trans "hide" %}</small>
-        </a>
-        {{ message }}
-      </li>
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
       {% endfor %}
-    </ul>
-    {% endif %} {% block body %} {% endblock %}
+      {% block body %} {% endblock %}
 
   </div>
 </main>

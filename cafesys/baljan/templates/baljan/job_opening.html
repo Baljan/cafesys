@@ -4,124 +4,238 @@
 {% load crispy_forms_tags %}
 {% load baljan_extras %}
 
-{% block head_title %}{% trans "Job Opening" %} {{semester.name}}{% endblock %}
+{% block head_title %}Jobbsläpp {{semester.name}}{% endblock %}
 
 {% block body_class %}job-opening{% endblock %}
 {% block body %}
-<h1>{% trans "Job Opening" %} {{semester.name}}</h1>
+<h1>Jobbsläpp {{semester.name}}</h1>
 
-<div class="grid_7 alpha main">
-    <div>
-        <div class="layout" style="float:left;width:50%">
-            <div class="user-adder layout">
-                <h2>{% trans "Choose Workers" %}</h2>
-                <table>
-                    <tr>
-                        <td>
-                            <input type="text" id="id_liu_id" name="liu_id" maxlength="8" />
-                        </td>
-                        <td rowspan="2">
-                            <input disabled="disabled" id="add-to-group" type="button" value="{% trans "add" %}"/>
-                        </td>
-                   </tr>
-                   <tr>
-                       <td class="message">
-                           <span class="pending">{% trans "enter liu id" %}</span>
-                       </td>
-                   </tr>
-                </table>
-            </div><!--.user-adder-->
+<div class="row">
+    <div class="col">
+        <h2>Välj jobbare</h2>
+        <input class="form-control" type="text" id="id_liu_id" name="liu_id" maxlength="8" placeholder="Skriv in LiuId"/>
 
-            <ul class="work-pair">
-            </ul>
+        <ul class="work-pair">
+        </ul>
 
-            <ul class="shifts-in-combination">
-            </ul>
-        </div>
-
-        <div class="layout" style="float:left;width:50%">
-            <h2>{% trans "Choose Combination" %}</h2>
-            <table class="slots">
-            {% for row in slots %}
-                <tr>
-                {% for pair in row %}
-                    {% if pair %}
-                        <td id="pair-{{pair.label}}"
-                            {% if pair.is_taken %}
-                                title="{{pair.taken_by|join:", "}}"
-                            {% endif %}
-
-                            class="
-                                pair
-                                {% if pair.is_free %}free{%else%}taken{%endif%}
-                            ">{{pair.label}}</td>
-                    {%else%}
-                        <td class="padding"></td>
-                    {%endif%}
-                {% endfor %}
-                </tr>
-            {% endfor %}
-            </table>
-        </div>
-        <div class="clear"></div>
-
-        <div class="submit-wrap init-hidden">
+        <ul class="shifts-in-combination">
+        </ul>
+        <div class="submit-wrap">
             <form method="POST" action="">{% csrf_token %}
                 <input type="hidden" name="shift-ids" value="" />
                 <input type="hidden" name="user-ids" value="" />
                 <input type="hidden" name="phones" value="" />
-                <div class="submit layout">
-                    <input disabled="disabled" type="submit"/>
-                </div>
+                <input class="btn btn-primary" disabled="disabled" type="submit"/>
             </form>
         </div>
     </div>
 
-</div><!--.main-->
-<div class="grid_3 omega secondary">
-    <div>
-    {% blocktrans with pairs_taken_percent as done_percent and pairs_free as free and pairs_taken as taken %}
-        <h2>
-            {{done_percent}}% Done
-        </h2>
-        <dl>
-            <dt>combinations available</dt>
-            <dd>{{free}}</dd>
-            <dt>combinations taken</dt>
-            <dd>{{taken}}</dd>
-        </dl>
-    {% endblocktrans %}
+    <div class="col">
+        <h2>Välj kombination</h2>
+        <table class="slots table table-baljan">
+        {% for row in slots %}
+            <tr>
+            {% for pair in row %}
+                {% if pair %}
+                    <td id="pair-{{pair.label}}"
+                        {% if pair.is_taken %}
+                            title="{{pair.taken_by|join:", "}}"
+                        {% endif %}
+
+                        class="
+                            pair
+                            {% if pair.is_free %}free{%else%}taken{%endif%}
+                        ">{{pair.label}}</td>
+                {%else%}
+                    <td></td>
+                {%endif%}
+            {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
     </div>
 
-    <div>
-        <h2>{% trans "Projector" %}</h2>
+    <div class="col">
+        <h2>Status</h2>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width:{{ pairs_taken_percent }}%;" aria-valuenow="{{ pairs_taken_percent }}" aria-valuemin="0" aria-valuemax="100">{{ pairs_taken_percent }}%</div>
+        </div>
+        <dl>
+            <dt>Lediga kombinationer</dt>
+            <dd>{{pairs_free}}</dd>
+            <dt>Tagna kombinationer</dt>
+            <dd>{{pairs_taken}}</dd>
+        </dl>
+
+        <h2>Projektor</h2>
         <p>
-        {% blocktrans %}
-            This view is suitable for showing to people queueing during the job
-            opening.
-        {% endblocktrans %}
-        </p>
-        <p>
-            <a href="{% url 'job_opening_projector' semester.name %}">{% trans "open view" %}</a>
+            Projektorvyn passar att visa för personer som köar.
+            <a href="{% url 'job_opening_projector' semester.name %}">
+                Öppna projektorvyn
+            </a>
         </p>
     </div>
-</div><!--.secondary-->
-<div class="clear"></div>
+</div>
 {% endblock %}
 
 {% block extra_body %}
 <script type="text/javascript">
-// <![CDATA[
-    COMBINATION_PROGRESS = {{pairs_taken_percent}};
-
-    PHONE_TEXT = "{% trans "mobile:" %}";
-    CONFIRM_MSG = "{% trans "Are you sure?" %}";
-    CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
-    CONFIRM_DELETE = CONFIRM_MSG;
-
-    SUBMIT_HELP = "{% trans "select two workers and one combination" %}";
-    SUBMIT_OK = "{% trans "sign up" %}";
+    SUBMIT_HELP = "Välj två jobbare och en kombination";
+    SUBMIT_OK = "Anmäl";
     PAIRS = {% autoescape off %}{{pair_javascript}}{%endautoescape%};
-// ]]>
+
+    var slots = $('.slots td.pair.free'),
+        takenSlots = $('.slots td.pair.taken'),
+        curSearch = false,
+        idInput = $('#id_liu_id'),
+        msg = $('.user-adder .message span'),
+        msgClasses = ['pending', 'saved', 'invalid'],
+        foundUser = false,
+        addedUsers = {},
+        addedList = $('.work-pair'),
+        currentComb = $('.shifts-in-combination'),
+        currentCombLabel = false,
+        currentCombShiftIds = [],
+        saveForm = $('.submit-wrap form'),
+        submitBox = $('.submit-wrap');
+
+    var refreshSave = function() {
+        var addedUsersCount = 0;
+        var submitButton = submitBox.find('input[type=submit]');
+
+        for (k in addedUsers) {
+            addedUsersCount += 1;
+        }
+        if (currentCombShiftIds.length == 0 ||
+            addedUsersCount != 2) {
+            saveForm.find('input[name=shift-ids]').val('');
+            saveForm.find('input[name=user-ids]').val('');
+            saveForm.find('input[name=phones]').val('');
+
+            submitBox.removeClass('saved');
+            submitBox.addClass('pending');
+            submitButton.attr('disabled', 'disabled');
+            submitButton.val(SUBMIT_HELP);
+        }
+        else {
+            var serialShiftIds = currentCombShiftIds.join('|'),
+                serialUsernames = [],
+                serialPhones = [];
+
+            for (i in addedUsers) {
+                serialUsernames.push(i);
+                serialPhones.push($('.phone-' + i).val());
+            }
+            serialUsernames = serialUsernames.join('|');
+            serialPhones = serialPhones.join('|');
+
+            saveForm.find('input[name=shift-ids]').val(serialShiftIds);
+            saveForm.find('input[name=user-ids]').val(serialUsernames);
+            saveForm.find('input[name=phones]').val(serialPhones);
+
+            submitBox.addClass('saved');
+            submitBox.removeClass('pending');
+            submitButton.removeAttr('disabled');
+            submitButton.val(SUBMIT_OK);
+        }
+    };
+    refreshSave();
+
+    var setActiveComb = function(cell) {
+        slots.removeClass('bg-primary');
+        currentCombLabel = $.trim($(cell).text());
+        var pair = PAIRS[currentCombLabel];
+        var shifts = pair.shifts;
+        if ($(cell).hasClass('free')) {
+            currentCombShiftIds = pair.ids;
+            $(cell).toggleClass('bg-primary');
+        }
+        else {
+            currentCombShiftIds = [];
+        }
+        currentComb.html('');
+        for (i in shifts) {
+            currentComb.append('<li/>');
+            currentComb.find('li:last').text(shifts[i]);
+        }
+        refreshSave();
+    };
+
+    slots.click(function() {
+        setActiveComb(this);
+    });
+
+    takenSlots.click(function() {
+        setActiveComb(this);
+    });
+
+
+    var removeUser = function(id) {
+        delete addedUsers[id];
+        refreshAdded();
+    };
+
+    var refreshAdded = function() {
+        addedList.find('li').remove();
+        for (i in addedUsers) {
+            var user = addedUsers[i];
+            addedList.append('<li><a/></li>');
+            var last = addedList.find('li:last');
+            last.data('username', i);
+            var link = last.find('a');
+            link.attr('href', user.url);
+            link.text(user.text);
+            last.append(' <a href="#" class="remove">&#x2715;</a>');
+            last.append('<input class="form-control" type="text" maxlength="10" placeholder="Mobil"/>');
+            var phone = last.find('input');
+            $(phone).addClass('phone-' + i);
+            $(phone).val(user.phone);
+            $(phone).data('username', i);
+            $(phone).keyfilter(/[\d]/);
+            $(phone).change(function() {
+                var uName =$(this).data('username');
+                addedUsers[uName].phone = $(this).val();
+                refreshSave();
+            });
+        }
+
+        addedList.find('li .remove').click(function() {
+            removeUser($(this).parent().data('username'));
+        });
+        refreshSave();
+    };
+
+    var refreshSearch = function() {
+        var term = idInput.val();
+        if (0 < term.length && term.length < 5) return;
+        if (curSearch) curSearch.abort();
+
+        curSearch = $.ajax({
+            data: {'liu_id': term},
+            type: 'post',
+            dataType: 'json',
+            success: function(result) {
+                if (!result) return;
+
+                for (i in msgClasses) {
+                    if (result.msg_class == msgClasses[i])
+                        msg.addClass(msgClasses[i]);
+                    else msg.removeClass(msgClasses[i]);
+                }
+                msg.text(result.msg);
+                if (result.all_ok) {
+                    foundUser = result.user;
+                    idInput.val('');
+                    refreshSearch();
+                    addedUsers[foundUser.username] = foundUser;
+                    refreshAdded();
+                }
+                else {
+                    foundUser = false;
+                }
+            }
+        });
+    };
+    idInput.bind('keyup', refreshSearch);
 </script>
 {% endblock %}

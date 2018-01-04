@@ -142,7 +142,6 @@ def orderFromUs(request):
             from_email = 'cafesys@baljan.org'
             to = 'bestallning@baljan.org'
 
-            pickuptext
             if pickup == 0:
                 pickuptext = 'Morgon 07:30-08:00'
             elif pickup == 1:
@@ -186,7 +185,7 @@ def orderFromUs(request):
                 dPickUp=date.replace("-","")
                 dtStart=dPickUp+"T161500Z"
                 dtEnd=dPickUp+"T170000Z"
-            ics_data=f'''BEGIN:VCALENDAR
+            ics_data ='''BEGIN:VCALENDAR
 PRODID:-//Google Inc//Google Calendar 70.9054//EN
 VERSION:2.0
 CALSCALE:GREGORIAN
