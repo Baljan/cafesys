@@ -6,18 +6,6 @@ from django.utils.translation import ugettext as _
 
 from . import models
 
-
-class SemesterForm(forms.ModelForm):
-    class Meta:
-        model = models.Semester
-        fields = (
-            'name',
-            'start',
-            'end',
-            'signup_possible'
-        )
-
-
 class UserForm(forms.ModelForm):
     class Meta:
         model = User

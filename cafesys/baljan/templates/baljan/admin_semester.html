@@ -4,146 +4,173 @@
 {% load crispy_forms_tags %}
 {% load baljan_extras %}
 
-{% block head_title %}{% trans "Admin Semester" %}{% endblock %}
+{% block head_title %}Administrera termin{% endblock %}
 
 {% block body_class %}admin-semester{% endblock %}
 {% block body %}
-<h1>{% trans "Admin Semester" %}</h1>
-<div class="grid_7 alpha months">
-    {% regroup shifts by when.month as month_shifts %}
-    {% for month in month_shifts %}
-    <div class="month">
-        <h2>{{month.grouper|monthname}}</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th></th>
-                    <th colspan="3" class="am-lunch-pm">
-                        {% trans "am" %} &mdash;
-                        {% trans "lunch" %} &mdash;
-                        {% trans "pm" %}
-                    </th>
-                </tr>
-            </thead>
-            {% regroup month.list by when as days %}
-            <tbody>
-                {% for day in days %}
-                <tr>
-                    <td class="day">{{day.grouper|date:"j"}}</td>
-                    {% for sh in day.list %}
-                        <td id="shift-{{sh.id}}" class="shift
-                            span-{{sh.span}}
-                            {% if sh.enabled %}
-                                {% if sh.exam_period %}exam-period{%endif%}
-                            {% else %}
-                            disabled
-                            {%endif%}
-                            ">
-                            <div class="{% if sh.comb.is_taken %}taken{%endif%}">{{sh.comb.label|default:"&nbsp;"}}</div>
-                        </td>
+    <style>
+
+    </style>
+    <h1>Administrera termin</h1>
+    <div class="row">
+        <div class="col-md-3 order-md-2">
+            <div class="choose-semester">
+                {% if semesters|length %}
+                <select class="form-control">
+                    {% for sem in semesters %}
+                    <option {% if sem == semester %}selected="selected" {% endif %}>{{ sem.name }}</option>
                     {% endfor %}
-                </tr>
+                </select>
+                {% endif %}
+                <a href="{% url 'admin:baljan_semester_add' %}">Skapa ny</a>
+            </div>
+
+            {% if semester %}
+                <h2>{{semester.name|default:"-"}}</h2>
+                <a href="{% url 'admin:baljan_semester_change' semester.id %}">
+                        Hantera på adminsidan
+                </a>
+                <dl>
+                    <dt>Dagar</dt>
+                    <dd>{{day_count}}</dd>
+                    <dt>Jobbarpass (Tenta-P)</dt>
+                    <dd>
+                        {{worker_shift_count}}
+                        ({{exam_period_count}})
+                    </dd>
+                </dl>
+                <p>
+                    Antalet jobbpass bör vara delbart med 3 för att ge snygga
+                    passkombinationer. <br/>
+                    <span class="badge badge-light">Öppet</span><br/>
+                    <span class="badge badge-dark">Stängt</span><br/>
+                    <span class="badge badge-primary">Tenta-P</span><br/>
+                    PDF:
+                    <a href="{% url 'shift_combinations_pdf' semester.name %}">
+                        Jobbpass</a>,
+                    <a href="{% url 'shift_combination_form_pdf' semester.name %}">
+                        Formulär</a>
+                </p>
+
+                <div class="selection">
+                    <h2>Gör markering</h2>
+                    <form method="POST" name="edit-shifts" action="" class="uniForm">{% csrf_token %}
+                        <input type="hidden" name="task" value="edit_shifts" />
+                        <input type="hidden" name="make" value="none" />
+                        <input type="hidden" name="shift-ids" value="" />
+                        <input disabled="disabled" type="button" id="normal"
+                            class="btn btn-light" value="&laquo; öppet" /><br/>
+                        <input disabled="disabled" type="button" id="disabled"
+                            class="btn btn-dark" value="&laquo; stängt" /><br/>
+                        <input disabled="disabled" type="button" id="exam-period"
+                            class="btn btn-primary" value="&laquo; tenta-P" /><br/>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-9 order-md-1">
+            <div class="row">
+                {% regroup shifts by when.month as month_shifts %}
+                {% for month in month_shifts %}
+                <div class="col-md-4 months">
+                    <h2>{{month.grouper|monthname}}</h2>
+                    <table class="table table-baljan">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>fm</th>
+                                <th>lunch</th>
+                                <th>em</th>
+                            </tr>
+                        </thead>
+                        {% regroup month.list by when as days %}
+                        <tbody>
+                            {% for day in days %}
+                            <tr>
+                                <td class="day">{{day.grouper|date:"j"}}</td>
+                                {% for sh in day.list %}
+                                    <td id="shift-{{sh.id}}" class="shift
+                                        span-{{sh.span}}
+                                        {% if sh.enabled %}
+                                            {% if sh.exam_period %}bg-primary{%endif%}
+                                        {% else %}
+                                        bg-dark
+                                        {%endif%}
+                                        {% if sh.comb.is_taken %}taken{%endif%}
+                                        ">
+                                        {{sh.comb.label|default:"&nbsp;"}}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% empty %}
+                    <p>Ingen termin vald.</p>
                 {% endfor %}
-            </tbody>
-        </table>
+            </div>
+        </div>
 
     </div>
-    {% if forloop.counter|divisibleby:"3" %}
-        <div class="clear"></div>
-    {% endif %}
-    {% empty %}
-        <p>{% trans "No semester selected." %}</p>
-    {% endfor %}
-</div><!--.main-->
-<div class="grid_3 omega secondary">
-    <div class="choose-semester">
-        {% if semesters|length %}
-        <select>
-            {% for sem in semesters %}
-            <option {% if sem == semester %}selected="selected" {% endif %}>{{ sem.name }}</option>
-            {% endfor %}
-        </select>
-        {% endif %}
-        <span class="link show-new-sem-dialog">{% trans "create new" %}</span>
-    </div>
-
-    {% if semester %}
-        <div class="meta">
-            <h2>{{semester.name|default:"-"}}</h2>
-            <dl>
-                <dt>{% trans "days" %}</dt>
-                <dd>{{day_count}}</dd>
-                <dt>{% trans "worker shifts" %} ({% trans "exam period" %})</dt>
-                <dd class="worker-shifts">
-                    {{worker_shift_count}}
-                    ({{exam_period_count}})
-                </dd>
-            </dl>
-            <p>
-                Antalet jobbpass bör vara delbart med 3 för att ge snygga
-                passkombinationer.
-            </p>
-            <p>
-                <span class="disabled box">&nbsp;</span> {% trans "closed" %}
-            </p>
-            <p>
-                <span class="exam-period box">&nbsp;</span> {% trans "exam period" %}
-            </p>
-            <p>
-                {% trans "PDF" %}:
-                <a href="{% url 'shift_combinations_pdf' semester.name %}">
-                    {% trans "work shifts" %}</a>,
-                <a href="{% url 'shift_combination_form_pdf' semester.name %}">
-                    {% trans "form" %}</a>
-            </p>
-        </div>
-
-        <div class="selection">
-            <h2>{% trans "Make Selection" %}</h2>
-            <form method="POST" name="edit-shifts" action="" class="uniForm">{% csrf_token %}
-                <input type="hidden" name="task" value="edit_shifts" />
-                <input type="hidden" name="make" value="none" />
-                <input type="hidden" name="shift-ids" value="" />
-                <input disabled="disabled" type="button"
-                    class="normal" value="&laquo; {% trans "open" %}" /><br/>
-                <input disabled="disabled" type="button"
-                    class="disabled" value="&laquo; {% trans "closed" %}" /><br/>
-                <input disabled="disabled" type="button"
-                    class="exam-period" value="&laquo; {% trans "exam period" %}" /><br/>
-            </form>
-        </div>
-
-        <div class="admin-link">
-            <a href="{% url 'admin:baljan_semester_change' semester.id %}">
-                {% trans "edit on admin site" %}
-            </a>
-        </div>
-    {% endif %}
-</div><!--.secondary-->
-<div class="clear"></div>
-
-<div class="init-hidden" id="new-sem-dialog" title="{% trans "New Semester" %}">
-    <form method="POST" action="">{% csrf_token %}
-        <input type="hidden" name="task" value="new_semester" />
-        <table>
-            {{new_semester_form.as_table}}
-        </table>
-    </form>
-</div>
 {% endblock %}
 
 {% block extra_body %}
-<script type="text/javascript">
-// <![CDATA[
-    CONFIRM_MSG = "{% trans "Are you sure? Shift combinations for job openings will also be updated." %}";
-    CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
-    CONFIRM_DELETE = CONFIRM_MSG;
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+    <script type="text/javascript">
+        CONFIRM_MSG = "Är du säker? Passkombinationer för jobbsläpp kommer också att uppdateras.";
 
-    BASE_URL = "{{admin_semester_base_url}}";
-    NEW_SEMESTER_FAILED = {%if new_semester_failed%}true{%else%}false{%endif%};
+        BASE_URL = "{{admin_semester_base_url}}";
 
-    SAVE_MSG = "{% trans "save" %}";
-    CANCEL_MSG = "{% trans "cancel" %}";
-// ]]>
-</script>
+        var editShiftsForm = $('form[name=edit-shifts]');
+        var shiftInners = $('table td.shift');
+
+        $('.months').selectable({
+            filter: 'td.shift',
+            stop: function(ev, ui) {
+                var inputs = editShiftsForm.find('input[type=button]');
+                if ($('table td.ui-selected').length) {
+                    $(inputs).removeAttr('disabled');
+                }
+                else {
+                    $(inputs).attr('disabled', 'disabled');
+                }
+            }
+        });
+
+        $(shiftInners).hover(function() {
+            var comb = $(this).text().trim();
+            if (comb == '') return;
+            $(shiftInners).filter(function() {
+                return $(this).text().trim() == comb;
+            }).addClass('highlight');
+        }, function() {
+            var comb = $(this).text().trim();
+            if (comb == '') return;
+            $(shiftInners).filter(function() {
+                return $(this).text().trim() == comb;
+            }).removeClass('highlight');
+        });
+
+
+        $('.selection input').click(function() {
+            editShiftsForm.find('input[name=make]').attr('value', $(this).attr('id'));
+            var shiftIds = [];
+            $('table td.ui-selected').each(function() {
+                shiftIds.push(parseInt($(this).attr('id').split('-')[1], 10));
+            });
+            editShiftsForm.find('input[name=shift-ids]')
+                          .attr('value', shiftIds.join('|'));
+
+            if (confirm(CONFIRM_MSG)) {
+                editShiftsForm.submit();
+            }
+        });
+
+        $('.choose-semester select').change(function() {
+            var name = $(this).children(':selected').html();
+            location.href = '' + BASE_URL + '/' + name;
+        });
+
+    </script>
 {% endblock %}

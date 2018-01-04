@@ -748,11 +748,8 @@ def admin_semester(request, name=None):
 
     user = request.user
 
-    new_sem_form = forms.SemesterForm()
     if request.method == 'POST':
-        if request.POST['task'] == 'new_semester':
-            new_sem_form = forms.SemesterForm(request.POST)
-        elif request.POST['task'] == 'edit_shifts':
+        if request.POST['task']  == 'edit_shifts':
             assert sem is not None
             raw_ids = request.POST['shift-ids'].strip()
             edit_shift_ids = []
@@ -778,26 +775,10 @@ def admin_semester(request, name=None):
             if make != 'none':
                 sem.save() # generates new shift combinations
 
-    new_sem_failed = False
-    if new_sem_form.is_bound:
-        if new_sem_form.is_valid():
-            new_sem = new_sem_form.save()
-            new_sem_url = reverse('admin_semester',
-                args=(new_sem.name,)
-            )
-            messages.add_message(request, messages.SUCCESS,
-                _("%s was added successfully.") % new_sem.name
-            )
-            return redirect_prepend_root(new_sem_url)
-        else:
-            new_sem_failed = True
-
     tpl = {}
     tpl['semester'] = sem
-    tpl['new_semester_form'] = new_sem_form
     tpl['semesters'] = models.Semester.objects.order_by('-start').all()
     tpl['admin_semester_base_url'] = reverse('admin_semester')
-    tpl['new_semester_failed'] = new_sem_failed
     if sem:
         tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span')
         tpl['day_count'] = len(list(sem.date_range()))
