@@ -60,8 +60,10 @@ def _get_current_duty_phone_numbers():
 
     for time_range, shift_index in DUTY_CALL_ROUTING.items():
         if _time_in_range(time_range[0], time_range[1], current_time):
-            on_callduty = shifts_today.filter(span=shift_index).first().on_callduty()
-            return [x.profile.mobile_phone for x in on_callduty]
+            current_shift = shifts_today.filter(span=shift_index).first()
+            if current_shift is not None:
+                on_callduty = current_shift.on_callduty()
+                return [x.profile.mobile_phone for x in on_callduty]
 
     return None
 
