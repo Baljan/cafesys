@@ -118,14 +118,12 @@
                     id = $("#drag-" + this);
                 cls.hover(
                     function() {
-                        cls.addClass('active')
-                           .parent().addClass('active');
-                        id.addClass('active')
+                        cls.parent().addClass('highlight');
+                        id.addClass('highlight')
                     },
                     function() {
-                        cls.removeClass('active')
-                           .parent().removeClass('active');
-                        id.removeClass('active')
+                        cls.parent().removeClass('highlight');
+                        id.removeClass('highlight')
                     }
                 );
             });
@@ -150,10 +148,12 @@
             var drop = this;
             $(this).droppable({
                 accept: function(drag) {
-                    if ($(this).hasClass('disabled')) return false;
+                    if ($(this).hasClass('disabled')){
+                        return false;
+                    }
                     return $(drop).find('.'+drag.attr('id')).length == 0;
                 },
-                activeClass: 'active',
+                activeClass: 'highlight',
                 hoverClass: 'hover',
                 drop: function(ev, ui) {
                     var dragId = $(ui.draggable).attr('id');
@@ -184,14 +184,12 @@
 
             $(this).hover(function() {
                 var ui = $('.'+$(this).attr('id'));
-                ui.addClass('active')
-                  .parent().addClass('active');
-                $(this).addClass('active');
+                ui.parent().addClass('highlight');
+                $(this).addClass('highlight');
             }, function() {
                 var ui = $('.'+$(this).attr('id'));
-                ui.removeClass('active')
-                  .parent().removeClass('active');
-                $(this).removeClass('active');
+                ui.parent().removeClass('highlight');
+                $(this).removeClass('highlight');
             });
         });
 
@@ -217,6 +215,9 @@
                     location.replace(document.location.pathname);
                 }
             });
+        });
+        $('.droppable.disabled').each(function () {
+            $(this).text('Stängt');
         });
     </script>
 {% endblock %}
