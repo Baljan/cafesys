@@ -25,6 +25,12 @@ body.fixed-navbar main.bd-masthead{
   z-index: 10;
   min-height: 75px;
   min-width: 320px;
+  box-shadow: 0 2px 5px -1px rgba(0, 0, 0, .09);
+  background: #FFF;
+  position: fixed;
+  @media-breakpoint-down(lg) {
+  }
+
   .container {
     @include media-breakpoint-down(xl) {
       padding-left: 0;
@@ -34,8 +40,6 @@ body.fixed-navbar main.bd-masthead{
   
   &.fixed {
     position: fixed;
-    background: #FFF;
-    box-shadow: 0 2px 5px -1px rgba(0, 0, 0, .09);
     .btn-attention {
       background-color: $pink;
       color: white;
@@ -168,6 +172,8 @@ body.about {
   margin-top: 10px;
   padding-top: 20px;
   transition: 0.5s ease;
+  max-height: 100%;
+  overflow-y: scroll;
   h3 a {
     font-family: $font-second;
     &:hover {
