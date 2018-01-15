@@ -7,8 +7,12 @@
 //   }
 // }
 //
-body.fixed-navbar main.bd-masthead{
+body main.bd-masthead{
   padding-top: (74px); // navbar-height
+}
+
+body main.bd-masthead.wrapper--md {
+  padding-top: (74px + 40px); // navbar-height + wrapper height
 }
 
 .Baljan__header {
@@ -167,19 +171,43 @@ body.about {
   display: block !important;
 }
 
+@include media-breakpoint-down(md) {
+  .navbar-nav {
+    height: 73px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+    align-items: center;
+  }
+}
+
+.navbar-collapse.collapse.show {
+  height: 100vh;
+}
+
+.navbar-collapse.collapse.show .sidenav {
+  @include media-breakpoint-down(md) {
+    position: fixed;
+    top: 152px;
+    bottom: 0;
+    padding: 16px;
+    transition: 0s;
+  }
+}
+
 .sidenav {
   width: 100%;
-  border-top: 1px solid rgba(0, 0, 0, .14);
-  margin-top: 10px;
+  //border-top: 1px solid rgba(0, 0, 0, .14);
+  margin-top: 0px;
   padding-top: 20px;
-  transition: 0.5s ease;
-  max-height: 100%;
+    z-index: 1;
+  left: 0;
+    bottom: 0;
+  background-color: white;
   overflow-y: scroll;
-  h3 a {
-    font-family: $font-second;
-    &:hover {
-      text-decoration: none;
-    }
+  h3 {
+    text-align: center;
+    color: $pink;
+      font-family: $font-second;
   }
   ul {
     padding-left: 0;
@@ -190,8 +218,7 @@ body.about {
       a {
         display: block;
         font-weight: bold;
-        padding: 8px 0;  
-        text-align: left;
+        padding: 8px 0;
         &:hover {
           text-decoration: none;
         }
@@ -200,12 +227,14 @@ body.about {
   }
 
   @include media-breakpoint-up(lg) {
-    height: 100%;
+    transition: 0.5s ease;
     width: 320px;
     transform: translateX(320px);
     position: fixed;
     z-index: 1;
     top: 75px;
+    bottom: 0;
+    left: inherit;
     right: 0;
     margin-top: 0;
     padding-top: 20px;
@@ -216,6 +245,16 @@ body.about {
     &.is-open {
       transform: translateX(0);
       width: 320px;
+    }
+
+    ul li a {
+      text-align: left;
+      font-size: 16px;
+      padding: 4px;
+    }
+
+    h3 {
+      text-align: left;
     }
   }
 }
