@@ -173,14 +173,17 @@ body.about {
 
 @include media-breakpoint-down(md) {
   .navbar-nav {
-    height: 73px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.14);
     align-items: center;
+  }
+
+  .navbar-collapse.authenticated .navbar-nav {
+    height: 73px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+    padding-bottom: 10px;
   }
 }
 
-.navbar-collapse.collapse.show {
+.navbar-collapse.authenticated.collapse.show {
   height: 100vh;
 }
 

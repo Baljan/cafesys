@@ -5,7 +5,7 @@
       <img src="{% static 'img/svg/logo.svg' %}" width="62" />
     </a>
 
-    <div class="collapse navbar-collapse order-2" id="navbarCollapse">
+    <div class="collapse navbar-collapse order-2 {% if user.is_authenticated %} authenticated{% endif %}" id="navbarCollapse">
       <ul class="navbar-nav flex-row d-flex justify-content-around">
         <li class="nav-item active">
           <a class="nav-link" href="/">
