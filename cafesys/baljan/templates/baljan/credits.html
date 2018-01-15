@@ -30,7 +30,7 @@
                     Ogiltig eller använd kod.
                 </div>
             {% endif %}
-            <form autocomplete="off" method="POST" action="" class="uniForm">{% csrf_token %}
+            <form autocomplete="off" method="POST" action="">{% csrf_token %}
                 <input type="hidden" name="task" value="refill" />
                 <div class="form-group">
                     {{refill_form}}
