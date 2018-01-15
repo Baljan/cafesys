@@ -6,7 +6,11 @@
 {% block head_title %}Termin{% endblock %}
 
 {% block body %}
-
+<style>
+    .show-all .d-none{
+        display: inline!important;
+    }
+</style>
 {% if perms.baljan.change_semester and selected_semester %}
     <p><a href="{% url 'admin:baljan_semester_change' selected_semester.id %}">Admin</a></p>
 {% endif %}
@@ -47,27 +51,43 @@
             </thead>
             <tbody>
                 {% for sh in shifts %}
-                <tr class="{%if sh.upcoming%} upcoming{%endif%}">
+                <tr class="{%if sh.upcoming%}upcoming{%endif%}">
                     {% with sh.when|week as week %}
                         <td>
                             {% if perms.baljan.change_oncallduty %}
                                 <a href="{{sh.week_url}}">
-                                    {% ifchanged week %}{{week}}{% endifchanged %}
+                                    {% ifchanged week %}
+                                        <span>{{week}}</span>
+                                    {% else %}
+                                        <span class="d-none">{{week}}</span>
+                                    {% endifchanged %}
                                 </a>
                             {% else %}
-                                {% ifchanged week %}{{week}}{% endifchanged %}
+                                {% ifchanged week %}
+                                        <span>{{week}}</span>
+                                    {% else %}
+                                        <span class="d-none">{{week}}</span>
+                                {% endifchanged %}
                             {% endif %}
                         </td>
                     {% endwith %}
                     {% with sh.when|date:'D' as day %}
                         <td>
-                            {% ifchanged day %}{{day}}{% endifchanged %}
+                            {% ifchanged day %}
+                                <span>{{day}}</span>
+                            {% else %}
+                                <span class="d-none">{{day}}</span>
+                            {% endifchanged %}
                         </td>
                     {% endwith %}
                     <td>
                         {% with sh.when|naturalday as when %}
                                 {% ifchanged when %}
                                     <a href="{{ sh.get_absolute_url }}">
+                                        {{when}}
+                                    </a>
+                                {% else %}
+                                    <a class="d-none" href="{{ sh.get_absolute_url }}">
                                         {{when}}
                                     </a>
                                 {% endifchanged %}
@@ -123,6 +143,10 @@
             filters.push(function(row) {
                 return $(row).find('span.tradable').length !==0;
             });
+            $("#schedule table").addClass('show-all');
+        }
+        else{
+            $("#schedule table").removeClass('show-all');
         }
 
         $(rows).hide().filter(function() {
@@ -133,7 +157,7 @@
             }
             return true;
         }).show();
-    }
+    };
        $( document ).ready(function() {
            updateShifts();
        });

@@ -73,7 +73,6 @@
                                 {% endfor %}
                             </ul>
                         {% else %}
-                            {% url 'become_worker' as become_worker_link %}
                             <p>
                                 Inga.
                             </p>
@@ -83,140 +82,138 @@
             {% endwith %}
         </div>
         <div class="col-md">
-            <div class="grid_6 omega secondary">
-                {% if trade_requests %}
-                    <div class="pending-highlight">
-                        <h2>{% trans "Trade Requests" %}</h2>
-                        {% if received_trade_requests %}
-                            <h4>Mottagna</h4>
-                            <table class="table">
-                                <thead>
+            {% if trade_requests %}
+                <div class="pending-highlight">
+                    <h2>{% trans "Trade Requests" %}</h2>
+                    {% if received_trade_requests %}
+                        <h4>Mottagna</h4>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Begärt</th>
+                                <th>Erbjudet</th>
+                                <th>Från</th>
+                                <th>Svar</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for recd in received_trade_requests %}
                                 <tr>
-                                    <th>Begärt</th>
-                                    <th>Erbjudet</th>
-                                    <th>Från</th>
-                                    <th>Svar</th>
+                                    {% with recd.wanted_signup as wanted %}
+                                        <td>
+                                            {% ifchanged wanted %}
+                                                {{ wanted|shift_link_short }}
+                                            {% endifchanged %}
+                                        </td>
+                                    {% endwith %}
+                                    {% with recd.offered_signup as offered %}
+                                        <td>
+                                            {% ifchanged offered %}
+                                                {{ offered|shift_link_short }}
+                                            {% endifchanged %}
+                                        </td>
+                                        <td>
+                                            {{ offered|name_link }}
+                                        </td>
+                                    {% endwith %}
+                                    <td>
+                                        <a class="deny"
+                                           href="{% url 'deny_trade' recd.pk request.path %}"
+                                        >Neka</a>
+                                        <a class="accept"
+                                           href="{% url 'accept_trade' recd.pk request.path %}"
+                                        >Acceptera</a>
+                                    </td>
                                 </tr>
-                                </thead>
-                                <tbody>
-                                {% for recd in received_trade_requests %}
-                                    <tr>
-                                        {% with recd.wanted_signup as wanted %}
-                                            <td>
-                                                {% ifchanged wanted %}
-                                                    {{ wanted|shift_link_short }}
-                                                {% endifchanged %}
-                                            </td>
-                                        {% endwith %}
-                                        {% with recd.offered_signup as offered %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+
+                    {% if sent_trade_requests %}
+                        <h4>Skickade</h4>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Begärt</th>
+                                <th>Erbjudet</th>
+                                <th>Till</th>
+                                <th>Åtgärd</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for sent in sent_trade_requests %}
+                                <tr>
+                                    {% with sent.wanted_signup as wanted %}
+                                        <td>
+                                            {% ifchanged wanted %}
+                                                {{ wanted|shift_link_short }}
+                                            {% endifchanged %}
+                                        </td>
+                                        {% with sent.offered_signup as offered %}
                                             <td>
                                                 {% ifchanged offered %}
                                                     {{ offered|shift_link_short }}
                                                 {% endifchanged %}
                                             </td>
                                             <td>
-                                                {{ offered|name_link }}
+                                                {{ wanted|name_link }}
                                             </td>
                                         {% endwith %}
                                         <td>
-                                            <a class="deny"
-                                               href="{% url 'deny_trade' recd.pk request.path %}"
-                                            >Neka</a>
-                                            <a class="accept"
-                                               href="{% url 'accept_trade' recd.pk request.path %}"
-                                            >Acceptera</a>
+                                            {% ifchanged wanted %}
+                                                <a href="{% url 'take_signup' wanted.pk request.path %}">Redigera</a>
+                                            {% endifchanged %}
                                         </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        {% endif %}
-
-                        {% if sent_trade_requests %}
-                            <h4>Skickade</h4>
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th>Begärt</th>
-                                    <th>Erbjudet</th>
-                                    <th>Till</th>
-                                    <th>Åtgärd</th>
+                                    {% endwith %}
                                 </tr>
-                                </thead>
-                                <tbody>
-                                {% for sent in sent_trade_requests %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% for type_title, type_classes, grouped_signups in signup_types %}
+                {% if grouped_signups|length %}
+                    <div class="signups {{ type_classes|join:" " }}">
+                        <h2>{{ type_title|title }}</h2>
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th>Termin</th>
+                                <th>Datum</th>
+                                <th>fm/em</th>
+                            </tr>
+                            </thead>
+                            {% for gtitle, gclass, gsignups in grouped_signups %}
+                                <tr class="group {{ glclass|join:" " }}">
+                                    <td colspan="3">{{ gtitle }}</td>
+                                </tr>
+                                {% for signup in gsignups %}
                                     <tr>
-                                        {% with sent.wanted_signup as wanted %}
+                                        {% with signup.shift as shift %}
                                             <td>
-                                                {% ifchanged wanted %}
-                                                    {{ wanted|shift_link_short }}
-                                                {% endifchanged %}
-                                            </td>
-                                            {% with sent.offered_signup as offered %}
-                                                <td>
-                                                    {% ifchanged offered %}
-                                                        {{ offered|shift_link_short }}
+                                                {% with shift.semester as sem %}
+                                                    {% ifchanged sem %}
+                                                        <a href="{{ sem.get_absolute_url }}">{{ sem.name }}</a>
                                                     {% endifchanged %}
-                                                </td>
-                                                <td>
-                                                    {{ wanted|name_link }}
-                                                </td>
-                                            {% endwith %}
+                                                {% endwith %}
+                                            </td>
+                                            <td class="{% if signup.can_trade %}tradable{% endif %}">
+                                                <a href="{{ shift.get_absolute_url }}">{{ shift.when|naturalday }}</a>
+                                            </td>
                                             <td>
-                                                {% ifchanged wanted %}
-                                                    <a href="{% url 'take_signup' wanted.pk request.path %}">Redigera</a>
-                                                {% endifchanged %}
+                                                {{ shift.ampm }}
                                             </td>
                                         {% endwith %}
                                     </tr>
                                 {% endfor %}
-                                </tbody>
-                            </table>
-                        {% endif %}
+                            {% endfor %}
+                        </table>
                     </div>
                 {% endif %}
-
-                {% for type_title, type_classes, grouped_signups in signup_types %}
-                    {% if grouped_signups|length %}
-                        <div class="signups {{ type_classes|join:" " }}">
-                            <h2>{{ type_title|title }}</h2>
-                            <table class="table table-sm">
-                                <thead>
-                                <tr>
-                                    <th>Termin</th>
-                                    <th>Datum</th>
-                                    <th>fm/em</th>
-                                </tr>
-                                </thead>
-                                {% for gtitle, gclass, gsignups in grouped_signups %}
-                                    <tr class="group {{ glclass|join:" " }}">
-                                        <td colspan="3">{{ gtitle }}</td>
-                                    </tr>
-                                    {% for signup in gsignups %}
-                                        <tr>
-                                            {% with signup.shift as shift %}
-                                                <td>
-                                                    {% with shift.semester as sem %}
-                                                        {% ifchanged sem %}
-                                                            <a href="{{ sem.get_absolute_url }}">{{ sem.name }}</a>
-                                                        {% endifchanged %}
-                                                    {% endwith %}
-                                                </td>
-                                                <td class="{% if signup.can_trade %}tradable{% endif %}">
-                                                    <a href="{{ shift.get_absolute_url }}">{{ shift.when|naturalday }}</a>
-                                                </td>
-                                                <td>
-                                                    {{ shift.ampm }}
-                                                </td>
-                                            {% endwith %}
-                                        </tr>
-                                    {% endfor %}
-                                {% endfor %}
-                            </table>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div><!--.secondary-->
+            {% endfor %}
         </div>
     </div>
 
@@ -257,12 +254,10 @@
 
 {% block extra_body %}
     <script type="text/javascript">
-        // <![CDATA[
-        SAVE_MSG = "{% trans "save" %}";
-        CANCEL_MSG = "{% trans "cancel" %}";
-        CONFIRM_MSG = "{% trans "Are you sure?" %}";
-        CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
-        CONFIRM_DELETE = CONFIRM_MSG;
-        // ]]>
+        CONFIRM_MSG = "Är du säker?";
+
+        $('a.accept, a.deny').click(function() {
+            return confirm(CONFIRM_MSG);
+        });
     </script>
 {% endblock %}

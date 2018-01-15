@@ -94,28 +94,6 @@ $(document).ready(function () {
         });
     }
 
-    /* User View */
-    $('body.user a.accept, body.user a.deny').click(function() {
-        return confirm(CONFIRM_MSG);
-    });
-    var profileDialogButtons = {};
-    if ($("body").hasClass('user')) {
-        profileDialogButtons[SAVE_MSG] = function() {
-            $(this).find('form').submit();
-        }
-        profileDialogButtons[CANCEL_MSG] = function() {
-            $(this).dialog('close');
-        }
-    }
-    /*var profileDialog = $('body.user #profile-dialog').dialog({
-        modal: true,
-        autoOpen: false,
-        buttons: profileDialogButtons,
-        width: 500
-    });  Dosen't work any more*/
-    $('body.user .show-profile-dialog').click(function() {
-        profileDialog.dialog('open');
-    });
 
 
 });
