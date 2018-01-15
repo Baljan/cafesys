@@ -43,6 +43,11 @@
             </ul>
           </div>
           {% endfor %}
+
+            <a href="{% url 'logout' %}" class="btn btn-outline-primary my-2 my-sm-0 d-lg-none d-inline-block btn-block">
+                <i class="fa fa-sign-out" aria-hidden="true"></i>
+                  Logga ut
+              </a>
         </nav>
         {% endblock %} {% endif %}
 
@@ -56,7 +61,9 @@
               <i class="fa fa-user usericon ml-3 mr-1 d-none d-sm-inline-block" aria-hidden="true"></i>
               <a href="{{user.get_absolute_url}}" class="mr-2 username">{{user.get_full_name}}</a>
               <a href="{% url 'logout' %}" class="btn my-2 my-sm-0 d-none d-sm-inline-block">
-              <i class="fa fa-sign-out" aria-hidden="true"></i> Logga ut</a>
+                <i class="fa fa-sign-out" aria-hidden="true"></i>
+                  Logga ut
+              </a>
           {% else %}
               <a href="#footer" class="contact-btn mr-2 d-none d-xl-inline">Kontakta oss</a>
               <a href="{% url 'social:begin' 'liu' %}" class="btn btn-outline-primary btn-attention my-2 my-sm-0">
