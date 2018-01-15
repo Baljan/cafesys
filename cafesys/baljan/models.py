@@ -983,3 +983,13 @@ class OldCoffeeCard(models.Model):
 
     def __str__(self):
         return "%d.%d (old)" % (self.set.set_id, self.card_id)
+
+
+class IncomingCallFallback(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True)
+    priority = models.IntegerField('Prioritet', help_text='Högst prioritet kommer ringas upp först')
+
+    class Meta:
+        verbose_name = 'Styrelsemedlem att ringa'
+        verbose_name_plural = 'Uppringningslista jourtelefon'
+        ordering = ('-priority', 'user__username')

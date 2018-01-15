@@ -15,11 +15,12 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.core.serializers import serialize
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
+from cafesys.baljan import phone
 from . import credits as creditsmodule
 from . import (forms, ical, kobra, models, pdf, planning, pseudogroups, search,
                stats, trades, workdist)
@@ -27,6 +28,7 @@ from .forms import OrderForm
 from .util import (adjacent_weeks, all_initials, available_for_call_duty,
                    from_iso8601, htmlents, valid_username, week_dates,
                    year_and_week)
+import pytz
 
 logger = getLogger(__name__)
 
@@ -513,7 +515,8 @@ def job_opening_projector(request, semester_name):
     sched = workdist.Scheduler(sem)
     pairs = sched.pairs_from_db()
     slots = _pair_matrix(pairs)
-    tpl['now'] = now = datetime.now().strftime('%H:%M:%S')
+    tz = pytz.timezone(settings.TIME_ZONE)
+    tpl['now'] = now = datetime.now(tz).strftime('%H:%M:%S')
 
     if request.is_ajax():
         pair_info = []
@@ -857,3 +860,8 @@ def high_score(request, year=None, week=None):
 
     tpl['stats'] = fetched_stats
     return render(request, 'baljan/high_score.html', tpl)
+
+
+@csrf_exempt
+def incoming_call(request):
+    return JsonResponse(phone.compile_incoming_call_response())

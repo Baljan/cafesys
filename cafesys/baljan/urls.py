@@ -44,4 +44,6 @@ urlpatterns = (
     url(r'trade/take/(\d+)/(.*)', views.trade_take, name='take_signup'),
     url(r'trade/accept/(\d+)/(.*)', views.trade_accept, name='accept_trade'),
     url(r'trade/deny/(\d+)/(.*)', views.trade_deny, name='deny_trade'),
+
+    url(r'incoming-call', views.incoming_call),
 )
