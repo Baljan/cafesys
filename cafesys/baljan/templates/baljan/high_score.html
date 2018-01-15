@@ -26,34 +26,36 @@
                     {% for group in stat.groups %}
                     <div class="col">
                         <h3>{{group.title}}</h3>
-                        <table class="table table-baljan">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Placering</th>
-                                    <th scope="col">Person</th>
-                                    <th scope="col">Antal blipp</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {% for top in group.top_users %}
-                                <tr>
-                                    <th scope="col">
-                                        {% ifchanged top.num_orders %}
-                                        {{forloop.counter}}.
-                                        {% endifchanged %}
-                                    </th>
-                                    <td>
-                                        {{top|name_link}}
-                                        {% if top.profile.motto %}
-                                        <br/>
-                                        <span>{{top.profile.motto}}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{top.num_orders}}</td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-baljan">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Placering</th>
+                                        <th scope="col">Person</th>
+                                        <th scope="col">Antal blipp</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for top in group.top_users %}
+                                    <tr>
+                                        <th scope="col">
+                                            {% ifchanged top.num_orders %}
+                                            {{forloop.counter}}.
+                                            {% endifchanged %}
+                                        </th>
+                                        <td>
+                                            {{top|name_link}}
+                                            {% if top.profile.motto %}
+                                            <br/>
+                                            <span>{{top.profile.motto}}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{top.num_orders}}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>

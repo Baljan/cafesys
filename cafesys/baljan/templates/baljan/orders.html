@@ -11,43 +11,44 @@
 <h1>Köp av {{user.username}} ({{orders|length}})</h1>
 <div class="row">
     <div class="col">
-        <table class="table table-baljan">
-            <thead>
-            <th>
-                Datum
-            </th>
-            <th>
-                Klockslag
-            </th>
-            <th>
-                Vara
-            </th>
-            </thead>
-            {% for order in order_page.object_list %}
-                {% with order.put_at|date as put_at_date %}
-                    <tr>
-                        <td class="date-change">
-                            {% ifchanged put_at_date %}
-                                {{put_at_date}}
-                            {% endifchanged %}
-                        </td>
-                        <td>
-                            {{order.put_at|time }}
-                        </td>
-                        <td>
-                            {{order.ordergood_set.all|join:", "}}
-                        </td>
-                    </tr>
-                {% endwith %}
-            {% empty %}
-            <tr>
-                <td colspan="3">
-                    Inga köp registrerade.
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-
+        <div class="table-responsive">
+            <table class="table table-baljan">
+                <thead>
+                <th>
+                    Datum
+                </th>
+                <th>
+                    Klockslag
+                </th>
+                <th>
+                    Vara
+                </th>
+                </thead>
+                {% for order in order_page.object_list %}
+                    {% with order.put_at|date as put_at_date %}
+                        <tr>
+                            <td class="date-change">
+                                {% ifchanged put_at_date %}
+                                    {{put_at_date}}
+                                {% endifchanged %}
+                            </td>
+                            <td>
+                                {{order.put_at|time }}
+                            </td>
+                            <td>
+                                {{order.ordergood_set.all|join:", "}}
+                            </td>
+                        </tr>
+                    {% endwith %}
+                {% empty %}
+                <tr>
+                    <td colspan="3">
+                        Inga köp registrerade.
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
         {% if order_page.has_next %}
             <div class="float-left">
                 <a href="{% url 'orders' order_page.next_page_number %}">&laquo; Äldre</a>
