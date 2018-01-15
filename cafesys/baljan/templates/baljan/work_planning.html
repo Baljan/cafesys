@@ -38,85 +38,87 @@
 
 <div>
     <div id="schedule">
-        <table class="table table-baljan">
-            <thead>
-                <tr>
-                    <th>Vecka</th>
-                    <th>Dag</th>
-                    <th>Datum</th>
-                    <th>fm/em</th>
-                    <th>Jobbare</th>
-                    <th>Jour</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for sh in shifts %}
-                <tr class="{%if sh.upcoming%}upcoming{%endif%}">
-                    {% with sh.when|week as week %}
-                        <td>
-                            {% if perms.baljan.change_oncallduty %}
-                                <a href="{{sh.week_url}}">
-                                    {% ifchanged week %}
-                                        <span>{{week}}</span>
-                                    {% else %}
-                                        <span class="d-none">{{week}}</span>
-                                    {% endifchanged %}
-                                </a>
-                            {% else %}
-                                {% ifchanged week %}
-                                        <span>{{week}}</span>
-                                    {% else %}
-                                        <span class="d-none">{{week}}</span>
-                                {% endifchanged %}
-                            {% endif %}
-                        </td>
-                    {% endwith %}
-                    {% with sh.when|date:'D' as day %}
-                        <td>
-                            {% ifchanged day %}
-                                <span>{{day}}</span>
-                            {% else %}
-                                <span class="d-none">{{day}}</span>
-                            {% endifchanged %}
-                        </td>
-                    {% endwith %}
-                    <td>
-                        {% with sh.when|naturalday as when %}
-                                {% ifchanged when %}
-                                    <a href="{{ sh.get_absolute_url }}">
-                                        {{when}}
+        <div class="table-responsive">
+            <table class="table table-baljan">
+                <thead>
+                    <tr>
+                        <th>Vecka</th>
+                        <th>Dag</th>
+                        <th>Datum</th>
+                        <th>fm/em</th>
+                        <th>Jobbare</th>
+                        <th>Jour</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sh in shifts %}
+                    <tr class="{%if sh.upcoming%}upcoming{%endif%}">
+                        {% with sh.when|week as week %}
+                            <td>
+                                {% if perms.baljan.change_oncallduty %}
+                                    <a href="{{sh.week_url}}">
+                                        {% ifchanged week %}
+                                            <span>{{week}}</span>
+                                        {% else %}
+                                            <span class="d-none">{{week}}</span>
+                                        {% endifchanged %}
                                     </a>
                                 {% else %}
-                                    <a class="d-none" href="{{ sh.get_absolute_url }}">
-                                        {{when}}
-                                    </a>
-                                {% endifchanged %}
+                                    {% ifchanged week %}
+                                            <span>{{week}}</span>
+                                        {% else %}
+                                            <span class="d-none">{{week}}</span>
+                                    {% endifchanged %}
+                                {% endif %}
+                            </td>
                         {% endwith %}
-                    </td>
-                    <td class="early-or-late">
-                        {{ sh.ampm }}
-                    </td>
-                    <td>
-                        {% for su in sh.signups %}
-                            {% if su.can_trade %}
-                                <s><span class="tradable">{{su.user|name_link}}</span></s>
-                            {% else %}
-                                {{su.user|name_link}}
-                            {% endif %}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                        {% if sh.span == 1 %}
-                            ↕ Överlapp ↕
-                        {% endif %}
-                    </td>
-                    <td class="on-call{%if sh.callduties.count == 0 %} empty{%endif%}">
-                        {% for u in sh.on_callduty %}
-                        {{u|name_link}}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        {% with sh.when|date:'D' as day %}
+                            <td>
+                                {% ifchanged day %}
+                                    <span>{{day}}</span>
+                                {% else %}
+                                    <span class="d-none">{{day}}</span>
+                                {% endifchanged %}
+                            </td>
+                        {% endwith %}
+                        <td>
+                            {% with sh.when|naturalday as when %}
+                                    {% ifchanged when %}
+                                        <a href="{{ sh.get_absolute_url }}">
+                                            {{when}}
+                                        </a>
+                                    {% else %}
+                                        <a class="d-none" href="{{ sh.get_absolute_url }}">
+                                            {{when}}
+                                        </a>
+                                    {% endifchanged %}
+                            {% endwith %}
+                        </td>
+                        <td class="early-or-late">
+                            {{ sh.ampm }}
+                        </td>
+                        <td>
+                            {% for su in sh.signups %}
+                                {% if su.can_trade %}
+                                    <s><span class="tradable">{{su.user|name_link}}</span></s>
+                                {% else %}
+                                    {{su.user|name_link}}
+                                {% endif %}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                            {% if sh.span == 1 %}
+                                ↕ Överlapp ↕
+                            {% endif %}
+                        </td>
+                        <td class="on-call{%if sh.callduties.count == 0 %} empty{%endif%}">
+                            {% for u in sh.on_callduty %}
+                            {{u|name_link}}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
