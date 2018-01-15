@@ -6,6 +6,7 @@ py3-pip
 # Build dependencies
 curl
 gcc
+g++
 git
 jpeg-dev
 libffi-dev
