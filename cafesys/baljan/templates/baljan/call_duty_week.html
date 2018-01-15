@@ -63,9 +63,9 @@
     </table>
     <h2>{% trans "Available Users" %} ({%trans "drag and drop"%})</h2>
     <div class="available-users"></div>
-    <div class="submit">
-        <h3><a href="{{request.path}}">Ångra osparade ändringar</a></h3>
-        <h3><a href="#" class="save">Spara</a></h3>
+    <div class="submit wrapper">
+        <a class="btn btn-primary save" href="#" role="button">Spara</a>
+        <a class="btn btn-secondary" role="button" href="{{request.path}}">Ångra osparade ändringar</a>
     </div>
 </div>
 {% endblock %}

@@ -1,7 +1,4 @@
 $(document).ready(function () {
-    $('.init-hidden').css('visibility', 'visible').show();
-    $('#nav .active').click();
-    
     /* Semester View */
     $('body.semesters #id_start').change(function() {
         var dparts = $(this).attr('value').split('-'),

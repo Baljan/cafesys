@@ -32,43 +32,36 @@ def categories_and_actions(request):
     for upc in upcoming_sems:
         name = upc.name
         action = Action(
-            _('job opening %s') % name,
+            ('Jobbsläpp %s') % name,
             'job_opening',
             args=(name,)
         )
         upcoming_sem_actions.append(action)
 
     levels = (
-        ('superusers', _('superusers'), (
+        ('superusers', 'Superanvändare', (
 
         )),
-        (settings.BOARD_GROUP, _('board tasks'), (
-            Action(_('week planning'), 'call_duty_week'),
+        (settings.BOARD_GROUP, 'Styrelsen', (
+            Action('Veckoplanering', 'call_duty_week'),
             ) + tuple(upcoming_sem_actions) + (
-            Action(_('semesters'), 'admin_semester'),
+            Action('Termin', 'admin_semester'),
+            Action(_('django admin site'), 'admin:index'),
             )
         ),
-        ('sysadmins', _('sysadmins'), (
-            Action(_('django admin site'), 'admin:index'),
-            Action(_('github'), 'http://github.com/Baljan/cafesys', resolve_func=None),
+        (settings.WORKER_GROUP, 'Jobbare', (
+            Action('Jobbplanering', 'current_semester'),
+            Action('Jobbarguide', settings.STATIC_URL + 'guide.pdf', resolve_func=None),
+            Action('Jobbkontrakt', settings.STATIC_URL + 'contract.pdf', resolve_func=None),
+            Action('Lägga in pass i kalenderprogram', settings.STATIC_URL + 'ical-calendar.pdf', resolve_func=None),
             )),
-        (settings.WORKER_GROUP, _('workers'), (
-            Action(_('guide'), settings.STATIC_URL + 'guide.pdf', resolve_func=None),
-            Action(_('contract'), settings.STATIC_URL + 'kontrakt2012.docx', resolve_func=None),
-            Action(_('add shifts to calendar program'), settings.STATIC_URL + 'ical-calendar.pdf', resolve_func=None),
+        ('regulars', 'Ditt konto', (
+            Action('Profil', 'profile'),
+            Action('Dina köp', 'orders', args=(1,)),
+            Action('Personer och grupper', 'search_person'),
             )),
-        ('regulars', _('your account'), (
-            Action(_('profile'), 'profile'),
-            Action(_('credits'), 'credits'),
-            Action(_('orders'), 'orders', args=(1,)),
-            )),
-        ('anyone', _('users'), (
-            Action(_('work planning'), 'current_semester'),
-            Action(_('work for Baljan'), 'become_worker'),
-            Action(_('people and groups'), 'search_person'),
-            Action(_('high score'), 'high_score'),
-            Action(_('price list'), 'price_list'),
-            Action(_('order from Baljan'),'order_from_us'),
+        ('anyone', 'Användare', (
+
         )),
     )
 
