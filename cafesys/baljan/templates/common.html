@@ -31,12 +31,12 @@
         <nav class="sidenav links-for">
           {% for id, action_title, actions in action_categories %}
           <h3>
-            <a class="{{ id }}" href="#">{{ action_title }}</a>
+            <a class="sidebar-title-link" href="#">{{ action_title }}</a>
           </h3>
           <div>
             <ul>
               {% for action in actions %}
-              <li class="{% if action.active %}active{% endif %}">
+              <li class="sidebar-link{% if action.active %} active{% endif %}">
                 <a href="{{ action.link }}">{{ action.text }}</a>
               </li>
               {% endfor %}

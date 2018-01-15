@@ -22,9 +22,6 @@ urlpatterns = (
 
     url(r"^user/(.*)$", views.see_user),
     url(r"^group/(.*)$", views.see_group, name='group'),
-    url(r"^become-worker$", TemplateView.as_view(
-        template_name='baljan/become_worker.html',
-    ), name='become_worker'),
     url(r'search-person', views.search_person, name='search_person'),
 
     url(r'job-opening/(.+)/projector', views.job_opening_projector, name='job_opening_projector'),
