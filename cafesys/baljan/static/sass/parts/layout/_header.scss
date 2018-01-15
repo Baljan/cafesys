@@ -194,6 +194,10 @@ body.about {
   }
 }
 
+.sidenav::-webkit-scrollbar {
+    display: none;  // Safari and Chrome
+}
+
 .sidenav {
   width: 100%;
   //border-top: 1px solid rgba(0, 0, 0, .14);
@@ -204,6 +208,10 @@ body.about {
     bottom: 0;
   background-color: white;
   overflow-y: scroll;
+
+  -ms-overflow-style: none;  // IE 10+
+  overflow: -moz-scrollbars-none;  // Firefox
+
   h3 {
     text-align: center;
     color: $pink;
