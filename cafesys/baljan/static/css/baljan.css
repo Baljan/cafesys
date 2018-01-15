@@ -213,10 +213,7 @@ form table th {
     text-align: center;
     margin-top: -23px;
 }
-.init-hidden {
-    visibility: hidden;
-    display: none;
-}
+
 .inbox {
     /* unread notifications */
 }
