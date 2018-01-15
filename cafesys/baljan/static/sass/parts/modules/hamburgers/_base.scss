@@ -27,6 +27,10 @@
       opacity: $hamburger-hover-opacity;
     }
   }
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .hamburger-box {
@@ -66,5 +70,12 @@
 
   &::after {
     bottom: ($hamburger-layer-spacing + $hamburger-layer-height) * -1;
+  }
+}
+
+// Avoid collapsing vertical menu on large screens
+@include media-breakpoint-up(lg) {
+  .navbar-collapse {
+    height: inherit !important;
   }
 }
