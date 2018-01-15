@@ -33,6 +33,7 @@ RUN pip3 install -r ${APP_ROOT}/requirements.txt
 
 COPY . ${APP_ROOT}
 
+RUN django-admin compilescss
 RUN django-admin collectstatic --noinput
 
 EXPOSE 80
