@@ -10,59 +10,53 @@
     <div class="row">
         <div class="col">
             <h1>{% trans "Search Person" %}</h1>
-            <div class="grid_8 alpha main">
-                <div>
-                    <form class="search uniForm" method="POST" action="">
-                        {% csrf_token %}
-                        <fieldset class="inlineLabels">
-                            <div class="form-group">
-                                <input
-                                        id="search-terms" type="text" class="form-control textinput textInput"
-                                        name="search-terms" value="{{ terms|default:"" }}"/>
-                                <small class="form-text text-muted">Söker förnamn, efternamn, liu-id och grupper. Endast personer som uppfyller varje term visas i resultatet.</small>
-                            </div>
-                        </fieldset>
-                    </form>
-                </div>
 
-                <div class="results">
-                    <h2>{% trans "Hits" %} (<span class="count">{{ hits|length }}</span>)</h2>
+            <div>
+                <form class="search uniForm" method="POST" action="">
+                    {% csrf_token %}
+                    <fieldset class="inlineLabels">
+                        <div class="form-group">
+                            <input
+                                    id="search-terms" type="text" class="form-control textinput textInput"
+                                    name="search-terms" value="{{ terms|default:"" }}"/>
+                            <small class="form-text text-muted">Söker förnamn, efternamn, liu-id och grupper. Endast personer som uppfyller varje term visas i resultatet.</small>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div class="results">
+                <h2>{% trans "Hits" %} (<span class="count">{{ hits|length }}</span>)</h2>
+                <ul>
+                    {% for hit in hits %}
+                        <li>
+                            <a href="{{ hit.get_absolute_url }}">{{ hit.get_full_name }} ({{ hit.username }})</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-3">
+            {% if groups %}
+                <div class="groups">
+                    <h2>{% trans "Groups" %}</h2>
                     <ul>
-                        {% for hit in hits %}
+                        {% for group in groups %}
                             <li>
-                                <a href="{{ hit.get_absolute_url }}">{{ hit.get_full_name }} ({{ hit.username }})</a>
+                                <a href="{% url 'group' group.name %}">{{ group.name }}</a>
                             </li>
                         {% endfor %}
                     </ul>
-                    <div class="clear"></div>
                 </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="grid_2 omega secondary">
-                {% if groups %}
-                    <div class="groups">
-                        <h2>{% trans "Groups" %}</h2>
-                        <ul>
-                            {% for group in groups %}
-                                <li>
-                                    <a href="{% url 'group' group.name %}">{{ group.name }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endif %}
-            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
 
 {% block extra_body %}
     <script type="text/javascript">
-        // <![CDATA[
         CONFIRM_MSG = "{% trans "Are you sure?" %}";
         CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
         CONFIRM_DELETE = CONFIRM_MSG;
-        // ]]>
     </script>
 {% endblock %}
