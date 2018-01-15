@@ -1,28 +1,21 @@
-{% extends "baljan/baljan.html" %} {% load i18n %} {% load humanize %} {% load static %} {% load crispy_forms_tags %} 
-{% block body_class %}about{% endblock %} {% block body %}
+{% extends "baljan/baljan.html" %} {% load i18n %} {% load humanize %} {% load static %} {% load crispy_forms_tags %}
 
-<div class="row align-items-center">
-  <div class="col-8 mx-auto col-md-6 order-md-2">
-    <img src="{% static 'img/svg/sparkle.svg' %}" alt="baljan30-sparkles" class="img-fluid mb-3 mb-md-0 d-none d-md-block">
-  </div>
-  <div class="col-md-6 order-md-1 text-center text-md-left pr-lg-5">
-    <h1 class="mb-3 bd-text-purple-bright">Baljan är faktiskt 30 år!</h1>
-    <p class="lead">
-      Snart är det dags för Baljans fantastiska 30-års jubileum går av stapeln. Hoppas att ni är toktaggade på alla tokigheter
-      som kommer hända under veckan. Vi har hört rykten om tårtkalas, tåg och tivoli (men du har inte hört det från oss).
-      Sen självklart också vagnslass av vårt kära kaffe med klägg. Håll i hatten, snart fyller Baljan år!!
-    </p>
-  </div>
+{% block title %}Sektionscafé Baljan{% endblock %}
+{% block body_class %}about{% endblock %}
+
+{% block full_body %}
+<main class="bd-masthead" id="content" role="main">
+
+<div id="header-image" class="row align-items-center">
+<h1 class="bd-text-purple-bright lobster">Mer kaffe åt folket!</h1>
 </div>
 
-</div>
 <!-- container -->
-</main>
 <!-- main#content -->
 
 <section class="jumbotron jumbotron-fluid">
   <div class="container">
-    <h3>Mer kaffe åt folket!</h3>
+    <h3>Mål och mening</h3>
     <p class="lead mb-4">
       Kaffe åt folket! — helt enkelt. Vi säljer kaffe, te, varm choklad, läsk, mackor och klägg till studentanpassade priser. Vi
       är helt ideella. Allt överskott återinvesteras i utrustning, möbler och vår fantastiska personal.
@@ -166,6 +159,8 @@
 <div id="map-container"></div>
 
 <div>
-  <main>
     <!-- hpfix -->
-    {% endblock %} {% block extra_body %} {% endblock %}
+</main>
+{% endblock %}
+
+{% block extra_body %} {% endblock %}

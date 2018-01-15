@@ -11,7 +11,7 @@
 {% block body %}
     <h1>{{ watched.get_full_name }} ({{ watched.username }})
         {% if perms.auth.change_user %}
-            <div class="btn-group pull-right" role="group" aria-label="Basic example">
+            <div class="btn-group" role="group">
                 <button type="button" class="btn btn-secondary" disabled><i class="fa fa-lock" aria-hidden="true"></i></button>
                 <a href="{% url 'admin:auth_user_change' watched.id %}" role="button" class="btn btn-secondary">Visa användare</a>
                 <a href="{% url 'admin:baljan_profile_change' watched.profile.id %}" role="button" class="btn btn-secondary">Visa profil</a>
@@ -20,7 +20,7 @@
     </h1>
 
     <div class="row">
-        <div class="col">
+        <div class="col-md">
             <h2>Profil
                 {% if profile_forms %}
                     <small style="vertical-align: middle;">
@@ -82,7 +82,7 @@
                 </dl>
             {% endwith %}
         </div>
-        <div class="col">
+        <div class="col-md">
             <div class="grid_6 omega secondary">
                 {% if trade_requests %}
                     <div class="pending-highlight">
