@@ -46,7 +46,7 @@ def categories_and_actions(request):
             Action('Veckoplanering', 'call_duty_week'),
             ) + tuple(upcoming_sem_actions) + (
             Action('Termin', 'admin_semester'),
-            Action(_('django admin site'), 'admin:index'),
+            Action('Djangos adminsida', 'admin:index'),
             )
         ),
         (settings.WORKER_GROUP, 'Jobbare', (
