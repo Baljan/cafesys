@@ -62,7 +62,7 @@
       <a href="{% url 'social:begin' 'liu' %}" class="btn btn-outline-primary btn-attention my-2 my-sm-0">
         <i class="fa fa-sign-in"></i> Logga in</a>
       {% endif %} {% endblock %}
-      <button class="navbar-toggler hamburger hamburger--collapse" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+      <button class="navbar-toggler hamburger hamburger--collapse {% if user.is_authenticated %}is-authenticated{% endif %}" type="button" data-toggle="collapse" data-target="#navbarCollapse"
         aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" id="hamburger">
         <!-- <span class="navbar-toggler-icon"></span> -->
         <span class="hamburger-box">

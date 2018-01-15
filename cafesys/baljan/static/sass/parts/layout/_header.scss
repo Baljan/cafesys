@@ -24,6 +24,13 @@ body.fixed-navbar main.bd-masthead{
   width: 100%;
   z-index: 10;
   min-height: 75px;
+  .container {
+    @include media-breakpoint-down(xl) {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+  
   &.fixed {
     position: fixed;
     background: #FFF;
@@ -147,11 +154,16 @@ body.about {
   }
 }
 
-
-.navbar-toggler {
+// Fix to show hamburger icon for authenticated users
+  .navbar-toggler.is-authenticated {
   display: block !important;
 }
+
 .sidenav {
+  border-top: 1px solid rgba(0, 0, 0, .14);
+  transition: 0.5s ease;
+  width: 100%;
+
   @include media-breakpoint-up(lg) {
     height: 100%;
     width: 320px;
@@ -163,15 +175,12 @@ body.about {
     padding-top: 20px;
     padding-left: 20px;
     overflow-x: hidden;
-    border-top: 1px solid rgba(0, 0, 0, .14);
     border-left: 1px solid rgba(0, 0, 0, .14);
-    background-color: rgb(255,255,255); 
+    background-color: rgb(255, 255, 255);
+    &.is-open {
+      transform: translateX(0);
+      width: 320px;
+    }
   }
-  transition: 0.5s ease;
 
-  &.is-open {
-    transform: translateX(0);
-    width: 320px;
-
-  }
 }
