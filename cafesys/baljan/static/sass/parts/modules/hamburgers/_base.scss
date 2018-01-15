@@ -27,6 +27,10 @@
       opacity: $hamburger-hover-opacity;
     }
   }
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .hamburger-box {
