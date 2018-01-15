@@ -480,13 +480,6 @@ body.user .profile .picture {
     margin-right: auto;
 }
 
-body.become-worker .toggle-request a {
-    font-size: 1.5em;
-}
-body.become-worker .toggle-request {
-    text-align: center;
-}
-
 body.credits .credits {
     border: 1px solid #ccc;
     background-color: #eee;

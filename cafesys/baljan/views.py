@@ -47,27 +47,6 @@ def redirect_prepend_root(where):
     return HttpResponseRedirect('/%s' % where)
 
 
-@permission_required('baljan.add_semester')
-@permission_required('baljan.change_semester')
-@permission_required('baljan.delete_semester')
-def semesters(request):
-    tpl = {}
-    if request.method == 'POST':
-        task = request.POST['task']
-        if task == 'add':
-            sem = models.Semester()
-            semform = forms.SemesterForm(request.POST, instance=sem)
-            if semform.is_valid():
-                sem.save()
-                messages.add_message(request, messages.SUCCESS, _("%s was added successfully.") % sem.name)
-    else:
-        semform = forms.SemesterForm()
-
-    tpl['add_form'] = semform
-    tpl['semesters'] = models.Semester.objects.filter(end__gte=date.today()).order_by('start')
-    return render(request, 'baljan/semesters.html', tpl)
-
-
 @login_required
 def current_semester(request):
     sem = models.Semester.objects.current()
