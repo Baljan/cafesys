@@ -8,8 +8,7 @@
 // }
 //
 body.fixed-navbar main.bd-masthead{
-  padding-top: (74px + 40px); // navbar-height + main-toppadding
-  background-position-y: (74px + 0px) !important;
+  padding-top: (74px); // navbar-height
 }
 
 .Baljan__header {
@@ -91,7 +90,7 @@ body.fixed-navbar main.bd-masthead{
 }
 
 .usericon {
-  color: $dark-blue; 
+  color: $dark-blue;
   background-color: #f8f8f8;
   padding: 7px 10px;
   border: 1px solid #e0e0e0;
@@ -113,23 +112,28 @@ body.fixed-navbar main.bd-masthead{
 }
 
 body.about {
-    main:first-of-type {
-    background-color: #f4f3f1;
-    // background: url('/static/img/coffee-bg1.jpg');
-    // background: url('https://images.unsplash.com/photo-1510547668050-f88ebf0c1a61?auto=format&fit=crop&w=3300&q=80&ixid=dW5zcGxhc2guY29tOzs7Ozs%3D');
-    background: url('https://images.unsplash.com/photo-1510520555468-ffab137027f5?auto=format&fit=crop&w=3300&q=80&ixid=dW5zcGxhc2guY29tOzs7Ozs%3D');
-    // background: url('https://images.unsplash.com/photo-1455134168668-4066045897c3?auto=format&fit=crop&w=3400&q=80&ixid=dW5zcGxhc2guY29tOzs7Ozs%3D');
-    // background: url('https://images.unsplash.com/44/E5KMvPp9SsCnqmEGUwAS_2014-08-10%2012.56.40%201.jpg?auto=format&fit=crop&w=1918&q=80&ixid=dW5zcGxhc2guY29tOzs7Ozs%3D');
-    // background: url('https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=3356&q=80&ixid=dW5zcGxhc2guY29tOzs7Ozs%3D');
-    background-size: cover;
-    // background-position: center center;
-    // background-position-y: -150px;
+    #header-image {
+      background: #f4f3f1 url('https://images.unsplash.com/photo-1510520555468-ffab137027f5?auto=format&fit=crop&w=3300&q=80&ixid=dW5zcGxhc2guY29tOzs7Ozs%3D');
+      background-size: cover;
+      height: 30vw;
+      min-height: 200px;
+
       h1 {
+         display: inline-block;
+         width: 100%;
+         text-align: center;
+         color: #fff;
          padding: 20px;
-         font-size: 50pt;
-         border: 4px solid $dark-blue;
-         background: rgba(255,255,255,0.7);
+         font-size: 65px;
          border-radius: 8px;
+         text-shadow: 0 0 25px #000;
+        margin-bottom: 18vw;
+
+        @media screen and (max-width: 600px) {
+          font-size: 50px;
+        }
+
+
       }
      p.lead {
       display: none;
@@ -139,7 +143,7 @@ body.about {
       font-weight: bold;
       border-radius: 8px;
     }
-  } 
+  }
 }
 
 
