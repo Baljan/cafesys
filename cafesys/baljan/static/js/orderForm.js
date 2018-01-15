@@ -1,186 +1,100 @@
-function calcSum(highlight) {
-    highlight = typeof highlight !== 'undefined' ? highlight : true;
-    var userInput = 30 * document.getElementById('id_numberOfJochen').value + 6 * document.getElementById('id_numberOfCoffee').value
-        + 6 * document.getElementById('id_numberOfTea').value + 5 * document.getElementById('id_numberOfSoda').value
-        + 6 * document.getElementById('id_numberOfKlagg').value;
-    document.getElementById('currentSum').innerHTML = userInput;
-    document.getElementById("id_orderSum").value = userInput;
+function calcSum() {
+    var grandTotal=0;
 
-    if (highlight) {
-        $("#currentSum").effect("highlight");
-    }
+    $(".order-item").each(function() {
+        var amount = parseInt($(this).find("input").val());
+        var cost = parseInt($(this).find(".cost").text());
+        var total = amount * cost;
+        if (isNaN(total)) {
+            total = 0;
+        }
+        grandTotal+=total;
+        $(this).find(".total").text(total.toString());
+    });
+
+    $('#currentSum').text(grandTotal);
+    $('#id_orderSum').val(grandTotal);
 }
 
+
+function disablePickupFields(disable) {
+    var pickupName = $('#id_pickupName');
+    var pickupEmail = $('#id_pickupEmail');
+    var pickupNumber = $('#id_pickupNumber');
+
+    pickupName.prop('readonly', disable);
+    pickupEmail.prop('readonly', disable);
+    pickupNumber.prop('readonly', disable);
+
+    if (disable){
+        pickupName.val($('#id_orderer').val());
+        pickupEmail.val($('#id_ordererEmail').val());
+        pickupNumber.val($('#id_phoneNumber').val());
+    }else{
+        pickupName.val("");
+        pickupEmail.val("");
+        pickupNumber.val("");
+    }
+
+}
 
 window.onload = function justdoit() {
+    var sameAsOrderer = $("#id_sameAsOrderer");
+    if (sameAsOrderer.is(':checked')) {
+        disablePickupFields(true);
+    }
 
-    $("#id_sameAsOrderer").live('change', function () {
-        $("#id_pickupName").effect("highlight");
-        $("#id_pickupEmail").effect("highlight");
-        $("#id_pickupNumber").effect("highlight");
-
+    sameAsOrderer.on('change', function () {
         if ($(this).is(':checked')) {
-            document.getElementById('id_pickupName').value = document.getElementById('id_orderer').value
-            document.getElementById('id_pickupName').readOnly = true
-            document.getElementById('id_pickupEmail').value = document.getElementById('id_ordererEmail').value
-            document.getElementById('id_pickupEmail').readOnly = true
-            document.getElementById('id_pickupNumber').value = document.getElementById('id_phoneNumber').value
-            document.getElementById('id_pickupNumber').readOnly = true
+            disablePickupFields(true);
         }
         else {
-            document.getElementById('id_pickupName').value = ""
-            document.getElementById('id_pickupName').readOnly = false
-            document.getElementById('id_pickupEmail').value = ""
-            document.getElementById('id_pickupEmail').readOnly = false
-            document.getElementById('id_pickupNumber').value = ""
-            document.getElementById('id_pickupNumber').readOnly = false
+            disablePickupFields(false);
         }
     });
 
-    $('#id_orderer').bind('input', function () {
-        document.getElementById('id_pickupName').readOnly = true
-        document.getElementById('id_pickupEmail').readOnly = true
-        document.getElementById('id_pickupNumber').readOnly = true
-        if (document.getElementById('id_sameAsOrderer').checked) {
-            document.getElementById('id_pickupName').value = document.getElementById('id_orderer').value
+    $('#id_orderer').on('change', function () {
+        if ($("#id_sameAsOrderer").is(':checked')) {
+            $('#id_pickupName').val($('#id_orderer').val());
         }
     });
-    $('#id_ordererEmail').bind('input', function () {
-        document.getElementById('id_pickupName').readOnly = true
-        document.getElementById('id_pickupEmail').readOnly = true
-        document.getElementById('id_pickupNumber').readOnly = true
-        if (document.getElementById('id_sameAsOrderer').checked) {
-            document.getElementById('id_pickupEmail').value = document.getElementById('id_ordererEmail').value
+    $('#id_ordererEmail').on('change',function () {
+        if ($("#id_sameAsOrderer").is(':checked')) {
+            $('#id_pickupEmail').val($('#id_ordererEmail').val());
         }
     });
-    $('#id_phoneNumber').bind('input', function () {
-        document.getElementById('id_pickupName').readOnly = true
-        document.getElementById('id_pickupEmail').readOnly = true
-        document.getElementById('id_pickupNumber').readOnly = true
-        if (document.getElementById('id_sameAsOrderer').checked) {
-            document.getElementById('id_pickupNumber').value = document.getElementById('id_phoneNumber').value
+    $('#id_phoneNumber').on('change', function () {
+        if ($("#id_sameAsOrderer").is(':checked')) {
+            $('#id_pickupNumber').val($('#id_phoneNumber').val());
         }
     });
-}
+};
 
 $(function () {
-    $("#check").button();
-    $("#items").buttonset();
-});
-
-$("#id_jochenSelected").live('change', function () {
-    if ($(this).is(':checked')) {
-        $("#jochen").show("fast");
-        $("#id_numberOfJochen").focus();
-    }
-    else {
-        $("#jochen").hide("fast");
-        document.getElementById('id_numberOfJochen').value = ""
-        calcSum();
-
-    }
-});
-
-$("#id_coffeeSelected").live('change', function () {
-    if ($(this).is(':checked')) {
-        $("#coffee").show("fast");
-        $("#id_numberOfCoffee").focus();
-    }
-    else {
-        $("#coffee").hide("fast");
-        document.getElementById('id_numberOfCoffee').value = ""
-        calcSum();
-    }
-});
-
-$("#id_teaSelected").live('change', function () {
-    if ($(this).is(':checked')) {
-        $("#tea").show("fast");
-        $("#id_numberOfTea").focus();
-    }
-    else {
-        $("#tea").hide("fast");
-        document.getElementById('id_numberOfTea').value = ""
-        calcSum();
-    }
-});
-
-$("#id_sodaSelected").live('change', function () {
-    if ($(this).is(':checked')) {
-        $("#soda").show("fast");
-        $("#id_numberOfSoda").focus();
-    }
-    else {
-        $("#soda").hide("fast");
-        document.getElementById('id_numberOfSoda').value = ""
-        calcSum();
-    }
-});
-
-$("#id_klaggSelected").live('change', function () {
-    if ($(this).is(':checked')) {
-        $("#klagg").show("fast");
-        $("#id_numberOfKlagg").focus();
-    }
-    else {
-        $("#klagg").hide("fast");
-        document.getElementById('id_numberOfKlagg').value = ""
-        calcSum();
-    }
-
-});
-
-$(document).ready(function () {
-    calcSum(false);
-
-    //	<span> {{form.orderSum.value|default_if_none:"0"}} SEK </span>
-    $('#id_numberOfJochen').bind('input', function () {
-        calcSum();
-        //$.datepicker({minDate:+30});
-
+    $(".order-item").on('input', function () {
+            calcSum();
     });
-    $('#id_numberOfCoffee').bind('input', function () {
-        calcSum();
+    var datepicker=$("#id_date");
+    datepicker.datepicker({
+        language: "sv",
+        startDate: '0d',
+        daysOfWeekDisabled: '06'
     });
-    $('#id_numberOfTea').bind('input', function () {
-        calcSum();
-    });
-    $('#id_numberOfSoda').bind('input', function () {
-        calcSum();
-    });
-    $('#id_numberOfKlagg').bind('input', function () {
-        calcSum();
-    });
-});
 
-//document.getElementById('id_orderSum').value = userInput;
+    datepicker.datepicker().on('changeDate', function() {
+        var date=$(this).datepicker('getDate').getDay();
+        if (date===5) {
+            if ($("#id_pickup").val() == 1){
+                $("#id_pickup").val(0);
+                bootbox.alert({
+                  title: "OBS: Din beställning har ändrats!",
+                  message: "Baljan lämnar inte ut några beställningar på fredag lunch och din upphämtningstid har därför ändrats till fredag morgon."
+                });
+            }
+            $("option[value=1]").prop('disabled', true);
 
-$(function () {
-    $("#id_date").datepicker({
-        minDate: +1,
-        showWeek: true,
-        dateFormat: "yy-mm-dd",
-        firstDay: 1,
-        beforeShowDay: $.datepicker.noWeekends
+        }else{
+            $("option[value=1]").prop('disabled', false);
+        }
     });
-    $.datepicker.regional['sv'] = {
-        closeText: 'Stäng',
-        prevText: '&laquo;Förra',
-        nextText: 'Nästa&raquo;',
-        currentText: 'Idag',
-        monthNames: ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni',
-            'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'],
-        monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun',
-            'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
-        dayNamesShort: ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'],
-        dayNames: ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'],
-        dayNamesMin: ['Sö', 'Må', 'Ti', 'On', 'To', 'Fr', 'Lö'],
-        weekHeader: 'Ve',
-        dateFormat: 'yy-mm-dd',
-        firstDay: 1,
-        isRTL: false,
-        showMonthAfterYear: false,
-        yearSuffix: ''
-    };
-    $.datepicker.setDefaults($.datepicker.regional['sv']);
 });

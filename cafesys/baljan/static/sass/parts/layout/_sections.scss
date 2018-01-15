@@ -1,0 +1,19 @@
+//==============================================
+// Layout/sections
+//============================================== 
+
+.l-section {}
+
+@media (min-width: 576px) {
+  .container {
+    max-width: 900px;
+    padding: 0 55px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 1260px;
+    padding: 0 60px;
+}
+}

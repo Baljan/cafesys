@@ -48,30 +48,6 @@ def redirect_prepend_root(where):
         return HttpResponseRedirect(where)
     return HttpResponseRedirect('/%s' % where)
 
-def board_posts(request):
-    return render(request, 'baljan/board_seats.html')
-
-
-@permission_required('baljan.add_semester')
-@permission_required('baljan.change_semester')
-@permission_required('baljan.delete_semester')
-def semesters(request):
-    tpl = {}
-    if request.method == 'POST':
-        task = request.POST['task']
-        if task == 'add':
-            sem = models.Semester()
-            semform = forms.SemesterForm(request.POST, instance=sem)
-            if semform.is_valid():
-                sem.save()
-                messages.add_message(request, messages.SUCCESS, _("%s was added successfully.") % sem.name)
-    else:
-        semform = forms.SemesterForm()
-
-    tpl['add_form'] = semform
-    tpl['semesters'] = models.Semester.objects.filter(end__gte=date.today()).order_by('start')
-    return render(request, 'baljan/semesters.html', tpl)
-
 
 @login_required
 def current_semester(request):
@@ -147,7 +123,26 @@ def orderFromUs(request):
             from_email = 'cafesys@baljan.org'
             to = 'bestallning@baljan.org'
 
-            html_content = '<div style="border:1px dotted black;padding:2em;"><b> Kontaktuppgifter: </b><br> Namn: '+orderer+'<br> Email: '+ordererEmail+'<br>Telefon: '+phoneNumber +' <br> F&ouml;rening/Sektion: '+association+'<br><br><b>Uth&auml;mtare:</b><br> '+ordererIsSame+'<br><br><b>Best&auml;llning: </b> <br>'+items+ "Summa: <u>"+orderSum+"</u><br><br><b>&Ouml;vrigt:</b><br>" +other+'<br> <br><b>Datum och tid: <br> </b>Datum: '+date+'<br>Tid: '+pickup+' </div>'
+            if pickup == 0:
+                pickuptext = 'Morgon 07:30-08:00'
+            elif pickup == 1:
+                pickuptext = 'Lunch 12:15-13:00'
+            else:
+                pickuptext = 'Eftermiddag 16:15-17:00'
+
+            html_content = '<div style="border:1px dotted black;padding:2em;">'+\
+                           '<b> Kontaktuppgifter: </b><br>'+\
+                           'Namn: '+orderer+'<br>'+\
+                           'Email: '+ordererEmail+'<br>'+\
+                           'Telefon: '+phoneNumber +' <br>'+\
+                           'F&ouml;rening/Sektion: '+association+'<br><br>'+\
+                           '<b>Uth&auml;mtare:</b><br> '+\
+                           ordererIsSame+'<br><br>'+\
+                           '<b>Best&auml;llning: </b> <br>'+items+\
+                           'Summa: <u>'+orderSum+'</u><br><br>' + \
+                           '<b>&Ouml;vrigt:</b><br>' +other+\
+                           '<br> <br><b>Datum och tid: </b><br>'+\
+                           'Datum: '+date+'<br>Tid: '+pickuptext+' </div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
 
             items = items.replace("&auml;","a")
@@ -159,19 +154,19 @@ def orderFromUs(request):
             msg.attach(htmlpart)
 
             dtStart=""
-            if "Morgon" in pickup:
+            if pickup == 0:  # Morgon
                 dPickUp=date.replace("-","")
                 dtStart=dPickUp+"T073000Z"
                 dtEnd=dPickUp+"T080000Z"
-            if "Lunch" in pickup:
+            if pickup == 1:  # Lunch
                 dPickUp=date.replace("-","")
                 dtStart=dPickUp+"T121500Z"
                 dtEnd=dPickUp+"T130000Z"
-            if "Eftermiddag" in pickup:
+            if pickup == 2:  # Eftermiddag
                 dPickUp=date.replace("-","")
                 dtStart=dPickUp+"T161500Z"
                 dtEnd=dPickUp+"T170000Z"
-            ics_data=f'''BEGIN:VCALENDAR
+            ics_data ='''BEGIN:VCALENDAR
 PRODID:-//Google Inc//Google Calendar 70.9054//EN
 VERSION:2.0
 CALSCALE:GREGORIAN
@@ -734,11 +729,8 @@ def admin_semester(request, name=None):
 
     user = request.user
 
-    new_sem_form = forms.SemesterForm()
     if request.method == 'POST':
-        if request.POST['task'] == 'new_semester':
-            new_sem_form = forms.SemesterForm(request.POST)
-        elif request.POST['task'] == 'edit_shifts':
+        if request.POST['task']  == 'edit_shifts':
             assert sem is not None
             raw_ids = request.POST['shift-ids'].strip()
             edit_shift_ids = []
@@ -764,26 +756,10 @@ def admin_semester(request, name=None):
             if make != 'none':
                 sem.save() # generates new shift combinations
 
-    new_sem_failed = False
-    if new_sem_form.is_bound:
-        if new_sem_form.is_valid():
-            new_sem = new_sem_form.save()
-            new_sem_url = reverse('admin_semester',
-                args=(new_sem.name,)
-            )
-            messages.add_message(request, messages.SUCCESS,
-                _("%s was added successfully.") % new_sem.name
-            )
-            return redirect_prepend_root(new_sem_url)
-        else:
-            new_sem_failed = True
-
     tpl = {}
     tpl['semester'] = sem
-    tpl['new_semester_form'] = new_sem_form
     tpl['semesters'] = models.Semester.objects.order_by('-start').all()
     tpl['admin_semester_base_url'] = reverse('admin_semester')
-    tpl['new_semester_failed'] = new_sem_failed
     if sem:
         tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span')
         tpl['day_count'] = len(list(sem.date_range()))
@@ -876,9 +852,8 @@ def high_score(request, year=None, week=None):
         else:
             return HttpResponse("INVALID FORMAT", content_type='text/plain')
 
-    fetched_stats = []
     if settings.STATS_CACHE_KEY:
-        fetched_stats += cache.get(settings.STATS_CACHE_KEY)
+        fetched_stats = cache.get(settings.STATS_CACHE_KEY)
     else:
         s = stats.Stats()
         fetched_stats = [s.get_interval(i) for i in stats.ALL_INTERVALS]

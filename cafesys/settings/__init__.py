@@ -21,7 +21,7 @@ with warnings.catch_warnings():
 DEBUG = env.bool('DJANGO_DEBUG')
 SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
-ANALYTICS_KEY = env.str('DJANGO_ANALYTICS_KEY', default='')
+ANALYTICS_KEY = env.str('DJANGO_ANALYTICS_KEY', default='UA-19913928-1')
 CACHE_BACKEND = env.str('DJANGO_REDIS_URL')
 
 ADMINS = [
@@ -80,14 +80,24 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = str(APPS_DIR + "collected-static")
 STATIC_URL = "/static/"
 
+# Django-sass-processor
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'sass_processor.finders.CssFinder',
+]
+SASS_OUTPUT_STYLE = 'expanded'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'APP_DIRS': True,
+        'DIRS': [],
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
                 "cafesys.baljan.ctx.actions",
@@ -110,6 +120,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'livereload.middleware.LiveReloadScript',
 ]
 
 ROOT_URLCONF = "cafesys.urls"
@@ -134,6 +145,8 @@ INSTALLED_APPS = [
     'opbeat.contrib.django',
     'crispy_forms',
     'social_django',
+    'sass_processor',
+    'livereload',
 ]
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"

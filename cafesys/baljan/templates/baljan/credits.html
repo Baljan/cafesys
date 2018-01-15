@@ -5,131 +5,68 @@
 {% load crispy_forms_tags %}
 {% load baljan_extras %}
 
-{% block head_title %}{% trans "Credits" %}{% endblock %}
+{% block head_title %}Kaffekort{% endblock %}
 
 {% block body_class %}credits{% endblock %}
 {% block body %}
 
-<h1>{% trans "Credits" %}</h1>
-<div class="grid_5 alpha main">
-    <div class="refill">
-        <h2>{% trans "Refill" %}</h2>
-        <p>
-        {% blocktrans %}
-        Value cards can be purchased at the café. If you have questions or run
-        into problems, <a href="mailto:{{CONTACT_EMAIL}}">contact us</a>. Abuse
-        will be logged.
-        {% endblocktrans %}
-        {% blocktrans %}
-        To import an old coffee card (kaffeklippkort), see <a href="#import-old">below</a>.
-        {% endblocktrans %}
-        </p>
-        <p>
-            <img src="{% static 'img/signs.png' %}"
-                width="364" height="121" alt="{% trans "old coffee card" %}"/>
-        </p>
-        <form autocomplete="off" method="POST" action="" class="uniForm">{% csrf_token %}
-            <input type="hidden" name="task" value="refill" />
-            <fieldset class="inlineLabels">
-                {{refill_form|crispy}}
-                <div class="form_block submit">
-                    <input type="submit" value="{% trans "refill" %}"/>
+    <h1>Konto</h1>
+    <div class="row">
+        <div class="col-sm-6">
+            <h2>Fylla på</h2>
+            <p>
+                Värdekort kan köpas på kafét.
+                Om du har frågor eller stöter på problem, <a href="mailto:{{CONTACT_EMAIL}}">kontakta oss</a>.
+                Missbruk loggas.
+            </p>
+            {% if used_card %}
+                <div class="alert alert-success">
+                    Koden användes.
                 </div>
-            </fieldset>
-        </form>
-    </div>
-</div><!--.main-->
+            {% endif %}
 
-<div class="grid_5 omega secondary">
-    <div class="available">
-        <h2>{% trans "Available" %}</h2>
-        <div class="credits">
-            <span>{{currently_available}}</span>
+            {% if invalid_card %}
+                <div class="alert alert-danger">
+                    Ogiltig eller använd kod.
+                </div>
+            {% endif %}
+            <form autocomplete="off" method="POST" action="">{% csrf_token %}
+                <input type="hidden" name="task" value="refill" />
+                <div class="form-group">
+                    {{refill_form}}
+                    <small class="form-text text-muted">Koden står på ditt värdekort.</small>
+                </div>
+                <input type="submit" class="btn btn-primary" value="Fyll på"/>
+            </form>
+
+        </div>
+        <div class="col-sm-6">
+            <h2>Tillgängligt</h2>
+            <p>{{currently_available}}</p>
+
+            <h2>LiU-kort fungerar automatiskt</h2>
+            <p>
+                LiU-kort hämtas automatiskt från universitetets databaser.
+                Det tar dock någon dag för ett nytt kort att komma in i databasen om du byter kort.
+            </p>
+
+            <h2>Använda värdekort</h2>
+            <ul>
+                {% for card in used_cards %}
+                    <li>
+                    Kort: {{card.serid}} värt {{card.valcur }} användes {{card.used_at|date}}
+                    {% if card.refill_series.add_to_group %}
+                        (Du blev tillagd till {{card.refill_series.add_to_group.name}})
+                    {% endif %}
+                    </li>
+                {% empty %}
+                    <li>Du har inte använt några värdekort.</li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
-
-    {% if used_card %}
-        <div class="saved">
-            {% trans "the code was used" %}
-        </div>
-    {% endif %}
-
-    {% if invalid_card %}
-        <div class="invalid">
-            {% trans "invalid or used code" %}
-        </div>
-    {% endif %}
-
-    <div class="liu-cards">
-        <h2>{% trans "LiU Cards Just Work&trade;" %}</h2>
-        {% blocktrans %}
-        <p>
-        LiU card numbers are imported automatically. This means that new
-        users don't have to enter a number on the web site anymore.
-        </p>
-        {% endblocktrans %}
-    </div>
-
-    <div class="wallet-blipping">
-        <h2>{% trans "Wallet Blips" %}</h2>
-        {% blocktrans %}
-        <p>
-        If your wallet is made of regular wallet material and doesn't stash a
-        public transportation card (or any other RFID tag of the same type),
-        you can blip through it. If you have mad blipping skills you might be
-        able to use your wallet anyway (hint: LiU card closest to the reader).
-        </p>
-        {% endblocktrans %}
-    </div>
-
-    <div class="history">
-        <h2>{% trans "Used Value Cards" %}</h2>
-        <ul>
-            {% for card in used_cards %}
-                <li>
-                {% blocktrans with card.used_at|date as used_at and card.valcur as worth and card.serid as serid %}
-                card {{serid}} worth {{worth}} used at {{used_at}}
-                {% endblocktrans %}
-                {% if card.refill_series.add_to_group %}
-                    {% blocktrans with card.refill_series.add_to_group.name as group_name %}
-                    (you were added to {{group_name}})
-                    {% endblocktrans %}
-                {% endif %}
-                </li>
-            {% empty %}
-                <li>{% trans "you have not used any value cards" %}</li>
-            {% endfor %}
-        </ul>
-        <h3>{% trans "Old Cards (Kaffeklippkort)" %}</h3>
-        <ul>
-            {% for card in used_old_cards %}
-                <li>
-                {% blocktrans with card.set.set_id as setid and card.card_id as cardid and card.left as left and card.count as count %}
-                card {{setid}}.{{cardid}} with {{left}} of {{count}} klipp left
-                {% endblocktrans %}
-                {% if card.imported %}
-                    ({% trans "imported" %})
-                {% else %}
-                    ({% trans "unimported" %})
-                {% endif %}
-                </li>
-            {% empty %}
-                <li>{% trans "you have not used any old coffee cards" %}</li>
-            {% endfor %}
-        </ul>
-    </div>
-</div><!--.secondary-->
-<div class="clean"></div>
 
 {% endblock %}
 
 {% block extra_body %}
 {% endblock %}
-
-{% comment %}
-    <!-- flickr image -->
-    <a href="">
-        <img title=""
-            src="" />
-    </a>
-{% endcomment %}

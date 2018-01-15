@@ -7,62 +7,129 @@
 
 {% block body_class %}search-person{% endblock %}
 {% block body %}
-<h1>{% trans "Search Person" %}</h1>
-<div class="grid_8 alpha main">
-    <div>
-        <form class="search uniForm" method="POST" action="">
-            {% csrf_token %}
-            <fieldset class="inlineLabels">
-                <div class="ctrlHolder">
-                    <input style="width:98%;margin:0 auto" 
-                        id="search-terms" type="text" class="textinput textInput"
-                        name="search-terms" value="{{terms|default:""}}"/>
-                </div>
-            </fieldset>
-        </form>
-        <p>
-            {% blocktrans %}
-            Matches first name, last name, liu id, and groups. Only people that
-            match each term show up in the results.
-            {% endblocktrans %}
-        </p>
-    </div>
+    <div class="row">
+        <div class="col-md">
+            <h1>{% trans "Search Person" %}</h1>
 
-    <div class="results">
-        <h2>{% trans "Hits" %} (<span class="count">{{hits|length}}</span>)</h2>
-        <ul>
-            {% for hit in hits %}
-            <li>
-                <a href="{{hit.get_absolute_url}}">{{hit.get_full_name}} ({{hit.username}})</a>
-            </li>
-            {% endfor %}
-        </ul>
-        <div class="clear"></div>
+            <div>
+                <form class="search" method="POST" action="">
+                    {% csrf_token %}
+                    <fieldset class="inlineLabels">
+                        <div class="form-group">
+                            <input
+                                    id="search-terms" type="text" class="form-control textinput textInput"
+                                    name="search-terms" value="{{ terms|default:"" }}"/>
+                            <small class="form-text text-muted">Söker förnamn, efternamn, liu-id och grupper. Endast personer som uppfyller varje term visas i resultatet.</small>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div class="results">
+                <h2>{% trans "Hits" %} (<span class="count">{{ hits|length }}</span>)</h2>
+                <ul>
+                    {% for hit in hits %}
+                        <li>
+                            <a href="{{ hit.get_absolute_url }}">{{ hit.get_full_name }} ({{ hit.username }})</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-3">
+            {% if groups %}
+                <div class="groups">
+                    <h2>{% trans "Groups" %}</h2>
+                    <ul>
+                        {% for group in groups %}
+                            <li>
+                                <a href="{% url 'group' group.name %}">{{ group.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
     </div>
-</div><!--.main-->
-<div class="grid_2 omega secondary">
-    {% if groups %}
-    <div class="groups">
-        <h2>{% trans "Groups" %}</h2>
-        <ul>
-            {% for group in groups %}
-            <li>
-                <a href="{% url 'group' group.name%}">{{group.name}}</a>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-</div><!--.secondary-->
-<div class="clear"></div>
 {% endblock %}
 
 {% block extra_body %}
-<script type="text/javascript">
-// <![CDATA[
-    CONFIRM_MSG = "{% trans "Are you sure?" %}";
-    CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
-    CONFIRM_DELETE = CONFIRM_MSG;
-// ]]>
-</script>
+    <script type="text/javascript">
+        var uFormat = function(user) {
+            var uName = user.fields.username,
+                fName = user.fields.first_name,
+                lName = user.fields.last_name;
+            return ''+fName+' '+lName+' ('+uName+')';
+        };
+
+        var uLink = function(user) {
+            var uName = user.fields.username;
+            // FIXME: DRY, use get_absolute_url in some way
+            var link = '/baljan/user/' + uName;
+            return '<a href="' + link + '"/>';
+        };
+
+        var f = $('form.search'),
+            terms = $('#search-terms'),
+            ul = $('.results ul'),
+            count = $('.results .count'),
+            curSerial = '',
+            curRequest = false;
+
+        // These should be nice in JS-enabled browsers.
+        terms.focus();
+        f.attr('autocomplete', 'off');
+        f.submit(function() { return false; });
+
+        terms.bind('keyup', function() {
+            var serial = f.serialize();
+            if (curSerial === serial) return;
+            if (curRequest) curRequest.abort();
+
+            curRequest = $.ajax({
+                data: serial,
+                url: document.location.pathname, // f.attr('action') is empty string
+                type: f.attr('method'),
+                dataType: 'json',
+                success: function(hits) {
+                    if (!hits) return;
+                    ul.html('');
+                    count.html('' + hits.length);
+                    var lis = false,
+                        as = false,
+                        delay = 0;
+
+                    // This looks odd. With this code, the hit list is populated
+                    // asynchronously.
+                    var addTexts = {
+                        delay: delay,
+                        loop: function(i) {
+                            $(this).text(uFormat(hits[i]));
+                        }
+                    };
+                    var addLinks = {
+                        delay: delay,
+                        loop: function(i) {
+                            $(this).html(uLink(hits[i]));
+                        },
+                        end: function() {
+                            var as = lis.children('a');
+                            as.eachAsync(addTexts);
+                        }
+                    };
+                    $.eachAsync(hits, {
+                        delay: delay,
+                        loop: function() {
+                            ul.append('<li/>');
+                        },
+                        end: function() {
+                            lis = ul.children('li');
+                            lis.eachAsync(addLinks);
+                        }
+                    });
+                }
+            });
+        });
+
+    </script>
 {% endblock %}

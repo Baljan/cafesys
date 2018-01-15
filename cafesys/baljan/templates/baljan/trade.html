@@ -10,107 +10,65 @@
 {% block body %}
 
 {% if redir %}
-<div class="top-nav">
-    <a href="{{redir}}">&laquo; {% trans "return" %}</a>
-</div>
+    <a href="{{redir}}">&laquo; Tillbaka till föregående sida</a>
 {% endif %}
-
-<h1>{% trans "Trade Shifts" %}</h1>
-<div class="grid_5 alpha main">
-    {% if take %}
-    <div class="take-shift">
-        <h2>{% trans "Wanted Shift" %}</h2>
-        <dl>
-            <dt>
-                {% trans "when" %}
-            </dt>
-            <dd>
-            <a href="{{take.shift.get_absolute_url}}">{{take.signup.shift.timeofday}} {{take.shift.when|date}}</a>
-            </dd>
-            <dt>
-                {% trans "from user" %}
-            </dt>
-            <dd>
-                {{take.signup|user_link}}
-            </dd>
-        </dl>
-    </div>
-
-    <div class="can-offer">
-        <h2>{% trans "You Can Offer" %}</h2>
-        <ul>
-            {% for su in take.can_offer %}
-                <li>
-                <a href="{{su.shift.get_absolute_url}}">
-                {{su.shift.timeofday}}
-                {{su.shift.when|date}}
-                </a>
-                </li>
-            {% empty %}
-                <li>
-                {% trans "you have no shifts to offer" %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    {% endif %}
-</div><!--.main-->
-<div class="grid_5 omega secondary">
-    {% if take %}
-    <div class="send">
-        <p> 
-        {% blocktrans with take.signup.user.first_name as first_name %}
-        Check the shifts you would like to offer. {{first_name}} will be able to
-        pick one of them. You can add and remove offers whenever you want to.
-        {% endblocktrans %}
-        </p>
-        <form name="take-request" method="POST" action="">{% csrf_token %}
-            <p>
-            {% for su in take.can_offer %}
-            <input {%if su in take.offered_signups%} checked="checked"{%endif%} 
-                type="checkbox" name="signup_{{su.pk}}" 
-                    value="{{su.pk}}"
-                    id="id_signup_{{su.pk}}" />
-                <label for="id_signup_{{su.pk}}">
-                {{su.shift.timeofday}}
-                {{su.shift.when|date}}
-                </label><br/>
-            {% empty %}
-                {% trans "You have no shifts to offer." %}
-            {% endfor %}
-            </p>
-            <div class="submit">
-                <input type="submit" value="{%if take.offered_signups%}{% trans "update trade request" %}{%else%}{% trans "send trade request" %}{%endif%}"/>
-            </div>
-        </form>
-    </div>
-    {% endif %}
-
+    <h1>
+        Bytt pass
+    </h1>
     {% if saved %}
-    <div class="saved">
-        <h2>{% trans "changes saved" %}</h2>
-        {% if redir %}
-        <p>
-            <a href="{{redir}}">{% trans "return to previous page" %}</a>
-        </p>
-        {% endif %}
-    </div>
+        <div class="alert alert-success">
+            Ändringar sparade
+        </div>
     {% endif %}
-
-    {# TODO: add instructions #}
-</div><!--.secondary-->
-<div class="clean"></div>
+{% if take %}
+    <div class="row">
+        <div class="col">
+            <h2>Begärt pass</h2>
+            <strong>
+               När
+            </strong>
+            <br/>
+            <a href="{{take.shift.get_absolute_url}}">{{take.signup.shift.timeofday}} {{take.shift.when|date}}</a>
+            <br/>
+            <strong>
+                Från användare
+            </strong>
+            <br/>
+            {{take.signup|user_link}}
+        </div>
+        <div class="col">
+            <h2>Du kan erbjuda</h2>
+            <p>
+                Markera passen som du vill erbjuda.
+                {{ take.signup.user.first_name }}
+                kommer att kunna välja ett av dem.
+                Du kan lägga till och ta bort erbjudanden när som helst.
+            </p>
+            <form name="take-request" method="POST" action="">
+                {% csrf_token %}
+                <p>
+                {% for su in take.can_offer %}
+                <input {%if su in take.offered_signups%} checked="checked"{%endif%}
+                    type="checkbox" name="signup_{{su.pk}}"
+                        value="{{su.pk}}"
+                        id="id_signup_{{su.pk}}" />
+                    <label for="id_signup_{{su.pk}}">
+                    {{su.shift.timeofday}}
+                    {{su.shift.when|date}}
+                    </label><br/>
+                {% empty %}
+                    Du har inga pass att erbjuda.
+                {% endfor %}
+                </p>
+                <div class="submit">
+                    <input class="btn btn-primary" type="submit" value="{%if take.offered_signups%}Uppdatera bytesförfrågan{%else%}Skicka bytesförfrågan{%endif%}"/>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endif %}
 
 {% endblock %}
 
 {% block extra_body %}
 {% endblock %}
-
-{% comment %}
-    <!-- flickr image -->
-    <a href="">
-        <img title=""
-            src="" />
-    </a>
-{% endcomment %}

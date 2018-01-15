@@ -4,70 +4,63 @@
 {% load crispy_forms_tags %}
 {% load baljan_extras %}
 
-{% block head_title %}{% trans "High Score" %}{% endblock %}
+{% block head_title %}Topplistan{% endblock %}
 
 {% block body_class %}high-score{% endblock %}
 {% block body %}
-<h1>{% trans "High Score" %}</h1>
+<h1>Topplistan</h1>
 
-<div class="grid_10 alpha main">
+<div class="row">
+    <div class="col">
+        <p>De här listorna visar de personer som har använt Baljans Balla Blipp™ flitigast.
+            Varje blipp står för en kaffe, te eller choklad.
+            Börja att använda den du med, för att hålla på koll på din
+            koffeinkonsumtion och för att tävla med andra om ära och berömmelse i topplistan.
+            <a href="mailto:{{CONTACT_EMAIL}}">Kontakta oss</a> om du har synpunkter.
+        </p>
 
-    <div class="info">
-        {% blocktrans %}
-        These lists show the people who have used the blipper&trade;
-        the most. Each blip represents one coffee, tea, or chocolate.
-        Start using it you too, to track your caffeine consumption and
-        to compete for glory and fame in the high scores.
-        If you have suggestions, feel free to <a href="mailto:{{CONTACT_EMAIL}}">contact us</a>.
-        {% endblocktrans %}
-    </div>
-
-    {% for stat in stats %}
-    {% if not stat.empty %}
-    <div class="score clearfix">
-        <h2>{{stat.name}}</h2>
-        {% for group in stat.groups %}
-        <div class="layout" style="float:left;width:50%">
-            <h3>{{group.title}}</h3>
-            <table style="width:98%">
-                <thead>
-                    <tr>
-                        <th colspan="2">{% trans "person" %}</th>
-                        <th class="blips">{% trans "blips" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for top in group.top_users %}
-                    <tr class="{% cycle "even" "odd" %}">
-                        <td class="pos">
-                            {% ifchanged top.num_orders %}
-                            {{forloop.counter}}.
-                            {% endifchanged %}
-                        </td>
-                        <td class="name">
-                            {{top|name_link}}
-                            {% if top.profile.motto %}
-                            <br/>
-                            <span class="motto">{{top.profile.motto}}</span>
-                            {% endif %}
-                        </td>
-                        <td class="blips">{{top.num_orders}}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% for stat in stats %}
+            {% if not stat.empty %}
+                <h2>{{stat.name}}</h2>
+                <div class="row">
+                    {% for group in stat.groups %}
+                    <div class="col">
+                        <h3>{{group.title}}</h3>
+                        <div class="table-responsive">
+                            <table class="table table-baljan">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Placering</th>
+                                        <th scope="col">Person</th>
+                                        <th scope="col">Antal blipp</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for top in group.top_users %}
+                                    <tr>
+                                        <th scope="col">
+                                            {% ifchanged top.num_orders %}
+                                            {{forloop.counter}}.
+                                            {% endifchanged %}
+                                        </th>
+                                        <td>
+                                            {{top|name_link}}
+                                            {% if top.profile.motto %}
+                                            <br/>
+                                            <span>{{top.profile.motto}}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{top.num_orders}}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         {% endfor %}
     </div>
-    {% endif %}
-    {% endfor %}
 </div><!--.main-->
-<div class="clear"></div>
-{% endblock %}
-
-{% block extra_body %}
-<script type="text/javascript">
-// <![CDATA[
-// ]]>
-</script>
 {% endblock %}

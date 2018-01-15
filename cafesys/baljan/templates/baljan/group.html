@@ -11,87 +11,73 @@
 
 {% block body_class %}group{% endblock %}
 {% block body %}
+{% cache 600 group_and_pseudo group.name LANGUAGE_CODE %}
+<h1>Grupp: {{group.name}}</h1>
+<div class="row">
+    <div class="col-md-3 order-md-2">
+        {% if other_groups %}
+            <h2>Andra grupper</h2>
+            <ul>
+                {% for group in other_groups %}
+                <li>
+                    <a href="{% url 'group' group.name%}">{{group.name}}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-{% cache 43200 group_and_pseudo group.name LANGUAGE_CODE %}
+        {% if pseudo_groups %}
+            <h2>Gå till</h2>
+            <ul>
+            {% for pgroup in pseudo_groups %}
+                {% if pgroup.members|length %}
+                    <li><a href="#{{pgroup.name}}">{{pgroup.name}}</a></li>
+                {% endif %}
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
 
-<h1 id="group">{% trans "Group" %}: {{group.name}}</h1>
-<div class="grid_7 alpha main">
-    <div class="members">
+    <div class="col-md-9 order-md-1">
         <h2>{% trans "Members" %} ({{members|length}})</h2>
         <ul>
         {% for member in members %}
             <li>{{member|user_link}}</li>
         {% empty %}
-            <li>{% trans "no members" %}</li>
+            <li>Inga medlemmar</li>
         {% endfor %}
         </ul>
-    </div>
 
-    {% for pgroup in pseudo_groups %}
-        {% if pgroup.members|length %}
-            <div class="pseudo-group" id="{{pgroup.name}}">
-                <div class="box-actions">
-                    <a href="#group">{% trans "↑ back to top" %}</a>
-                </div>
-                <h2><a href="{{pgroup.link}}">{{pgroup.name}}</a> ({{pgroup.members|length}})</h2>
-                <ul>
-                {% if pgroup.titles %}
-                    {% for member, title in pgroup.members_with_titles %}
-                        <li>{{title|join:", "}} {{member|user_link}}</li>
-                    {% empty %}
-                        <li>{% trans "no members" %}</li>
-                    {% endfor %}
-                {% else %}
-                    {% for member in pgroup.members %}
-                        <li>{{member|user_link}}</li>
-                    {% empty %}
-                        <li>{% trans "no members" %}</li>
-                    {% endfor %}
-                {% endif %}
-                </ul>
-            </div>
-        {% endif %}
-    {% endfor %}
-</div><!--.main-->
-<div class="grid_3 omega secondary">
-    {% if other_groups %}
-    <div class="groups">
-        <h2>{% trans "Other Groups" %}</h2>
-        <ul>
-            {% for group in other_groups %}
-            <li>
-                <a href="{% url 'group' group.name%}">{{group.name}}</a>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-
-    {% if pseudo_groups %}
-    <div class="jump-to">
-        <h2>{% trans "Jump To" %}</h2>
-        <ul>
         {% for pgroup in pseudo_groups %}
             {% if pgroup.members|length %}
-                <li><a href="#{{pgroup.name}}">{{pgroup.name}}</a></li>
+                <div id="{{pgroup.name}}">
+                    <div class="float-right">
+                        <a href="#group">↑ Till toppen</a>
+                    </div>
+                    <h2><a href="{{pgroup.link}}">{{pgroup.name}} ({{pgroup.members|length}})</a></h2>
+                    <ul>
+                        {% if pgroup.titles %}
+                            {% for member, title in pgroup.members_with_titles %}
+                                <li>{{title|join:", "}} {{member|user_link}}</li>
+                            {% empty %}
+                                <li>Inga medlemmar</li>
+                            {% endfor %}
+                        {% else %}
+                            {% for member in pgroup.members %}
+                                <li>{{member|user_link}}</li>
+                            {% empty %}
+                                <li>Inga medlemmar</li>
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </div>
+                {% if not forloop.last %}<hr>{% endif %}
             {% endif %}
         {% endfor %}
-        </li>
     </div>
-    {% endif %}
-</div><!--.secondary-->
-<div class="clear"></div>
-
+</div>
 {% endcache %}
-
 {% endblock %}
 
 {% block extra_body %}
-<script type="text/javascript">
-// <![CDATA[
-    CONFIRM_MSG = "{% trans "Are you sure?" %}";
-    CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
-    CONFIRM_DELETE = CONFIRM_MSG;
-// ]]>
-</script>
 {% endblock %}

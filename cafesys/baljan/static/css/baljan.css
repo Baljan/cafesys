@@ -213,10 +213,7 @@ form table th {
     text-align: center;
     margin-top: -23px;
 }
-.init-hidden {
-    visibility: hidden;
-    display: none;
-}
+
 .inbox {
     /* unread notifications */
 }
@@ -481,13 +478,6 @@ body.user .profile .picture {
     text-align: center;
     margin-left: auto;
     margin-right: auto;
-}
-
-body.become-worker .toggle-request a {
-    font-size: 1.5em;
-}
-body.become-worker .toggle-request {
-    text-align: center;
 }
 
 body.credits .credits {

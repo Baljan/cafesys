@@ -1,0 +1,76 @@
+//==============================================
+// Module/helpres
+//==============================================
+
+.br {
+	margin-bottom: $margin;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.lobster {
+  font-family: 'Lobster', cursive;
+}
+
+.wrapper {
+  padding: 20px 0;
+}
+
+.wrapper--md {
+  padding: 40px 0;
+}
+.wrapper--lg {
+  padding: 80px 0;
+}
+
+.jumbotron {
+  // background-color: transparent;
+}
+
+//==============================================
+// Typography
+//==============================================
+
+h1 {
+  color: $dark-blue;
+  font-size: 3.2rem;
+}
+h2 {
+  color: $dark-blue;
+}
+
+.jumbotron h3 {
+  color: $pink;
+  font-size: 2rem;
+}
+
+// Baljan
+
+.pattern {
+  background-image: url(../img/svg/pattern.svg);
+  /* background-image: url(pattern-small.png); */
+  background-size: auto 100%;
+  background-repeat: repeat-x;
+  background-position: center;
+  height: 30px;
+  position: relative;
+
+}
+
+.info-icon {
+  text-align: center;
+}
+
+.info-icon .fa {
+  margin-top: 20px;
+  font-size: 5em;
+}
+
+.info-panel .info-icon, .info-panel .info-text {
+  float: none;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: -4px;
+}

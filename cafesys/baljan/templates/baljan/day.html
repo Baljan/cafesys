@@ -10,141 +10,107 @@
 {% block body %}
 
 {% if semester %}
-<div class="top-nav">
-    {% blocktrans with semester.get_absolute_url as sem_url and semester.name as sem_name %}
-        <a href="{{sem_url}}">&laquo; semester {{sem_name}}</a>
-    {% endblocktrans %}
-</div>
+    <a href="{{semester.get_absolute_url}}">&laquo; Termin {{semester.name}}</a>
 {% endif %}
 
-<h1>
+<h2>
     {{day|naturalday}}: {{day|date:'l'}}
 
     {% if perms.baljan.change_oncallduty %}
     <a href="{% url 'call_duty_week' day|year day|week %}">
-        {% trans "week" %}
+        vecka
         {{day|week}}
     </a>
     {% else %}
-        {% trans "week" %}
+        vecka
         {{day|week}}
     {% endif %}
-</h1>
+</h2>
 
 {% for sh in shifts %}
-    <div class="shift-top">
-        <h2 style="float:left" class="early-or-late">
-            {{ sh.timeofday|title }}
-        </h2>
+    <div class="row">
+        <div class="col-auto mr-auto">
+            <h3>{{ sh.timeofday|title }}</h3>
+        </div>
         {% if perms.baljan.change_shift %}
-            <div style="float:right" class="admin-link">
+            <div class="col-auto">
                 <a href="{% url 'admin:baljan_shift_change' sh.id %}">{% trans "admin" %}</a>
             </div>
         {% endif %}
-        <div class="clear"></div>
     </div>
-    <div class="schedule grid_6 alpha">
+    <div class="row">
         {% for signup in sh.signups %}
-            <div class="worker
-                {% if forloop.first%}alpha {% endif %}
-                {% if forloop.last%}omega {% endif %}grid_3">
-                <div class="person{% if signup.can_trade %} tradable undo-highlight{% endif %}">
-                    <strong class="type">
-                        {% if signup.can_trade %}
-                            {% trans "worker wants to trade" %}
-                        {% else %}
-                            {% trans "worker" %}
-                        {% endif %}
-                    </strong><br/>
+            <div class="col">
+                <strong>
+                    {% if signup.can_trade %}
+                        Jobbare vill byta
+                    {% else %}
+                        Jobbare
+                    {% endif %}
+                </strong><br/>
+
+                {% if signup.can_trade %}
+                    <s>
+                        <a href="{{signup.user.get_absolute_url}}">{{signup.user.get_full_name}} ({{signup.user.username}})</a>
+                    </s>
+                {% else %}
                     <a href="{{signup.user.get_absolute_url}}">{{signup.user.get_full_name}} ({{signup.user.username}})</a>
-                    {% if perms.baljan.delete_shiftsignup %}
-                        <a class="delete" title="{% trans "remove from this shift" %}"
-                            href="{% url 'delete_signup' signup.id request.path %}">&#x2715;</a>
-                    {% endif %}
-                    <br/>
-                    {% if perms.baljan.self_and_friend_signup %}
-                        {% if signup.can_trade %}
-                            {% if user.shiftsignup_set.all.count == 0 %}
-                                <span class="help">
-                                    {% trans "you cannot offer to take this shift because you have no shifts to trade with" %}
-                                </span>
+                {% endif %}
+                {% if perms.baljan.delete_shiftsignup %}
+                    <a class="delete" title="Ta bort från det här passet."
+                        href="{% url 'delete_signup' signup.id request.path %}">&#x2715;</a>
+                {% endif %}
+                <br/>
+                {% if perms.baljan.self_and_friend_signup %}
+                    {% if signup.can_trade %}
+                        {% if user.shiftsignup_set.all.count == 0 %}
+                            <span>
+                                Du kan inte erbjuda dig att ta passet eftersom att du inte har några pass att byta med.
+                            </span>
+                        {% else %}
+                            {% if signup.user == user %}
+                                <a class="btn btn-primary btn-sm" href="{% url 'toggle_tradable' signup.id request.path %}">Ångra bytbar</a>
                             {% else %}
-                                {% if signup.user == user %}
-                                <a class="toggle-tradable" href="{% url 'toggle_tradable' signup.id request.path %}">{% trans "make untradable" %}</a>
-                                {% else %}
-                                    <a href="{% url 'take_signup' signup.pk request.path%}">{% trans "offer to take this shift" %}</a>
-                                {% endif %}
-                            {% endif %}
-                        {% else %}{# the sh.upcoming check is needed for this case #}
-                            {% if sh.upcoming and signup.user == user %}
-                                <a class="toggle-tradable" href="{% url 'toggle_tradable' signup.id request.path %}">{% trans "make tradable" %}</a>
+                                <a class="btn btn-primary btn-sm" href="{% url 'take_signup' signup.pk request.path%}">Erbjud dig att ta passet</a>
                             {% endif %}
                         {% endif %}
+                    {% else %}{# the sh.upcoming check is needed for this case #}
+                        {% if sh.upcoming and signup.user == user %}
+                            <a class="btn btn-primary btn-sm" href="{% url 'toggle_tradable' signup.id request.path %}">Gör bytbar</a>
+                        {% endif %}
                     {% endif %}
-                    <p>{{ sh.worker_timedesc }}</p>
-                </div>
+                {% endif %}
+                <p>{{ sh.worker_timedesc }}</p>
             </div>
         {% empty %}
-            <div class="worker person empty">
+            <div class="col">
                 {% if sh.span == 1 %}
-                    {% trans "The morning and afternoon shifts for workers overlap here." %}
+                    För- och eftermiddagspassen för jobbare överlappar varandra här.
                 {% else %}
-                    {% trans "No workers have signed up." %}
-                    {% trans "The working hours are" %} {{ sh.worker_timedesc }}.
+                    Inga jobbare har anmält sig.
+                    Arbetstiden är {{ sh.worker_timedesc }}.
                 {% endif %}
             </div>
         {% endfor %}
-        <div class="clear"></div>
-        {% if sh.accepts_signups and perms.baljan.self_and_friend_signup %}
-            <div class="sign-up person worker">
-                <form method="post" class="init-hidden">{% csrf_token %}
-                    <input type="hidden" name="signup-for" value="work"/>
-                    <input type="hidden" name="span" value="{{sh.span}}"/>
-                    <select id="sign-worker-{{sh.pk}}" name="user">
-                        {% for friend in worker_friends %}
-                            {% if not friend in sh.signed_up %}
-                            <option value="{{friend.pk}}" {% if friend == user %}selected="selected"{% endif %}>
-                                {{ friend.get_full_name }}
-                            </option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
-                    <input type="submit" value="{% trans "sign up" %}"/>
-                </form>
-                <span>
-                    <a
-                        title="{% trans "only approved workers can be signed up" %}"
-                        href="{% url 'search_person' %}">
-                        {% trans "find worker friends" %}
-                    </a>
-                </span>
-            </div>
-        {% endif %}
-    </div>
-    <div class="grid_4 omega on-calls">
-        {% for oncall in sh.callduties %}
-            <div class="on-call person">
-                <strong class="type">{% trans "on call" %}</strong><br/>
+        <div class="col">
+            {% for oncall in sh.callduties %}
+                <strong>Jour</strong><br/>
                 <a href="{{oncall.user.get_absolute_url}}">{{oncall.user.get_full_name}} ({{oncall.user.username}})</a>
                 {% if perms.baljan.delete_oncallduty %}
                     <a class="delete" title="{% trans "remove from this shift" %}"
                         href="{% url 'delete_callduty' oncall.id request.path %}">&#x2715;</a>
                 {% endif %}
                 <p>{{ sh.oncall_timedesc }}</p>
-            </div>
-        {% empty %}
-            <div class="on-call person empty">
-                {% trans "Nobody has signed up to be on call." %}
-                {% trans "The working hours are" %} {{ sh.oncall_timedesc }}.
-            </div>
-        {% endfor %}
-        <div class="clear"></div>
-        {% if sh.accepts_callduty and perms.baljan.add_oncallduty and perms.baljan.change_oncallduty %}
-            <div class="sign-up person call-duty">
-                <form method="post" class="init-hidden">{% csrf_token %}
+            {% empty %}
+                <p>Ingen har anmält sig till att joura.
+                    Arbetstiden är {{ sh.oncall_timedesc }}.</p>
+            {% endfor %}
+            {% if sh.accepts_callduty and perms.baljan.add_oncallduty and perms.baljan.change_oncallduty %}
+                <form method="post" class="form-inline">
+                    {% csrf_token %}
                     <input type="hidden" name="signup-for" value="call-duty"/>
                     <input type="hidden" name="span" value="{{sh.span}}"/>
-                    <select name="user">
+                    <select name="user" class="form-control">
                         {% for avail in available_for_call_duty %}
                             {% if not avail in sh.on_callduty %}
                             <option value="{{avail.pk}}" {% if avail == user %}selected="selected"{% endif %}>
@@ -153,22 +119,19 @@
                             {% endif %}
                         {% endfor %}
                     </select>
-                    <input type="submit" value="{% trans "sign up" %}"/>
+                    <input class="btn btn-primary" type="submit" value="Anmäl"/>
                 </form>
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
-    <div class="clear"></div>
+    {% if not forloop.last %}<hr>{% endif %}
 {% endfor %}
-<div class="clear"></div>
 {% endblock %}
 
 {% block extra_body %}
 <script type="text/javascript">
-// <![CDATA[
-    CONFIRM_MSG = "{% trans "Are you sure?" %}";
-    CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
-    CONFIRM_DELETE = CONFIRM_MSG;
-// ]]>
+    $('.delete').click(function() {
+        return confirm("Är du säker på att du vill ta bort denna passanmälan?");
+    });
 </script>
 {% endblock %}

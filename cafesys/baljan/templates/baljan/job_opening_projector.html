@@ -3,21 +3,16 @@
 {% load static %}
 {% load humanize %}
 
-{% block head_title %}{% trans "Job Opening Projector" %}{% endblock %}
+{% block head_title %}Jobbsläpp projektor{% endblock %}
 {% block body_class %}job-opening-projector{% endblock %}
 
 {% block extra_head_base %}
-    <link type="text/css" href="{% static 'css/flick/jquery-ui-1.8.2.custom.css' %}" rel="stylesheet" />
-    <link rel="stylesheet" href="{% static 'css/baljan.css' %}" />
-    <!--[if IE]>
-        <link rel="stylesheet" href="{% static 'css/baljan-ie.css' %}" />
-    <![endif]-->
     {% block extra_head %}{% endblock %}
 {% endblock %}
 
 {% block body_base %}
-    <div class="container">
-        <table class="slots">
+    <div class="container-fluid">
+        <table class="table table-baljan slots">
         {% for row in slots %}
             <tr>
             {% for pair in row %}
@@ -26,25 +21,46 @@
                         {% if pair.is_taken %}
                             title="{{pair.taken_by|join:", "}}"
                         {% endif %}
-
-                        class="
-                            pair
-                            {% if pair.is_free %}free{%else%}taken{%endif%}
-                        ">{{pair.label}}</td>
+                        class="pair">
+                        {% if pair.is_free %}<h2>{{pair.label}}</h2>{%endif%}
+                    </td>
                 {%else%}
-                    <td class="padding"></td>
+                    <td></td>
                 {%endif%}
             {% endfor %}
             </tr>
         {% endfor %}
         </table>
-        <p class="last-updated">
-            {% trans "updated " %} <span>{{now}}</span>
-        </p>
+        <h1 id="last-updated" class="text-center">Uppdaterad {{now}}</h1>
     </div>
 
-    <script src="{% block jquery_src %}{% static 'js/jquery-1.4.2.min.js' %}{% endblock %}" type="text/javascript"></script>
-    <script type="text/javascript" src="{% static 'js/jquery.plugins.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery-ui-1.8.2.custom.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/baljan.js' %}"></script>
+    <script type="text/javascript">
+        var curRequest = false,
+            updateFreq = 5, // seconds
+            lastUpdate = $('#last-updated');
+
+        window.onload = update;
+
+        function update(){
+            setInterval(function(){
+                if (curRequest) curRequest.abort();
+                curRequest = $.ajax({
+                    url: document.location.pathname,
+                    dataType: 'json',
+                    success: function(data) {
+                        $(data.pairs).each(function() {
+                            var slot = $('#pair-' + this.label);
+                            if (this.free && $(slot).html()=='') {
+                                $(slot).html('<h2>'+this.label+'</h2>');
+                            }
+                            else if (!this.free && $(slot).html()!='')  {
+                                $(slot).html('');
+                            }
+                            $(lastUpdate).text('Uppdaterad '+ data.now);
+                        });
+                    }
+                });
+            }, updateFreq * 1000);
+        }
+    </script>
 {% endblock body_base %}

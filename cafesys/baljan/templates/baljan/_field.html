@@ -1,2 +1,15 @@
-<p> {{ field.label }} <br>  {{ field }} </p>
-{% if field.errors %}<p><FONT COLOR="red"> {{ field.errors}} </FONT> </p> {% endif %}
+{% load baljan_extras %}
+
+{% if checkbox %}
+    <div class="form-check">
+        <label class="form-check-label">
+            {{ field|addcss:"form-check-input" }}
+            <span>{{ field.label }}</span>
+        </label>
+    </div>
+{% else %}
+    <div class="form-group">
+        <label>{{ field.label }}</label> <br> {{ field|addcss:"form-control" }}
+        {% if field.errors %}<p><FONT COLOR="red"> {{ field.errors }} </FONT></p> {% endif %}
+    </div>
+{% endif %}

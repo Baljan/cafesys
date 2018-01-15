@@ -9,6 +9,10 @@
 
 {% block extra_head_base %}
     <script type="text/javascript" src="{% static 'js/orderForm.js' %}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/locales/bootstrap-datepicker.sv.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.standalone.min.css">
 
     {% block extra_head %}{% endblock %}
 {% endblock %}
@@ -16,142 +20,144 @@
 {% block body %}
 
     <h1> Beställa från Baljan </h1>
-    <div class="grid_10 alpha main">
-        <div>
-            Här kan ni skicka beställningar till Baljan! <br>Saknar ni något fält eller har någon fundering kring er beställning kan ni lägga till det under ”Övrig information” längst ner i formuläret
-            eller kontakta styrelsen via mail: <a href="mailto:bestallning@baljan.org">bestallning@baljan.org</a>. För att formuläret ska fungera behöver ni ha Javascript aktiverat i webbläsaren,
-            vissa datorsalar på LiU har Javascript avstängt.
+    <div class="row">
+        <div class="col-md order-2 order-md-1">
+            <div>
+                <div>
+                    Här kan ni skicka beställningar till Baljan! <br><br>Saknar ni något fält eller har någon fundering kring er beställning kan ni lägga till det under ”Övrig information” längst ner
+                    i formuläret
+                    eller kontakta styrelsen via mail: <a href="mailto:bestallning@baljan.org">bestallning@baljan.org</a>.
+                </div>
+            </div>
+            <div>
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="wrapper">
+                        <h2> Kontaktuppgifter </h2>
+
+                        {% field form.orderer %}
+                        {% field form.ordererEmail %}
+                        {% field form.phoneNumber %}
+                        {% field form.association %}
+                        <small class="form-text text-muted">
+                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                            Baljan tar inte emot beställningar från privatpersoner.
+                        </small>
+                    </div>
+
+                    <div>
+                        <h2> Kontaktuppgifter uthämtare</h2>
+                        {% field form.sameAsOrderer %}
+
+                        {% field form.pickupName %}
+                        {% field form.pickupEmail %}
+                        {% field form.pickupNumber %}
+                    </div>
+
+
+                    <div class="wrapper">
+                        <h2> Beställning </h2>
+
+                        {% order_item form 'jochen' 30 %}
+                        {% order_item form 'coffee' 6 %}
+                        {% order_item form 'tea' 6 %}
+                        {% order_item form 'soda' 5 %}
+                        {% order_item form 'klagg' 6 %}
+
+                        <div class="row">
+                            <div class="col-9">
+                                <b>TOTALT</b>
+                            </div>
+                            <div class="col-3">
+                                = <b><span id="currentSum">0</span> SEK</b>
+                            </div>
+                        </div>
+                        {{ form.orderSum.as_hidden }}
+                        <br/>
+                    </div>
+
+                    <div>
+                        <h2> Uthämtning </h2>
+
+                        {% field form.date %}
+                        {% field form.pickup %}
+                        {% field form.other %}
+
+                        <div class="alert alert-info" role="alert">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            Ni kommer få en bekräftelse att er beställning är tillagd när styrelsen har tagit emot den.
+                        </div>
+
+                        <input type="submit" class="btn btn-primary" value="Skicka beställning"/>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md order-1 order-md-2">
+
+            <div class="alert alert-warning" role="alert">
+                <h2> Observera! </h2>
+
+                Jobbare i Baljan har inte möjlighet att lämna ut beställningar, det är enbart Baljans styrelsemedlemmar som lämnar ut beställningar.
+                <br><br>
+                Beställningar går endast att hämta ut under våra jourtider:
+                <ul>
+                    <li>Morgon: 07.30 - 08.00
+                    <li>Lunch: 12.15 - 13.00 (ej fredagar)
+                    <li>Eftermiddag: 16.15 - 17.00
+                </ul>
+
+                Baljan fakturerar endast studentföreningar samt sektioner vid Linköpings Universitet. För beställare med fakturaadress utanför Linköpings universitet tillkommer en fakturaavgift på
+                19
+                kronor.
+            </div>
+
+            <div>
+                <h2> Hur mycket kan man beställa?</h2>
+                På grund av begränsningar i hur mycket kaffe vi kan koka samt hur mycket vi kan förvara har vi följade gränser:
+                <ul>
+                    <li> Kaffe: minst 5, Morgon max 45, Lunch max 90, Eftermiddag max 135</li>
+                    <li> Te: minst 5, max 45</li>
+                    <li> Jochen: minst 5, max 200</li>
+                    <li> Läsk/vatten: minst 5, max 200</li>
+                    <li> Klägg: minst 5, max 300</li>
+                </ul>
+                Beställer ni över 100 stycken jochen måste ni hämta ut beställningen på morgonen (07.30-08.00) då vi inte möjlighet att förvara dessa i våra kylar.
+
+            </div>
+
+            <div class="wrapper">
+                <h2> Vad gäller? </h2>
+                Följade gäller vid beställningar:
+                <h3> Kaffe/te </h3>
+                <ul>
+                    <li>På grund av termosstorlekar kan vi eventuellt behöva justera antalet kaffe eller te i er beställning. <a href="https://baljan.org/baljan/price-list"> Klicka här för att se
+                        våra
+                        termosstorlekar.</a></li>
+                    <li>Koppar, skedar, socker och mjölk ingår vid beställning av kaffe och te. <br></li>
+                </ul>
+
+                <h3> Jochen </h3>
+                <ul>
+                    <li>Beställning av jochen måste vara inne <b>senast klockan tolv två arbetsdagar i förväg</b>.</li>
+
+                    <li>Vi erbjuder även laktosfria, vegetariska samt veganska jochen, önskas detta kan ni lägga till det under ”Övrig information”. Vi kan tyvärr ej erbjuda glutenfria jochen.
+                    </li>
+                </ul>
+
+                <h3> Läsk/vatten </h3>
+                <ul>
+                    <li> Vid beställningar på över 100 stycken av samma sort är det bra att kontakta Baljan i god tid. Vid köp av fulla backar betalar man även pant. Lämnar man tillbaka fulla
+                        backar kan
+                        panten skrivas av från fakturan om den lämnas tillbaka senast dagen efter.
+                    </li>
+                    <li>Har ni speciella önskemål på vilka sorter av läsk eller vatten ni vill ha kan ni specificera detta under ”Övrig information”.</li>
+                </ul>
+            </div>
+
         </div>
     </div>
-    <div class="grid_5 alpha main">
-        <form method="post">
-            {% csrf_token %}
-            <div class="contactInfo">
-                <h2> Kontaktuppgiter </h2>
-
-                {% field form.orderer %}
-                {% field form.ordererEmail %}
-                {% field form.phoneNumber %}
-                {% field form.association %}
-            </div>
-
-            <div class="pickupInfo">
-                <h2> Kontaktuppgiter uthämtare</h2>
-                <p> Samma som beställare:{{ form.sameAsOrderer }}</p>
-
-                {% field form.pickupName %}
-                {% field form.pickupEmail %}
-                {% field form.pickupNumber %}
-            </div>
-
-
-            <div id="items">
-                <h2> Beställning </h2>
-                <div align="center">
-                    {% labeled_field form.jochenSelected %}
-                    {% labeled_field form.coffeeSelected %}
-                    {% labeled_field form.teaSelected %}
-                    {% labeled_field form.sodaSelected %}
-                    {% labeled_field form.klaggSelected %}
-                </div>
-
-                {% order_item form 'jochen' %}
-                {% order_item form 'coffee' %}
-                {% order_item form 'tea' %}
-                {% order_item form 'soda' %}
-                {% order_item form 'klagg' %}
-            </div>
-
-            <div id="sum">
-                <h2> Summa </h2>
-                <div class="sum" id="divsum" style=" border: 1px solid #ccc;
-    background-color: #eee;
-    text-align: center;
-    font-size: 2em;
-    font-weight: bold;">
-                    <a id="currentSum">0 </a><a> SEK</a>
-                    {{ form.orderSum.as_hidden }}
-                </div>
-                {% if form.orderSum.errors %}<p><FONT COLOR="red"> {{ form.orderSum.errors }} </FONT></p> {% endif %}
-            </div>
-
-            <div id="timeAndDate">
-                <h2> Uthämtning </h2>
-
-                {% field form.date %}
-                {% field form.pickup %}
-                {% field form.other %}
-
-                <div class="ui-state-highlight" id="deliveryInfo">
-                    <span class="ui-icon ui-icon-info" style="float:left"></span>
-                    Ni kommer få en bekräftelse att er beställning är tillagd när styrelsen har tagit emot den.
-                </div>
-                <input type="submit" value="Skicka beställning" onclick="return validate()"/>
-            </div>
-
-        </form>
-    </div>
-
-    <div class="grid_5 omega secondary">
-
-        <div class="ui-state-highlight" id="generalInfo">
-            <h2> Observera! </h2>
-
-            Jobbare i Baljan har inte möjlighet att lämna ut beställningar, det är enbart Baljans styrelsemedlemmar som lämnar ut beställningar.
-            <br><br>
-            Beställningar går endast att hämta ut under våra jourtider:
-            <ul>
-                <li>Morgon: 07.30 - 08.00
-                <li>Lunch: 12.15 - 13.00 (ej fredagar)
-                <li>Eftermiddag: 16.15 - 17.00
-            </ul>
-
-            Baljan fakturerar endast studentföreningar samt sektioner vid Linköpings Universitet. För beställare med fakturaadress utanför Linköpings universitet tillkommer en fakturaavgift på 19
-            kronor.
-        </div> <!-- End deliveryInfo -->
-
-        <div id="amount">
-            <h2> Hur mycket kan man beställa?</h2>
-            På grund av begränsningar i hur mycket kaffe vi kan koka samt hur mycket vi kan förvara har vi följade gränser:
-            <ul>
-                <li> Kaffe: minst 5, Morgon max 45, Lunch max 90, Eftermiddag max 135</li>
-                <li> Te: minst 5, max 45</li>
-                <li> Jochen: minst 5, max 200</li>
-                <li> Läsk/vatten: minst 5, max 200</li>
-                <li> Klägg: minst 5, max 300</li>
-            </ul>
-            Beställer ni över 100 stycken jochen måste ni hämta ut beställningen på morgonen (07.30-08.00) då vi inte möjlighet att förvara dessa i våra kylar.
-
-        </div> <!-- End amout -->
-
-        <div id="orderInfo">
-            <h2> Vad gäller? </h2>
-            Följade gäller vid beställningar:
-            <h3> Kaffe/te </h3>
-            <ul>
-                <li>På grund av termosstorlekar kan vi eventuellt behöva justera antalet kaffe eller te i er beställning. <a href="https://baljan.org/baljan/price-list"> Klicka här för att se våra
-                    termosstorlekar.</a></li>
-                <li>Koppar, skedar, socker och mjölk ingår vid beställning av kaffe och te. <br></li>
-            </ul>
-
-            <h3> Jochen </h3>
-            <ul>
-                <li>Beställning av jochen måste vara inne <b>senast klockan tolv två arbetsdagar i förväg</b>.</li>
-
-                <li>Vi erbjuder även laktosfria, vegetariska samt veganska jochen, önskas detta kan ni lägga till det under ”Övrig information”. Vi kan tyvärr ej erbjuda glutenfria jochen.</li>
-            </ul>
-
-            <h3> Läsk/vatten </h3>
-            <ul>
-                <li> Vid beställningar på över 100 stycken av samma sort är det bra att kontakta Baljan i god tid. Vid köp av fulla backar betalar man även pant. Lämnar man tillbaka fulla backar kan
-                    panten skrivas av från fakturan om den lämnas tillbaka senast dagen efter.
-                </li>
-                <li>Har ni speciella önskemål på vilka sorter av läsk eller vatten ni vill ha kan ni specificera detta under ”Övrig information”.</li>
-            </ul>
-        </div> <!-- End orderInfo -->
-
-
-    </div> <!-- End secondary -->
-
-
 {% endblock %}
