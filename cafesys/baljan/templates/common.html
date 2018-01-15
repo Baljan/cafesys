@@ -25,11 +25,26 @@
           <a class="nav-link" href="/baljan/credits">
             <i class="fa fa-coffee"></i> Kaffekort</a>
         </li>
-        <!-- PROFIL KÖP JOBBPLANERING PERSONER OCH GRUPPER -->
       </ul>
-      {% if user.is_authenticated %}
-      <!-- if we want user here -->
-      {% endif %}
+
+         {% if user.is_authenticated %} {% block nav %}
+        <nav class="sidenav links-for">
+          {% for id, action_title, actions in action_categories %}
+          <h3>
+            <a class="{{ id }}" href="#">{{ action_title }}</a>
+          </h3>
+          <div>
+            <ul>
+              {% for action in actions %}
+              <li class="{% if action.active %}active{% endif %}">
+                <a href="{{ action.link }}">{{ action.text }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+        </nav>
+        {% endblock %} {% endif %}
 
     </div>
     <!-- collapse -->
@@ -54,13 +69,13 @@
           <span class="hamburger-inner"></span>
         </span>
       </button>
-
-      </button>
     </div>
 
   </div>
-</header>
+  
 
+</header>
+ 
 
 <main class="bd-masthead wrapper--md" id="content" role="main">
   <div class="container">

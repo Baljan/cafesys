@@ -24,6 +24,7 @@ body.fixed-navbar main.bd-masthead{
   transition: all 300ms;
   width: 100%;
   z-index: 10;
+  min-height: 75px;
   &.fixed {
     position: fixed;
     background: #FFF;
@@ -143,15 +144,30 @@ body.about {
 }
 
 
+.navbar-toggler {
+  display: block !important;
+}
 .sidenav {
-  height: 100%;
-  width: 0;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  background-color: #111;
-  overflow-x: hidden;
-  transition: 0.5s;
-  padding-top: 60px;
+  @include media-breakpoint-up(lg) {
+    height: 100%;
+    width: 320px;
+    transform: translateX(320px);
+    position: fixed;
+    z-index: 1;
+    top: 75px;
+    right: 0;
+    padding-top: 20px;
+    padding-left: 20px;
+    overflow-x: hidden;
+    border-top: 1px solid rgba(0, 0, 0, .14);
+    border-left: 1px solid rgba(0, 0, 0, .14);
+    background-color: rgb(255,255,255); 
+  }
+  transition: 0.5s ease;
+
+  &.is-open {
+    transform: translateX(0);
+    width: 320px;
+
+  }
 }

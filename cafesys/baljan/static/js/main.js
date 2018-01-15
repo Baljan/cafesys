@@ -34,7 +34,6 @@
     .click(function (event) {
       // On-page links
 
-      console.log("HEJ");
       if (
         location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '')
         &&
@@ -59,29 +58,36 @@
             } else {
               $target.attr('tabindex', '-1'); // Adding tabindex for elements not focusable
               $target.focus(); // Set focus again
-            };
+            }
           });
         }
       }
     });
 
+
+  function toggleNav() {
+    var hamburger = $(this);
+    var sidenav = $('.sidenav');
+    var body = $('body');
+    hamburger.toggleClass('is-active');
+    sidenav.toggleClass('is-open');
+    body.toggleClass('sidenav-open')
+  }
+
+  function bindings() {
+    // add bindnings here!
+    $('.hamburger').click(toggleNav);
+    
+  }
+
+  $(document).ready(function () {
+    // Variable definitions
+    var $body = $('html, body');
+    var $window = $(window);
+    bindings();
+  });
+
+    
+
 })(jQuery);
 
-
-function bindings() {
-  // add bindnings here!
-    $(document).ready(function () {
-      $('.hamburger').click(function () {
-        $(this).toggleClass('is-active');
-      });
-    });
-}
-
-$(document).ready(function () {
-
-  // Variable definitions
-  $body = $('html, body');
-  $window = $(window);
-
-  bindings();
-});
