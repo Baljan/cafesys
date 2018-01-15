@@ -12,7 +12,7 @@
             <h1>{% trans "Search Person" %}</h1>
 
             <div>
-                <form class="search uniForm" method="POST" action="">
+                <form class="search" method="POST" action="">
                     {% csrf_token %}
                     <fieldset class="inlineLabels">
                         <div class="form-group">
@@ -55,8 +55,81 @@
 
 {% block extra_body %}
     <script type="text/javascript">
-        CONFIRM_MSG = "{% trans "Are you sure?" %}";
-        CONFIRM_SIGNUP = "{% trans "This cannot be undone. Are you sure?" %}";
-        CONFIRM_DELETE = CONFIRM_MSG;
+        var uFormat = function(user) {
+            var uName = user.fields.username,
+                fName = user.fields.first_name,
+                lName = user.fields.last_name;
+            return ''+fName+' '+lName+' ('+uName+')';
+        };
+
+        var uLink = function(user) {
+            var uName = user.fields.username;
+            // FIXME: DRY, use get_absolute_url in some way
+            var link = '/baljan/user/' + uName;
+            return '<a href="' + link + '"/>';
+        };
+
+        var f = $('form.search'),
+            terms = $('#search-terms'),
+            ul = $('.results ul'),
+            count = $('.results .count'),
+            curSerial = '',
+            curRequest = false;
+
+        // These should be nice in JS-enabled browsers.
+        terms.focus();
+        f.attr('autocomplete', 'off');
+        f.submit(function() { return false; });
+
+        terms.bind('keyup', function() {
+            var serial = f.serialize();
+            if (curSerial === serial) return;
+            if (curRequest) curRequest.abort();
+
+            curRequest = $.ajax({
+                data: serial,
+                url: document.location.pathname, // f.attr('action') is empty string
+                type: f.attr('method'),
+                dataType: 'json',
+                success: function(hits) {
+                    if (!hits) return;
+                    ul.html('');
+                    count.html('' + hits.length);
+                    var lis = false,
+                        as = false,
+                        delay = 0;
+
+                    // This looks odd. With this code, the hit list is populated
+                    // asynchronously.
+                    var addTexts = {
+                        delay: delay,
+                        loop: function(i) {
+                            $(this).text(uFormat(hits[i]));
+                        }
+                    };
+                    var addLinks = {
+                        delay: delay,
+                        loop: function(i) {
+                            $(this).html(uLink(hits[i]));
+                        },
+                        end: function() {
+                            var as = lis.children('a');
+                            as.eachAsync(addTexts);
+                        }
+                    };
+                    $.eachAsync(hits, {
+                        delay: delay,
+                        loop: function() {
+                            ul.append('<li/>');
+                        },
+                        end: function() {
+                            lis = ul.children('li');
+                            lis.eachAsync(addLinks);
+                        }
+                    });
+                }
+            });
+        });
+
     </script>
 {% endblock %}
