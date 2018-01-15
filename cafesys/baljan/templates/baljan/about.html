@@ -4,6 +4,10 @@
 {% block body_class %}about{% endblock %}
 
 {% block full_body %}
+{% for message in messages %}
+    <!-- Needed to avoid delayed messages bug caused by logging out -->
+{% endfor %}
+
 <main class="bd-masthead" id="content" role="main">
 
 <div id="header-image" class="row align-items-center">
