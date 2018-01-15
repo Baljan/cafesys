@@ -132,10 +132,11 @@ body main.bd-masthead.wrapper--md {
 
 body.about {
     #header-image {
-      background: #f4f3f1 url('https://images.unsplash.com/photo-1510520555468-ffab137027f5?auto=format&fit=crop&w=3300&q=80&ixid=dW5zcGxhc2guY29tOzs7Ozs%3D');
+      background: #f4f3f1 url('/static/img/splash.jpeg');
       background-size: cover;
       height: 30vw;
-      min-height: 200px;
+      min-height: 400px;
+
 
       h1 {
          display: inline-block;
@@ -150,11 +151,13 @@ body.about {
 
         @media screen and (max-width: 600px) {
           font-size: 50px;
-          margin-bottom: 0;
         }
-
-
       }
+
+      @media screen and (max-width: 600px) {
+        background-position: center;
+      }
+
      p.lead {
       display: none;
       padding: 20px;
