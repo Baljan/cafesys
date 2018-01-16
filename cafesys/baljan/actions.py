@@ -40,13 +40,13 @@ def categories_and_actions(request):
 
     levels = (
         ('superusers', 'Superanvändare', (
-
+            Action('Djangos adminsida', 'admin:index'),
+            Action('Administrera termin', 'admin_semester'),
         )),
         (settings.BOARD_GROUP, 'Styrelsen', (
             Action('Veckoplanering', 'call_duty_week'),
             ) + tuple(upcoming_sem_actions) + (
-            Action('Termin', 'admin_semester'),
-            Action('Djangos adminsida', 'admin:index'),
+            Action('Skapa nya kaffekort', 'admin:baljan_refillseries_add'),
             )
         ),
         (settings.WORKER_GROUP, 'Jobbare', (
@@ -66,15 +66,14 @@ def categories_and_actions(request):
     )
 
     if user.is_authenticated():
-        for real_group in (settings.BOARD_GROUP, settings.WORKER_GROUP):
-            if len(user.groups.filter(name__exact=real_group)):
-                group = real_group
-                break
+        if user.is_superuser:
+            group = 'superusers'
+        elif user.groups.filter(name__exact = settings.BOARD_GROUP).exists():
+            group = settings.BOARD_GROUP
+        elif user.groups.filter(name__exact = settings.WORKER_GROUP).exists():
+            group = settings.WORKER_GROUP
         else:
-            if user.is_superuser:
-                group = 'superusers'
-            else:
-                group = 'regulars'
+           group = 'regulars'
     else:
         group = 'anyone'
 

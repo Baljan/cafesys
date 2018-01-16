@@ -8,21 +8,21 @@
     <div class="collapse navbar-collapse order-2 {% if user.is_authenticated %} authenticated{% endif %}" id="navbarCollapse">
       <ul class="navbar-nav flex-row d-flex justify-content-around">
         <li class="nav-item active">
-          <a class="nav-link" href="/">
+          <a class="nav-link" href="{% url 'home' %}">
             <i class="fa fa-home"></i> Hem
             <span class="sr-only">(current)</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/baljan/high-score">
+          <a class="nav-link" href="{% url 'high_score' %}">
             <i class="fa fa-trophy"></i> Topplistan</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/baljan/bestallning">
+          <a class="nav-link" href="{% url 'order_from_us' %}">
             <i class="fa fa-shopping-cart"></i> Beställa</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/baljan/credits">
+          <a class="nav-link" href="{% url 'credits' %}">
             <i class="fa fa-coffee"></i> Kaffekort</a>
         </li>
       </ul>
