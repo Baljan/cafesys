@@ -64,7 +64,7 @@
 
                     {% with watched_groups as groups %}
                         <dt>{% trans "Groups" %}</dt>
-                        {% if not groups|length %}
+                        {% if groups|length %}
                             <ul>
                                 {% for group in groups %}
                                     <li>
