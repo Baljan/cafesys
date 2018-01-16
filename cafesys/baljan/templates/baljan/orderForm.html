@@ -119,11 +119,11 @@
                 <h2> Hur mycket kan man beställa?</h2>
                 På grund av begränsningar i hur mycket kaffe vi kan koka samt hur mycket vi kan förvara har vi följade gränser:
                 <ul>
-                    <li> Kaffe: minst 5, Morgon max 45, Lunch max 90, Eftermiddag max 135</li>
-                    <li> Te: minst 5, max 45</li>
-                    <li> Jochen: minst 5, max 200</li>
-                    <li> Läsk/vatten: minst 5, max 200</li>
-                    <li> Klägg: minst 5, max 300</li>
+                    <li><b>Kaffe (antal koppar):</b> minst 5, Morgon max 45, Lunch max 90, Eftermiddag max 135</li>
+                    <li><b>Te (antal koppar):</b> minst 5, max 45</li>
+                    <li><b>Jochen:</b> minst 5, max 200</li>
+                    <li><b>Läsk/vatten:</b> minst 5, max 200</li>
+                    <li><b>Klägg:</b> minst 5, max 300</li>
                 </ul>
                 Beställer ni över 100 stycken jochen måste ni hämta ut beställningen på morgonen (07.30-08.00) då vi inte möjlighet att förvara dessa i våra kylar.
 
@@ -134,7 +134,7 @@
                 Följade gäller vid beställningar:
                 <h3> Kaffe/te </h3>
                 <ul>
-                    <li>På grund av termosstorlekar kan vi eventuellt behöva justera antalet kaffe eller te i er beställning. <a href="https://baljan.org/baljan/price-list"> Klicka här för att se
+                    <li>På grund av termosstorlekar kan vi eventuellt behöva justera antalet kaffe eller te i er beställning. <a href="#termos-size-modal" data-toggle="modal"> Klicka här för att se
                         våra
                         termosstorlekar.</a></li>
                     <li>Koppar, skedar, socker och mjölk ingår vid beställning av kaffe och te. <br></li>
@@ -158,6 +158,39 @@
                 </ul>
             </div>
 
+        </div>
+    </div>
+
+    <div id="termos-size-modal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Termosstorlekar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <b>Kaffe</b>
+                    <ul>
+                        <li>45 koppar</li>
+                        <li>22 koppar</li>
+                        <li>16 koppar</li>
+                        <li>6 koppar</li>
+                        <li>5 koppar</li>
+                    </ul>
+
+                    <b>Te</b>
+                    <ul>
+                        <li>10 koppar</li>
+                        <li>6 koppar</li>
+                        <li>5 koppar</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Stäng</button>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
