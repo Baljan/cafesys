@@ -26,10 +26,22 @@
     </p>
 
     <div class="d-flex flex-column flex-md-row lead mb-3">
-      <a href="/baljan/bestallning" class="btn btn-lg mb-3 mb-md-0 btn-primary mr-md-3">
-        <i class="fa fa-shopping-cart"></i> Beställa</a>
-      <a href="/baljan/credits" class="btn btn-lg btn-primary btn-outline-info">
-        <i class="fa fa-coffee"></i> Fylla på kaffekort</a>
+      <a href="/baljan/bestallning" class="btn btn-lg btn-primary mr-md-3 mb-3 mb-md-0">
+        <i class="fa fa-shopping-cart"></i> Beställa
+      </a>
+      {% if user.is_superuser %}
+        <a href="/admin/baljan/refillseries/add/" class="btn btn-lg btn-warning mr-md-3 mb-3 mb-md-0">
+          <i class="fa fa-coffee"></i> <i class="fa fa-id-card-o" aria-hidden="true"></i>
+          Skapa ny kodserie
+        </a>
+        <a href="{% url 'admin:index' %}" class="btn btn-lg btn-success ">
+          <i class="fa fa-cog"></i> Django admin
+        </a>
+      {% else %}
+        <a href="/baljan/credits" class="btn btn-lg btn-primary btn-outline-info mr-md-3 mb-3 mb-md-0">
+          <i class="fa fa-coffee"></i> Fylla på kaffekort
+        </a>
+      {% endif %}
     </div>
   </div>
 </section>
