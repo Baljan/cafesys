@@ -123,9 +123,9 @@ def orderFromUs(request):
             from_email = 'cafesys@baljan.org'
             to = 'bestallning@baljan.org'
 
-            if pickup == 0:
+            if pickup == '0':
                 pickuptext = 'Morgon 07:30-08:00'
-            elif pickup == 1:
+            elif pickup == '1':
                 pickuptext = 'Lunch 12:15-13:00'
             else:
                 pickuptext = 'Eftermiddag 16:15-17:00'
@@ -154,19 +154,19 @@ def orderFromUs(request):
             msg.attach(htmlpart)
 
             dtStart=""
-            if pickup == 0:  # Morgon
+            if pickup == '0':  # Morgon
                 dPickUp=date.replace("-","")
                 dtStart=dPickUp+"T073000Z"
                 dtEnd=dPickUp+"T080000Z"
-            if pickup == 1:  # Lunch
+            if pickup == '1':  # Lunch
                 dPickUp=date.replace("-","")
                 dtStart=dPickUp+"T121500Z"
                 dtEnd=dPickUp+"T130000Z"
-            if pickup == 2:  # Eftermiddag
+            if pickup == '2':  # Eftermiddag
                 dPickUp=date.replace("-","")
                 dtStart=dPickUp+"T161500Z"
                 dtEnd=dPickUp+"T170000Z"
-            ics_data ='''BEGIN:VCALENDAR
+            ics_data = f'''BEGIN:VCALENDAR
 PRODID:-//Google Inc//Google Calendar 70.9054//EN
 VERSION:2.0
 CALSCALE:GREGORIAN
