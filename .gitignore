@@ -15,3 +15,6 @@ celerybeat.pid
 .venv/
 ubuntu-xenial-16.04-cloudimg-console.log
 vagrant-*
+
+# Mac
+.DS_STORE
