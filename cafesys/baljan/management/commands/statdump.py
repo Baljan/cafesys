@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import date, datetime, timedelta
 
+import sys
+from time import sleep
+
 from django.core.management.base import BaseCommand, CommandError
 
 from ...models import Order
@@ -27,5 +30,13 @@ class Command(BaseCommand):
 
         orders = Order.objects.filter(put_at__range=(date_from, date_to)).order_by('put_at')
         print('time, paid')
+
+        iterations_since_sleep = 0
         for order in orders:
             print('%s, %d' % (order.put_at.strftime('%Y-%m-%d %H:%M:%S'), order.paid))
+            iterations_since_sleep += 1
+
+            if iterations_since_sleep >= 1:
+                iterations_since_sleep = 0
+                sys.stdout.flush()
+                sleep(0.05)
