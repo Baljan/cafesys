@@ -52,6 +52,8 @@ class Profile(Made):
             unique=True,
             help_text=_("card ids can be manually set"))
 
+    card_cache = models.BigIntegerField(blank=True, null=True, db_index=True)
+
     def balcur(self):
         return "%s %s" % (self.balance, self.balance_currency)
 

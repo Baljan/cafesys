@@ -8,7 +8,12 @@ from django.utils.translation import ugettext as _
 
 from . import models, pdf
 
-admin.site.register(models.Profile)
+
+class ProfileAdmin(admin.ModelAdmin):
+    exclude = ('card_cache',)
+
+
+admin.site.register(models.Profile, ProfileAdmin)
 
 
 class ShiftInline(admin.TabularInline):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import base64
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from email.mime.text import MIMEText
 from io import BytesIO, StringIO
 from logging import getLogger
@@ -881,18 +881,40 @@ def do_blipp(request):
     if rfid is None or not rfid.isdigit():
         return _json_error(404, 'Felaktigt användar-id')
 
-    kobra_response, status = kobra.find_student(rfid)
-    if kobra_response is None:
-        if status == 404:
-            return _json_error(404, 'Kunde inte hitta kortnumret i databasen')
-        else:
-            return _json_error(500, 'Kunde inte ansluta till databasen (%d)' % status)
+    rfid_int = int(rfid)
+    user = None
 
+    # Try to fetch user from cached card id
     try:
-        liu_id = kobra_response['liu_id']
-        user = User.objects.get(username=liu_id)
+        user = User.objects.get(profile__card_cache=rfid_int)
     except User.DoesNotExist:
-        return _json_error(404, 'Användaren har inget konto på hemsidan')
+        pass
+
+    # Try to fetch user from stored card number
+    if user is None:
+        try:
+            user = User.objects.get(profile__card_id=rfid_int)
+        except User.DoesNotExist:
+            pass
+
+    # Last chance to find a user: check using Kobra
+    if user is None:
+        kobra_response, status = kobra.find_student(rfid)
+        if kobra_response is None:
+            if status == 404:
+                return _json_error(404, 'Kunde inte hitta kortnumret i databasen')
+            else:
+                return _json_error(500, 'Kunde inte ansluta till databasen (%d)' % status)
+
+        try:
+            liu_id = kobra_response['liu_id']
+            user = User.objects.get(username=liu_id)
+            user.profile.card_cache = rfid_int
+            user.profile.save()
+        except User.DoesNotExist:
+            return _json_error(404, 'Användaren har inget konto på hemsidan')
+
+    # We will always have a user at this point
 
     price = settings.BLIPP_COFFEE_PRICE
     is_coffee_free = user.has_perm('baljan.free_coffee_unlimited') or user.has_perm('baljan.free_coffee_with_cooldown')
