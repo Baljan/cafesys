@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import base64
 import json
 from datetime import date, datetime
 from email.mime.text import MIMEText
@@ -21,6 +22,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
 from cafesys.baljan import phone
+from cafesys.baljan.models import Order
 from . import credits as creditsmodule
 from . import (forms, ical, kobra, models, pdf, planning, pseudogroups, search,
                stats, trades, workdist)
@@ -555,7 +557,7 @@ def job_opening(request, semester_name):
                 # may choose to import the user.
 
                 # Tries to fetch a student from Kobra.
-                kobra_payload = kobra.find_student(searched_for)
+                kobra_payload, status = kobra.find_student(searched_for)
 
                 if kobra_payload:
                     logger.info('%s found in Kobra' % searched_for)
@@ -865,3 +867,76 @@ def high_score(request, year=None, week=None):
 @csrf_exempt
 def incoming_call(request):
     return JsonResponse(phone.compile_incoming_call_response())
+
+
+@csrf_exempt
+def do_blipp(request):
+    if not _is_authenticated_for_blipp(request):
+        response = HttpResponse()
+        response.status_code = 401
+        response['WWW-Authenticate'] = 'Basic'
+        return response
+
+    rfid = request.POST.get('id')
+    if rfid is None or not rfid.isdigit():
+        return _json_error(404, 'Felaktigt användar-id')
+
+    kobra_response, status = kobra.find_student(rfid)
+    if kobra_response is None:
+        if status == 404:
+            return _json_error(404, 'Kunde inte hitta kortnumret i databasen')
+        else:
+            return _json_error(500, 'Kunde inte ansluta till databasen (%d)' % status)
+
+    try:
+        liu_id = kobra_response['liu_id']
+        user = User.objects.get(username=liu_id)
+    except User.DoesNotExist:
+        return _json_error(404, 'Användaren har inget konto på hemsidan')
+
+    price = settings.BLIPP_COFFEE_PRICE
+    is_coffee_free = user.has_perm('baljan.free_coffee_unlimited') or user.has_perm('baljan.free_coffee_with_cooldown')
+
+    if is_coffee_free:
+        price = 0
+    else:
+        balance = user.profile.balance
+        if balance < price:
+            return _json_error(402, 'Du har för lite pengar för att blippa')
+
+        new_balance = balance - price
+        user.profile.balance = new_balance
+        user.profile.save()
+
+    order = Order()
+    order.made = datetime.now()
+    order.put_at = datetime.now()
+    order.user = user
+    order.paid = price
+    order.currency = 'SEK'
+    order.accepted = True
+    order.save()
+
+    if is_coffee_free:
+        user_balance = 'unlimited'
+        message = 'Du har <b>∞ kr</b> kvar att blippa för'
+    else:
+        user_balance = user.profile.balance
+        message = 'Du har <b>%s kr</b> kvar att blippa för' % user_balance
+
+    return JsonResponse({'message': message, 'balance': user_balance})
+
+
+def _is_authenticated_for_blipp(request):
+    if 'HTTP_AUTHORIZATION' in request.META:
+        authorization = request.META['HTTP_AUTHORIZATION'].split()
+        if len(authorization) == 2:
+            if authorization[0].lower() == "basic":
+                uname, passwd = base64.b64decode(authorization[1]).decode('ascii').split(':')
+                return uname == settings.BLIPP_USERNAME and passwd == settings.BLIPP_PASSWORD
+
+    return False
+
+
+def _json_error(status_code, message):
+    return JsonResponse({'message': message}, status=status_code)
