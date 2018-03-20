@@ -865,3 +865,15 @@ def high_score(request, year=None, week=None):
 @csrf_exempt
 def incoming_call(request):
     return JsonResponse(phone.compile_incoming_call_response())
+
+@csrf_exempt
+def post_call(request):
+    if request.method == 'POST':
+        post = request.POST
+
+        if 'direction' in post and post['direction'] == 'incoming' \
+            and 'from' in post and 'result' in post and 'call_to' in request.GET:
+
+            phone.post_call_to_slack(post['from'], request.GET['call_to'], post['result'])
+
+    return JsonResponse({})

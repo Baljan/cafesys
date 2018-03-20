@@ -7,6 +7,7 @@ week. If both members on duty are busy, or if a call is made outside of
 office hours, the call will be routed to a backup list stored in the database.
 """
 import pytz
+from slacker import Slacker
 from datetime import date, datetime, time
 from django.conf import settings
 
@@ -113,7 +114,8 @@ def _build_46elks_response(phone_numbers):
     if phone_numbers:
         data = {
             'connect': phone_numbers[0],
-            'callerid': '+46766860043'
+            'callerid': '+46766860043',
+            'success': 'http://baljan.org/baljan/post-call?call_to=%s' % phone_numbers[0]
         }
 
         busy = _build_46elks_response(phone_numbers[1:])
@@ -121,7 +123,19 @@ def _build_46elks_response(phone_numbers):
             data['timeout'] = '20'
             data['busy'] = busy
             data['failed'] = busy
+        else:
+            data['busy'] = 'http://baljan.org/baljan/post-call?call_to=%s' % phone_numbers[0]
+            data['failed'] = 'http://baljan.org/baljan/post-call?call_to=%s' % phone_numbers[0]
+
 
         return data
     else:
         return {}
+
+def post_call_to_slack(call_from, call_to, status):
+    if settings.SLACK_KEY:
+        message = '%s har %s ett samtal från %s.' % (call_to, 'tagit' if status == 'success' else 'missat', call_from)
+
+        slack = Slacker(settings.SLACK_KEY)
+
+        slack.chat.post_message('#jourtelefonen', message)
