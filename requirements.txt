@@ -44,6 +44,3 @@ django-livereload-server==0.2.3
 
 # Handle time better
 pytz==2017.2
-
-# Slack integration
-slacker==0.9.60

@@ -36,7 +36,7 @@ def generate_private_key():
 
 class Profile(Made):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='profile', verbose_name=_("user"), editable=False)
-    mobile_phone = models.CharField(_("mobile phone number"), max_length=10, blank=True, null=True)
+    mobile_phone = models.CharField(_("mobile phone number"), max_length=10, blank=True, null=True, db_index=True)
     balance = models.IntegerField(default=0)
     balance_currency = models.CharField(_("balance currency"), max_length=5, default="SEK",
             help_text=_("currency"))

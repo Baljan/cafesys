@@ -7,12 +7,14 @@ week. If both members on duty are busy, or if a call is made outside of
 office hours, the call will be routed to a backup list stored in the database.
 """
 import pytz
-from slacker import Slacker
+from re import match
 from datetime import date, datetime, time
 from django.conf import settings
+from django.utils.http import urlquote
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from cafesys.baljan import planning
-from cafesys.baljan.models import Shift, IncomingCallFallback
+from cafesys.baljan.models import Shift, IncomingCallFallback, Profile
 
 tz = pytz.timezone(settings.TIME_ZONE)
 
@@ -22,6 +24,15 @@ DUTY_CALL_ROUTING = {
     (time(12, 0, 0, tzinfo=tz), time(13, 0, 0, tzinfo=tz)): 1,
     (time(13, 0, 0, tzinfo=tz), time(18, 0, 0, tzinfo=tz)): 2,
 }
+
+# IP addresses used by 46Elks
+ELKS_IPS = ['62.109.57.12', '212.112.190.140', '176.10.154.199', '2001:9b0:2:902::199']
+
+# Extension that is added to numbers calling Baljans 013-number
+PHONE_EXTENSION = '239927'
+
+# Maximum length of a phone number (+46 + 9 digits)
+MAX_PHONE_LENGTH = 12
 
 
 def compile_incoming_call_response():
@@ -112,10 +123,12 @@ def _build_46elks_response(phone_numbers):
     """Builds a response message compatible with 46elks.com"""
 
     if phone_numbers:
+        post_call_URL = 'http://baljan.org/baljan/post-call?call_to=%s' % urlquote(phone_numbers[0])
+
         data = {
             'connect': phone_numbers[0],
             'callerid': '+46766860043',
-            'success': 'http://baljan.org/baljan/post-call?call_to=%s' % phone_numbers[0]
+            'success': post_call_URL
         }
 
         busy = _build_46elks_response(phone_numbers[1:])
@@ -124,18 +137,153 @@ def _build_46elks_response(phone_numbers):
             data['busy'] = busy
             data['failed'] = busy
         else:
-            data['busy'] = 'http://baljan.org/baljan/post-call?call_to=%s' % phone_numbers[0]
-            data['failed'] = 'http://baljan.org/baljan/post-call?call_to=%s' % phone_numbers[0]
+            data['busy'] = post_call_URL
+            data['failed'] = post_call_URL
 
 
         return data
     else:
         return {}
 
-def post_call_to_slack(call_from, call_to, status):
-    if settings.SLACK_KEY:
-        message = '%s har %s ett samtal från %s.' % (call_to, 'tagit' if status == 'success' else 'missat', call_from)
 
-        slack = Slacker(settings.SLACK_KEY)
+def compile_slack_message(phone_from, phone_to, status):
+    """Compiles a message that can be posted to Slack after a call has been made"""
 
-        slack.chat.post_message('#jourtelefonen', message)
+    call_from_user = _query_user(phone_from)
+    call_from = _format_caller(call_from_user, phone_from)
+
+    call_to = _format_caller(_query_user(phone_to), phone_to)
+
+    fallback = '%s har %s ett samtal från %s.' % (
+        call_to,
+        'tagit' if status == 'success' else 'missat',
+        call_from
+        )
+
+    fields = [
+        {
+            'title': 'Status',
+            'value': 'Taget' if status == 'success' else 'Missat',
+            'short': True
+        },
+        {
+            'title': 'Av',
+            'value': call_to,
+            'short': False
+        }
+    ]
+
+    if call_from_user is not None and call_from_user['groups']:
+        groups = call_from_user['groups']
+
+        groups_str = '%s %s tillhör %s: %s.' % (
+            call_from_user['first_name'],
+            call_from_user['last_name'],
+            'grupperna' if len(groups) > 1 else 'gruppen',
+            ', '.join(groups)
+            )
+
+        fallback += '\n\n%s' % groups_str
+        fields += [
+            {
+                'title': 'Grupper',
+                'value': groups_str,
+                'short': False
+            }
+        ]
+
+
+    return {
+    'attachments': [
+            {
+            'pretext' : 'Nytt samtal från %s' % call_from,
+            'fallback': fallback,
+            'color'   : 'good' if status == 'success' else 'danger',
+            'fields'  : fields
+            }
+        ]
+    }
+
+
+def _query_user(phone):
+    """
+    Retrieves first name, last name and groups
+    corresponding to a phone number from the database, if it exists.
+    If multiple users have the same number, none will be queried
+    """
+
+    try:
+        user = Profile.objects.get(mobile_phone=_remove_area_code(phone)).user
+
+        return {
+        'first_name': user.first_name,
+        'last_name' : user.last_name,
+        'groups'    : [group.name if group.name[0] != '_' else \
+                        group.name[1:] for group in user.groups.all()]
+        }
+    except (ObjectDoesNotExist, MultipleObjectsReturned):
+        # Expected output for a lot of calls. Not an error.
+        return None
+
+
+def _format_caller(call_user, phone):
+    """Formats caller information into a readable string"""
+
+    caller = phone
+
+    if call_user is not None:
+        caller = '%s %s (%s)' % (
+        call_user['first_name'],
+        call_user['last_name'],
+        phone
+        )
+
+    return caller
+
+
+def request_from_46elks(request):
+    """
+    Validates that a request comes from 46elks
+    by looking at the clients IP-address
+    """
+
+    client_IP = request.META.get('REMOTE_ADDR')
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+
+    if x_forwarded_for:
+        client_IP = x_forwarded_for.split(',')[0]
+
+    return client_IP in ELKS_IPS
+
+
+def remove_extension(phone):
+    """
+    Removes the extension that is added to numbers
+    calling Baljans 013-number
+    """
+
+    if len(phone) > MAX_PHONE_LENGTH and phone.endswith(PHONE_EXTENSION):
+        return phone[:len(phone)-len(PHONE_EXTENSION)]
+    else:
+        return phone
+
+
+def _remove_area_code(phone):
+    """
+    Removes the area code (+46) from the given phone number
+    and replaces it with 0
+    """
+
+    if not phone.startswith('+46'):
+        return phone
+    else:
+        return '0' + phone[3:]
+
+
+def is_valid_phone_number(phone):
+    """
+    Checks whether the given phone number is a valid swedish phone number.
+    Works with both mobile (+46/0 + 9) and landline (+46/0 + 7-9) numbers
+    """
+
+    return match(r'^(\+46|0)[0-9]{7,9}$', phone) is not None

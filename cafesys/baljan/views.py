@@ -29,6 +29,7 @@ from .util import (adjacent_weeks, all_initials, available_for_call_duty,
                    from_iso8601, htmlents, valid_username, week_dates,
                    year_and_week)
 import pytz
+import requests
 
 logger = getLogger(__name__)
 
@@ -866,14 +867,37 @@ def high_score(request, year=None, week=None):
 def incoming_call(request):
     return JsonResponse(phone.compile_incoming_call_response())
 
+
 @csrf_exempt
 def post_call(request):
-    if request.method == 'POST':
+    if request.method == 'POST' \
+    and phone.request_from_46elks(request) \
+    and settings.SLACK_PHONE_WEBHOOK_URL:
         post = request.POST
 
-        if 'direction' in post and post['direction'] == 'incoming' \
-            and 'from' in post and 'result' in post and 'call_to' in request.GET:
+        direction = post.get('direction')
+        result    = post.get('result')
+        call_to   = request.GET.get('call_to', '')
+        call_from = phone.remove_extension(post.get('from', ''))
 
-            phone.post_call_to_slack(post['from'], request.GET['call_to'], post['result'])
+        if direction == 'incoming' \
+        and result is not None \
+        and phone.is_valid_phone_number(call_to) \
+        and phone.is_valid_phone_number(call_from):
+            slack_data = phone.compile_slack_message(
+                call_from,
+                call_to,
+                result
+                )
+
+            response = requests.post(
+                settings.SLACK_PHONE_WEBHOOK_URL,
+                json=slack_data,
+                headers={'Content-Type': 'application/json'}
+                )
+
+            if response.status_code != 200:
+                # Should be logged
+                logger-warning('Unable to post to Slack')
 
     return JsonResponse({})
