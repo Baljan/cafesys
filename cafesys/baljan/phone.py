@@ -123,7 +123,7 @@ def _build_46elks_response(phone_numbers):
     """Builds a response message compatible with 46elks.com"""
 
     if phone_numbers:
-        post_call_URL = 'http://baljan.org/baljan/post-call?call_to=%s' % urlquote(phone_numbers[0])
+        post_call_URL = 'https://www.baljan.org/baljan/post-call?call_to=%s' % urlquote(phone_numbers[0])
 
         data = {
             'connect': phone_numbers[0],
