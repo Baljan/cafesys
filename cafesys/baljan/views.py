@@ -898,6 +898,6 @@ def post_call(request):
 
             if response.status_code != 200:
                 # Should be logged
-                logger-warning('Unable to post to Slack')
+                logger.warning('Unable to post to Slack')
 
     return JsonResponse({})
