@@ -32,8 +32,9 @@ docker-compose run --rm cafesys-django django-admin.py collectstatic --noinput
 This environment will use the `.env.docker` file for environment variables, **not** `.env`.
 
 ## Setting up a local development environment
-
 ### macOS
+**Note: This guide requires that you have installed Docker and Docker Compose (see https://docs.docker.com/compose/install/).**
+
 This assumes you already have Homebrew installed and have basic knowledge on Python and its virtual environments.
 
 Install system dependencies:
@@ -81,17 +82,28 @@ celery -A cafesys worker
 
 This environment will use the `.env` file for environment variables, **not** `.env.docker`.
 
-### Livereload
+### Ubuntu 16.04
+**Note: This guide requires that you have installed Docker and Docker Compose (see https://docs.docker.com/compose/install/).**
 
-To activate Livereload on the development server:
+This might work for other versions of Ubuntu but has only been tested on Ubuntu 16.04.
 
+Start by installing all dependencies. This can be done in a terminal by running the following commands:
 ```sh
-
-./manage.py livereload
-
+add-apt-repository ppa:jonathonf/python-3.6
+apt-get update
+apt-get install python3.6 python3.6-dev python3-pip libpq-dev build-essential libssl-dev g++ libffi-dev python3-dev pypy glpk-utils
+pip3 install virtualenv
 ```
 
-### Vagrant
+The following steps are quite similar to the installation procedure on MacOS but differs slightly. First we setup the virtual environment: run the following command in a terminal at the repository root:
+```sh
+virtualenv -p python3.6 .venv
+source .venv/bin/activate
+```
+
+Next, you should be able to follow the MacOS guide from the step "Then install the needed Python dependencies:".
+
+### Vagrant (mainly for development on Windows)
 Start by downloading and installing Vagrant from https://www.vagrantup.com/.
 
 Open a terminal in the root of the git repository and run `vagrant up`. This process may take a while, but please be patient.
@@ -108,4 +120,12 @@ python vmanage.py migrate
 Start the server on the interface `0.0.0.0` by running:
 ```sh
 python vmanage.py runserver 0.0.0.0:8000
+```
+
+## Livereload
+
+When doing work on the frontend it can be handy to see your changes in real-time. This can be achieved by using a tool called "Livereload". To activate this when developing, run this command instead of runserver (make sure to have sourced the virtualenv):
+
+```sh
+./manage.py livereload
 ```
