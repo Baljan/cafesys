@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.cache import cache
 from logging import getLogger
 
-from cafesys.baljan import phone
+from cafesys.baljan import slack
 from . import stats
 
 logger = getLogger(__name__)
@@ -20,7 +20,7 @@ def update_stats():
 
 @shared_task
 def send_missed_call_message(call_from, call_to):
-    slack_data = phone.compile_slack_message(
+    slack_data = slack.compile_slack_message(
         call_from,
         call_to,
         'failed'

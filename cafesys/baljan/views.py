@@ -20,7 +20,7 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
-from cafesys.baljan import phone
+from cafesys.baljan import phone, slack
 from . import credits as creditsmodule
 from . import (forms, ical, kobra, models, pdf, planning, pseudogroups, search,
                stats, trades, workdist)
@@ -900,7 +900,7 @@ def incoming_call(request):
                 and phone.is_valid_phone_number(call_to) \
                 and (result == 'success' or not call_list) \
                 and settings.SLACK_PHONE_WEBHOOK_URL:
-            slack_data = phone.compile_slack_message(
+            slack_data = slack.compile_slack_message(
                 call_from,
                 call_to,
                 result
