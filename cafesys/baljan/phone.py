@@ -287,3 +287,36 @@ def is_valid_phone_number(phone):
     """
 
     return match(r'^(\+46|0)[0-9]{7,9}$', phone) is not None
+
+
+################ Extremt fulkodad copy-paste lösning ####################
+
+def compile_incoming_response():
+
+    phone_numbers = []
+    current_duty_phone_numbers = _get_current_duty_phone_numbers()
+
+    # Check if we are within office hours
+    if current_duty_phone_numbers is not None:
+        _append(phone_numbers, current_duty_phone_numbers)
+        _append(phone_numbers, _get_week_duty_phone_numbers())
+
+    # Always append the fallback numbers
+    _append(phone_numbers, _get_fallback_numbers())
+
+    return compile_redirect_response(phone_numbers)
+
+def compile_redirect_response(call_list):
+
+    if call_list:
+        current = call_list[0]
+        next_call_list = ','.join(call_list[1:])
+
+        return {
+        'connect': current,
+        'timeout': '20'
+        'next'   : 'https://www.baljan.org/baljan/redirect_call?call_list=%s&last=%s' % \
+                    (urlquote(next_call_list), urlquote(current))
+        }
+    else:
+        return {}

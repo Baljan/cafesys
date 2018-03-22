@@ -901,3 +901,53 @@ def post_call(request):
                 logger.warning('Unable to post to Slack')
 
     return JsonResponse({})
+
+
+################ Extremt fulkodad copy-paste lösning ####################
+#@csrf_exempt
+#def incoming_call(request):
+#    return JsonResponse(phone.compile_incoming_response())
+
+@csrf_exempt
+def redirect_call(request):
+    response = {}
+
+    # Validate request
+    if request.method == 'POST' \
+    and phone.request_from_46elks(request):
+        # Retrieve paramters
+        direction = post.POST.get('direction')
+        result    = post.POST.get('result')
+        call_from = phone.remove_extension(post.POST.get('from', ''))
+        call_list = request.GET.get('call_list')
+        call_to   = request.GET.get('last','')
+
+        # Convert call list (str->list)
+        call_list = call_list.split(',') if call_list else None
+
+        # Only redirect if the call hasn't been answered
+        if result != 'success':
+            response = phone.compile_redirect_response(call_list)
+
+        # Validate parameters and post to Slack
+        if direction == 'incoming' \
+        and phone.is_valid_phone_number(call_from) \
+        and phone.is_valid_phone_number(call_to) \
+        # and (result == 'success' or not call_list) # Only post if the call has been answered or missed by everyone
+        and settings.SLACK_PHONE_WEBHOOK_URL:
+            slack_data = phone.compile_slack_message(
+                call_from,
+                call_to,
+                result
+                )
+
+            slack_response = requests.post(
+                settings.SLACK_PHONE_WEBHOOK_URL,
+                json=slack_data,
+                headers={'Content-Type': 'application/json'}
+                )
+
+            if response.status_code != 200:
+                logger.warning('Unable to post to Slack')
+
+    return JsonResponse(response)

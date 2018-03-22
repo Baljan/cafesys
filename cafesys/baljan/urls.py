@@ -47,4 +47,5 @@ urlpatterns = (
 
     url(r'incoming-call', views.incoming_call),
     url(r'post-call', views.post_call),
+    url(r'redirect-call', views.redirect_call),
 )
