@@ -10,19 +10,17 @@ import pytz
 from re import match
 from datetime import date, datetime, time
 
-import requests
-from celery import shared_task, uuid
+from celery import uuid
 from celery.result import AsyncResult
 from django.conf import settings
 from django.utils.http import urlquote
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from logging import getLogger
 
 from cafesys.baljan import planning
 from cafesys.baljan.models import Shift, IncomingCallFallback, Profile
+from cafesys.baljan.tasks import send_missed_call_message
 
 tz = pytz.timezone(settings.TIME_ZONE)
-logger = getLogger(__name__)
 
 # Mapping from office hours to shift indexes
 DUTY_CALL_ROUTING = {
@@ -288,24 +286,6 @@ def compile_redirect_response(request, call_list, task_id=None):
         }
     else:
         return {}
-
-
-@shared_task
-def send_missed_call_message(call_from, call_to):
-    slack_data = compile_slack_message(
-        call_from,
-        call_to,
-        'failed'
-    )
-
-    slack_response = requests.post(
-        settings.SLACK_PHONE_WEBHOOK_URL,
-        json=slack_data,
-        headers={'Content-Type': 'application/json'}
-    )
-
-    if slack_response.status_code != 200:
-        logger.warning('Unable to post to Slack')
 
 
 def start_missed_call_timer(call_from, call_to):
