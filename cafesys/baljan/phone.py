@@ -280,6 +280,7 @@ def compile_redirect_response(request, call_list, task_id=None):
 
         return {
             'connect': current,
+            'callerid': '+46766860043',
             'timeout': str(TIMEOUT_SECONDS),
             'next': request.build_absolute_uri('/baljan/incoming-call?call_list=%s&last=%s%s' %
                                                (urlquote(next_call_list), urlquote(current), task_id_parameter))
