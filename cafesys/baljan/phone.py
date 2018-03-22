@@ -9,14 +9,20 @@ office hours, the call will be routed to a backup list stored in the database.
 import pytz
 from re import match
 from datetime import date, datetime, time
+
+import requests
+from celery import shared_task, uuid
+from celery.result import AsyncResult
 from django.conf import settings
 from django.utils.http import urlquote
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from logging import getLogger
 
 from cafesys.baljan import planning
 from cafesys.baljan.models import Shift, IncomingCallFallback, Profile
 
 tz = pytz.timezone(settings.TIME_ZONE)
+logger = getLogger(__name__)
 
 # Mapping from office hours to shift indexes
 DUTY_CALL_ROUTING = {
@@ -34,25 +40,11 @@ PHONE_EXTENSION = '239927'
 # Maximum length of a phone number (+46 + 9 digits)
 MAX_PHONE_LENGTH = 12
 
+# Number of seconds before redirecting the call to the next person
+TIMEOUT_SECONDS = 20
 
-def compile_incoming_call_response():
-    """
-    Compiles a response message to an incoming call. The algorithm for this
-    response is found in the file header.
-    """
-
-    phone_numbers = []
-    current_duty_phone_numbers = _get_current_duty_phone_numbers()
-
-    # Check if we are within office hours
-    if current_duty_phone_numbers is not None:
-        _append(phone_numbers, current_duty_phone_numbers)
-        _append(phone_numbers, _get_week_duty_phone_numbers())
-
-    # Always append the fallback numbers
-    _append(phone_numbers, _get_fallback_numbers())
-
-    return _build_46elks_response(phone_numbers)
+# Extra time to wait before sending a "missed" notification on Slack (takes network conditions into account)
+TIMEOUT_MARGIN = 10
 
 
 def _get_fallback_numbers():
@@ -119,33 +111,6 @@ def _format_phone(phone):
         return '+46' + phone[1:]
 
 
-def _build_46elks_response(phone_numbers):
-    """Builds a response message compatible with 46elks.com"""
-
-    if phone_numbers:
-        post_call_URL = 'https://www.baljan.org/baljan/post-call?call_to=%s' % urlquote(phone_numbers[0])
-
-        data = {
-            'connect': phone_numbers[0],
-            'callerid': '+46766860043',
-            'success': post_call_URL
-        }
-
-        busy = _build_46elks_response(phone_numbers[1:])
-        if busy:
-            data['timeout'] = '20'
-            data['busy'] = busy
-            data['failed'] = busy
-        else:
-            data['busy'] = post_call_URL
-            data['failed'] = post_call_URL
-
-
-        return data
-    else:
-        return {}
-
-
 def compile_slack_message(phone_from, phone_to, status):
     """Compiles a message that can be posted to Slack after a call has been made"""
 
@@ -158,7 +123,7 @@ def compile_slack_message(phone_from, phone_to, status):
         call_to,
         'tagit' if status == 'success' else 'missat',
         call_from
-        )
+    )
 
     fields = [
         {
@@ -181,7 +146,7 @@ def compile_slack_message(phone_from, phone_to, status):
             call_from_user['last_name'],
             'grupperna' if len(groups) > 1 else 'gruppen',
             ', '.join(groups)
-            )
+        )
 
         fallback += '\n\n%s' % groups_str
         fields += [
@@ -192,14 +157,13 @@ def compile_slack_message(phone_from, phone_to, status):
             }
         ]
 
-
     return {
-    'attachments': [
+        'attachments': [
             {
-            'pretext' : 'Nytt samtal från %s' % call_from,
-            'fallback': fallback,
-            'color'   : 'good' if status == 'success' else 'danger',
-            'fields'  : fields
+                'pretext': 'Nytt samtal från %s' % call_from,
+                'fallback': fallback,
+                'color': 'good' if status == 'success' else 'danger',
+                'fields': fields
             }
         ]
     }
@@ -216,10 +180,10 @@ def _query_user(phone):
         user = Profile.objects.get(mobile_phone=_remove_area_code(phone)).user
 
         return {
-        'first_name': user.first_name,
-        'last_name' : user.last_name,
-        'groups'    : [group.name if group.name[0] != '_' else \
-                        group.name[1:] for group in user.groups.all()]
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'groups': [group.name if group.name[0] != '_' else \
+                           group.name[1:] for group in user.groups.all()]
         }
     except (ObjectDoesNotExist, MultipleObjectsReturned):
         # Expected output for a lot of calls. Not an error.
@@ -233,9 +197,9 @@ def _format_caller(call_user, phone):
 
     if call_user is not None:
         caller = '%s %s (%s)' % (
-        call_user['first_name'],
-        call_user['last_name'],
-        phone
+            call_user['first_name'],
+            call_user['last_name'],
+            phone
         )
 
     return caller
@@ -246,6 +210,9 @@ def request_from_46elks(request):
     Validates that a request comes from 46elks
     by looking at the clients IP-address
     """
+
+    if not settings.VERIFY_46ELKS_IP:
+        return True
 
     client_IP = request.META.get('REMOTE_ADDR')
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -263,7 +230,7 @@ def remove_extension(phone):
     """
 
     if len(phone) > MAX_PHONE_LENGTH and phone.endswith(PHONE_EXTENSION):
-        return phone[:len(phone)-len(PHONE_EXTENSION)]
+        return phone[:len(phone) - len(PHONE_EXTENSION)]
     else:
         return phone
 
@@ -289,10 +256,7 @@ def is_valid_phone_number(phone):
     return match(r'^(\+46|0)[0-9]{7,9}$', phone) is not None
 
 
-################ Extremt fulkodad copy-paste lösning ####################
-
-def compile_incoming_response():
-
+def compile_number_list():
     phone_numbers = []
     current_duty_phone_numbers = _get_current_duty_phone_numbers()
 
@@ -304,19 +268,52 @@ def compile_incoming_response():
     # Always append the fallback numbers
     _append(phone_numbers, _get_fallback_numbers())
 
-    return compile_redirect_response(phone_numbers)
+    return phone_numbers
 
-def compile_redirect_response(call_list):
 
+def compile_redirect_response(request, call_list, task_id=None):
     if call_list:
         current = call_list[0]
         next_call_list = ','.join(call_list[1:])
 
+        task_id_parameter = ''
+        if task_id is not None:
+            task_id_parameter = '&last_task_id=%s' % urlquote(task_id)
+
         return {
-        'connect': current,
-        'timeout': '20'
-        'next'   : 'https://www.baljan.org/baljan/redirect_call?call_list=%s&last=%s' % \
-                    (urlquote(next_call_list), urlquote(current))
+            'connect': current,
+            'timeout': str(TIMEOUT_SECONDS),
+            'next': request.build_absolute_uri('/baljan/incoming-call?call_list=%s&last=%s%s' %
+                                               (urlquote(next_call_list), urlquote(current), task_id_parameter))
         }
     else:
         return {}
+
+
+@shared_task
+def send_missed_call_message(call_from, call_to):
+    slack_data = compile_slack_message(
+        call_from,
+        call_to,
+        'failed'
+    )
+
+    slack_response = requests.post(
+        settings.SLACK_PHONE_WEBHOOK_URL,
+        json=slack_data,
+        headers={'Content-Type': 'application/json'}
+    )
+
+    if slack_response.status_code != 200:
+        logger.warning('Unable to post to Slack')
+
+
+def start_missed_call_timer(call_from, call_to):
+    task_id = uuid()
+    send_missed_call_message.apply_async((call_from, call_to), countdown=TIMEOUT_SECONDS + TIMEOUT_MARGIN, task_id=task_id)
+
+    return task_id
+
+
+def abort_missed_call_timer(task_id):
+    AsyncResult(task_id).revoke()

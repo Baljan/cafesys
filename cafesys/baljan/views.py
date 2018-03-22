@@ -865,89 +865,54 @@ def high_score(request, year=None, week=None):
 
 @csrf_exempt
 def incoming_call(request):
-    return JsonResponse(phone.compile_incoming_call_response())
-
-
-@csrf_exempt
-def post_call(request):
-    if request.method == 'POST' \
-    and phone.request_from_46elks(request) \
-    and settings.SLACK_PHONE_WEBHOOK_URL:
-        post = request.POST
-
-        direction = post.get('direction')
-        result    = post.get('result')
-        call_to   = request.GET.get('call_to', '')
-        call_from = phone.remove_extension(post.get('from', ''))
-
-        if direction == 'incoming' \
-        and result is not None \
-        and phone.is_valid_phone_number(call_to) \
-        and phone.is_valid_phone_number(call_from):
-            slack_data = phone.compile_slack_message(
-                call_from,
-                call_to,
-                result
-                )
-
-            response = requests.post(
-                settings.SLACK_PHONE_WEBHOOK_URL,
-                json=slack_data,
-                headers={'Content-Type': 'application/json'}
-                )
-
-            if response.status_code != 200:
-                # Should be logged
-                logger.warning('Unable to post to Slack')
-
-    return JsonResponse({})
-
-
-################ Extremt fulkodad copy-paste lösning ####################
-#@csrf_exempt
-#def incoming_call(request):
-#    return JsonResponse(phone.compile_incoming_response())
-
-@csrf_exempt
-def redirect_call(request):
     response = {}
 
     # Validate request
-    if request.method == 'POST' \
-    and phone.request_from_46elks(request):
+    if phone.request_from_46elks(request):
         # Retrieve paramters
-        direction = post.POST.get('direction')
-        result    = post.POST.get('result')
-        call_from = phone.remove_extension(post.POST.get('from', ''))
+        direction = request.POST.get('direction')
+        result = request.POST.get('result')
+        call_from = phone.remove_extension(request.POST.get('from', ''))
         call_list = request.GET.get('call_list')
-        call_to   = request.GET.get('last','')
+        call_to = request.GET.get('last', '')
+        last_task_id = request.GET.get('last_task_id')
 
-        # Convert call list (str->list)
-        call_list = call_list.split(',') if call_list else None
+        if last_task_id:
+            phone.abort_missed_call_timer(last_task_id)
+            # Convert call list (str->list)
+            call_list = call_list.split(',') if call_list else None
+        else:
+            # New phone call, compile phone number list from scratch
+            call_list = phone.compile_number_list()
 
         # Only redirect if the call hasn't been answered
         if result != 'success':
-            response = phone.compile_redirect_response(call_list)
+            if call_list:
+                new_task_id = phone.start_missed_call_timer(call_from, call_list[0])
+            else:
+                new_task_id = None
+
+            response = phone.compile_redirect_response(request, call_list, new_task_id)
 
         # Validate parameters and post to Slack
         if direction == 'incoming' \
-        and phone.is_valid_phone_number(call_from) \
-        and phone.is_valid_phone_number(call_to) \
-        # and (result == 'success' or not call_list) # Only post if the call has been answered or missed by everyone
-        and settings.SLACK_PHONE_WEBHOOK_URL:
+                and phone.is_valid_phone_number(call_from) \
+                and phone.is_valid_phone_number(call_to) \
+                and (result == 'success' or not call_list) \
+                and settings.SLACK_PHONE_WEBHOOK_URL:
             slack_data = phone.compile_slack_message(
                 call_from,
                 call_to,
                 result
-                )
+            )
 
             slack_response = requests.post(
                 settings.SLACK_PHONE_WEBHOOK_URL,
                 json=slack_data,
                 headers={'Content-Type': 'application/json'}
-                )
+            )
 
-            if response.status_code != 200:
+            if slack_response.status_code != 200:
                 logger.warning('Unable to post to Slack')
 
     return JsonResponse(response)
