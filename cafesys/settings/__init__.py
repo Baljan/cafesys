@@ -220,7 +220,7 @@ STATS_CACHE_KEY = 'baljan.stats'
 # How long the stats data live in the cache
 STATS_CACHE_TTL = 24 * 60 * 60  # seconds
 
-CELERY_IMPORTS = ("tasks", )
+CELERY_IMPORTS = ("cafesys.baljan.tasks", )
 CELERY_BROKER_URL = CACHE_BACKEND
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
