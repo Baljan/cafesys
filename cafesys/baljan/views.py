@@ -73,7 +73,6 @@ def orderFromUs(request):
             pickupName = form.cleaned_data['pickupName']
             pickupEmail = form.cleaned_data['pickupEmail']
             pickupNumber = form.cleaned_data['pickupNumber']
-            numberOfJochen = form.cleaned_data['numberOfJochen']
             numberOfCoffee = form.cleaned_data['numberOfCoffee']
             numberOfTea = form.cleaned_data['numberOfTea']
             numberOfSoda = form.cleaned_data['numberOfSoda']
@@ -90,9 +89,6 @@ def orderFromUs(request):
             items = ""
             # String for calendar summary
             itemsDes = ""
-            if numberOfJochen:
-                items = items +"Antal jochen: "+str(numberOfJochen)+"<br>"
-                itemsDes = itemsDes + str(numberOfJochen)+" Jochen"
 
             if numberOfCoffee:
                 items = items +"Antal kaffe: "+str(numberOfCoffee)+"<br>"
