@@ -1,0 +1,184 @@
+# Requires short (https://docs.koki.io/short/). See motivation for usage in their documentation.
+# Apply using: short -k -f kube.short.yaml | kubectl apply -f -
+
+namespace:
+  name: baljan
+---
+config_map:
+  version: v1
+  name: baljan-config
+  namespace: baljan
+  data:
+    AUTH_LIU_CLIENT_ID: ddb3968d-5305-4249-975a-cb5cedc4583c
+    AUTH_LIU_RESOURCE: https://www.baljan.org
+    CAFESYS_DB_HOST: postgres
+    CAFESYS_DB_NAME: cafesys
+    CAFESYS_DB_USER: cafesys
+    DJANGO_DEBUG: "False"
+    DJANGO_EMAIL_URL: consolemail://
+    DJANGO_REDIS_URL: redis://redis.baljan.svc.cluster.local/0
+    DJANGO_SETTINGS_MODULE: cafesys.settings.production
+    GUNICORN_LOG_LEVEL: debug
+    OPBEAT_APP_ID: ""
+    OPBEAT_ORGANIZATION_ID: ""
+    POSTGRES_DB: cafesys
+    POSTGRES_USER: cafesys
+---
+secret:
+  version: v1
+  name: baljan-secrets
+  namespace: baljan
+  type: opaque
+  data:
+    CAFESYS_DB_PASSWORD: IA==
+    DJANGO_DATABASE_URL: cG9zdGdyZXM6Ly9jYWZlc3lzOkh1bnRlcjJAcG9zdGdyZXMuYmFsamFuLnN2Yy5jbHVzdGVyLmxvY2FsOjU0MzIvY2FmZXN5cw==
+    DJANGO_SECRET_KEY: IA==
+    HTPASSWD: IA==
+    KOBRA_API_TOKEN: IA==
+    OPBEAT_SECRET_TOKEN: IA==
+    POSTGRES_PASSWORD: SHVudGVyMg==
+---
+deployment:
+  version: extensions/v1beta1
+  name: baljan-blipp
+  namespace: baljan
+  labels:
+    run: baljan-blipp
+  replicas: 1
+  selector:
+    run: baljan-blipp
+  containers:
+  - name: baljan-blipp
+    image: baljan/blipp
+    pull: if-not-present
+    expose:
+    - 80
+    env:
+    - from: config:baljan-config
+    - from: secret:baljan-secrets
+---
+deployment:
+  version: extensions/v1beta1
+  name: cafesys-celery-beat
+  namespace: baljan
+  labels:
+    run: cafesys-celery-beat
+  replicas: 1
+  selector:
+    run: cafesys-celery-beat
+  containers:
+  - name: cafesys-celery-beat
+    image: baljan/cafesys
+    command:
+    - /app/bin/run-celery-beat
+    pull: if-not-present
+    expose:
+    - 80
+    env:
+    - from: config:baljan-config
+    - from: secret:baljan-secrets
+---
+deployment:
+  version: extensions/v1beta1
+  name: cafesys-celery-worker
+  namespace: baljan
+  labels:
+    run: cafesys-celery-worker
+  replicas: 1
+  selector:
+    run: cafesys-celery-worker
+  containers:
+  - name: cafesys-celery-worker
+    image: baljan/cafesys
+    command:
+    - /app/bin/run-celery-worker
+    pull: if-not-present
+    expose:
+    - 80
+    env:
+    - from: config:baljan-config
+    - from: secret:baljan-secrets
+---
+deployment:
+  version: extensions/v1beta1
+  name: cafesys-django
+  namespace: baljan
+  labels:
+    run: cafesys-django
+  replicas: 1
+  selector:
+    run: cafesys-django
+  containers:
+  - name: cafesys-django
+    image: baljan/cafesys
+    pull: if-not-present
+    expose:
+    - 80
+    env:
+    - from: config:baljan-config
+    - from: secret:baljan-secrets
+---
+deployment:
+  version: extensions/v1beta1
+  name: postgres
+  namespace: baljan
+  labels:
+    run: postgres
+  replicas: 1
+  selector:
+    run: postgres
+  containers:
+  - name: postgres
+    image: postgres:9.6-alpine
+    pull: if-not-present
+    expose:
+    - 5432
+    env:
+    - from: config:baljan-config
+    - from: secret:baljan-secrets
+---
+deployment:
+  version: extensions/v1beta1
+  name: redis
+  namespace: baljan
+  labels:
+    run: redis
+  replicas: 1
+  selector:
+    run: redis
+  containers:
+  - name: redis
+    image: redis:3-alpine
+    pull: if-not-present
+    expose:
+    - 6379
+    env:
+    - from: config:baljan-config
+    - from: secret:baljan-secrets
+---
+service:
+  version: v1
+  name: redis
+  namespace: baljan
+  type: cluster-ip
+  port: tcp://6379
+  selector:
+    run: redis
+---
+service:
+  version: v1
+  name: postgres
+  namespace: baljan
+  type: cluster-ip
+  port: tcp://5432
+  selector:
+    run: postgres
+---
+service:
+  version: v1
+  name: cafesys-django
+  namespace: baljan
+  type: node-port
+  port: tcp://80
+  selector:
+    run: cafesys-django
