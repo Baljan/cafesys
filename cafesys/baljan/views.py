@@ -869,8 +869,23 @@ def incoming_call(request):
     return JsonResponse(phone.compile_incoming_call_response())
 
 
+def with_cors_headers(f):
+    def add_cors_headers(*args, **kwargs):
+        resp = f(*args, **kwargs)
+        resp['Access-Control-Allow-Origin'] = '*'
+        resp['Access-Control-Allow-Headers'] = '*'
+
+        return resp
+
+    return add_cors_headers
+
+
 @csrf_exempt
+@with_cors_headers
 def do_blipp(request):
+    if request.method == 'OPTIONS':
+        return HttpResponse(status=200)
+
     if not _is_authenticated_for_blipp(request):
         response = HttpResponse()
         response.status_code = 401
@@ -902,9 +917,9 @@ def do_blipp(request):
         kobra_response, status = kobra.find_student(rfid)
         if kobra_response is None:
             if status == 404:
-                return _json_error(404, 'Kunde inte hitta kortnumret i databasen')
+                return _json_error(404, 'Kunde inte hitta kortnumret i Kobra')
             else:
-                return _json_error(500, 'Kunde inte ansluta till databasen (%d)' % status)
+                return _json_error(500, 'Kunde inte ansluta till Kobra (%d)' % status)
 
         try:
             liu_id = kobra_response['liu_id']
