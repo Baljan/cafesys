@@ -56,8 +56,7 @@ service:
     k8s-app: traefik-ingress-lb
   selector:
     k8s-app: traefik-ingress-lb
-  external_ips:
-  - 35.195.229.97
+  lb_ip: 130.211.53.236
   ports:
   - http: 80
   - https: 443
