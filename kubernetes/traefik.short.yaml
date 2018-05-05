@@ -61,17 +61,6 @@ service:
   - http: 80
   - https: 443
 ---
-service:
-  version: v1
-  name: traefik-console
-  namespace: baljan
-  labels:
-    k8s-app: traefik-ingress-lb
-  selector:
-    k8s-app: traefik-ingress-lb
-  ports:
-  - webui: 8080
----
 # TODO: This needs to be configured to force HTTPS
 config_map:
   version: v1
