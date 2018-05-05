@@ -1,11 +1,10 @@
 #!/bin/bash
 
-source .env
-
 anyFailure=0
 
 test_env() {
-    [ -z "${!1}" ] && echo "You need to set $1" && anyFailure=1
+    grep -q "$1=." .env
+    [ "$?" -eq "1" ] && echo "You need to set $1" && anyFailure=1
 }
 
 test_env AUTH_LIU_CLIENT_SECRET
