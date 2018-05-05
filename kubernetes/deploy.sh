@@ -65,7 +65,7 @@ if [[ $? -eq "0" ]]; then
         exit 1
     fi
 
-    kubectl create configmap baljan-config --from-file=.env -n baljan -o yaml --dry-run | kubectl apply -f -
+    kubectl create configmap baljan-config --from-env-file=.env -n baljan -o yaml --dry-run | kubectl apply -f -
 fi
 
 echo
