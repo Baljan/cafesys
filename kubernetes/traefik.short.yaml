@@ -1,0 +1,154 @@
+# If this file fails to deploy, add your user as a cluster administrator:
+# kubectl create clusterrolebinding <name here> --clusterrole=cluster-admin --user=<your.google.cloud.email@example.org>
+
+pvc:
+  version: v1
+  name: nginx-pv-claim
+  namespace: baljan
+  storage: 50Mi
+  access_modes:
+  - rw_once
+  annotations:
+    volume.beta.kubernetes.io/storage-class: standard
+  selector: ""
+---
+cluster_role:
+  version: rbac.authorization.k8s.io/v1
+  name: traefik-ingress-controller
+  rules:
+  - groups:
+    - ""
+    resources:
+    - services
+    - endpoints
+    - secrets
+    verbs:
+    - get
+    - list
+    - watch
+  - groups:
+    - extensions
+    resources:
+    - ingresses
+    verbs:
+    - get
+    - list
+    - watch
+---
+cluster_role_binding:
+  version: rbac.authorization.k8s.io/v1
+  name: traefik-ingress-controller
+  role: rbac.authorization.k8s.io.ClusterRole:traefik-ingress-controller
+  subjects:
+  - ServiceAccount:baljan:traefik-ingress-controller
+---
+service_account:
+  name: traefik-ingress-controller
+  namespace: baljan
+  version: v1
+---
+service:
+  version: v1
+  name: traefik
+  namespace: baljan
+  type: load-balancer
+  labels:
+    k8s-app: traefik-ingress-lb
+  selector:
+    k8s-app: traefik-ingress-lb
+  external_ips:
+  - 35.195.229.97
+  ports:
+  - http: 80
+  - https: 443
+---
+service:
+  version: v1
+  name: traefik-console
+  namespace: baljan
+  labels:
+    k8s-app: traefik-ingress-lb
+  selector:
+    k8s-app: traefik-ingress-lb
+  ports:
+  - webui: 8080
+---
+# TODO: This needs to be configured to force HTTPS
+config_map:
+  version: v1
+  name: traefik-conf
+  namespace: baljan
+  data:
+    traefik.toml: |
+      # traefik.toml
+      defaultEntryPoints = ["http","https"]
+      [entryPoints]
+        [entryPoints.http]
+        address = ":80"
+        [entryPoints.https]
+        address = ":443"
+        [entryPoints.https.tls]
+      [acme]
+      email = "1337@baljan.org"
+      storageFile = "/acme/acme.json"
+      entryPoint = "https"
+      onDemand = true
+      onHostRule = true
+      caServer = "https://acme-staging.api.letsencrypt.org/directory"
+      [[acme.domains]]
+      main = "baljan.org"
+---
+deployment:
+  version: extensions/v1beta1
+  name: traefik-ingress-controller
+  namespace: baljan
+  account: traefik-ingress-controller
+  containers:
+  - name: traefik-ingress-lb
+    image: traefik
+    args:
+    - --configfile=/config/traefik.toml
+    - --web
+    - --kubernetes
+    - --logLevel=DEBUG
+    expose:
+    - 80:80
+    - 443:443
+    - 8080
+    pull: always
+    volume:
+    - mount: /config
+      store: config
+    - mount: /acme
+      store: acme
+  labels:
+    k8s-app: traefik-ingress-lb
+  max_revs: 0
+  replicas: 1
+  selector:
+    k8s-app: traefik-ingress-lb
+    name: traefik-ingress-lb
+  termination_grace_period: 60
+  volumes:
+    acme: pvc:nginx-pv-claim
+    config: config-map:traefik-conf
+---
+ingress:
+  version: extensions/v1beta1
+  name: baljan-ingress
+  namespace: baljan
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  rules:
+  - host: blipp.baljan.org
+    paths:
+    - port: 80
+      service: baljan-blipp
+  - host: baljan.org
+    paths:
+    - port: 80
+      service: cafesys-django
+  - host: www.baljan.org
+    paths:
+    - port: 80
+      service: cafesys-django

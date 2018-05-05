@@ -18,3 +18,6 @@ vagrant-*
 
 # Mac
 .DS_STORE
+
+# Kubernetes
+/kubernetes/.env
