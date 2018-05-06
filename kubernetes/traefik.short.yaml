@@ -73,6 +73,8 @@ config_map:
       [entryPoints]
         [entryPoints.http]
         address = ":80"
+        [entryPoints.http.redirect]
+        entryPoint = "https"
         [entryPoints.https]
         address = ":443"
         [entryPoints.https.tls]
@@ -81,10 +83,12 @@ config_map:
       storageFile = "/acme/acme.json"
       entryPoint = "https"
       onDemand = true
-      onHostRule = true
-      caServer = "https://acme-staging.api.letsencrypt.org/directory"
+      caServer = "https://acme-v02.api.letsencrypt.org/directory"
+      [acme.httpChallenge]
+      entryPoint = "http"
       [[acme.domains]]
       main = "baljan.org"
+      sans = ["www.baljan.org", "blipp.baljan.org"]
 ---
 deployment:
   version: extensions/v1beta1
