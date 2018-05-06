@@ -16,8 +16,8 @@ deployment:
     run: baljan-blipp
   containers:
   - name: baljan-blipp
-    image: gcr.io/sektionscafe-baljan/blipp
-    pull: if-not-present
+    image: gcr.io/sektionscafe-baljan/blipp:latest
+    pull: always
     expose:
     - 80
     env:
@@ -44,10 +44,10 @@ deployment:
     run: cafesys-celery-beat
   containers:
   - name: cafesys-celery-beat
-    image: gcr.io/sektionscafe-baljan/cafesys
+    image: gcr.io/sektionscafe-baljan/cafesys:latest
+    pull: always
     command:
     - /app/bin/run-celery-beat
-    pull: if-not-present
     expose:
     - 80
     env:
@@ -74,10 +74,10 @@ deployment:
     run: cafesys-celery-worker
   containers:
   - name: cafesys-celery-worker
-    image: gcr.io/sektionscafe-baljan/cafesys
+    image: gcr.io/sektionscafe-baljan/cafesys:latest
+    pull: always
     command:
     - /app/bin/run-celery-worker
-    pull: if-not-present
     expose:
     - 80
     env:
@@ -104,8 +104,8 @@ deployment:
     run: cafesys-django
   containers:
   - name: cafesys-django
-    image: gcr.io/sektionscafe-baljan/cafesys
-    pull: if-not-present
+    image: gcr.io/sektionscafe-baljan/cafesys:latest
+    pull: always
     expose:
     - 80
     env:
