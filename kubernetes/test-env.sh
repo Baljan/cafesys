@@ -15,6 +15,7 @@ test_env DJANGO_SECRET_KEY
 test_env HTPASSWD
 test_env KOBRA_API_TOKEN
 test_env OPBEAT_SECRET_TOKEN
+test_env SLACK_PHONE_WEBHOOK_URL
 
 if [ "$anyFailure" -eq "0" ]; then
     echo "Environment variables properly configured!"
