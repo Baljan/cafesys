@@ -8,3 +8,6 @@
 cafesys.db
 cafesys/collected-static
 *.pyc
+
+# We don't need to copy this folder as its only purpose is deploying to production
+kubernetes/
