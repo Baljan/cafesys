@@ -5,11 +5,11 @@
 {% load baljan_extras %}
 
 {# “user” refers to the logged in user, therefore “watched” is used instead. #}
-{% block head_title %}{{ watched.get_full_name }}{% endblock %}
+{% block head_title %}{{ watched | display_name }}{% endblock %}
 
 {% block body_class %}user{% endblock %}
 {% block body %}
-    <h1>{{ watched.get_full_name }} ({{ watched.username }})
+    <h1>{{ watched | detailed_name }}
         {% if perms.auth.change_user %}
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-secondary" disabled><i class="fa fa-lock" aria-hidden="true"></i></button>

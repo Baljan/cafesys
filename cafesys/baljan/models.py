@@ -15,6 +15,7 @@ from django.utils.translation import string_concat
 from django.utils.translation import ugettext as _nl
 from django.utils.translation import ugettext_lazy as _
 
+from cafesys.baljan.templatetags.baljan_extras import display_name
 from . import notifications, util
 from .util import week_dates, year_and_week, random_string
 
@@ -52,6 +53,8 @@ class Profile(Made):
     card_id = models.BigIntegerField(_("card id"), blank=True, null=True,
             unique=True,
             help_text=_("card ids can be manually set"))
+
+    has_seen_consent = models.BooleanField(default=False)
 
     def balcur(self):
         return "%s %s" % (self.balance, self.balance_currency)
@@ -218,7 +221,7 @@ def traderequest_notice_save(tr):
         requestor = tr.offered_signup.user
         notifications.send('new_trade_request',
             requestee,
-            requestor=requestor.get_full_name(),
+            requestor=display_name(requestor),
             wanted_shift=tr.wanted_signup.shift.name(),
             offered_shift=tr.offered_signup.shift.name(),
         )
@@ -1003,6 +1006,11 @@ class LegalConsent(models.Model):
     time_of_consent = models.DateTimeField(auto_now_add=True)
     revoked = models.BooleanField(default=False)
     time_of_revocation = models.DateTimeField(blank=True, null=True)
+
+    @classmethod
+    def create(cls, user, policy_name, policy_version):
+        LegalConsent.revoke(user, policy_name)
+        LegalConsent.objects.create(user=user, policy_name=policy_name, policy_version=policy_version)
 
     @classmethod
     def is_present(cls, user, policy_name, minor=1, major=None):

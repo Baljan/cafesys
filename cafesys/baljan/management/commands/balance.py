@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 
+from cafesys.baljan.templatetags.baljan_extras import detailed_name, display_name
 from ... import ldapbackend
 from ...models import OldCoffeeCard, Good, BalanceCode
 
@@ -18,7 +19,7 @@ def dump_info(user):
     )
     cworth, ccur = coffee.current_costcur()
 
-    headline = "%s (%s)" % (user.username, user.get_full_name())
+    headline = detailed_name(user)
     print("%s\n%s" % (headline, '=' * len(headline)))
     print("old cards:")
     old_cards = OldCoffeeCard.objects.filter(user=user).order_by('-id')
@@ -54,7 +55,7 @@ def union_info(user):
         unions = []
 
     unions_str = ", ".join(unions)
-    name_str = str(user.get_full_name().ljust(40))
+    name_str = str(display_name(user).ljust(40))
     groups = [g.name for g in user.groups.all()]
     class_str = "normal"
     if 'styrelsen' in groups:
