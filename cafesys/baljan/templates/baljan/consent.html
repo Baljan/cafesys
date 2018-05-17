@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load baljan_extras %}
+{% load static %}
+
+{% block head_title %}Samtycke till datalagring{% endblock %}
+{% block body_class %}consent-page{% endblock %}
+
+{% block body_base %}
+    <div class="container">
+        <div class="d-flex">
+            <span class="navbar-brand">
+                <img src="{% static 'img/svg/logo.svg' %}" width="62"/>
+            </span>
+            <h1>Samtycke till datalagring</h1>
+        </div>
+        <div class="row">
+            <p>
+                Vi i Baljan tar den personliga integriteten på stort allvar och har i enlighet med
+                den nya dataskyddsförordningen sett över vår hantering av personuppgifter. För att
+                få fortsätta lagra dina personuppgifter behöver vi ditt samtycke till detta. Nedan
+                finner du en jämförelse av hur din relation med Baljan förändras beroende på ditt
+                beslut. Du kan hitta vår fullständiga GDPR-policy som beskriver hur Baljan hanterar
+                dina personuppgifter <a href="#">här</a>.
+            </p>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h3 class="card-title text-center">Med samtycke</h3>
+                      <b>Vad lagras?</b>
+                      <ul class="list-unstyled list-consent">
+                        <li><i class="fa fa-check" aria-hidden="true"></i> LiU-ID</li>
+                        <li><i class="fa fa-check" aria-hidden="true"></i> För- och efternamn</li>
+                        <li><i class="fa fa-check" aria-hidden="true"></i> Mailadress</li>
+                        <li><i class="fa fa-check" aria-hidden="true"></i> <span>Telefonnummer<sup>1</sup></span></li>
+                      </ul>
+                      <b>Hur kan jag interagera med blippen?</b>
+                      <ul class="list-unstyled list-consent">
+                        <li><i class="fa fa-check" aria-hidden="true"></i> <span>Automatisk koppling till LiU-kortet<sup>2</sup></span></li>
+                          <li><i class="fa fa-check" aria-hidden="true"></i> <span>Cache-lagring av LiU-kortnumret<sup>3</sup></span></li>
+                        <li><i class="fa fa-check" aria-hidden="true"></i> Manuell infyllning av kort-nummer</li>
+                        <li><i class="fa fa-check" aria-hidden="true"></i> Historik över dina påfyllnader och blipp</li>
+                      </ul>
+                  </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h3 class="card-title text-center">Utan samtycke</h3>
+                      <b>Vad lagras?</b>
+                      <ul class="list-unstyled list-consent">
+                        <li><i class="fa fa-times" aria-hidden="true"></i> LiU-ID</li>
+                        <li><i class="fa fa-times" aria-hidden="true"></i> För- och efternamn</li>
+                        <li><i class="fa fa-times" aria-hidden="true"></i> Mailadress</li>
+                        <li><i class="fa fa-check" aria-hidden="true"></i> <span>Telefonnummer<sup>1</sup></span></li>
+                      </ul>
+                      <b>Hur kan jag interagera med blippen?</b>
+                      <ul class="list-unstyled list-consent">
+                          <li><i class="fa fa-times" aria-hidden="true"></i> <span>Automatisk koppling till LiU-kortet<sup>2</sup></span></li>
+                          <li><i class="fa fa-times" aria-hidden="true"></i> <span>Cache-lagring av LiU-kortnumret<sup>3</sup></span></li>
+                        <li><i class="fa fa-check" aria-hidden="true"></i> Manuell infyllning av kort-nummer</li>
+                        <li><i class="fa fa-check" aria-hidden="true"></i> Historik över dina påfyllnader och blipp</li>
+                      </ul>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <b>Hur länge lagras min information?</b>
+                      <p>
+                          Dina personliga uppgifter lagras i två år från ditt senaste inlogg eller blipp, därefter rensas all personlig information kopplat till kontot.
+                          Skulle du återkomma till Baljan efter det här har skett kan du logga in precis som vanligt och åter igen ta ställning till detta samtycke. Ditt
+                          blippsaldo förblir oförändrat.
+                      </p>
+        </div>
+    <div class="row">
+        <ul class="list-unstyled list-footnotes">
+        <li><small><sup>1</sup> Du kan om du vill fylla i ditt telefonnummer i din profil. Nummret blir då synligt för alla personer med ett konto på baljan.org. Det är obligatoriskt att ha ett nummer kopplat om du jobbar i Baljan.</small></li>
+        <li><small><sup>2</sup> För att underlätta införskaffandet av ett blipp-kort har vi stöd för ett externt system som kopplar ihop LiU-kortet med ditt Baljan-konto. För att använda denna funktion måste du godkänna att vi delar ditt kort-nummer med det externa system vi använder. Notera att systemet kräver att du lagrar ditt LiU-ID hos oss.</small></li>
+        <li><small><sup>3</sup> Du kan välja att låta Baljan lagra ditt LiU-kortnummer i syfte att förbättra hastighet och redundans i din interaktion med blippen.</small></li>
+        </ul>
+    </div>
+    </div>
+{% endblock %}
+
+{% block extra_body %}
+{% endblock %}
