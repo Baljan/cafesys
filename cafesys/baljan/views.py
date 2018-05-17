@@ -912,3 +912,6 @@ def incoming_call(request):
                 logger.warning('Unable to post to Slack')
 
     return JsonResponse(response)
+
+def test(request):
+    return render(request, 'baljan/test.html')
