@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date, datetime
+from django.utils import timezone
 from logging import getLogger
 
 from dateutil.relativedelta import relativedelta
@@ -993,3 +994,25 @@ class IncomingCallFallback(models.Model):
         verbose_name = 'Styrelsemedlem att ringa'
         verbose_name_plural = 'Uppringningslista jourtelefon'
         ordering = ('-priority', 'user__username')
+
+
+class LegalConsent(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False, null=True)
+    policy_name = models.CharField(blank=False, max_length=64)
+    policy_version = models.IntegerField(blank=False)
+    time_of_consent = models.DateTimeField(auto_now_add=True)
+    revoked = models.BooleanField(default=False)
+    time_of_revocation = models.DateTimeField(blank=True, null=True)
+
+    @classmethod
+    def is_present(cls, user, policy_name, minor=1, major=None):
+        if major is None:
+            query = LegalConsent.objects.filter(user=user, policy_name=policy_name, policy_version__gte=minor, revoked=False)
+        else:
+            query = LegalConsent.objects.filter(user=user, policy_name=policy_name, policy_version__gte=minor, policy_version__lte=major, revoked=False)
+
+        return query.exists()
+
+    @classmethod
+    def revoke(cls, user, policy_name):
+        LegalConsent.objects.filter(user=user, policy_name=policy_name).update(revoked=True, time_of_revocation=timezone.now())
