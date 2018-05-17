@@ -4,6 +4,7 @@ from datetime import date
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 
+from cafesys.baljan.templatetags.baljan_extras import detailed_name
 from ...models import Semester
 
 
@@ -96,7 +97,7 @@ class Command(BaseCommand):
                         if w.shiftsignup_set.filter(shift__when__gte=today).count() != future_count:
                             continue
                     if options['type'] == 'text':
-                        readable = "%s%s (%s)" % (indent, w.get_full_name(), w.username)
+                        readable = "%s%s" % (indent, detailed_name(w))
                     elif options['type'] == 'csv':
                         readable = "%s,%s,%s,%s" % (
                             signup_count, w.first_name, w.last_name, w.username)

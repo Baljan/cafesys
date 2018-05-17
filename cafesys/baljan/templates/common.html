@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% load i18n %} {% load static %} {% block body_base %} {% block body_outer %}
+{% extends "base.html" %} {% load i18n %} {% load static %} {% load baljan_extras %} {% block body_base %} {% block body_outer %}
 <header class="navbar navbar-expand-lg flex-column flex-md-row">
   <div class="container d-flex">
     <a class="navbar-brand" href="/">
@@ -59,7 +59,7 @@
       {% block login %}
           {% if user.is_authenticated %}
               <i class="fa fa-user usericon ml-3 mr-1 d-none d-sm-inline-block" aria-hidden="true"></i>
-              <a href="{{user.get_absolute_url}}" class="mr-2 username">{{user.get_full_name}}</a>
+              <a href="{{user.get_absolute_url}}" class="mr-2 username">{{user | display_name }}</a>
               <a href="{% url 'logout' %}" class="btn my-2 my-sm-0 d-none d-sm-inline-block">
                 <i class="fa fa-sign-out" aria-hidden="true"></i>
                   Logga ut

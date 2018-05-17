@@ -9,11 +9,18 @@
 
 {% block body_base %}
     <div class="container">
-        <div class="d-flex">
+        <div class="d-flex" style="align-items: center;">
             <span class="navbar-brand">
                 <img src="{% static 'img/svg/logo.svg' %}" width="62"/>
             </span>
             <h1>Samtycke till datalagring</h1>
+            <a href="{% url 'logout' %}" class="btn btn-outline-primary d-inline-block" style="margin-left: auto;">
+                <i class="fa fa-sign-out" aria-hidden="true"></i>
+                  Logga ut
+              </a>
+        </div>
+        <div class="row">
+            <p>Du måste ta ställning till frågan om datalagring innan du kan fortsätta använda baljan.org</p>
         </div>
         <div class="row">
             <p>
@@ -76,6 +83,18 @@
                           Skulle du återkomma till Baljan efter det här har skett kan du logga in precis som vanligt och åter igen ta ställning till detta samtycke. Ditt
                           blippsaldo förblir oförändrat.
                       </p>
+        </div>
+        <div class="row">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="consent" value="yes">
+                <button type="submit" class="btn btn-primary">Samtyck till datalagring</button>
+            </form>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="consent" value="no">
+                <button type="submit" class="btn btn-danger">Fortsätt anonymt</button>
+            </form>
         </div>
     <div class="row">
         <ul class="list-unstyled list-footnotes">

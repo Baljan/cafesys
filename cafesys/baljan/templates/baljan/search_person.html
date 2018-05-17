@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load humanize %}
 {% load crispy_forms_tags %}
+{% load baljan_extras %}
 
 {% block head_title %}{% trans "Search Person" %}{% endblock %}
 
@@ -30,7 +31,7 @@
                 <ul>
                     {% for hit in hits %}
                         <li>
-                            <a href="{{ hit.get_absolute_url }}">{{ hit.get_full_name }} ({{ hit.username }})</a>
+                            <a href="{{ hit.get_absolute_url }}">{{ hit | detailed_name }}</a>
                         </li>
                     {% endfor %}
                 </ul>

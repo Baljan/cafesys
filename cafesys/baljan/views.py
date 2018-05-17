@@ -16,11 +16,14 @@ from django.core.paginator import Paginator
 from django.core.serializers import serialize
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
 from cafesys.baljan import phone, slack
+from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details
+from cafesys.baljan.models import LegalConsent
+from cafesys.baljan.templatetags.baljan_extras import display_name
 from . import credits as creditsmodule
 from . import (forms, ical, kobra, models, pdf, planning, pseudogroups, search,
                stats, trades, workdist)
@@ -654,7 +657,7 @@ def call_duty_week(request, year=None, week=None):
     avails = plan.available()
     uids = [str(u.id) for u in avails]
 
-    names = [u.get_full_name() for u in avails]
+    names = [display_name(u) for u in avails]
 
     initials = all_initials(avails)
     id_initials = dict(list(zip(uids, initials)))
@@ -915,4 +918,23 @@ def incoming_call(request):
 
 
 def consent(request):
+    if not request.user.is_authenticated():
+        return redirect('/')
+
+    if request.method == 'POST':
+        user = request.user
+        user.profile.has_seen_consent = True
+        user.profile.save()
+
+        if request.POST.get('consent') == 'yes':
+            LegalConsent.create(user, AUTOMATIC_LIU_DETAILS, 1)
+
+            # Force re-login as this will update the username
+            logout(request)
+            return redirect(reverse('social:begin', args=['liu']))
+        else:
+            # Make sure that personal information is erased before continuing
+            revoke_automatic_liu_details(user)
+            return redirect('/')
+
     return render(request, 'baljan/consent.html')
