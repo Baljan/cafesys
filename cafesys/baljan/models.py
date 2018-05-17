@@ -998,7 +998,7 @@ class IncomingCallFallback(models.Model):
 
 class LegalConsent(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False, null=True)
-    policy_name = models.CharField(blank=False)
+    policy_name = models.CharField(blank=False, max_length=64)
     policy_version = models.IntegerField(blank=False)
     time_of_consent = models.DateTimeField(auto_now_add=True)
     revoked = models.BooleanField(default=False)
