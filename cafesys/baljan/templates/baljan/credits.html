@@ -19,6 +19,20 @@
                 Där är det också möjligt att ändra din åsikt i frågan om datalagring.
             </p>
         </div>
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            <h2>LiU-kort fungerar snart inte längre automatiskt</h2>
+            <p>
+                På grund av den nya dataskyddsförordningen kommer det externa system vi använder för
+                att hämta LiU-kortnummer stängas ner den 24:e maj. För att fortsätta blippen därefter
+                måste du fylla i ditt kortnummer manuellt i din <a href="{% url 'profile' %}">profil</a>.
+            </p>
+            <p>
+                Har du godkänt att vi cache-lagrar ditt kortnummer automatiskt så behöver du bara
+                blippa ditt kort nere i Baljan en gång innan den 24:e maj, så kommer allting att fortsätta fungera
+                precis som förut. Detta kan du ta ställning till i din <a href="{% url 'profile' %}">profil</a>.
+            </p>
+        </div>
     {% endif %}
 
     <h1>Konto</h1>
