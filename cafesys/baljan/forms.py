@@ -19,6 +19,7 @@ class ProfileForm(forms.ModelForm):
         model = models.Profile
         fields = (
                 'mobile_phone',
+                'card_id',
                 'show_profile',
                 'show_email',
                 'motto',
