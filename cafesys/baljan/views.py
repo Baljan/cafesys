@@ -1005,8 +1005,11 @@ def do_blipp(request):
         try:
             liu_id = kobra_response['liu_id']
             user = User.objects.get(username=liu_id)
-            user.profile.card_cache = rfid_int
-            user.profile.save()
+
+            if LegalConsent.is_present(user, CACHE_CARD_NR):
+                # Only cache the card number if we are allowed to
+                user.profile.card_cache = rfid_int
+                user.profile.save()
         except User.DoesNotExist:
             return _json_error(404, 'Användaren har inget konto på hemsidan')
 
