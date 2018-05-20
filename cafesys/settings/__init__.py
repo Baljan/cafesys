@@ -21,7 +21,9 @@ with warnings.catch_warnings():
 DEBUG = env.bool('DJANGO_DEBUG')
 SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
-ANALYTICS_KEY = env.str('DJANGO_ANALYTICS_KEY', default='UA-19913928-1')
+# Disabled until further notice as we haven't been using this functionality lately
+ANALYTICS_KEY = None
+
 CACHE_BACKEND = env.str('DJANGO_REDIS_URL')
 
 ADMINS = [
