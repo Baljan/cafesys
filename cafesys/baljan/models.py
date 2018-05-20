@@ -55,6 +55,9 @@ class Profile(Made):
                                      help_text=_("card ids can be manually set"))
 
     has_seen_consent = models.BooleanField(default=False)
+    
+    # We use a separate field for card_id and card_cache. This is due to functional differences
+    # and differences in how we process the data.
     card_cache = models.BigIntegerField(blank=True, null=True, db_index=True)
 
     def balcur(self):
