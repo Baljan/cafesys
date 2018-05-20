@@ -4,6 +4,8 @@ from django.urls import reverse, resolve
 from cafesys.baljan.models import LegalConsent
 
 AUTOMATIC_LIU_DETAILS = 'automatic_liu_details'
+AUTOMATIC_CARD_NR = 'automatic_card_number'
+CACHE_CARD_NR = 'cache_card_number'
 
 
 def legal_social_details(backend, strategy, details, response, user, *args, **kwargs):

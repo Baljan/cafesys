@@ -21,7 +21,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
 from cafesys.baljan import phone, slack
-from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details
+from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, AUTOMATIC_CARD_NR, CACHE_CARD_NR
 from cafesys.baljan.models import LegalConsent
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from . import credits as creditsmodule
@@ -929,6 +929,12 @@ def consent(request):
 
         if request.POST.get('consent') == 'yes':
             LegalConsent.create(user, AUTOMATIC_LIU_DETAILS, 1)
+
+            if 'automatic_card_nr' in request.POST:
+                LegalConsent.create(user, AUTOMATIC_CARD_NR, 1)
+
+            if 'cache_card_nr' in request.POST:
+                LegalConsent.create(user, CACHE_CARD_NR, 1)
 
             # Force re-login as this will update the username
             logout(request)
