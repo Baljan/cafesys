@@ -4,6 +4,72 @@ from django.urls import reverse, resolve
 from cafesys.baljan.models import LegalConsent
 
 AUTOMATIC_LIU_DETAILS = 'automatic_liu_details'
+AUTOMATIC_CARD_NR = 'automatic_card_number'
+CACHE_CARD_NR = 'cache_card_number'
+
+POLICIES = {
+    AUTOMATIC_LIU_DETAILS: {
+        'name': 'Automatisk hämtning av LiU-detaljer',
+        'versions': ['/static/contract.pdf', '/static/guide.pdf']
+    },
+    AUTOMATIC_CARD_NR: {
+        'name': 'Automatisk hämtning av LiU-kortnummer',
+        'versions': ['/static/contract.pdf']
+    },
+    CACHE_CARD_NR: {
+        'name': "Cachning av LiU-kortnummer",
+        'versions': ['/static/contract.pdf']
+    }
+}
+
+
+def latest_policy_version(policy_name):
+    return len(POLICIES[policy_name]['versions'])
+
+
+def get_policies(user):
+    """
+    Generates a dictionary of policies that the user has either
+    consented to or not consented to. Only the latest policies
+    that are not consented are included while all policies that
+    have been consented and not revoked are always included.
+    """
+    consented_policies = LegalConsent.objects.filter(user=user, revoked=False)
+
+    policies = {
+        'consented': {},
+        'not_consented': {}
+    }
+    for policy in consented_policies:
+        policies['consented'][policy.policy_name] = {
+            'name': POLICIES[policy.policy_name]['name'],
+            'date_of_consent': policy.time_of_consent,
+            'version': policy.policy_version,
+            'pdf': POLICIES[policy.policy_name]['versions'][policy.policy_version - 1]
+        }
+
+    for policy in POLICIES:
+        if not (policy in policies['consented'] and
+                policies['consented'][policy]['version'] == latest_policy_version(policy)):
+            policies['not_consented'][policy] = {
+                'name': POLICIES[policy]['name'],
+                'date_of_consent': '-',
+                'version': latest_policy_version(policy),
+                'pdf': POLICIES[policy]['versions'][-1]
+            }
+
+    return policies
+
+
+def revoke_policy(user, policy_name):
+    if policy_name == AUTOMATIC_LIU_DETAILS:
+        revoke_automatic_liu_details(user)
+    else:
+        LegalConsent.revoke(user, policy_name)
+
+
+def consent_to_policy(user, policy_name, policy_version):
+    LegalConsent.create(user, policy_name, policy_version)
 
 
 def legal_social_details(backend, strategy, details, response, user, *args, **kwargs):

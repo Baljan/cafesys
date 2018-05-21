@@ -21,7 +21,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
 from cafesys.baljan import phone, slack
-from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details
+from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy
 from cafesys.baljan.models import LegalConsent
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from . import credits as creditsmodule
@@ -33,6 +33,7 @@ from .util import (adjacent_weeks, all_initials, available_for_call_duty,
                    year_and_week)
 import pytz
 import requests
+from cafesys.baljan.gdpr import get_policies
 
 logger = getLogger(__name__)
 
@@ -385,6 +386,19 @@ def see_user(request, who):
         if all_valid:
             for f in profile_forms:
                 f.save()
+
+        # Handle policy consent and revocation actions
+        if request.POST.get('policy') is not None:
+            policy_name, policy_version, action = request.POST.get('policy').split('/')
+            if action == 'revoke':
+                revoke_policy(u, policy_name)
+                return redirect('/')
+            elif action == 'consent':
+                consent_to_policy(u, policy_name, int(policy_version))
+                if policy_name == AUTOMATIC_LIU_DETAILS:
+                    logout(request)
+                    return redirect(reverse('social:begin', args=['liu']))
+
         watched = User.objects.get(username__exact=who)
 
     tpl['watched'] = watched
@@ -397,6 +411,9 @@ def see_user(request, who):
         tpl['trade_requests'] = tr_sent or tr_recd
         profile_forms = [c(instance=i) for c, i in profile_form_cls_inst]
         tpl['profile_forms'] = profile_forms
+
+        policies = get_policies(u)
+        tpl['policies'] = policies
 
     # Call duties come after work shifts because they are more frequent.
     tpl['signup_types'] = (

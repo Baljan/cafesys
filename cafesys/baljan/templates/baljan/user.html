@@ -78,6 +78,66 @@
                             </p>
                         {% endif %}
                     {% endwith %}
+
+                    {% if watching_self %}
+                    <dt>Samtycken</dt>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Policy</th>
+                                        <th>Datum</th>
+                                        <th>Åtgärd</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key, policy in policies.consented.items %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ policy.pdf }}">
+                                                    {{ policy.name }}
+                                                    {% if policy.version > 1 %}
+                                                        (v{{policy.version}})
+                                                    {% endif %}
+                                                    </a>
+                                            </td>
+                                            <td>
+                                                {{ policy.date_of_consent }}
+                                            </td>
+                                            <td>
+                                                <form method="post">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/revoke">
+                                                    <button type="submit" class="btn btn-danger btn-sm">Återkalla</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    {% for key, policy in policies.not_consented.items %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ policy.pdf }}">
+                                                    {{ policy.name }}
+                                                    {% if policy.version > 1 %}
+                                                        (v{{policy.version}})
+                                                    {% endif %}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                    {{ policy.date_of_consent }}
+                                            </td>
+                                            <td>
+                                                <form method="post">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/consent">
+                                                    <button type="submit" class="btn btn-primary btn-sm">Samtyck</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                    {% endif %}
                 </dl>
             {% endwith %}
         </div>
@@ -241,7 +301,7 @@
 
                             <p class="small">
                                 <!-- Remember to change link to actual policy -->
-                                Genom att spara dina ändringar samtycker du till Baljans <a href="#">policy för datalagring</a>.
+                                Genom att spara dina ändringar samtycker du till att de ifyllda uppgifterna sparas enligt Baljans <a href="#">policy för datalagring</a>.
                             </p>
 
                         </div>
