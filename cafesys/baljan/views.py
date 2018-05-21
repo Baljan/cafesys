@@ -43,7 +43,6 @@ logger = getLogger(__name__)
 
 def logout(request):
     auth.logout(request)
-    messages.add_message(request, messages.SUCCESS, _("Logged out."))
     return HttpResponseRedirect('/')
 
 
@@ -379,29 +378,29 @@ def see_user(request, who):
                 )
 
     if watching_self and request.method == 'POST':
-        profile_forms = [c(request.POST, request.FILES, instance=i)
-                for c, i in profile_form_cls_inst]
-
-        # Make sure all forms are valid before saving.
-        all_valid = True
-        for f in profile_forms:
-            if not f.is_valid():
-                all_valid = False
-        if all_valid:
-            for f in profile_forms:
-                f.save()
-
         # Handle policy consent and revocation actions
         if request.POST.get('policy') is not None:
             policy_name, policy_version, action = request.POST.get('policy').split('/')
             if action == 'revoke':
                 revoke_policy(u, policy_name)
-                return redirect('/')
+                return redirect(request.path)
             elif action == 'consent':
                 consent_to_policy(u, policy_name, int(policy_version))
                 if policy_name == AUTOMATIC_LIU_DETAILS:
                     logout(request)
-                    return redirect(reverse('social:begin', args=['liu']))
+                    return redirect(reverse('social:begin', args=['liu']) + '?next=' + request.path)
+        else:
+            profile_forms = [c(request.POST, request.FILES, instance=i)
+                             for c, i in profile_form_cls_inst]
+
+            # Make sure all forms are valid before saving.
+            all_valid = True
+            for f in profile_forms:
+                if not f.is_valid():
+                    all_valid = False
+            if all_valid:
+                for f in profile_forms:
+                    f.save()
 
         watched = User.objects.get(id=who)
 
