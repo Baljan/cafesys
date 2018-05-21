@@ -64,7 +64,6 @@ def get_policies(user):
 def revoke_policy(user, policy_name):
     if policy_name == AUTOMATIC_LIU_DETAILS:
         revoke_automatic_liu_details(user)
-        
     else:
         LegalConsent.revoke(user, policy_name)
 
