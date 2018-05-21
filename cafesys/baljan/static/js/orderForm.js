@@ -68,6 +68,11 @@ window.onload = function justdoit() {
             $('#id_pickupNumber').val($('#id_phoneNumber').val());
         }
     });
+
+    $("#form-confirmation").on('change', function () {
+        var checked = $(this).is(':checked');
+        $("#submit-button").prop('disabled', !checked);
+    });
 };
 
 $(function () {

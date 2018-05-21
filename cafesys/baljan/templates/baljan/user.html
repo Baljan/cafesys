@@ -43,6 +43,15 @@
                         {% else %}
                             <dd>{% trans "unset" %}</dd>
                         {% endif %}
+
+                        <dt>Kort-id</dt>
+                        {% if prof.card_id %}
+                            <dd>{{prof.card_id}}</dd>
+                        {% else %}
+                            <dd>
+                                {% trans "Kort-id ej angett." %}
+                            </dd>
+                        {% endif %}
                     {% endif %}
                     <dt>Senast inloggad</dt>
                     <dd>{{ watched.last_login|date }} {{ watched.last_login|time }}</dd>

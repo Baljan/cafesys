@@ -21,7 +21,9 @@ with warnings.catch_warnings():
 DEBUG = env.bool('DJANGO_DEBUG')
 SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
-ANALYTICS_KEY = env.str('DJANGO_ANALYTICS_KEY', default='UA-19913928-1')
+# Disabled until further notice as we haven't been using this functionality lately
+ANALYTICS_KEY = None
+
 CACHE_BACKEND = env.str('DJANGO_REDIS_URL')
 
 ADMINS = [
@@ -168,6 +170,7 @@ SOCIAL_AUTH_PIPELINE = (
     'cafesys.baljan.gdpr.legal_social_details',
     'social_core.pipeline.user.get_username',
     'social_core.pipeline.social_auth.associate_by_email',
+    'cafesys.baljan.gdpr.clean_social_details',
     'social_core.pipeline.user.create_user',
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
@@ -242,3 +245,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_SSL', 'on')
 
 SLACK_PHONE_WEBHOOK_URL = env.str('SLACK_PHONE_WEBHOOK_URL', default='')
 VERIFY_46ELKS_IP = True
+
+BLIPP_COFFEE_PRICE = 6
+BLIPP_USERNAME = env.str('BLIPP_USERNAME')
+BLIPP_PASSWORD = env.str('BLIPP_PASSWORD')

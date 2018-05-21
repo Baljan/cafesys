@@ -64,6 +64,7 @@ def get_policies(user):
 def revoke_policy(user, policy_name):
     if policy_name == AUTOMATIC_LIU_DETAILS:
         revoke_automatic_liu_details(user)
+        
     else:
         LegalConsent.revoke(user, policy_name)
 
@@ -77,9 +78,19 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
         # This is the first time the user has logged in, or the user has not
         # approved any automatic storage of LiU details: generate a unique name.
 
+        # Note that we must pass on the e-mail address here! This is needed for the step
+        #   social_core.pipeline.social_auth.associate_by_email
+        #
+        # When recruiting new workers for the next semester we have the possibility to
+        # automatically import users from Kobra, and in order to correctly tie them to
+        # the correct account when logging in they need an email-value in the details
+        # dictionary. We will later reset this value in the step
+        #   cafesys.baljan.gdpr.clean_social_details
+        #
         return {
             'details': {
-                'username': generate_anonymous_username(user)
+                'username': generate_anonymous_username(user),
+                'email': backend.get_user_details(response)['email']
             }
         }
     else:
@@ -97,6 +108,17 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
             strategy.storage.user.changed(user)
 
         return details
+
+
+def clean_social_details(details, user, *args, **kwargs):
+    if not LegalConsent.is_present(user, AUTOMATIC_LIU_DETAILS):
+        # We have temporarily set an e-mail address that we aren't allowed
+        # to persistently store, so we clear it and continue.
+
+        details['email'] = ''
+        return {'details': details}
+
+    return details
 
 
 def revoke_automatic_liu_details(user):

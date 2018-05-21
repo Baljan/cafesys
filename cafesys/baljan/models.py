@@ -41,20 +41,24 @@ class Profile(Made):
     mobile_phone = models.CharField(_("mobile phone number"), max_length=10, blank=True, null=True, db_index=True)
     balance = models.IntegerField(default=0)
     balance_currency = models.CharField(_("balance currency"), max_length=5, default="SEK",
-            help_text=_("currency"))
+                                        help_text=_("currency"))
     show_email = models.BooleanField(_("show email address"), default=False)
     show_profile = models.BooleanField(_("show profile"), default=True)
     motto = models.CharField(_("motto"), max_length=40, blank=True, null=True,
-            help_text=_("displayed in high scores"))
+                             help_text=_("displayed in high scores"))
 
     private_key = models.CharField(_("private key"), max_length=PRIVATE_KEY_LENGTH, unique=True,
-            default=generate_private_key)
+                                   default=generate_private_key)
 
     card_id = models.BigIntegerField(_("card id"), blank=True, null=True,
-            unique=True,
-            help_text=_("card ids can be manually set"))
+                                     unique=True,
+                                     help_text=_("card ids can be manually set"))
 
     has_seen_consent = models.BooleanField(default=False)
+    
+    # We use a separate field for card_id and card_cache. This is due to functional differences
+    # and differences in how we process the data.
+    card_cache = models.BigIntegerField(blank=True, null=True, db_index=True)
 
     def balcur(self):
         return "%s %s" % (self.balance, self.balance_currency)

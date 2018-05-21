@@ -11,9 +11,9 @@ def find_student(identifier):
         headers={'Authorization': f'Token {settings.KOBRA_API_TOKEN}'})
 
     if response.status_code == 200:
-        return response.json()
+        return response.json(), 200
     else:
-        return None
+        return None, response.status_code
 
 
 def create_or_update_user(payload):
