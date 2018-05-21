@@ -21,7 +21,6 @@ class ProfileForm(forms.ModelForm):
                 'mobile_phone',
                 'card_id',
                 'show_profile',
-                'show_email',
                 'motto',
                 )
 
