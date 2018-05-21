@@ -155,7 +155,7 @@ INSTALLED_APPS = [
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 ABSOLUTE_URL_OVERRIDES = {
-    "auth.user": lambda o: "/baljan/user/%s" % o.username,
+    "auth.user": lambda o: "/baljan/user/%s" % o.id,
     "auth.group": lambda o: "/baljan/group/%s" % o.name,
 }
 

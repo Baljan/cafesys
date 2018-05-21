@@ -60,13 +60,18 @@
             var uName = user.fields.username,
                 fName = user.fields.first_name,
                 lName = user.fields.last_name;
-            return ''+fName+' '+lName+' ('+uName+')';
+
+            if (fName === '' && lName === '') {
+                return uName;
+            } else {
+                return '' + fName + ' ' + lName + ' (' + uName + ')';
+            }
         };
 
         var uLink = function(user) {
-            var uName = user.fields.username;
+            var uID = user.pk;
             // FIXME: DRY, use get_absolute_url in some way
-            var link = '/baljan/user/' + uName;
+            var link = '/baljan/user/' + uID;
             return '<a href="' + link + '"/>';
         };
 

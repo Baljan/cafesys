@@ -312,7 +312,7 @@ def callduties_for(user):
 @login_required
 def profile(request):
     u = request.user
-    return see_user(request, who=u.username)
+    return see_user(request, who=u.id)
 
 
 @login_required
@@ -370,7 +370,7 @@ def see_user(request, who):
     u = request.user
     tpl = {}
 
-    watched = User.objects.get(username__exact=who)
+    watched = User.objects.get(id=who)
     watching_self = u == watched
     if u.is_authenticated():
         profile_form_cls_inst = (
@@ -403,7 +403,7 @@ def see_user(request, who):
                     logout(request)
                     return redirect(reverse('social:begin', args=['liu']))
 
-        watched = User.objects.get(username__exact=who)
+        watched = User.objects.get(id=who)
 
     tpl['watched'] = watched
     tpl['watching_self'] = watching_self
