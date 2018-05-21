@@ -47,5 +47,5 @@ urlpatterns = (
 
     url(r'incoming-call', views.incoming_call),
 
-    url(r'test', views.test, name='test'),
+    url(r'integrity', views.integrity, name='integrity'),
 )

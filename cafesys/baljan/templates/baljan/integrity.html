@@ -4,9 +4,9 @@
 {% load crispy_forms_tags %}
 {% load baljan_extras %}
 
-{% block head_title %}test{% endblock %}
+{% block head_title %}Integrity{% endblock %}
 
-{% block body_class %}test{% endblock %}
+{% block body_class %}Integrity{% endblock %}
 {% block body %}
 <h1>Integritetspolicy</h1>
 
@@ -33,7 +33,10 @@
             Om du har några frågor eller funderinger gällande vår
             integritetspolicy är du välkommen att kontakta
             <a href="mailto:styrelsen@baljan.org">styrelsen@baljan.org</a>.
-
+            <br>
+            <br>
+            {% load static %}
+            <a href= "{% static "Integritetspolicy.pdf" %}" target="_blank">Baljans integritetspolicy</a>
             <!--Add integritypolicy-file here-->
         </p>
 

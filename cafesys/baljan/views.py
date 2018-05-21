@@ -913,5 +913,5 @@ def incoming_call(request):
 
     return JsonResponse(response)
 
-def test(request):
-    return render(request, 'baljan/test.html')
+def integrity(request):
+    return render(request, 'baljan/integrity.html')
