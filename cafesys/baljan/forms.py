@@ -20,8 +20,8 @@ class ProfileForm(forms.ModelForm):
         fields = (
                 'mobile_phone',
                 'card_id',
-                'show_profile',
                 'motto',
+                'show_profile',
                 )
 
 class OrderForm(forms.Form):

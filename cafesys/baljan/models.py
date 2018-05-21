@@ -43,7 +43,7 @@ class Profile(Made):
     balance_currency = models.CharField(_("balance currency"), max_length=5, default="SEK",
                                         help_text=_("currency"))
     show_email = models.BooleanField(_("show email address"), default=False)
-    show_profile = models.BooleanField(_("show profile"), default=True)
+    show_profile = models.BooleanField('Visa mitt namn i topplistan', default=True)
     motto = models.CharField(_("motto"), max_length=40, blank=True, null=True,
                              help_text=_("displayed in high scores"))
 
@@ -55,7 +55,7 @@ class Profile(Made):
                                      help_text=_("card ids can be manually set"))
 
     has_seen_consent = models.BooleanField(default=False)
-    
+
     # We use a separate field for card_id and card_cache. This is due to functional differences
     # and differences in how we process the data.
     card_cache = models.BigIntegerField(blank=True, null=True, db_index=True)
