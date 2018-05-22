@@ -50,7 +50,7 @@ class Profile(Made):
     private_key = models.CharField(_("private key"), max_length=PRIVATE_KEY_LENGTH, unique=True,
                                    default=generate_private_key)
 
-    card_id = models.BigIntegerField(_("card id"), blank=True, null=True,
+    card_id = models.BigIntegerField('LiU-kortnummer', blank=True, null=True,
                                      unique=True,
                                      help_text=_("card ids can be manually set"))
 

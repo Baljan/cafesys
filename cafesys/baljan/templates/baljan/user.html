@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load crispy_forms_tags %}
 {% load baljan_extras %}
+{% load staticfiles %}
 
 {# “user” refers to the logged in user, therefore “watched” is used instead. #}
 {% block head_title %}{{ watched | display_name }}{% endblock %}
@@ -26,7 +27,7 @@
                     <small style="vertical-align: middle;">
                         <button type="button" class="btn badge badge-primary" data-toggle="modal" data-target="#edit-profile-modal">
                             <i class="fa fa-pencil" aria-hidden="true"></i>
-                            Ändra
+                            Ändra / fyll i LiU-kortnummer
                         </button>
                     </small>
                 {% endif %}
@@ -46,7 +47,7 @@
 
                         <dt>Kort-id</dt>
                         {% if prof.card_id %}
-                            <dd>{{prof.card_id}}</dd>
+                            <dd>{{ prof.card_id }}</dd>
                         {% else %}
                             <dd>
                                 {% trans "Kort-id ej angett." %}
@@ -89,62 +90,62 @@
                     {% endwith %}
 
                     {% if watching_self %}
-                    <dt>Samtycken</dt>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Policy</th>
-                                        <th>Datum</th>
-                                        <th>Åtgärd</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for key, policy in policies.consented.items %}
-                                        <tr>
-                                            <td>
-                                                <a href="{{ policy.pdf }}">
-                                                    {{ policy.name }}
-                                                    {% if policy.version > 1 %}
-                                                        (v{{policy.version}})
-                                                    {% endif %}
-                                                    </a>
-                                            </td>
-                                            <td>
-                                                {{ policy.date_of_consent }}
-                                            </td>
-                                            <td>
-                                                <form method="post">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/revoke">
-                                                    <button type="submit" class="btn btn-danger btn-sm">Återkalla</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    {% for key, policy in policies.not_consented.items %}
-                                        <tr>
-                                            <td>
-                                                <a href="{{ policy.pdf }}">
-                                                    {{ policy.name }}
-                                                    {% if policy.version > 1 %}
-                                                        (v{{policy.version}})
-                                                    {% endif %}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                    {{ policy.date_of_consent }}
-                                            </td>
-                                            <td>
-                                                <form method="post">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/consent">
-                                                    <button type="submit" class="btn btn-primary btn-sm">Samtyck</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                        <dt>Samtycken</dt>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Policy</th>
+                                <th>Datum</th>
+                                <th>Åtgärd</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for key, policy in policies.consented.items %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ policy.pdf }}">
+                                            {{ policy.name }}
+                                            {% if policy.version > 1 %}
+                                                (v{{ policy.version }})
+                                            {% endif %}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{ policy.date_of_consent }}
+                                    </td>
+                                    <td>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/revoke">
+                                            <button type="submit" class="btn btn-danger btn-sm">Återkalla</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            {% for key, policy in policies.not_consented.items %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ policy.pdf }}">
+                                            {{ policy.name }}
+                                            {% if policy.version > 1 %}
+                                                (v{{ policy.version }})
+                                            {% endif %}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{ policy.date_of_consent }}
+                                    </td>
+                                    <td>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/consent">
+                                            <button type="submit" class="btn btn-primary btn-sm">Samtyck</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
 
                     {% endif %}
                 </dl>
@@ -289,7 +290,7 @@
 
     {% if profile_forms %}
         <div id="edit-profile-modal" class="modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Ändra profil</h5>
@@ -299,22 +300,39 @@
                     </div>
                     <form enctype="multipart/form-data" method="POST" action="">{% csrf_token %}
                         <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md">
+                                    <table>
+                                        {% for profile_form in profile_forms %}
+                                            {% for test in profile_form %}
+                                                {% field test %}
+                                                {% if test.name == 'card_id' %}
+                                                    <div class="d-block d-md-none">
+                                                        <small class="form-text text-muted">
+                                                            <i class="fa fa-question-circle" aria-hidden="true"></i>
+                                                            Information om var du kan hitta ditt kortnummer finns längre ner på sidan.
+                                                        </small>
+                                                    <br/>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </table>
 
-                            <table>
-                                {% for profile_form in profile_forms %}
-                                    {% for test in profile_form %}
-                                        {% field test %}
-                                    {% endfor %}
-                                {% endfor %}
-                            </table>
+                                    <br/>
 
-                            <br/>
-
-                            <p class="small">
-                                <!-- Remember to change link to actual policy -->
-                                Genom att spara dina ändringar samtycker du till att de ifyllda uppgifterna sparas enligt Baljans <a href="#">policy för datalagring</a>.
-                            </p>
-
+                                    <p class="small">
+                                        <!-- Remember to change link to actual policy -->
+                                        Genom att spara dina ändringar samtycker du till att de ifyllda uppgifterna sparas enligt Baljans <a href="#">policy för datalagring</a>.
+                                    </p>
+                                </div>
+                                <div class="col-md">
+                                    <h4 id="where-is-card-nr">Var hittar jag mitt kortnummer?</h4>
+                                    <img src="{% static 'img/liukort.png' %}"/>
+                                    <br/><br/>
+                                    <p>Du hittar ditt LiU-kortnummer längst upp till höger på baksidan av ditt LiU-kort. För exemplet ovan hade du t.ex. fyllt i 1337133769 i fältet för LiU-kortnummer.</p>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Spara ändringar</button>
@@ -332,7 +350,7 @@
     <script type="text/javascript">
         CONFIRM_MSG = "Är du säker?";
 
-        $('a.accept, a.deny').click(function() {
+        $('a.accept, a.deny').click(function () {
             return confirm(CONFIRM_MSG);
         });
     </script>
