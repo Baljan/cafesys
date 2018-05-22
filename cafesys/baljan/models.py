@@ -1028,3 +1028,24 @@ class LegalConsent(models.Model):
     @classmethod
     def revoke(cls, user, policy_name):
         LegalConsent.objects.filter(user=user, policy_name=policy_name).update(revoked=True, time_of_revocation=timezone.now())
+
+
+class MutedConsent(models.Model):
+    """
+    According to the GDPR guidelines we must log whenever a user makes a consent,
+    and this applies to (what we call) muted consents as well. Whenever a user
+    enters personal details at the same time as editing their profile they have
+    consented to our storage and processing of their entered data, because they
+    have made an active choice to enter their data for this purpose.
+
+    This also applies to our blipp in which the consent is made for every blipp,
+    but there we already have the Order model which keeps track of this information.
+    """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False, null=True)
+    action = models.CharField(blank=False, max_length=64)
+    time_of_consent = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def log(cls, user, action):
+        MutedConsent.objects.create(user=user, action=action)

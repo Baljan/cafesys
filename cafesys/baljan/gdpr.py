@@ -8,6 +8,8 @@ AUTOMATIC_FULLNAME = 'automatic_fullname'
 AUTOMATIC_CARD_NR = 'automatic_card_number'
 CACHE_CARD_NR = 'cache_card_number'
 
+ACTION_PROFILE_SAVED = 'action_profile_saved'
+
 POLICIES = {
     AUTOMATIC_LIU_DETAILS: {
         'name': 'Automatisk hämtning av LiU-detaljer',
