@@ -403,6 +403,8 @@ def see_user(request, who):
                     f.save()
 
                 MutedConsent.log(u, ACTION_PROFILE_SAVED)
+            else:
+                messages.add_message(request, messages.WARNING, 'Kunde inte spara din profil. Ditt LiU-kortnummer kanske finns sparat hos någon annan användare.')
 
         watched = User.objects.get(id=who)
 
