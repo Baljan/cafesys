@@ -4,6 +4,7 @@ from django.urls import reverse, resolve
 from cafesys.baljan.models import LegalConsent
 
 AUTOMATIC_LIU_DETAILS = 'automatic_liu_details'
+AUTOMATIC_FULLNAME = 'automatic_fullname'
 AUTOMATIC_CARD_NR = 'automatic_card_number'
 CACHE_CARD_NR = 'cache_card_number'
 
@@ -11,6 +12,10 @@ POLICIES = {
     AUTOMATIC_LIU_DETAILS: {
         'name': 'Automatisk hämtning av LiU-detaljer',
         'versions': ['/static/contract.pdf', '/static/guide.pdf']
+    },
+    AUTOMATIC_FULLNAME: {
+        'name': 'Automatisk hämtning av för- och efternamn',
+        'versions': ['/static/contract.pdf']
     },
     AUTOMATIC_CARD_NR: {
         'name': 'Automatisk hämtning av LiU-kortnummer',
@@ -64,20 +69,31 @@ def get_policies(user):
 def revoke_policy(user, policy_name):
     if policy_name == AUTOMATIC_LIU_DETAILS:
         revoke_automatic_liu_details(user)
+    elif policy_name == AUTOMATIC_FULLNAME:
+        revoke_automatic_fullname(user)
     else:
         LegalConsent.revoke(user, policy_name)
 
 
-def consent_to_policy(user, policy_name, policy_version):
+def consent_to_policy(user, policy_name, policy_version=None):
+    if policy_version is None:
+        policy_version = latest_policy_version(policy_name)
+
     LegalConsent.create(user, policy_name, policy_version)
 
 
 def legal_social_details(backend, strategy, details, response, user, *args, **kwargs):
+    # We censor the field fullname immediately because it's not certain if it will
+    # be used at all, and it will most definetely be replaceable by first_name and
+    # last_name. See it as a measure of precaution.
+    details = dict(backend.get_user_details(response), **details)
+    details['fullname'] = None
+
     if not LegalConsent.is_present(user, AUTOMATIC_LIU_DETAILS):
         # This is the first time the user has logged in, or the user has not
         # approved any automatic storage of LiU details: generate a unique name.
 
-        # Note that we must pass on the e-mail address here! This is needed for the step
+        # Note that we must NOT remove the e-mail address here! This is needed for the step
         #   social_core.pipeline.social_auth.associate_by_email
         #
         # When recruiting new workers for the next semester we have the possibility to
@@ -86,27 +102,27 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
         # dictionary. We will later reset this value in the step
         #   cafesys.baljan.gdpr.clean_social_details
         #
-        return {
-            'details': {
-                'username': generate_anonymous_username(user),
-                'email': backend.get_user_details(response)['email']
-            }
-        }
+        details['username'] = generate_anonymous_username(user)
     else:
-        # The user has given their consent to storing their personal details
+        # The user has given their consent to storing their username and e-mail
         # given from LiU ADFS. If this is their first time logging in after
         # giving their consent we must explicitly change the username here,
         # as python-social-auth will not change this "protected" field themselves.
 
-        details = {'details': dict(backend.get_user_details(response), **details)}
-        username = details['details']['username']
+        username = details['username']
 
         # Only update the username if it has changed!
         if user.username != username:
-            user.username = details['details']['username']
+            user.username = username
             strategy.storage.user.changed(user)
 
-        return details
+    if not LegalConsent.is_present(user, AUTOMATIC_FULLNAME):
+        # The user has not consented to the automatic retrieval of their fullname
+        # from the LiU database, so we clear these fields from the details dict.
+        details['first_name'] = ''
+        details['last_name'] = ''
+
+    return {'details': details}
 
 
 def clean_social_details(details, user, *args, **kwargs):
@@ -117,18 +133,24 @@ def clean_social_details(details, user, *args, **kwargs):
         details['email'] = ''
         return {'details': details}
 
-    return details
+    return {}
 
 
 def revoke_automatic_liu_details(user):
     LegalConsent.revoke(user, AUTOMATIC_LIU_DETAILS)
     user.username = generate_anonymous_username(user)
-    user.first_name = ''
-    user.last_name = ''
     user.email = ''
-    user.profile.card_id = None
+    user.profile.card_cache = None
 
     user.profile.save()
+    user.save()
+
+
+def revoke_automatic_fullname(user):
+    LegalConsent.revoke(user, AUTOMATIC_FULLNAME)
+    user.first_name = ''
+    user.last_name = ''
+
     user.save()
 
 

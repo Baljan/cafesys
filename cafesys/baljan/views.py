@@ -22,7 +22,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
 from cafesys.baljan import phone, slack
-from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_CARD_NR, CACHE_CARD_NR
+from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_CARD_NR, CACHE_CARD_NR, AUTOMATIC_FULLNAME
 from cafesys.baljan.models import LegalConsent
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from cafesys.baljan import phone
@@ -386,7 +386,7 @@ def see_user(request, who):
                 return redirect(request.path)
             elif action == 'consent':
                 consent_to_policy(u, policy_name, int(policy_version))
-                if policy_name == AUTOMATIC_LIU_DETAILS:
+                if policy_name == AUTOMATIC_LIU_DETAILS or policy_name == AUTOMATIC_FULLNAME:
                     logout(request)
                     return redirect(reverse('social:begin', args=['liu']) + '?next=' + request.path)
         else:
@@ -947,13 +947,13 @@ def consent(request):
         user.profile.save()
 
         if request.POST.get('consent') == 'yes':
-            LegalConsent.create(user, AUTOMATIC_LIU_DETAILS, 1)
+            consent_to_policy(user, AUTOMATIC_LIU_DETAILS)
 
-            if 'automatic_card_nr' in request.POST:
-                LegalConsent.create(user, AUTOMATIC_CARD_NR, 1)
+            if 'automatic_fullname' in request.POST:
+                consent_to_policy(user, AUTOMATIC_FULLNAME)
 
             if 'cache_card_nr' in request.POST:
-                LegalConsent.create(user, CACHE_CARD_NR, 1)
+                consent_to_policy(user, CACHE_CARD_NR)
 
             # Force re-login as this will update the username
             logout(request)

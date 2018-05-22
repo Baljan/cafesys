@@ -43,7 +43,7 @@
                         <b>Vad lagras?</b>
                         <ul class="list-unstyled list-consent">
                             <li><i class="fa fa-check" aria-hidden="true"></i> LiU-ID</li>
-                            <li><i class="fa fa-check" aria-hidden="true"></i> För- och efternamn</li>
+                            <li><i class="fa fa-question" aria-hidden="true"></i> För- och efternamn</li>
                             <li><i class="fa fa-check" aria-hidden="true"></i> Mailadress</li>
                             <li><i class="fa fa-question" aria-hidden="true"></i> <span>Telefonnummer<sup>1</sup></span></li>
                             <li><i class="fa fa-question" aria-hidden="true"></i> LiU-kortnummer</li>
@@ -59,8 +59,8 @@
                             {% csrf_token %}
                             <input type="hidden" name="consent" value="yes">
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" name="automatic_card_nr" class="custom-control-input" id="automatic-card-nr">
-                                <label class="custom-control-label" for="automatic-card-nr">Tillåt automatisk koppling till LiU-kortet</label>
+                                <input type="checkbox" name="automatic_fullname" class="custom-control-input" id="automatic-fullname">
+                                <label class="custom-control-label" for="automatic-fullname">Spara mitt för- och efternamn</label>
                             </div>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" name="cache_card_nr" class="custom-control-input" id="cache-card-nr">
@@ -79,7 +79,7 @@
                         <b>Vad lagras?</b>
                         <ul class="list-unstyled list-consent">
                             <li><i class="fa fa-times" aria-hidden="true"></i> LiU-ID</li>
-                            <li><i class="fa fa-times" aria-hidden="true"></i> För- och efternamn</li>
+                            <li><i class="fa fa-question" aria-hidden="true"></i> För- och efternamn</li>
                             <li><i class="fa fa-times" aria-hidden="true"></i> Mailadress</li>
                             <li><i class="fa fa-question" aria-hidden="true"></i> <span>Telefonnummer<sup>1</sup></span></li>
                             <li><i class="fa fa-question" aria-hidden="true"></i> LiU-kortnummer</li>
@@ -106,7 +106,7 @@
                 <b>Hur länge lagras min information?</b>
                 <p>
                     Dina personliga uppgifter lagras i två år från ditt senaste inlogg eller blipp, därefter rensas all personlig information kopplat till kontot.
-                    Skulle du återkomma till Baljan efter det här har skett kan du logga in precis som vanligt och åter igen ta ställning till detta samtycke. Ditt
+                    Skulle du återkomma till Baljan efter det här har skett kan du logga in precis som vanligt och återigen ta ställning till detta samtycke. Ditt
                     blippsaldo förblir oförändrat.
                 </p>
                 <ul class="list-unstyled list-footnotes">
