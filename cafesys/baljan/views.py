@@ -977,7 +977,7 @@ def with_cors_headers(f):
     def add_cors_headers(*args, **kwargs):
         resp = f(*args, **kwargs)
         resp['Access-Control-Allow-Origin'] = '*'
-        resp['Access-Control-Allow-Headers'] = '*'
+        resp['Access-Control-Allow-Headers'] = 'authorization'
 
         return resp
 
