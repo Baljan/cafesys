@@ -1068,6 +1068,10 @@ def do_blipp(request):
     return JsonResponse({'message': message, 'balance': user_balance})
 
 
+def integrity(request):
+    return render(request, 'baljan/integrity.html')
+
+
 def _is_authenticated_for_blipp(request):
     if 'HTTP_AUTHORIZATION' in request.META:
         authorization = request.META['HTTP_AUTHORIZATION'].split()

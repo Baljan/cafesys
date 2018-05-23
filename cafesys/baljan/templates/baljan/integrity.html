@@ -1,0 +1,45 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+{% load baljan_extras %}
+
+{% block head_title %}Integrity{% endblock %}
+
+{% block body_class %}Integrity{% endblock %}
+{% block body %}
+<h1>Integritetspolicy</h1>
+
+<div class="row">
+    <div class="col">
+        <p>
+            I och med den nya lagen om behandling av personuppgifter
+            så har Baljan undersökt sin rutin och tagit fram en
+            integritetspolicy. Denna policy går ut på att förtydliga
+            vilken information vi behöver lagra om dig för att vi ska
+            kunna tillhandahålla de olika tjänster som Baljan erbjuder.
+        </p>
+        <p>
+            Baljan kommer inte att överföra dina uppgifter till någon
+            tredje part och de kommer inte att utsättas för automatiserat
+            beslutsfattande. <br>
+            Om föreningen, vid något tillfälle, måste dela dina
+            personuppgifter med en tredje part så kommer du att informeras
+            särskilt om detta.
+        </p>
+        <p>
+            Nedan finns en länk till Baljans integritetspolicy, där kan
+            du läsa mer om vad vi använder dina personuppgifter till.
+            Om du har några frågor eller funderinger gällande vår
+            integritetspolicy är du välkommen att kontakta
+            <a href="mailto:styrelsen@baljan.org">styrelsen@baljan.org</a>.
+            <br>
+            <br>
+            {% load static %}
+            <a href= "{% static "Integritetspolicy.pdf" %}" target="_blank">Baljans integritetspolicy</a>
+            <!--Add integritypolicy-file here-->
+        </p>
+
+    </div>
+</div><!--.main-->
+{% endblock %}
