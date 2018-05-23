@@ -21,7 +21,9 @@ with warnings.catch_warnings():
 DEBUG = env.bool('DJANGO_DEBUG')
 SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
-ANALYTICS_KEY = env.str('DJANGO_ANALYTICS_KEY', default='UA-19913928-1')
+# Disabled until further notice as we haven't been using this functionality lately
+ANALYTICS_KEY = None
+
 CACHE_BACKEND = env.str('DJANGO_REDIS_URL')
 
 ADMINS = [
@@ -111,7 +113,6 @@ TEMPLATES = [
 # CRISPY_TEMPLATE_PACK = 'uni_form'
 
 MIDDLEWARE = [
-    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -121,6 +122,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'livereload.middleware.LiveReloadScript',
+    'cafesys.baljan.gdpr.ConsentRedirectionMiddleware',
 ]
 
 ROOT_URLCONF = "cafesys.urls"
@@ -142,7 +144,6 @@ INSTALLED_APPS = [
 
     # external
     'django_extensions',
-    'opbeat.contrib.django',
     'crispy_forms',
     'social_django',
     'sass_processor',
@@ -152,7 +153,7 @@ INSTALLED_APPS = [
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 ABSOLUTE_URL_OVERRIDES = {
-    "auth.user": lambda o: "/baljan/user/%s" % o.username,
+    "auth.user": lambda o: "/baljan/user/%s" % o.id,
     "auth.group": lambda o: "/baljan/group/%s" % o.name,
 }
 
@@ -162,11 +163,12 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIAL_AUTH_PIPELINE = (
-    'social_core.pipeline.social_auth.social_details',
     'social_core.pipeline.social_auth.social_uid',
     'social_core.pipeline.social_auth.social_user',
+    'cafesys.baljan.gdpr.legal_social_details',
     'social_core.pipeline.user.get_username',
     'social_core.pipeline.social_auth.associate_by_email',
+    'cafesys.baljan.gdpr.clean_social_details',
     'social_core.pipeline.user.create_user',
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
@@ -176,8 +178,6 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_LIU_KEY = env.str('AUTH_LIU_CLIENT_ID', default='')
 SOCIAL_AUTH_LIU_SECRET = env.str('AUTH_LIU_CLIENT_SECRET', default='')
 SOCIAL_AUTH_LIU_SCOPE = env.list('AUTH_LIU_RESOURCE', default=[])
-
-KOBRA_API_TOKEN = env.str('KOBRA_API_TOKEN', default='')
 
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = True
@@ -231,13 +231,11 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
-OPBEAT = {
-    'ORGANIZATION_ID': env.str('OPBEAT_ORGANIZATION_ID', default=''),
-    'APP_ID': env.str('OPBEAT_APP_ID', default=''),
-    'SECRET_TOKEN': env.str('OPBEAT_SECRET_TOKEN', default='')
-}
-
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_SSL', 'on')
 
 SLACK_PHONE_WEBHOOK_URL = env.str('SLACK_PHONE_WEBHOOK_URL', default='')
 VERIFY_46ELKS_IP = True
+
+BLIPP_COFFEE_PRICE = 6
+BLIPP_USERNAME = env.str('BLIPP_USERNAME')
+BLIPP_PASSWORD = env.str('BLIPP_PASSWORD')

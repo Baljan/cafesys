@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import base64
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+from django.contrib.auth import get_user_model
 from email.mime.text import MIMEText
 from io import BytesIO, StringIO
 from logging import getLogger
@@ -16,13 +18,19 @@ from django.core.paginator import Paginator
 from django.core.serializers import serialize
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
 from cafesys.baljan import phone, slack
+from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
+from cafesys.baljan.models import LegalConsent, MutedConsent
+from cafesys.baljan.pseudogroups import is_worker
+from cafesys.baljan.templatetags.baljan_extras import display_name
+from cafesys.baljan import phone
+from cafesys.baljan.models import Order
 from . import credits as creditsmodule
-from . import (forms, ical, kobra, models, pdf, planning, pseudogroups, search,
+from . import (forms, ical, models, pdf, planning, pseudogroups, search,
                stats, trades, workdist)
 from .forms import OrderForm
 from .util import (adjacent_weeks, all_initials, available_for_call_duty,
@@ -30,13 +38,13 @@ from .util import (adjacent_weeks, all_initials, available_for_call_duty,
                    year_and_week)
 import pytz
 import requests
+from cafesys.baljan.gdpr import get_policies
 
 logger = getLogger(__name__)
 
 
 def logout(request):
     auth.logout(request)
-    messages.add_message(request, messages.SUCCESS, _("Logged out."))
     return HttpResponseRedirect('/')
 
 
@@ -305,7 +313,7 @@ def callduties_for(user):
 @login_required
 def profile(request):
     u = request.user
-    return see_user(request, who=u.username)
+    return see_user(request, who=u.id)
 
 
 @login_required
@@ -362,7 +370,7 @@ def see_user(request, who):
     u = request.user
     tpl = {}
 
-    watched = User.objects.get(username__exact=who)
+    watched = User.objects.get(id=who)
     watching_self = u == watched
     if u.is_authenticated():
         profile_form_cls_inst = (
@@ -371,18 +379,36 @@ def see_user(request, who):
                 )
 
     if watching_self and request.method == 'POST':
-        profile_forms = [c(request.POST, request.FILES, instance=i)
-                for c, i in profile_form_cls_inst]
+        # Handle policy consent and revocation actions
+        if request.POST.get('policy') is not None:
+            if not is_worker(u):
+                policy_name, policy_version, action = request.POST.get('policy').split('/')
+                if action == 'revoke':
+                    revoke_policy(u, policy_name)
+                    return redirect(request.path)
+                elif action == 'consent':
+                    consent_to_policy(u, policy_name, int(policy_version))
+                    if policy_name == AUTOMATIC_LIU_DETAILS or policy_name == AUTOMATIC_FULLNAME:
+                        logout(request)
+                        return redirect(reverse('social:begin', args=['liu']) + '?next=' + request.path)
+        else:
+            profile_forms = [c(request.POST, request.FILES, instance=i)
+                             for c, i in profile_form_cls_inst]
 
-        # Make sure all forms are valid before saving.
-        all_valid = True
-        for f in profile_forms:
-            if not f.is_valid():
-                all_valid = False
-        if all_valid:
+            # Make sure all forms are valid before saving.
+            all_valid = True
             for f in profile_forms:
-                f.save()
-        watched = User.objects.get(username__exact=who)
+                if not f.is_valid():
+                    all_valid = False
+            if all_valid:
+                for f in profile_forms:
+                    f.save()
+
+                MutedConsent.log(u, ACTION_PROFILE_SAVED)
+            else:
+                messages.add_message(request, messages.WARNING, 'Kunde inte spara din profil. Ditt LiU-kortnummer kanske finns sparat hos någon annan användare.')
+
+        return redirect(reverse('profile'))
 
     tpl['watched'] = watched
     tpl['watching_self'] = watching_self
@@ -394,6 +420,11 @@ def see_user(request, who):
         tpl['trade_requests'] = tr_sent or tr_recd
         profile_forms = [c(instance=i) for c, i in profile_form_cls_inst]
         tpl['profile_forms'] = profile_forms
+
+        policies = get_policies(u)
+        tpl['policies'] = policies
+
+        tpl['is_worker'] = is_worker(u)
 
     # Call duties come after work shifts because they are more frequent.
     tpl['signup_types'] = (
@@ -547,18 +578,13 @@ def job_opening(request, semester_name):
                     found_user = results[0]
 
             if valid_search and found_user is None:
-                # FIXME: User should not be created immediately. First we
-                # should tell whether or not he exists, then the operator
-                # may choose to import the user.
+                # FIXME: There was originally code for creating a user using information from
+                #        Kårservice Kobra here but as of their shutdown the 24th of May 2018
+                #        this functionality has been removed. If an alternative to Kobra
+                #        emerges this functionality should be restored along with similar
+                #        functionality for the blipp (see comment in views.do_blipp).
+                logger.info('%s not found' % searched_for)
 
-                # Tries to fetch a student from Kobra.
-                kobra_payload = kobra.find_student(searched_for)
-
-                if kobra_payload:
-                    logger.info('%s found in Kobra' % searched_for)
-                    found_user, created = kobra.create_or_update_user(kobra_payload)
-                else:
-                    logger.info('%s not found in Kobra' % searched_for)
             info = {}
             info['user'] = None
             info['msg'] = _('enter liu id')
@@ -654,7 +680,7 @@ def call_duty_week(request, year=None, week=None):
     avails = plan.available()
     uids = [str(u.id) for u in avails]
 
-    names = [u.get_full_name() for u in avails]
+    names = [display_name(u) for u in avails]
 
     initials = all_initials(avails)
     id_initials = dict(list(zip(uids, initials)))
@@ -912,3 +938,139 @@ def incoming_call(request):
                 logger.warning('Unable to post to Slack')
 
     return JsonResponse(response)
+
+
+def consent(request):
+    if not request.user.is_authenticated():
+        return redirect('/')
+
+    if request.method == 'POST':
+        user = request.user
+        user.profile.has_seen_consent = True
+        user.profile.save()
+
+        if is_worker(request.user):
+            return redirect('/')
+
+        if request.POST.get('consent') == 'yes':
+            consent_to_policy(user, AUTOMATIC_LIU_DETAILS)
+
+            if 'automatic_fullname' in request.POST:
+                consent_to_policy(user, AUTOMATIC_FULLNAME)
+
+            # Force re-login as this will update the username
+            logout(request)
+            return redirect(reverse('social:begin', args=['liu']))
+        else:
+            # Make sure that personal information is erased before continuing
+            revoke_automatic_liu_details(user)
+            revoke_automatic_fullname(user)
+            return redirect('/')
+
+    if is_worker(request.user):
+        return render(request, 'baljan/consent_worker.html')
+    else:
+        return render(request, 'baljan/consent.html')
+
+
+def with_cors_headers(f):
+    def add_cors_headers(*args, **kwargs):
+        resp = f(*args, **kwargs)
+        resp['Access-Control-Allow-Origin'] = '*'
+        resp['Access-Control-Allow-Headers'] = '*'
+
+        return resp
+
+    return add_cors_headers
+
+
+@csrf_exempt
+@with_cors_headers
+def do_blipp(request):
+    if request.method == 'OPTIONS':
+        return HttpResponse(status=200)
+
+    if not _is_authenticated_for_blipp(request):
+        response = HttpResponse()
+        response.status_code = 401
+        response['WWW-Authenticate'] = 'Basic'
+        return response
+
+    rfid = request.POST.get('id')
+    if rfid is None or not rfid.isdigit():
+        return _json_error(404, 'Felaktigt användar-id')
+
+    rfid_int = int(rfid)
+    user = None
+
+    # Try to fetch user from cached card id
+    try:
+        user = User.objects.get(profile__card_cache=rfid_int)
+    except User.DoesNotExist:
+        pass
+
+    # Try to fetch user from stored card number
+    if user is None:
+        try:
+            user = User.objects.get(profile__card_id=rfid_int)
+        except User.DoesNotExist:
+            pass
+
+    if user is None:
+        # FIXME: We should try to find the card id in an external database here, but this requires
+        #        that there is such a database, which there isn't. Check again after midsummer 2018.
+
+        return _json_error(404, 'Du måste fylla i kortnumret i din profil')
+
+    # We will always have a user at this point
+
+    price = settings.BLIPP_COFFEE_PRICE
+    is_coffee_free = user.has_perm('baljan.free_coffee_unlimited') or user.has_perm('baljan.free_coffee_with_cooldown')
+
+    if is_coffee_free:
+        price = 0
+    else:
+        balance = user.profile.balance
+        if balance < price:
+            return _json_error(402, 'Du har för lite pengar för att blippa')
+
+        new_balance = balance - price
+        user.profile.balance = new_balance
+        user.profile.save()
+
+    order = Order()
+    order.made = datetime.now()
+    order.put_at = datetime.now()
+    order.user = user
+    order.paid = price
+    order.currency = 'SEK'
+    order.accepted = True
+    order.save()
+
+    if is_coffee_free:
+        user_balance = 'unlimited'
+        message = 'Du har <b>∞ kr</b> kvar att blippa för'
+    else:
+        user_balance = user.profile.balance
+        message = 'Du har <b>%s kr</b> kvar att blippa för' % user_balance
+
+    return JsonResponse({'message': message, 'balance': user_balance})
+
+
+def integrity(request):
+    return render(request, 'baljan/integrity.html')
+
+
+def _is_authenticated_for_blipp(request):
+    if 'HTTP_AUTHORIZATION' in request.META:
+        authorization = request.META['HTTP_AUTHORIZATION'].split()
+        if len(authorization) == 2:
+            if authorization[0].lower() == "basic":
+                uname, passwd = base64.b64decode(authorization[1]).decode('ascii').split(':')
+                return uname == settings.BLIPP_USERNAME and passwd == settings.BLIPP_PASSWORD
+
+    return False
+
+
+def _json_error(status_code, message):
+    return JsonResponse({'message': message}, status=status_code)

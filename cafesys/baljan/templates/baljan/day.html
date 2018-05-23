@@ -51,10 +51,10 @@
 
                 {% if signup.can_trade %}
                     <s>
-                        <a href="{{signup.user.get_absolute_url}}">{{signup.user.get_full_name}} ({{signup.user.username}})</a>
+                        <a href="{{signup.user.get_absolute_url}}">{{signup.user | detailed_name}}</a>
                     </s>
                 {% else %}
-                    <a href="{{signup.user.get_absolute_url}}">{{signup.user.get_full_name}} ({{signup.user.username}})</a>
+                    <a href="{{signup.user.get_absolute_url}}">{{signup.user | display_name}}</a>
                 {% endif %}
                 {% if perms.baljan.delete_shiftsignup %}
                     <a class="delete" title="Ta bort från det här passet."
@@ -95,7 +95,7 @@
         <div class="col">
             {% for oncall in sh.callduties %}
                 <strong>Jour</strong><br/>
-                <a href="{{oncall.user.get_absolute_url}}">{{oncall.user.get_full_name}} ({{oncall.user.username}})</a>
+                <a href="{{oncall.user.get_absolute_url}}">{{oncall.user | display_name}}</a>
                 {% if perms.baljan.delete_oncallduty %}
                     <a class="delete" title="{% trans "remove from this shift" %}"
                         href="{% url 'delete_callduty' oncall.id request.path %}">&#x2715;</a>
@@ -114,7 +114,7 @@
                         {% for avail in available_for_call_duty %}
                             {% if not avail in sh.on_callduty %}
                             <option value="{{avail.pk}}" {% if avail == user %}selected="selected"{% endif %}>
-                                {{ avail.get_full_name }}
+                                {{ avail | display_name }}
                             </option>
                             {% endif %}
                         {% endfor %}

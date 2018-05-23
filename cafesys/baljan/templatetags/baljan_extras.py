@@ -7,15 +7,16 @@ from django.template.defaultfilters import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from ..models import ShiftSignup, OnCallDuty
 from ..util import year_and_week
+
+import cafesys.baljan.models
 
 register = template.Library()
 
 def _find_user(obj):
     if type(obj) in (
-            ShiftSignup,
-            OnCallDuty):
+            cafesys.baljan.models.ShiftSignup,
+            cafesys.baljan.models.OnCallDuty):
         return obj.user
     return obj
 
@@ -31,7 +32,7 @@ def user_link(user, autoescape=None):
     """
     user = _find_user(user)
     if user:
-        full_name = escape(user.get_full_name())
+        full_name = escape(display_name(user))
         return mark_safe('<a href="%s">%s (%s)</a>' % (
                 user.get_absolute_url(),
                 full_name,
@@ -48,7 +49,7 @@ def name_link(user, autoescape=None):
     """
     user = _find_user(user)
     if user:
-        full_name = escape(user.get_full_name())
+        full_name = escape(display_name(user))
         return mark_safe('<a href="%s">%s</a>' % (
                 user.get_absolute_url(),
                 full_name))
@@ -57,8 +58,8 @@ name_link.needs_autoescape = True
 
 def _find_shift(obj):
     if type(obj) in (
-            ShiftSignup,
-            OnCallDuty):
+            cafesys.baljan.models.ShiftSignup,
+            cafesys.baljan.models.OnCallDuty):
         return obj.shift
     return obj
 
@@ -137,3 +138,28 @@ def order_item(form, field_name, cost):
 @register.filter(name='addcss')
 def addcss(f, css):
     return f.as_widget(attrs={"class": css})
+
+
+@register.filter
+def display_name(user):
+    user = _find_user(user)
+    if user:
+        if user.get_full_name() != '':
+            return user.get_full_name()
+        else:
+            return user.get_username()
+
+    return ''
+
+
+@register.filter
+def detailed_name(user):
+    user = _find_user(user)
+    if user:
+        if user.get_full_name() != '':
+            return '%s (%s)' % (user.get_full_name(), user.get_username())
+        else:
+            return user.get_username()
+
+    return ''
+

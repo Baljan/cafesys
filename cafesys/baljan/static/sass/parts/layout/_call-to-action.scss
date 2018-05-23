@@ -1,0 +1,24 @@
+.call-to-action {
+  padding-top: 88px;
+  margin-bottom: -74px;
+
+  .col {
+    display: flex;
+    align-items: center;
+
+    @include media-breakpoint-down(sm) {
+      display: block;
+    }
+  }
+
+  .btn {
+    margin-left: 32px;
+
+    @include media-breakpoint-down(sm) {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      margin-left: 0;
+    }
+  }
+}

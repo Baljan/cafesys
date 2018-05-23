@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load baljan_extras %}
+{% load static %}
+
+{% block head_title %}Samtycke till datalagring{% endblock %}
+{% block body_class %}consent-page{% endblock %}
+
+{% block body_base %}
+    <div class="container">
+        <div class="d-md-flex" style="align-items: center;">
+            <span class="navbar-brand d-none d-md-block">
+                <img src="{% static 'img/svg/logo.svg' %}" width="62"/>
+            </span>
+            <h1>Samtycke till datalagring</h1>
+            <a href="{% url 'logout' %}" class="btn btn-outline-primary d-inline-block" style="margin-left: auto;">
+                <i class="fa fa-sign-out" aria-hidden="true"></i>
+                Logga ut
+            </a>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p>Du måste ta ställning i frågan om datalagring innan du kan fortsätta använda baljan.org</p>
+                <p>
+                    Vi i Baljan tar den personliga integriteten på stort allvar och har i enlighet med
+                    den nya dataskyddsförordningen sett över vår hantering av personuppgifter. För att
+                    få fortsätta lagra dina personuppgifter behöver vi ditt samtycke till detta. Nedan
+                    finner du en jämförelse av hur din relation med Baljan förändras beroende på ditt
+                    beslut. Du kan hitta vår fullständiga integritetspolicy som beskriver hur Baljan hanterar
+                    dina personuppgifter <a href="{% url 'integrity' %}">här</a>.
+                </p>
+            </div>
+        </div>
+        <div class="row">
+
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">Med samtycke</h3>
+                        <b>Vad lagras?</b>
+                        <ul class="list-unstyled list-consent">
+                            <li><i class="fa fa-check" aria-hidden="true"></i> LiU-ID</li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> För- och efternamn</li>
+                            <li><i class="fa fa-check" aria-hidden="true"></i> Mailadress</li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> <span>Telefonnummer<sup>1</sup></span></li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> LiU-kortnummer</li>
+                        </ul>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="consent" value="yes">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" name="automatic_fullname" class="custom-control-input" id="automatic-fullname">
+                                <label class="custom-control-label" for="automatic-fullname">Spara mitt för- och efternamn</label>
+                            </div>
+                            <br/>
+                            <button type="submit" class="btn btn-primary">Samtyck till datalagring</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">Utan samtycke</h3>
+                        <b>Vad lagras?</b>
+                        <ul class="list-unstyled list-consent">
+                            <li><i class="fa fa-times" aria-hidden="true"></i> LiU-ID</li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> För- och efternamn</li>
+                            <li><i class="fa fa-times" aria-hidden="true"></i> Mailadress</li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> <span>Telefonnummer<sup>1</sup></span></li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> LiU-kortnummer</li>
+                        </ul>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="consent" value="no">
+                            <button type="submit" class="btn btn-danger">Fortsätt anonymt</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/><br/>
+        <div class="row">
+            <div class="col">
+                <b>Hur länge lagras min information?</b>
+                <p>
+                    Dina personuppgifter lagras i två år från ditt senaste inlogg eller blipp, därefter rensas all personlig information kopplat till kontot.
+                    Skulle du återkomma till Baljan efter det här har skett kan du logga in precis som vanligt och återigen ta ställning till detta samtycke. Ditt
+                    blippsaldo förblir oförändrat.
+                </p>
+                <ul class="list-unstyled list-footnotes">
+                    <li>
+                        <small><sup>1</sup> Du kan om du vill fylla i ditt telefonnummer i din profil. Nummret blir då synligt för alla jobbare och styrelsemedlemmar i Baljan. Det är obligatoriskt att
+                            ha
+                            ett nummer kopplat om du jobbar i Baljan.
+                        </small>
+                        <small><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Betyder att informationen är valbar och att det är du själv som väljer om du vill bistå med den.
+                        </small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_body %}
+{% endblock %}

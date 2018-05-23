@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
 
+from cafesys.baljan.templatetags.baljan_extras import display_name
 from .models import Semester
 from .util import year_and_week, week_dates, adjacent_weeks
 
@@ -44,7 +45,7 @@ def top_consumers(start=None, end=None, simple=False):
         simple_top = []
         for u in top:
             simple_top.append({
-                'full_name': u.get_full_name(),
+                'full_name': display_name(u),
                 'username': u.username,
                 'blipped': u.num_orders,
             })

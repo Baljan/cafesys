@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date, datetime
+from django.utils import timezone
 from logging import getLogger
 
 from dateutil.relativedelta import relativedelta
@@ -14,6 +15,7 @@ from django.utils.translation import string_concat
 from django.utils.translation import ugettext as _nl
 from django.utils.translation import ugettext_lazy as _
 
+from cafesys.baljan.templatetags.baljan_extras import display_name
 from . import notifications, util
 from .util import week_dates, year_and_week, random_string
 
@@ -39,18 +41,24 @@ class Profile(Made):
     mobile_phone = models.CharField(_("mobile phone number"), max_length=10, blank=True, null=True, db_index=True)
     balance = models.IntegerField(default=0)
     balance_currency = models.CharField(_("balance currency"), max_length=5, default="SEK",
-            help_text=_("currency"))
+                                        help_text=_("currency"))
     show_email = models.BooleanField(_("show email address"), default=False)
-    show_profile = models.BooleanField(_("show profile"), default=True)
+    show_profile = models.BooleanField('Visa mitt namn i topplistan', default=True)
     motto = models.CharField(_("motto"), max_length=40, blank=True, null=True,
-            help_text=_("displayed in high scores"))
+                             help_text=_("displayed in high scores"))
 
     private_key = models.CharField(_("private key"), max_length=PRIVATE_KEY_LENGTH, unique=True,
-            default=generate_private_key)
+                                   default=generate_private_key)
 
-    card_id = models.BigIntegerField(_("card id"), blank=True, null=True,
-            unique=True,
-            help_text=_("card ids can be manually set"))
+    card_id = models.BigIntegerField('LiU-kortnummer', blank=True, null=True,
+                                     unique=True,
+                                     help_text=_("card ids can be manually set"))
+
+    has_seen_consent = models.BooleanField(default=False)
+
+    # We use a separate field for card_id and card_cache. This is due to functional differences
+    # and differences in how we process the data.
+    card_cache = models.BigIntegerField(blank=True, null=True, db_index=True)
 
     def balcur(self):
         return "%s %s" % (self.balance, self.balance_currency)
@@ -217,7 +225,7 @@ def traderequest_notice_save(tr):
         requestor = tr.offered_signup.user
         notifications.send('new_trade_request',
             requestee,
-            requestor=requestor.get_full_name(),
+            requestor=display_name(requestor),
             wanted_shift=tr.wanted_signup.shift.name(),
             offered_shift=tr.offered_signup.shift.name(),
         )
@@ -993,3 +1001,51 @@ class IncomingCallFallback(models.Model):
         verbose_name = 'Styrelsemedlem att ringa'
         verbose_name_plural = 'Uppringningslista jourtelefon'
         ordering = ('-priority', 'user__username')
+
+
+class LegalConsent(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False, null=True)
+    policy_name = models.CharField(blank=False, max_length=64)
+    policy_version = models.IntegerField(blank=False)
+    time_of_consent = models.DateTimeField(auto_now_add=True)
+    revoked = models.BooleanField(default=False)
+    time_of_revocation = models.DateTimeField(blank=True, null=True)
+
+    @classmethod
+    def create(cls, user, policy_name, policy_version):
+        LegalConsent.revoke(user, policy_name)
+        LegalConsent.objects.create(user=user, policy_name=policy_name, policy_version=policy_version)
+
+    @classmethod
+    def is_present(cls, user, policy_name, minor=1, major=None):
+        if major is None:
+            query = LegalConsent.objects.filter(user=user, policy_name=policy_name, policy_version__gte=minor, revoked=False)
+        else:
+            query = LegalConsent.objects.filter(user=user, policy_name=policy_name, policy_version__gte=minor, policy_version__lte=major, revoked=False)
+
+        return query.exists()
+
+    @classmethod
+    def revoke(cls, user, policy_name):
+        LegalConsent.objects.filter(user=user, policy_name=policy_name).update(revoked=True, time_of_revocation=timezone.now())
+
+
+class MutedConsent(models.Model):
+    """
+    According to the GDPR guidelines we must log whenever a user makes a consent,
+    and this applies to (what we call) muted consents as well. Whenever a user
+    enters personal details at the same time as editing their profile they have
+    consented to our storage and processing of their entered data, because they
+    have made an active choice to enter their data for this purpose.
+
+    This also applies to our blipp in which the consent is made for every blipp,
+    but there we already have the Order model which keeps track of this information.
+    """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False, null=True)
+    action = models.CharField(blank=False, max_length=64)
+    time_of_consent = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def log(cls, user, action):
+        MutedConsent.objects.create(user=user, action=action)

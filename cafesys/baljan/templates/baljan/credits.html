@@ -9,7 +9,6 @@
 
 {% block body_class %}credits{% endblock %}
 {% block body %}
-
     <h1>Konto</h1>
     <div class="row">
         <div class="col-sm-6">
@@ -44,10 +43,9 @@
             <h2>Tillgängligt</h2>
             <p>{{currently_available}}</p>
 
-            <h2>LiU-kort fungerar automatiskt</h2>
+            <h2>LiU-kortet konfigureras manuellt</h2>
             <p>
-                LiU-kort hämtas automatiskt från universitetets databaser.
-                Det tar dock någon dag för ett nytt kort att komma in i databasen om du byter kort.
+                Du kan ändra vilket RFID-kortnummer du har kopplat till blippen <a href="{% url 'profile' %}?edit=true">i din profil</a>.
             </p>
 
             <h2>Använda värdekort</h2>

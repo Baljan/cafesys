@@ -5,6 +5,7 @@ from django.contrib.auth.models import User, Group
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
+from cafesys.baljan.templatetags.baljan_extras import display_name
 from ...models import Semester, ShiftCombination
 from ...util import asciilize, random_string
 
@@ -14,7 +15,7 @@ log = getLogger(__name__)
 
 def google_apps_identifier(user, ctx):
     """For Google Apps bulk uploads."""
-    email = "%s@baljan.org" % (asciilize(user.get_full_name().lower()).replace(' ', '.'))
+    email = "%s@baljan.org" % (asciilize(display_name(user).lower()).replace(' ', '.'))
     return ','.join([email, user.first_name, user.last_name, random_string(8)])
 
 

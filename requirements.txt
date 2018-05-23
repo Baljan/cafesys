@@ -1,4 +1,4 @@
-Django==1.11.1
+Django==1.11.*
 django-extensions==1.7.9
 psycopg2==2.7.1
 django-environ==0.4.3
@@ -25,10 +25,7 @@ PyPDF2==1.26.0
 # iCal export
 icalendar==3.11.3
 
-# Opbeat (APM and error reporting)
-opbeat==3.5.2
-
-# HTTP client (for Kobra etc.)
+# HTTP client (used to communicate with external APIs)
 requests==2.14.2
 
 # Make the shell great again

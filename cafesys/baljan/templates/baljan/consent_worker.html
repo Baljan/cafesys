@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load baljan_extras %}
+{% load static %}
+
+{% block head_title %}Information om datalagring{% endblock %}
+
+{% block body_base %}
+    <div class="container">
+        <div class="d-md-flex" style="align-items: center;">
+            <span class="navbar-brand d-none d-md-block">
+                <img src="{% static 'img/svg/logo.svg' %}" width="62"/>
+            </span>
+            <h1>Information om datalagring</h1>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p>
+                    Vi i Baljan tar den personliga integriteten på stort allvar och har i enlighet med
+                    den nya dataskyddsförordningen sett över vår hantering av personuppgifter. Eftersom
+                    du är bunden till ett avtal med Baljan måste vi behålla dina personuppgifter lagrade
+                    under tiden du är verksam som jobbare. Du kan läsa mer om vad som lagras i vår
+                    fullständiga integritetspolicy som även beskriver hur Baljan hanterar andra
+                    personuppgifter <a href="{% url 'integrity' %}">här</a>.
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Fortsätt till hemsidan</button>
+                </form>
+                <br/>
+                <small class="form-text text-muted">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                    När du slutat som jobbare kommer dina personuppgifter att rensas och nästa gång du loggar
+                    in kommer du bli uppmanad att ta ställning till vilka personuppgifter du vill lagra hos
+                    Baljan.
+                </small>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_body %}
+{% endblock %}

@@ -1,0 +1,30 @@
+.list-consent {
+  li {
+    padding-bottom: 6px;
+    display: flex;
+    align-items: baseline;
+
+    i {
+      width: 1.4em;
+      margin-left: 1em;
+      margin-right: 0.4em;
+      text-align: center;
+    }
+
+    sup {
+      margin-left: 3px;
+    }
+  }
+}
+
+.list-footnotes {
+  small {
+    padding-bottom: 20px;
+    display: flex;
+    align-items: baseline;
+
+    sup {
+      margin-right: 3px;
+    }
+  }
+}

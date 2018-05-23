@@ -8,7 +8,12 @@ from django.utils.translation import ugettext as _
 
 from . import models, pdf
 
-admin.site.register(models.Profile)
+
+class ProfileAdmin(admin.ModelAdmin):
+    exclude = ('card_cache',)
+
+
+admin.site.register(models.Profile, ProfileAdmin)
 
 
 class ShiftInline(admin.TabularInline):
@@ -315,3 +320,17 @@ class IncomingCallFallback(admin.ModelAdmin):
 
 
 admin.site.register(models.IncomingCallFallback, IncomingCallFallback)
+
+
+class LegalConsent(admin.ModelAdmin):
+    list_display = ('user', 'policy_name', 'policy_version', 'time_of_consent', 'revoked')
+    readonly_fields = ('user', 'policy_name', 'policy_version', 'time_of_consent', 'revoked', 'time_of_revocation',)
+
+
+class MutedConsent(admin.ModelAdmin):
+    list_display = ('user', 'action', 'time_of_consent')
+    readonly_fields = ('user', 'action', 'time_of_consent',)
+
+
+admin.site.register(models.LegalConsent, LegalConsent)
+admin.site.register(models.MutedConsent, MutedConsent)

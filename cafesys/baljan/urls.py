@@ -46,4 +46,7 @@ urlpatterns = (
     url(r'trade/deny/(\d+)/(.*)', views.trade_deny, name='deny_trade'),
 
     url(r'incoming-call', views.incoming_call),
+    url(r'consent', views.consent, name='consent'),
+    url(r'do-blipp', views.do_blipp),
+    url(r'integrity', views.integrity, name='integrity'),
 )
