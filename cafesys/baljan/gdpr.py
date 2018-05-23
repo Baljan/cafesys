@@ -86,6 +86,15 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
     if is_worker(user):
         # Workers are not affected by the consent as they are bound by an agreement which
         # regulates our processing of their personal details.
+
+        # We must ensure that we keep an up-to-date username though.
+        username = details['username']
+
+        # Only update the username if it has changed!
+        if user.username != username:
+            user.username = username
+            strategy.storage.user.changed(user)
+
         return {'details': details}
 
     if not LegalConsent.is_present(user, AUTOMATIC_LIU_DETAILS):
