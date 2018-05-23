@@ -1025,7 +1025,7 @@ def do_blipp(request):
     # We will always have a user at this point
 
     price = settings.BLIPP_COFFEE_PRICE
-    is_coffee_free = user.has_perm('baljan.free_coffee_unlimited') or user.has_perm('baljan.free_coffee_with_cooldown')
+    is_coffee_free = user.profile.has_free_blipp()
 
     if is_coffee_free:
         price = 0

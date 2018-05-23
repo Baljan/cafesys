@@ -11,8 +11,16 @@
     }
   }
 
+  span {
+    margin-right: 32px;
+
+    @include media-breakpoint-down(sm) {
+      margin-right: 0;
+    }
+  }
+
   .btn {
-    margin-left: 32px;
+    margin-left: auto;
 
     @include media-breakpoint-down(sm) {
       display: block;

@@ -63,6 +63,9 @@ class Profile(Made):
     def balcur(self):
         return "%s %s" % (self.balance, self.balance_currency)
 
+    def has_free_blipp(self):
+        return self.user.has_perm('baljan.free_coffee_unlimited') or self.user.has_perm('baljan.free_coffee_with_cooldown')
+
     def get_absolute_url(self):
         return self.user.get_absolute_url()
 
