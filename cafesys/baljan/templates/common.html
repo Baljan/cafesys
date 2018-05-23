@@ -85,9 +85,9 @@
 </header>
  
 {% block full_body %}
+{% include 'baljan/_card_missing_notice.html' %}
 <main class="bd-masthead wrapper--md" id="content" role="main">
   <div class="container">
-
     <!-- {#<div id="logo" class="9" dir="ltr">{% block logo_link_image %}{% endblock %}</div>#} -->
       {% for message in messages %}
           <div class="alert alert-{{ message.tags }}">{{ message }}</div>

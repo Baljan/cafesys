@@ -352,5 +352,12 @@
         $('a.accept, a.deny').click(function () {
             return confirm(CONFIRM_MSG);
         });
+
+        $(function () {
+            // Open edit modal if requested by url parameter
+            if (window.location.search.indexOf("edit=") >= 0) {
+                $('#edit-profile-modal').modal();
+            }
+        });
     </script>
 {% endblock %}

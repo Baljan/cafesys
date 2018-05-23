@@ -4,6 +4,7 @@
 {% block body_class %}about{% endblock %}
 
 {% block full_body %}
+{% include 'baljan/_card_missing_notice.html' %}
 {% for message in messages %}
     <!-- Needed to avoid delayed messages bug caused by logging out -->
 {% endfor %}
