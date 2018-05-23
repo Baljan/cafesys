@@ -44,7 +44,8 @@
                         {% else %}
                             <dd>{% trans "unset" %}</dd>
                         {% endif %}
-
+                    {% endif %}
+                    {% if watching_self %}
                         <dt>Kort-id</dt>
                         {% if prof.card_id %}
                             <dd>{{ prof.card_id }}</dd>
