@@ -70,6 +70,10 @@ def was_worker(user, day):
     return _was_in(user, day, WorkerSemesterGroup, settings.WORKER_GROUP)
 
 
+def is_worker(user):
+    return user.groups.filter(name__exact = settings.WORKER_GROUP).exists()
+
+
 def was_board(user, day):
     return _was_in(user, day, BoardSemesterGroup, settings.BOARD_GROUP)
 

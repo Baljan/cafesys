@@ -23,8 +23,9 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
 from cafesys.baljan import phone, slack
-from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED
+from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
 from cafesys.baljan.models import LegalConsent, MutedConsent
+from cafesys.baljan.pseudogroups import is_worker
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from cafesys.baljan import phone
 from cafesys.baljan.models import Order
@@ -381,15 +382,16 @@ def see_user(request, who):
     if watching_self and request.method == 'POST':
         # Handle policy consent and revocation actions
         if request.POST.get('policy') is not None:
-            policy_name, policy_version, action = request.POST.get('policy').split('/')
-            if action == 'revoke':
-                revoke_policy(u, policy_name)
-                return redirect(request.path)
-            elif action == 'consent':
-                consent_to_policy(u, policy_name, int(policy_version))
-                if policy_name == AUTOMATIC_LIU_DETAILS or policy_name == AUTOMATIC_FULLNAME:
-                    logout(request)
-                    return redirect(reverse('social:begin', args=['liu']) + '?next=' + request.path)
+            if not is_worker(u):
+                policy_name, policy_version, action = request.POST.get('policy').split('/')
+                if action == 'revoke':
+                    revoke_policy(u, policy_name)
+                    return redirect(request.path)
+                elif action == 'consent':
+                    consent_to_policy(u, policy_name, int(policy_version))
+                    if policy_name == AUTOMATIC_LIU_DETAILS or policy_name == AUTOMATIC_FULLNAME:
+                        logout(request)
+                        return redirect(reverse('social:begin', args=['liu']) + '?next=' + request.path)
         else:
             profile_forms = [c(request.POST, request.FILES, instance=i)
                              for c, i in profile_form_cls_inst]
@@ -422,6 +424,8 @@ def see_user(request, who):
 
         policies = get_policies(u)
         tpl['policies'] = policies
+
+        tpl['is_worker'] = is_worker(u)
 
     # Call duties come after work shifts because they are more frequent.
     tpl['signup_types'] = (
@@ -946,6 +950,9 @@ def consent(request):
         user.profile.has_seen_consent = True
         user.profile.save()
 
+        if is_worker(request.user):
+            return redirect('/')
+
         if request.POST.get('consent') == 'yes':
             consent_to_policy(user, AUTOMATIC_LIU_DETAILS)
 
@@ -958,9 +965,13 @@ def consent(request):
         else:
             # Make sure that personal information is erased before continuing
             revoke_automatic_liu_details(user)
+            revoke_automatic_fullname(user)
             return redirect('/')
 
-    return render(request, 'baljan/consent.html')
+    if is_worker(request.user):
+        return render(request, 'baljan/consent_worker.html')
+    else:
+        return render(request, 'baljan/consent.html')
 
 
 def with_cors_headers(f):

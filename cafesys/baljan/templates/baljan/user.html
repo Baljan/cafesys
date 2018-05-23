@@ -91,62 +91,71 @@
 
                     {% if watching_self %}
                         <dt>Samtycken</dt>
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th>Policy</th>
-                                <th>Datum</th>
-                                <th>Åtgärd</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for key, policy in policies.consented.items %}
+                        {% if is_worker %}
+                            <p>
+                                Du är bunden till ett avtal med Baljan och kan tyvärr inte ta ställning till
+                                samtycken som berör dina personuppgifter. Du har trots det kvar rätten att
+                                bli bortglömd. Detta kan du begära genom att kontakta personalansvarig på
+                                <a href="mailto:personalis@baljan.org">personalis@baljan.org</a>
+                                för att avsluta din karriär i Sektionscafé Baljan.
+                            </p>
+                        {% else %}
+                            <table class="table">
+                                <thead>
                                 <tr>
-                                    <td>
-                                        <a href="{{ policy.pdf }}">
-                                            {{ policy.name }}
-                                            {% if policy.version > 1 %}
-                                                (v{{ policy.version }})
-                                            {% endif %}
-                                        </a>
-                                    </td>
-                                    <td>
-                                        {{ policy.date_of_consent }}
-                                    </td>
-                                    <td>
-                                        <form method="post">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/revoke">
-                                            <button type="submit" class="btn btn-danger btn-sm">Återkalla</button>
-                                        </form>
-                                    </td>
+                                    <th>Policy</th>
+                                    <th>Datum</th>
+                                    <th>Åtgärd</th>
                                 </tr>
-                            {% endfor %}
-                            {% for key, policy in policies.not_consented.items %}
-                                <tr>
-                                    <td>
-                                        <a href="{{ policy.pdf }}">
-                                            {{ policy.name }}
-                                            {% if policy.version > 1 %}
-                                                (v{{ policy.version }})
-                                            {% endif %}
-                                        </a>
-                                    </td>
-                                    <td>
-                                        {{ policy.date_of_consent }}
-                                    </td>
-                                    <td>
-                                        <form method="post">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/consent">
-                                            <button type="submit" class="btn btn-primary btn-sm">Samtyck</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-
+                                </thead>
+                                <tbody>
+                                {% for key, policy in policies.consented.items %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ policy.pdf }}">
+                                                {{ policy.name }}
+                                                {% if policy.version > 1 %}
+                                                    (v{{ policy.version }})
+                                                {% endif %}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {{ policy.date_of_consent }}
+                                        </td>
+                                        <td>
+                                            <form method="post">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/revoke">
+                                                <button type="submit" class="btn btn-danger btn-sm">Återkalla</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                {% for key, policy in policies.not_consented.items %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ policy.pdf }}">
+                                                {{ policy.name }}
+                                                {% if policy.version > 1 %}
+                                                    (v{{ policy.version }})
+                                                {% endif %}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {{ policy.date_of_consent }}
+                                        </td>
+                                        <td>
+                                            <form method="post">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/consent">
+                                                <button type="submit" class="btn btn-primary btn-sm">Samtyck</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
                     {% endif %}
                 </dl>
             {% endwith %}
