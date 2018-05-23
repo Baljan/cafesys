@@ -22,16 +22,6 @@ deployment:
     - 80
     env:
     - from: config:baljan-config
-  - name: cloudsql-proxy
-    image: gcr.io/cloudsql-docker/gce-proxy:1.11
-    command: ["/cloud_sql_proxy",
-              "-instances=sektionscafe-baljan:europe-west1:baljan-db=tcp:5432",
-              "-credential_file=/secrets/cloudsql/Baljan-6a5cb68f99a2.json"]
-    volume:
-    - mount: /secrets/cloudsql
-      store: cloudsql-instance-credentials:ro
-  volumes:
-    cloudsql-instance-credentials: secret:cloudsql-instance-credentials
 ---
 deployment:
   version: extensions/v1beta1
