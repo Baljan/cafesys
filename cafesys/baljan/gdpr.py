@@ -98,11 +98,17 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
         # Note that we must NOT remove the e-mail address here! This is needed for the step
         #   social_core.pipeline.social_auth.associate_by_email
         #
-        # When recruiting new workers for the next semester we have the possibility to
-        # automatically import users from Kobra, and in order to correctly tie them to
-        # the correct account when logging in they need an email-value in the details
-        # dictionary. We will later reset this value in the step
+        # Users that have never logged in using OAUTH before will not have an anonymous
+        # identifier connected to their account, which is what python-social-auth uses for
+        # connecting a login response to an actual user by default. If this identifier is
+        # missing they must instead be associated using their e-mail address so we need to
+        # keep the email-value in the details dictionary for this. We will later reset
+        # this value in the step
         #   cafesys.baljan.gdpr.clean_social_details
+        #
+        # Note: users that have never logged in using OAUTH could either be very old, and
+        # previously logged in using the ADFS solution. Another alternative is that they
+        # have been created as part of the "jobbsläpp" and thus have never logged in at all.
         #
         details['username'] = generate_anonymous_username(user)
     else:

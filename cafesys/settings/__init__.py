@@ -179,8 +179,6 @@ SOCIAL_AUTH_LIU_KEY = env.str('AUTH_LIU_CLIENT_ID', default='')
 SOCIAL_AUTH_LIU_SECRET = env.str('AUTH_LIU_CLIENT_SECRET', default='')
 SOCIAL_AUTH_LIU_SCOPE = env.list('AUTH_LIU_RESOURCE', default=[])
 
-KOBRA_API_TOKEN = env.str('KOBRA_API_TOKEN', default='')
-
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = True
 CONTACT_EMAIL = "styrelsen@baljan.org"
