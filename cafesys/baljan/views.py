@@ -23,7 +23,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
 from cafesys.baljan import phone, slack
-from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_CARD_NR, CACHE_CARD_NR, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED
+from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED
 from cafesys.baljan.models import LegalConsent, MutedConsent
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from cafesys.baljan import phone
@@ -951,9 +951,6 @@ def consent(request):
 
             if 'automatic_fullname' in request.POST:
                 consent_to_policy(user, AUTOMATIC_FULLNAME)
-
-            if 'cache_card_nr' in request.POST:
-                consent_to_policy(user, CACHE_CARD_NR)
 
             # Force re-login as this will update the username
             logout(request)

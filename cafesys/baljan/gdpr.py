@@ -5,8 +5,6 @@ from cafesys.baljan.models import LegalConsent
 
 AUTOMATIC_LIU_DETAILS = 'automatic_liu_details'
 AUTOMATIC_FULLNAME = 'automatic_fullname'
-AUTOMATIC_CARD_NR = 'automatic_card_number'
-CACHE_CARD_NR = 'cache_card_number'
 
 ACTION_PROFILE_SAVED = 'action_profile_saved'
 
@@ -17,14 +15,6 @@ POLICIES = {
     },
     AUTOMATIC_FULLNAME: {
         'name': 'Automatisk hämtning av för- och efternamn',
-        'versions': ['/static/contract.pdf']
-    },
-    AUTOMATIC_CARD_NR: {
-        'name': 'Automatisk hämtning av LiU-kortnummer',
-        'versions': ['/static/contract.pdf']
-    },
-    CACHE_CARD_NR: {
-        'name': "Cachning av LiU-kortnummer",
         'versions': ['/static/contract.pdf']
     }
 }
