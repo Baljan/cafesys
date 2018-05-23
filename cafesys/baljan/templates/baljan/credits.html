@@ -9,32 +9,6 @@
 
 {% block body_class %}credits{% endblock %}
 {% block body %}
-    {% if not works_automatically %}
-        <div class="alert alert-danger" role="alert">
-            <h2>LiU-kort fungerar <u>inte</u> automatiskt</h2>
-            <p>
-                Du har tagit avstånd från lagring av personlig information och vi kan därför inte
-                koppla ditt LiU-kort till blippen automatiskt. För att kunna använda blippen måste
-                du därför fylla i ditt LiU-kortnummer manuellt i din <a href="{% url 'profile' %}">profil</a>.
-                Där är det också möjligt att ändra din åsikt i frågan om datalagring.
-            </p>
-        </div>
-    {% else %}
-        <div class="alert alert-warning" role="alert">
-            <h2>LiU-kort fungerar snart inte längre automatiskt</h2>
-            <p>
-                På grund av den nya dataskyddsförordningen kommer det externa system vi använder för
-                att hämta LiU-kortnummer stängas ner den 24:e maj. För att fortsätta blippen därefter
-                måste du fylla i ditt kortnummer manuellt i din <a href="{% url 'profile' %}">profil</a>.
-            </p>
-            <p>
-                Har du godkänt att vi cache-lagrar ditt kortnummer automatiskt så behöver du bara
-                blippa ditt kort nere i Baljan en gång innan den 24:e maj, så kommer allting att fortsätta fungera
-                precis som förut. Detta kan du ta ställning till i din <a href="{% url 'profile' %}">profil</a>.
-            </p>
-        </div>
-    {% endif %}
-
     <h1>Konto</h1>
     <div class="row">
         <div class="col-sm-6">
@@ -69,13 +43,10 @@
             <h2>Tillgängligt</h2>
             <p>{{currently_available}}</p>
 
-            {% if works_automatically %}
-                <h2>LiU-kort fungerar automatiskt</h2>
-                <p>
-                    LiU-kort hämtas automatiskt från universitetets databaser.
-                    Det tar dock någon dag för ett nytt kort att komma in i databasen om du byter kort.
-                </p>
-            {% endif %}
+            <h2>LiU-kortet konfigureras manuellt</h2>
+            <p>
+                Du kan ändra vilket RFID-kortnummer du har kopplat till blippen <a href="{% url 'profile' %}?edit=true">i din profil</a>.
+            </p>
 
             <h2>Använda värdekort</h2>
             <ul>
