@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Value
 from django.db.models.functions import Concat
 
-from ...models import Order, Profile
+from ...models import Order, Profile, Semester
 
 import gc
 
@@ -23,6 +23,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--exclude', nargs='+')  # Groups to exclude
+        parser.add_argument('--exclude-semester', type=str)  # A semester to exclude
         parser.add_argument('--dangerously-modify-database', action='store_true')
 
     def handle(self, *args, **options):
@@ -31,7 +32,14 @@ class Command(BaseCommand):
             print('You MUST exclude at least one group (remember the workers!)')
             return
 
-        excluded_users = User.objects.filter(groups__name__in=exclude_opt)
+        try:
+            semester = Semester.objects.by_name(options['exclude_semester'])
+        except Semester.DoesNotExist:
+            raise CommandError('bad semester: %s' % options['exclude_semester'])
+
+        excluded_users_by_group = User.objects.filter(groups__name__in=exclude_opt).distinct()
+        excluded_users_by_semester = User.objects.filter(shiftsignup__shift__semester=semester).distinct()
+        excluded_users = excluded_users_by_group | excluded_users_by_semester
         non_excluded_users = User.objects.exclude(id__in=excluded_users)
         non_excluded_profiles = Profile.objects.filter(user__in=non_excluded_users)
 
