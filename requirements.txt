@@ -25,9 +25,6 @@ PyPDF2==1.26.0
 # iCal export
 icalendar==3.11.3
 
-# Opbeat (APM and error reporting)
-opbeat==3.5.2
-
 # HTTP client (for Kobra etc.)
 requests==2.14.2
 

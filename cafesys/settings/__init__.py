@@ -113,7 +113,6 @@ TEMPLATES = [
 # CRISPY_TEMPLATE_PACK = 'uni_form'
 
 MIDDLEWARE = [
-    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -145,7 +144,6 @@ INSTALLED_APPS = [
 
     # external
     'django_extensions',
-    'opbeat.contrib.django',
     'crispy_forms',
     'social_django',
     'sass_processor',
@@ -233,12 +231,6 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'cafesys.baljan.tasks.update_stats',
         'schedule': STATS_REFRESH_RATE
     }
-}
-
-OPBEAT = {
-    'ORGANIZATION_ID': env.str('OPBEAT_ORGANIZATION_ID', default=''),
-    'APP_ID': env.str('OPBEAT_APP_ID', default=''),
-    'SECRET_TOKEN': env.str('OPBEAT_SECRET_TOKEN', default='')
 }
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_SSL', 'on')
