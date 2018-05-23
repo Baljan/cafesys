@@ -3,6 +3,7 @@ from django.templatetags.static import static
 from django.urls import reverse, resolve
 
 from cafesys.baljan.models import LegalConsent
+from cafesys.baljan.pseudogroups import is_worker
 
 AUTOMATIC_LIU_DETAILS = 'automatic_liu_details'
 AUTOMATIC_FULLNAME = 'automatic_fullname'
@@ -82,6 +83,20 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
     details = dict(backend.get_user_details(response), **details)
     details['fullname'] = None
 
+    if is_worker(user):
+        # Workers are not affected by the consent as they are bound by an agreement which
+        # regulates our processing of their personal details.
+
+        # We must ensure that we keep an up-to-date username though.
+        username = details['username']
+
+        # Only update the username if it has changed!
+        if user.username != username:
+            user.username = username
+            strategy.storage.user.changed(user)
+
+        return {'details': details}
+
     if not LegalConsent.is_present(user, AUTOMATIC_LIU_DETAILS):
         # This is the first time the user has logged in, or the user has not
         # approved any automatic storage of LiU details: generate a unique name.
@@ -125,6 +140,12 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
 
 
 def clean_social_details(details, user, *args, **kwargs):
+    if is_worker(user):
+        # This step is not needed for workers, see comment in
+        #   cafesys.baljan.gdpr.legal_social_details
+
+        return {}
+
     if not LegalConsent.is_present(user, AUTOMATIC_LIU_DETAILS):
         # We have temporarily set an e-mail address that we aren't allowed
         # to persistently store, so we clear it and continue.
