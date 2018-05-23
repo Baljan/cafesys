@@ -43,17 +43,10 @@
                         <b>Vad lagras?</b>
                         <ul class="list-unstyled list-consent">
                             <li><i class="fa fa-check" aria-hidden="true"></i> LiU-ID</li>
-                            <li><i class="fa fa-question" aria-hidden="true"></i> För- och efternamn</li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> För- och efternamn</li>
                             <li><i class="fa fa-check" aria-hidden="true"></i> Mailadress</li>
-                            <li><i class="fa fa-question" aria-hidden="true"></i> <span>Telefonnummer<sup>1</sup></span></li>
-                            <li><i class="fa fa-question" aria-hidden="true"></i> LiU-kortnummer</li>
-                        </ul>
-                        <b>Hur kan jag interagera med blippen?</b>
-                        <ul class="list-unstyled list-consent">
-                            <li><i class="fa fa-question" aria-hidden="true"></i> <span>Automatisk koppling till LiU-kortet<sup>2</sup></span></li>
-                            <li><i class="fa fa-question" aria-hidden="true"></i> <span>Cache-lagring av LiU-kortnumret<sup>3</sup></span></li>
-                            <li><i class="fa fa-check" aria-hidden="true"></i> Manuell infyllning av kort-nummer</li>
-                            <li><i class="fa fa-check" aria-hidden="true"></i> Historik över dina påfyllnader och blipp</li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> <span>Telefonnummer<sup>1</sup></span></li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> LiU-kortnummer</li>
                         </ul>
                         <form method="post">
                             {% csrf_token %}
@@ -75,17 +68,10 @@
                         <b>Vad lagras?</b>
                         <ul class="list-unstyled list-consent">
                             <li><i class="fa fa-times" aria-hidden="true"></i> LiU-ID</li>
-                            <li><i class="fa fa-question" aria-hidden="true"></i> För- och efternamn</li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> För- och efternamn</li>
                             <li><i class="fa fa-times" aria-hidden="true"></i> Mailadress</li>
-                            <li><i class="fa fa-question" aria-hidden="true"></i> <span>Telefonnummer<sup>1</sup></span></li>
-                            <li><i class="fa fa-question" aria-hidden="true"></i> LiU-kortnummer</li>
-                        </ul>
-                        <b>Hur kan jag interagera med blippen?</b>
-                        <ul class="list-unstyled list-consent">
-                            <li><i class="fa fa-times" aria-hidden="true"></i> <span>Automatisk koppling till LiU-kortet<sup>3</sup></span></li>
-                            <li><i class="fa fa-times" aria-hidden="true"></i> <span>Cache-lagring av LiU-kortnumret<sup>4</sup></span></li>
-                            <li><i class="fa fa-check" aria-hidden="true"></i> Manuell infyllning av kort-nummer</li>
-                            <li><i class="fa fa-check" aria-hidden="true"></i> Historik över dina påfyllnader och blipp</li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> <span>Telefonnummer<sup>1</sup></span></li>
+                            <li><i class="fa fa-cog" aria-hidden="true"></i> LiU-kortnummer</li>
                         </ul>
                         <form method="post">
                             {% csrf_token %}
@@ -107,19 +93,12 @@
                 </p>
                 <ul class="list-unstyled list-footnotes">
                     <li>
-                        <small><sup>1</sup> Du kan om du vill fylla i ditt telefonnummer i din profil. Nummret blir då synligt för alla personer med ett konto på baljan.org. Det är obligatoriskt att
+                        <small><sup>1</sup> Du kan om du vill fylla i ditt telefonnummer i din profil. Nummret blir då synligt för alla jobbare och styrelsemedlemmar i Baljan. Det är obligatoriskt att
                             ha
                             ett nummer kopplat om du jobbar i Baljan.
                         </small>
-                    </li>
-                    <li>
-                        <small><sup>2</sup> För att underlätta införskaffandet av ett blipp-kort har vi stöd för ett externt system som kopplar ihop LiU-kortet med ditt Baljan-konto. För att använda
-                            denna
-                            funktion måste du godkänna att vi delar ditt kort-nummer med det externa system vi använder. Notera att systemet kräver att du lagrar ditt LiU-ID hos oss.
+                        <small><i class="fa fa-cog" aria-hidden="true"></i>&nbsp;Betyder att informationen är valbar och att det är du själv som väljer om du vill bistå med den.
                         </small>
-                    </li>
-                    <li>
-                        <small><sup>3</sup> Du kan välja att låta Baljan lagra ditt LiU-kortnummer i syfte att förbättra hastighet och redundans i din interaktion med blippen.</small>
                     </li>
                 </ul>
             </div>
