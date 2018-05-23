@@ -1,4 +1,5 @@
 from django.shortcuts import redirect
+from django.templatetags.static import static
 from django.urls import reverse, resolve
 
 from cafesys.baljan.models import LegalConsent
@@ -10,12 +11,12 @@ ACTION_PROFILE_SAVED = 'action_profile_saved'
 
 POLICIES = {
     AUTOMATIC_LIU_DETAILS: {
-        'name': 'Automatisk hämtning av LiU-detaljer',
-        'versions': ['/static/contract.pdf', '/static/guide.pdf']
+        'name': 'Automatisk hämtning av LiU-ID',
+        'versions': [static('Integritetspolicy.pdf')]
     },
     AUTOMATIC_FULLNAME: {
         'name': 'Automatisk hämtning av för- och efternamn',
-        'versions': ['/static/contract.pdf']
+        'versions': [static('Integritetspolicy.pdf')]
     }
 }
 
