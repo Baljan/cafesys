@@ -60,6 +60,7 @@ service:
   ports:
   - http: 80
   - https: 443
+  route_policy: node-local
 ---
 # TODO: This needs to be configured to force HTTPS
 config_map:
