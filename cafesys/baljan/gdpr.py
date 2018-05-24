@@ -83,7 +83,7 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
     details = dict(backend.get_user_details(response), **details)
     details['fullname'] = None
 
-    if is_worker(user):
+    if user is not None and is_worker(user):
         # Workers are not affected by the consent as they are bound by an agreement which
         # regulates our processing of their personal details.
 
@@ -98,9 +98,6 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
         return {'details': details}
 
     if not LegalConsent.is_present(user, AUTOMATIC_LIU_DETAILS):
-        # This is the first time the user has logged in, or the user has not
-        # approved any automatic storage of LiU details: generate a unique name.
-
         # Note that we must NOT remove the e-mail address here! This is needed for the step
         #   social_core.pipeline.social_auth.associate_by_email
         #
@@ -116,7 +113,7 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
         # previously logged in using the ADFS solution. Another alternative is that they
         # have been created as part of the "jobbsläpp" and thus have never logged in at all.
         #
-        details['username'] = generate_anonymous_username(user)
+        pass
     else:
         # The user has given their consent to storing their username and e-mail
         # given from LiU ADFS. If this is their first time logging in after
@@ -140,7 +137,7 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
 
 
 def clean_social_details(details, user, *args, **kwargs):
-    if is_worker(user):
+    if user is not None and is_worker(user):
         # This step is not needed for workers, see comment in
         #   cafesys.baljan.gdpr.legal_social_details
 
@@ -154,6 +151,17 @@ def clean_social_details(details, user, *args, **kwargs):
         return {'details': details}
 
     return {}
+
+
+def set_anonymous_username(user, strategy, *args, **kwargs):
+    if not LegalConsent.is_present(user, AUTOMATIC_LIU_DETAILS):
+        # This is the first time the user has logged in, or the user has not
+        # approved any automatic storage of LiU details: generate a unique name.
+
+        username = generate_anonymous_username(user)
+        if user.username != username:
+            user.username = username
+            strategy.storage.user.changed(user)
 
 
 def revoke_automatic_liu_details(user):

@@ -170,6 +170,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.associate_by_email',
     'cafesys.baljan.gdpr.clean_social_details',
     'social_core.pipeline.user.create_user',
+    'cafesys.baljan.gdpr.set_anonymous_username',
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
