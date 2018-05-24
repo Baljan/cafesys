@@ -154,7 +154,7 @@ def clean_social_details(details, user, *args, **kwargs):
 
 
 def set_anonymous_username(user, strategy, *args, **kwargs):
-    if not LegalConsent.is_present(user, AUTOMATIC_LIU_DETAILS):
+    if not is_worker(user) and not LegalConsent.is_present(user, AUTOMATIC_LIU_DETAILS):
         # This is the first time the user has logged in, or the user has not
         # approved any automatic storage of LiU details: generate a unique name.
 
@@ -162,6 +162,8 @@ def set_anonymous_username(user, strategy, *args, **kwargs):
         if user.username != username:
             user.username = username
             strategy.storage.user.changed(user)
+
+    return {}
 
 
 def revoke_automatic_liu_details(user):
