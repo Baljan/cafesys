@@ -1,10 +1,9 @@
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-
 from cafesys.baljan.models import Profile
 
 
 def compile_slack_message(phone_from, phone_to, status):
-    """Compiles a message that can be posted to Slack after a call has been made"""
+    """Compiles a message that can be posted to Slack after a call has been made."""
 
     call_from_user = _query_user(phone_from)
     call_from = _format_caller(call_from_user, phone_from)
@@ -74,8 +73,8 @@ def _query_user(phone):
         return {
             'first_name': user.first_name,
             'last_name': user.last_name,
-            'groups': [group.name if group.name[0] != '_' else \
-                           group.name[1:] for group in user.groups.all()]
+            'groups': [group.name if group.name[0] != '_' else
+                       group.name[1:] for group in user.groups.all()]
         }
     except (ObjectDoesNotExist, MultipleObjectsReturned):
         # Expected output for a lot of calls. Not an error.
@@ -84,6 +83,9 @@ def _query_user(phone):
 
 def _format_caller(call_user, phone):
     """Formats caller information into a readable string"""
+    # The phone number is private or not provided
+    if not phone:
+        return 'dolt nummer'
 
     caller = phone
 

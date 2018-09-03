@@ -10,14 +10,11 @@ import pytz
 from re import match
 from datetime import date, datetime, time
 
-from celery import uuid
-from celery.result import AsyncResult
 from django.conf import settings
 from django.utils.http import urlquote
 
 from cafesys.baljan import planning
 from cafesys.baljan.models import Shift, IncomingCallFallback
-from cafesys.baljan.tasks import send_missed_call_message
 
 tz = pytz.timezone(settings.TIME_ZONE)
 
@@ -36,12 +33,6 @@ PHONE_EXTENSION = '239927'
 
 # Maximum length of a phone number (+46 + 9 digits)
 MAX_PHONE_LENGTH = 12
-
-# Number of seconds before redirecting the call to the next person
-TIMEOUT_SECONDS = 20
-
-# Extra time to wait before sending a "missed" notification on Slack (takes network conditions into account)
-TIMEOUT_MARGIN = 10
 
 
 def _get_fallback_numbers():
@@ -147,7 +138,7 @@ def is_valid_phone_number(phone):
     return match(r'^(\+46|0)[0-9]{7,9}$', phone) is not None
 
 
-def compile_number_list():
+def _compile_number_list():
     phone_numbers = []
     current_duty_phone_numbers = _get_current_duty_phone_numbers()
 
@@ -162,32 +153,36 @@ def compile_number_list():
     return phone_numbers
 
 
-def compile_redirect_response(request, call_list, task_id=None):
-    if call_list:
-        current = call_list[0]
-        next_call_list = ','.join(call_list[1:])
+def _build_46elks_response(phone_numbers):
+    """Builds a response message compatible with 46elks.com"""
 
-        task_id_parameter = ''
-        if task_id is not None:
-            task_id_parameter = '&last_task_id=%s' % urlquote(task_id)
-
-        return {
-            'connect': current,
+    if phone_numbers:
+        data = {
+            'connect': phone_numbers[0],
             'callerid': '+46766860043',
-            'timeout': str(TIMEOUT_SECONDS),
-            'next': request.build_absolute_uri('/baljan/incoming-call?call_list=%s&last=%s%s' %
-                                               (urlquote(next_call_list), urlquote(current), task_id_parameter))
         }
+
+        busy = _build_46elks_response(phone_numbers[1:])
+        if busy:
+            data['timeout'] = '20'
+            data['busy'] = busy
+            data['failed'] = busy
+
+        return data
     else:
         return {}
 
 
-def start_missed_call_timer(call_from, call_to):
-    task_id = uuid()
-    send_missed_call_message.apply_async((call_from, call_to), countdown=TIMEOUT_SECONDS + TIMEOUT_MARGIN, task_id=task_id)
+def compile_incoming_call_response():
+    """
+    Compiles a response message to an incoming call. The algorithm for this
+    response is found in the file header.
+    """
+    phone_numbers = _compile_number_list()
+    response = _build_46elks_response(phone_numbers)
+    
+    if response:
+        # Attach 'whenhangup' to top of call chain
+        response['whenhangup'] = request.build_absolute_uri('/baljan/post-call')
 
-    return task_id
-
-
-def abort_missed_call_timer(task_id):
-    AsyncResult(task_id).revoke()
+    return response

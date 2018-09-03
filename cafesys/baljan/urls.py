@@ -40,12 +40,13 @@ urlpatterns = (
     url(r'high-score/(\d+)/(\d+)', views.high_score, name='high_score'),
     url(r'high-score', views.high_score, name='high_score'),
 
-    url(r'bestallning',views.orderFromUs, name='order_from_us'),
+    url(r'bestallning', views.orderFromUs, name='order_from_us'),
     url(r'trade/take/(\d+)/(.*)', views.trade_take, name='take_signup'),
     url(r'trade/accept/(\d+)/(.*)', views.trade_accept, name='accept_trade'),
     url(r'trade/deny/(\d+)/(.*)', views.trade_deny, name='deny_trade'),
 
     url(r'incoming-call', views.incoming_call),
+    url(r'post-call', views.post_call),
     url(r'consent', views.consent, name='consent'),
     url(r'do-blipp', views.do_blipp),
     url(r'integrity', views.integrity, name='integrity'),
