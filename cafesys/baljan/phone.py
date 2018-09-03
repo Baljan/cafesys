@@ -183,6 +183,10 @@ def compile_incoming_call_response(request):
     
     if response:
         # Attach 'whenhangup' to top of call chain
-        response['whenhangup'] = request.build_absolute_uri('/baljan/post-call')
+        hangup_url = request.build_absolute_uri('/baljan/post-call')
+        if settings.SOCIAL_AUTH_REDIRECT_IS_HTTPS:
+            hangup_url = hangup_url.replace('http://', 'https://')
+
+        response['whenhangup'] = hangup_url
 
     return response

@@ -896,9 +896,9 @@ def post_call(request):
     # Verify that the request is from 46elks to avoid
     # unwanted webhook calls
     if phone.request_from_46elks(request):
-        result = request.GET.get('state')
-        call_from = phone.remove_extension(request.GET.get('from', ''))
-        call_to = phone.remove_extension(request.GET.get('to', ''))
+        result = request.POST.get('state')
+        call_from = phone.remove_extension(request.POST.get('from', ''))
+        call_to = phone.remove_extension(request.POST.get('to', ''))
 
         slack_data = slack.compile_slack_message(
                 call_from,
