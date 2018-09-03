@@ -886,7 +886,7 @@ def high_score(request, year=None, week=None):
 
 @csrf_exempt
 def incoming_call(request):
-    response = phone.compile_incoming_call_response()
+    response = phone.compile_incoming_call_response(request)
 
     return JsonResponse(response)
 

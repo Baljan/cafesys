@@ -173,7 +173,7 @@ def _build_46elks_response(phone_numbers):
         return {}
 
 
-def compile_incoming_call_response():
+def compile_incoming_call_response(request):
     """
     Compiles a response message to an incoming call. The algorithm for this
     response is found in the file header.
