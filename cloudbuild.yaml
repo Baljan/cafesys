@@ -9,4 +9,5 @@ steps:
             '--cache-from', 'gcr.io/$PROJECT_ID/$REPO_NAME:latest',
             '.'
         ]
-images: ['gcr.io/$PROJECT_ID/$REPO_NAME:latest']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA']
