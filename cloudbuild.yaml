@@ -14,32 +14,32 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/$REPO_NAME:latest']
 - name: 'gcr.io/cloud-builders/kubectl'
-  args:
-  - set
-  - image
-  - deployment
-  - cafesys-django
-  - cafesys-django=gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA
+  args: [
+            'set', 'image',
+            'deployment', 'cafesys-django',
+            '-n', 'baljan',
+            'cafesys-django=gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA'
+        ]
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=europe-west1-b'
   - 'CLOUDSDK_CONTAINER_CLUSTER=cluster'
 - name: 'gcr.io/cloud-builders/kubectl'
-  args:
-  - set
-  - image
-  - deployment
-  - cafesys-celery-beat
-  - cafesys-celery-beat=gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA
+  args: [
+            'set', 'image',
+            'deployment', 'cafesys-celery-beat',
+            '-n', 'baljan',
+            'cafesys-celery-beat=gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA'
+        ]
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=europe-west1-b'
   - 'CLOUDSDK_CONTAINER_CLUSTER=cluster'
 - name: 'gcr.io/cloud-builders/kubectl'
-  args:
-  - set
-  - image
-  - deployment
-  - cafesys-celery-worker
-  - cafesys-celery-worker=gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA
+  args: [
+            'set', 'image',
+            'deployment', 'cafesys-celery-worker',
+            '-n', 'baljan',
+            'cafesys-celery-worker=gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA'
+        ]
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=europe-west1-b'
   - 'CLOUDSDK_CONTAINER_CLUSTER=cluster'
