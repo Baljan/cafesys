@@ -36,7 +36,7 @@ deployment:
     run: cafesys-celery-beat
   containers:
   - name: cafesys-celery-beat
-    image: gcr.io/sektionscafe-baljan/cafesys:latest
+    image: gcr.io/sektionscafe-baljan/github-baljan-cafesys:latest
     pull: always
     command:
     - /app/bin/run-celery-beat
@@ -67,7 +67,7 @@ deployment:
     run: cafesys-celery-worker
   containers:
   - name: cafesys-celery-worker
-    image: gcr.io/sektionscafe-baljan/cafesys:latest
+    image: gcr.io/sektionscafe-baljan/github-baljan-cafesys:latest
     pull: always
     command:
     - /app/bin/run-celery-worker
@@ -98,7 +98,7 @@ deployment:
     run: cafesys-django
   containers:
   - name: cafesys-django
-    image: gcr.io/sektionscafe-baljan/cafesys:latest
+    image: gcr.io/sektionscafe-baljan/github-baljan-cafesys:latest
     pull: always
     expose:
     - 80
