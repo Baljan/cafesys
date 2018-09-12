@@ -9,4 +9,4 @@ steps:
             '--cache-from', 'gcr.io/$PROJECT_ID/$REPO_NAME:latest',
             '.'
         ]
-images: ['gcr.io/$PROJECT_ID/[IMAGE_NAME]:latest']
+images: ['gcr.io/$PROJECT_ID/$REPO_NAME:latest']
