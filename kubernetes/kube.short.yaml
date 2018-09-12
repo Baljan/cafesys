@@ -9,6 +9,7 @@ deployment:
   version: extensions/v1beta1
   name: baljan-blipp
   namespace: baljan
+  max_unavailable: 0
   labels:
     run: baljan-blipp
   replicas: 1
@@ -27,6 +28,7 @@ deployment:
   version: extensions/v1beta1
   name: cafesys-celery-beat
   namespace: baljan
+  max_unavailable: 0
   labels:
     run: cafesys-celery-beat
   replicas: 1
@@ -57,6 +59,7 @@ deployment:
   version: extensions/v1beta1
   name: cafesys-celery-worker
   namespace: baljan
+  max_unavailable: 0
   labels:
     run: cafesys-celery-worker
   replicas: 1
@@ -87,6 +90,7 @@ deployment:
   version: extensions/v1beta1
   name: cafesys-django
   namespace: baljan
+  max_unavailable: 0
   labels:
       run: cafesys-django
   replicas: 1
