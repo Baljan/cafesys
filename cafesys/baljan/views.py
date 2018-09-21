@@ -999,7 +999,7 @@ def do_blipp(request):
         # FIXME: We should try to find the card id in an external database here, but this requires
         #        that there is such a database, which there isn't. Check again after midsummer 2018.
 
-        return _json_error(404, 'Du måste fylla i kortnumret i din profil\n' + str(rfid_int))
+        return _json_error(404, 'Du måste fylla i kortnumret i din profil\n(' + str(rfid_int) + ')')
 
     # We will always have a user at this point
 
