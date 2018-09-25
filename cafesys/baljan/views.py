@@ -1028,10 +1028,10 @@ def do_blipp(request):
 
     if is_coffee_free:
         user_balance = 'unlimited'
-        message = 'Du har <b>∞ kr</b> kvar att blippa för xD'
+        message = 'Du har <b>∞ kr</b> kvar att blippa för'
     else:
         user_balance = user.profile.balance
-        message = 'Du har <b>%s kr</b> kvar att blippa för xD' % user_balance
+        message = 'Du har <b>%s kr</b> kvar att blippa för' % user_balance
 
     return JsonResponse({'message': message, 'balance': user_balance})
 
