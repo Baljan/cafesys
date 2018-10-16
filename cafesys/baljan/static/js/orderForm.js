@@ -5,17 +5,44 @@ function calcSum() {
         var amount = parseInt($(this).find("input").val());
         var cost = parseInt($(this).find(".cost").text());
         var total = amount * cost;
+
         if (isNaN(total)) {
             total = 0;
         }
-        grandTotal+=total;
+
         $(this).find(".total").text(total.toString());
+
+        if (!$(this).hasClass("exclude-from-total")) {
+            grandTotal+=total;
+        }
     });
 
     $('#currentSum').text(grandTotal);
     $('#id_orderSum').val(grandTotal);
 }
 
+function calcGroupAmnt(groupName) {
+    var groupAmnt = 0;
+    var subItemClass = "." + groupName + "-sub-item";
+
+    $(subItemClass).each(function() {
+        var amount = parseInt($(this).find("input").val());
+
+        if (isNaN(amount)) {
+            amount = 0;
+        }
+
+        groupAmnt += amount;
+    });
+
+    if (groupAmnt === 0) {
+        groupAmnt = "";
+    }
+
+    $("#" + groupName).find("input").val(groupAmnt);
+
+    return groupAmnt;
+}
 
 function disablePickupFields(disable) {
     var pickupName = $('#id_pickupName');
@@ -76,9 +103,22 @@ window.onload = function justdoit() {
 };
 
 $(function () {
+    $(".order-group").each(function() {
+        let groupId = $(this).attr('id');
+        let subItemClass = "." + groupId + "-sub-item";
+        let groupCost = parseInt($(this).find(".cost").text());
+        let groupSumElem = $("#" + groupId + "Sum");
+
+        $(subItemClass).on("input", function() {
+            let groupAmnt = calcGroupAmnt(groupId);
+            groupSumElem.text(groupAmnt*groupCost);
+        });
+    });
+
     $(".order-item").on('input', function () {
             calcSum();
     });
+
     var datepicker=$("#id_date");
     datepicker.datepicker({
         language: "sv",

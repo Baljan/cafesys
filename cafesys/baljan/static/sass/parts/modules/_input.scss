@@ -39,3 +39,8 @@
 .custom-checkbox .custom-control-label {
   padding-top: .25rem;
 }
+
+.order-group input[readonly] {
+  background-color: #fff !important;
+  padding-right: 0;
+}

@@ -118,7 +118,7 @@ def labeled_field(data):
 
 
 @register.inclusion_tag('baljan/_order_item.html')
-def order_item(form, field_name, cost):
+def order_item(form, field_name, cost, classes=''):
     limit_field = form[field_name + 'Selected']
     input_field = form['numberOf' + field_name.title()]
 
@@ -131,7 +131,19 @@ def order_item(form, field_name, cost):
         'field_name': field_name,
         'display': display,
         'field': input_field,
-        'cost': cost
+        'cost': cost,
+        'classes': classes,
+    }
+
+
+@register.inclusion_tag('baljan/_order_group.html')
+def order_group(form, group_field_name, label, sub_fields, cost):
+    return {
+        'form': form,
+        'group_field_name': group_field_name,
+        'label': label,
+        'sub_fields': sub_fields,
+        'cost': cost,
     }
 
 

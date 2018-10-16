@@ -21,6 +21,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.html import escape
 
 from cafesys.baljan import phone, slack
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
@@ -71,6 +72,7 @@ def current_semester(request):
 def orderFromUs(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
+
         if (form.is_valid()):
             orderer = form.cleaned_data['orderer']
             ordererEmail = form.cleaned_data['ordererEmail']
@@ -84,6 +86,8 @@ def orderFromUs(request):
             numberOfTea = form.cleaned_data['numberOfTea']
             numberOfSoda = form.cleaned_data['numberOfSoda']
             numberOfKlagg = form.cleaned_data['numberOfKlagg']
+            numberOfJochen = form.cleaned_data['numberOfJochen']
+            numberOfMinijochen = form.cleaned_data['numberOfMinijochen']
             other = form.cleaned_data['other']
             pickup = form.cleaned_data['pickup']
             date = form.cleaned_data['date']
@@ -96,6 +100,9 @@ def orderFromUs(request):
             items = ""
             # String for calendar summary
             itemsDes = ""
+
+            jochen_table = ""
+            mini_jochen_table = ""
 
             if numberOfCoffee:
                 items = items +"Antal kaffe: "+str(numberOfCoffee)+"<br>"
@@ -112,6 +119,43 @@ def orderFromUs(request):
             if numberOfKlagg:
                 items = items +"Antal kl&auml;gg: "+str(numberOfKlagg) +"<br>"
                 itemsDes = itemsDes+" "+str(numberOfKlagg)+ " Klagg"
+
+            if numberOfJochen:
+                items = items + "Antal Jochen: "+str(numberOfJochen)+"<br>"
+                itemsDes = itemsDes+" "+str(numberOfJochen)+" Jochen"
+
+                jochen_table = "<table>"
+
+                for i, (field_name, label) in enumerate(form.JOCHEN_TYPES):
+                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
+                    if not field_val:
+                        field_val = ''
+
+                    jochen_table = jochen_table + "<tr><td>%s</td><td>%s</td></tr>" % (escape(label), field_val)
+
+                    # Append empty row after every second Jochen to match Teddys order sheet
+                    if i % 2 == 1:
+                        jochen_table = jochen_table + "<tr><td></td><td></td></tr>"
+                        
+                jochen_table = jochen_table + "</table>"
+
+            if numberOfMinijochen:
+                items = items+"Antal Mini Jochen: "+str(numberOfMinijochen)+"<br>"
+                itemsDes = itemsDes+" "+str(numberOfMinijochen)+" Mini Jochen"
+
+                mini_jochen_table = "<table>"
+
+                for field_name, label in form.MINI_JOCHEN_TYPES:
+                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
+                    if not field_val:
+                        field_val = ''
+
+                    mini_jochen_table = mini_jochen_table + "<tr><td>%s</td><td>%s</td></tr>" % (escape(label), field_val)
+
+                    # Append five empty rows to match Teddys order sheet
+                    mini_jochen_table = mini_jochen_table + "<tr><td></td><td></td></tr>"*5
+
+                mini_jochen_table = mini_jochen_table + "</table>"
 
             if orderSum:
                 orderSum += " SEK"
@@ -146,7 +190,12 @@ def orderFromUs(request):
                            'Summa: <u>'+orderSum+'</u><br><br>' + \
                            '<b>&Ouml;vrigt:</b><br>' +other+\
                            '<br> <br><b>Datum och tid: </b><br>'+\
-                           'Datum: '+date+'<br>Tid: '+pickuptext+' </div>'
+                           'Datum: '+date+'<br>Tid: '+pickuptext+\
+                           '<b>Jochens: </b><br>' +\
+                           jochen_table + '<br>' +\
+                           '<b>Mini Jochens: </b><br>' +\
+                           mini_jochen_table + '<br>' +\
+                           ' </div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
 
             items = items.replace("&auml;","a")

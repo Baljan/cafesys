@@ -64,6 +64,9 @@
                         {% order_item form 'soda' 5 %}
                         {% order_item form 'klagg' 6 %}
 
+                        {% order_group form 'jochen' 'Antal jochen' form.JOCHEN_TYPES 30 %}
+                        {% order_group form 'minijochen' 'Antal mini jochen' form.MINI_JOCHEN_TYPES 15 %}
+
                         <div class="row">
                             <div class="col-9">
                                 <b>TOTALT</b>
@@ -162,10 +165,9 @@
                 <ul>
                     <li>Beställning av jochen måste vara inne <b>senast 16:15 på torsdagen veckan innan er beställning</b>.</li>
                      <li>
-                         För att beställa jochen fyller ni i vilka mackor ni önskar beställa under "Övrig information". Se följande dokument för en lista över vilka mackor som finns tillgängliga:
-                         <a href="{% static 'jochen-contents.pdf' %}" target="_blank">innehållsförteckning</a>. Ciabatta och baguette kostar 30 kr att beställa, och frallor kostar 15 kr. Har ni
-                         allergier som ni inte hittar en passande macka för går det bra att ange detta separat.
+                         För information angående allergener och näringsinnehåll se följande <a href="{% static 'jochen-contents.pdf' %}" target="_blank">innehållsförteckning</a>.
                     </li>
+                    <li>Önskar ni beställa Jochen fria från vissa allergener, ange tydligt vilka Jochen det gäller samt antal under ”Övrig information”.</li>
                 </ul>
 
                 <h3> Läsk/vatten </h3>
