@@ -18,6 +18,7 @@ from reportlab.platypus import Table, Paragraph, SimpleDocTemplate
 
 from .util import grouper
 
+import pytz
 
 if __name__ == '__main__':
     from .pdfstimuli import gettext as _
@@ -105,7 +106,8 @@ def shift_combinations(file_object, scheduler,
     doc = SimpleDocTemplate(file_object)
     elems = []
 
-    now = datetime.now()
+    tz = pytz.timezone(settings.TIME_ZONE)
+    now = datetime.now(tz)
 
     elems.append(
         Paragraph(_("Job Opening %s") % scheduler.sem.name,

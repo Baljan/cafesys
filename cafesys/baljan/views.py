@@ -1066,9 +1066,11 @@ def do_blipp(request):
         user.profile.balance = new_balance
         user.profile.save()
 
+    tz = pytz.timezone(settings.TIME_ZONE)
+
     order = Order()
-    order.made = datetime.now()
-    order.put_at = datetime.now()
+    order.made = datetime.now(tz)
+    order.put_at = datetime.now(tz)
     order.user = user
     order.paid = price
     order.currency = 'SEK'
