@@ -103,16 +103,6 @@ def orderFromUs(request):
 
             jochen_table = ""
             mini_jochen_table = ""
-            table_css = '''
-                <style>
-                table, td {
-                    border: 1px solid black;
-                }
-                table {
-                    border-collapse: collapse;
-                }
-                </style>
-            '''
 
             if numberOfCoffee:
                 items = items +"Antal kaffe: "+str(numberOfCoffee)+"<br>"
@@ -134,14 +124,14 @@ def orderFromUs(request):
                 items = items + "Antal Jochen: "+str(numberOfJochen)+"<br>"
                 itemsDes = itemsDes+" "+str(numberOfJochen)+" Jochen"
 
-                jochen_table = "<table>"
+                jochen_table = "<table style=\"border: 1px solid black; border-collapse: collapse;\">"
 
                 for i, (field_name, label) in enumerate(form.JOCHEN_TYPES):
                     field_val = form.cleaned_data['numberOf%s' % field_name.title()]
                     if not field_val:
                         field_val = ''
 
-                    jochen_table = jochen_table + "<tr><td>%s</td><td>%s</td></tr>" % (escape(label), field_val)
+                    jochen_table = jochen_table + "<tr><td style=\"border: 1px solid black;\">%s</td><td style=\"border: 1px solid black;\">%s</td></tr>" % (escape(label), field_val)
 
                 jochen_table = jochen_table + "</table>"
 
@@ -149,14 +139,14 @@ def orderFromUs(request):
                 items = items+"Antal Mini Jochen: "+str(numberOfMinijochen)+"<br>"
                 itemsDes = itemsDes+" "+str(numberOfMinijochen)+" Mini Jochen"
 
-                mini_jochen_table = "<table>"
+                mini_jochen_table = "<table style=\"border: 1px solid black; border-collapse: collapse;\">"
 
                 for field_name, label in form.MINI_JOCHEN_TYPES:
                     field_val = form.cleaned_data['numberOf%s' % field_name.title()]
                     if not field_val:
                         field_val = ''
 
-                    mini_jochen_table = mini_jochen_table + "<tr><td>%s</td><td>%s</td></tr>" % (escape(label), field_val)
+                    mini_jochen_table = mini_jochen_table + "<tr><td style=\"border: 1px solid black;\">%s</td><td style=\"border: 1px solid black;\">%s</td></tr>" % (escape(label), field_val)
 
                 mini_jochen_table = mini_jochen_table + "</table>"
 
@@ -195,7 +185,6 @@ def orderFromUs(request):
                            '<br> <br><b>Datum och tid: </b><br>'+\
                            'Datum: '+date+'<br>Tid: '+pickuptext+'<br><br>'+\
                            '<b>Jochens: </b><br>'+\
-                           table_css +\
                            jochen_table+'<br>'+\
                            '<b>Mini Jochens: </b><br>'+\
                            mini_jochen_table+'<br>'+\
