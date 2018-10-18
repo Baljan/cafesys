@@ -1,0 +1,31 @@
+{% load baljan_extras %}
+
+<small class="table-responsive">
+    <table class="table table-baljan">
+        <thead>
+            <tr>
+                <th>#</th>
+                {% for n in shift_numbers %}
+                <th>Pass {{n}}</th>
+                {% endfor %}
+                <th>Tänkbart</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="{{body_id}}">
+            {% for pair in pairs %}
+            <tr id="{{'shift-'|add:pair.label}}" class="shift-row" {% if pair.is_taken %} style="text-decoration: line-through" {% endif %}>
+                <td class="cell-label">{{pair.label}}</td>
+                {% for shift in pair.shifts %}
+                <td>{{shift.name_short}}</td>
+                {% endfor %}
+                {% if pair.shifts|length < shift_numbers|length %}
+                <td></td>
+                {% endif %}
+                <td style="text-align: center">{% workable_shift_fields form pair.label 'workable-check' %}</td>
+                <td class="handle"><i class="fa fa-sort" aria-hidden="true" {% if hide_handle %} style="display:none;" {% endif %}></i></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</small>

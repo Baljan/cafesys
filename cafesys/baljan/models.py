@@ -1052,3 +1052,10 @@ class MutedConsent(models.Model):
     @classmethod
     def log(cls, user, action):
         MutedConsent.objects.create(user=user, action=action)
+
+
+class WorkableShift(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False)
+    priority = models.IntegerField(verbose_name=_("priority"), blank=False)
+    combination = models.CharField(_("label"), max_length=10)
+    semester = models.ForeignKey(Semester, verbose_name=_("semester"))

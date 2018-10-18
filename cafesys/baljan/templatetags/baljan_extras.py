@@ -175,3 +175,22 @@ def detailed_name(user):
 
     return ''
 
+@register.inclusion_tag('baljan/_workable_fields.html')
+def workable_shift_fields(form, pair_label, classes=''):
+    return {
+        'is_workable': form['workable-'+pair_label],
+        'priority': form['priority-'+pair_label],
+        'classes': classes
+    }
+
+
+@register.inclusion_tag('baljan/_shifts_table.html')
+def shifts_table(pairs, form, workable_shift_fields, shift_numbers, body_id, hide_handle):
+    return {
+        'pairs': pairs,
+        'form': form,
+        'shift_numbers': shift_numbers,
+        'workable_shift_fields': workable_shift_fields,
+        'body_id': body_id,
+        'hide_handle': hide_handle,
+    }

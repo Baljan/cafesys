@@ -43,4 +43,5 @@
 .order-group input[readonly] {
   background-color: #fff !important;
   padding-right: 0;
+  pointer-events: none;
 }

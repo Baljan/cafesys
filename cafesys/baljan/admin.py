@@ -334,3 +334,10 @@ class MutedConsent(admin.ModelAdmin):
 
 admin.site.register(models.LegalConsent, LegalConsent)
 admin.site.register(models.MutedConsent, MutedConsent)
+
+
+class WorkableShift(admin.ModelAdmin):
+    list_display = ('combination', 'user', 'priority', 'semester',)
+    readonly_fields = ('combination', 'user', 'priority', 'semester',)
+
+admin.site.register(models.WorkableShift, WorkableShift)

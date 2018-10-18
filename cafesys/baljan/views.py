@@ -17,7 +17,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.core.serializers import serialize
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
@@ -103,6 +103,16 @@ def orderFromUs(request):
 
             jochen_table = ""
             mini_jochen_table = ""
+            table_css = '''
+                <style>
+                table, td {
+                    border: 1px solid black;
+                }
+                table {
+                    border-collapse: collapse;
+                }
+                </style>
+            '''
 
             if numberOfCoffee:
                 items = items +"Antal kaffe: "+str(numberOfCoffee)+"<br>"
@@ -133,10 +143,6 @@ def orderFromUs(request):
 
                     jochen_table = jochen_table + "<tr><td>%s</td><td>%s</td></tr>" % (escape(label), field_val)
 
-                    # Append empty row after every second Jochen to match Teddys order sheet
-                    if i % 2 == 1:
-                        jochen_table = jochen_table + "<tr><td></td><td></td></tr>"
-                        
                 jochen_table = jochen_table + "</table>"
 
             if numberOfMinijochen:
@@ -151,9 +157,6 @@ def orderFromUs(request):
                         field_val = ''
 
                     mini_jochen_table = mini_jochen_table + "<tr><td>%s</td><td>%s</td></tr>" % (escape(label), field_val)
-
-                    # Append five empty rows to match Teddys order sheet
-                    mini_jochen_table = mini_jochen_table + "<tr><td></td><td></td></tr>"*5
 
                 mini_jochen_table = mini_jochen_table + "</table>"
 
@@ -190,11 +193,12 @@ def orderFromUs(request):
                            'Summa: <u>'+orderSum+'</u><br><br>' + \
                            '<b>&Ouml;vrigt:</b><br>' +other+\
                            '<br> <br><b>Datum och tid: </b><br>'+\
-                           'Datum: '+date+'<br>Tid: '+pickuptext+\
-                           '<b>Jochens: </b><br>' +\
-                           jochen_table + '<br>' +\
-                           '<b>Mini Jochens: </b><br>' +\
-                           mini_jochen_table + '<br>' +\
+                           'Datum: '+date+'<br>Tid: '+pickuptext+'<br><br>'+\
+                           '<b>Jochens: </b><br>'+\
+                           table_css +\
+                           jochen_table+'<br>'+\
+                           '<b>Mini Jochens: </b><br>'+\
+                           mini_jochen_table+'<br>'+\
                            ' </div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
 
@@ -1104,3 +1108,94 @@ def _is_authenticated_for_blipp(request):
 
 def _json_error(status_code, message):
     return JsonResponse({'message': message}, status=status_code)
+
+
+@login_required
+def semester_shifts(request, sem_name):
+    # Get all shifts for the semester
+    try:
+        sem = models.Semester.objects.by_name(sem_name)
+        sched = workdist.Scheduler(sem)
+        pairs = sched.pairs_from_db()
+    except models.Semester.DoesNotExist:
+        raise Http404("%s är inte en giltig termin." % sem_name)
+
+    user = request.user
+
+    # Update the users workable shifts
+    if request.method == 'POST':
+        # Update the database to reflect the changed shifts in the form
+        workable_shifts_form = forms.WorkableShiftsForm(request.POST, pairs=pairs)
+
+        if workable_shifts_form.is_valid():
+            for pair in pairs:
+                combination_id = pair.label
+
+                is_workable = workable_shifts_form.cleaned_data['workable-' + combination_id]
+                priority = workable_shifts_form.cleaned_data['priority-' + combination_id]
+
+                try:
+                    db_combination = models.WorkableShift.objects.get(user=user, semester=sem, combination=combination_id)
+
+                    if not is_workable:
+                        db_combination.delete()
+                    elif priority != db_combination.priority:
+                        db_combination.priority = priority
+                        db_combination.save()
+                except models.WorkableShift.DoesNotExist:
+                    if is_workable:
+                        models.WorkableShift(user=user, semester=sem, combination=combination_id, priority=priority).save()
+
+        if request.is_ajax():
+            return HttpResponse(json.dumps({'OK': True}))
+
+    # Get the workable shifts for the user
+    workable_shifts = models.WorkableShift.objects.filter(user=user, semester=sem).order_by('priority')
+
+    # Split the shifts into the users workable and non-workable shifts.
+    # Is there a nicer way to do this?
+    pairs_dict = {}
+    for pair in pairs:
+        pairs_dict[pair.label] = pair
+
+    workable_arr = []
+    for ws in workable_shifts:
+        workable_arr.append(pairs_dict.pop(ws.combination))
+
+    pairs_arr = list(pairs_dict.values())
+    pairs_arr.sort(key=lambda x: x.label) # is this nessecery?
+
+    # Create form with checkboxes and priorities (position in table) of the shifts.
+    workable_shifts_form = forms.WorkableShiftsForm(pairs=pairs, workable_shifts=workable_shifts)
+
+    # Calculate the maximum number of shifts for any given shift combination.
+    max_shifts = max(map(lambda x: len(x.shifts), pairs))
+    shift_numbers = list(range(1, max_shifts+1))
+
+    tpl = {
+        'pairs': pairs_arr,
+        'workable_shifts': workable_arr,
+        'form': workable_shifts_form,
+        'semester': sem_name,
+        'shift_numbers': shift_numbers,
+    }
+
+    return render(request, 'baljan/semester_shifts.html', tpl)
+
+
+@login_required
+def taken_shifts(request, sem_name):
+    sem = models.Semester.objects.by_name(sem_name)
+    sched = workdist.Scheduler(sem)
+    pairs = sched.pairs_from_db()
+
+    taken_pairs = []
+
+    for pair in pairs:
+        if pair.is_taken():
+            taken_pairs.append(pair.label)
+
+    tz = pytz.timezone(settings.TIME_ZONE)
+    now = datetime.now(tz).strftime('%H:%M:%S')
+
+    return JsonResponse({'taken_pairs': taken_pairs, 'now': now})
