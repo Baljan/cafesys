@@ -37,7 +37,7 @@
 
 {% block body %}
 <h1>{{'Jobbpass '|add:semester}}</h1>
-<p id="last-updated" class="text-right">Uppdaterad {% now "H:i:s"%}</p>
+<p id="last-updated" class="text-right">Uppdaterad {{ now }}</p>
 
 <div class="alert alert-info" role="alert">
     <ul>

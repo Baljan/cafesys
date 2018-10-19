@@ -1159,12 +1159,16 @@ def semester_shifts(request, sem_name):
     max_shifts = max(map(lambda x: len(x.shifts), pairs))
     shift_numbers = list(range(1, max_shifts+1))
 
+    tz = pytz.timezone(settings.TIME_ZONE)
+    now = datetime.now(tz).strftime('%H:%M:%S')
+
     tpl = {
         'pairs': pairs_arr,
         'workable_shifts': workable_arr,
         'form': workable_shifts_form,
         'semester': sem_name,
         'shift_numbers': shift_numbers,
+        'now': now,
     }
 
     return render(request, 'baljan/semester_shifts.html', tpl)
