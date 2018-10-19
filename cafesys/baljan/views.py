@@ -124,7 +124,7 @@ def orderFromUs(request):
                 items = items + "Antal Jochen: "+str(numberOfJochen)+"<br>"
                 itemsDes = itemsDes+" "+str(numberOfJochen)+" Jochen"
 
-                jochen_table = "<table style=\"border: 1px solid black; border-collapse: collapse;\">"
+                jochen_table = "<b>Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
 
                 for i, (field_name, label) in enumerate(form.JOCHEN_TYPES):
                     field_val = form.cleaned_data['numberOf%s' % field_name.title()]
@@ -139,7 +139,7 @@ def orderFromUs(request):
                 items = items+"Antal Mini Jochen: "+str(numberOfMinijochen)+"<br>"
                 itemsDes = itemsDes+" "+str(numberOfMinijochen)+" Mini Jochen"
 
-                mini_jochen_table = "<table style=\"border: 1px solid black; border-collapse: collapse;\">"
+                mini_jochen_table = "<b>Mini Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
 
                 for field_name, label in form.MINI_JOCHEN_TYPES:
                     field_val = form.cleaned_data['numberOf%s' % field_name.title()]
@@ -184,9 +184,7 @@ def orderFromUs(request):
                            '<b>&Ouml;vrigt:</b><br>' +other+\
                            '<br> <br><b>Datum och tid: </b><br>'+\
                            'Datum: '+date+'<br>Tid: '+pickuptext+'<br><br>'+\
-                           '<b>Jochens: </b><br>'+\
                            jochen_table+'<br>'+\
-                           '<b>Mini Jochens: </b><br>'+\
                            mini_jochen_table+'<br>'+\
                            ' </div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
