@@ -20,12 +20,16 @@
             text-align: center;
         }
 
-        .ui-sortable-helper .ui-sortable-handle {
-            cursor: grabbing;
+        #workable-body tr .handle {
+            cursor: grab;
+            cursor: -moz-grab;
+            cursor: -webkit-grab;
         }
 
-        .ui-sortable-handle {
-            cursor: grab;
+        .ui-sortable-helper .handle {
+            cursor: grabbing !important;
+            cursor: -moz-grabbing !important;
+            cursor: -webkit-grabbing !important;
         }
     </style>
     {% block extra_head %}{% endblock %}
