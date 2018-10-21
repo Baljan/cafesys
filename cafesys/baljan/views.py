@@ -28,7 +28,7 @@ from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_deta
 from cafesys.baljan.models import LegalConsent, MutedConsent
 from cafesys.baljan.pseudogroups import is_worker
 from cafesys.baljan.templatetags.baljan_extras import display_name
-from cafesys.baljan.models import Order
+from cafesys.baljan.models import Order, Good, OrderGood
 from . import credits as creditsmodule
 from . import (forms, ical, models, pdf, planning, pseudogroups, search,
                stats, trades, workdist)
@@ -1067,6 +1067,12 @@ def do_blipp(request):
     order.currency = 'SEK'
     order.accepted = True
     order.save()
+
+    order_good = OrderGood()
+    order_good.order = order
+    order_good.good = Good.objects.get(pk=1)
+    order_good.count = 1
+    order_good.save()
 
     if is_coffee_free:
         user_balance = 'unlimited'
