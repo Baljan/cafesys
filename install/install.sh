@@ -34,6 +34,8 @@ else
         echo "  3. Re-run the installation script"
 
         exit 1
+    else
+        sudo git -C ${INSTALLATION_DIR} git pull
     fi
 fi
 
