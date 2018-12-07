@@ -6,6 +6,7 @@ export APP_GROUP=cafesys
 export ORGANIZATION_DIR=/opt/baljan
 export INSTALLATION_DIR=${ORGANIZATION_DIR}/cafesys
 export RUNTIME_DIR=${ORGANIZATION_DIR}/run
+export DEPLOY_SCRIPT=${ORGANIZATION_DIR}/deploy-cafesys.sh
 
 # Install minimal set of dependencies
 sudo apt-get -y install git
@@ -36,4 +37,4 @@ fi
 bash "${INSTALLATION_DIR}/install/post-install.sh"
 
 # Hand over control to the deployment procedure
-sudo su ${APP_USER} -c "${INSTALLATION_DIR}/install/deploy.sh"
+sudo su ${APP_USER} -c "${DEPLOY_SCRIPT}"

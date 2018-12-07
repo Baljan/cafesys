@@ -1,8 +1,7 @@
 #!/bin/bash
 : ${INSTALLATION_DIR:?"Need to set INSTALLATION_DIR non-empty"}
 : ${RUNTIME_DIR:?"Need to set RUNTIME_DIR non-empty"}
-
-DEPLOY_SCRIPT="${INSTALLATION_DIR}/deploy-cafesys.sh"
+: ${DEPLOY_SCRIPT:?"Need to set DEPLOY_SCRIPT non-empty"}
 
 cat >${DEPLOY_SCRIPT} <<EOL
 #!/bin/bash

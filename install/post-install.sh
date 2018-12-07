@@ -14,5 +14,5 @@ declare -a COMPONENTS=(
 for i in "${COMPONENTS[@]}"
 do
     # Install each component with root level access
-    sudo "${COMPONENTS_ROOT}/$i.sh"
+    sudo -E "${COMPONENTS_ROOT}/$i.sh"
 done
