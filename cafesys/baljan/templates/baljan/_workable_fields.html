@@ -1,0 +1,7 @@
+{% load baljan_extras %}
+
+{% with css_classes="form-check-input "|add:classes %}
+{{ is_workable|addcss:css_classes }}
+{% endwith %}
+
+{{ priority|addcss:"priority-input" }}

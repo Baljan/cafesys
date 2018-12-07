@@ -50,4 +50,6 @@ urlpatterns = (
     url(r'consent', views.consent, name='consent'),
     url(r'do-blipp', views.do_blipp),
     url(r'integrity', views.integrity, name='integrity'),
+    url(r'semester-shifts/(\w+)', views.semester_shifts, name='semester_shifts'),
+    url(r'taken-shifts/(\w+)', views.taken_shifts, name='taken_shifts'),
 )

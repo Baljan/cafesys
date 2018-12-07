@@ -38,6 +38,18 @@ def categories_and_actions(request):
         )
         upcoming_sem_actions.append(action)
 
+    regulars_upcoming_sem_actions = []
+
+    for upc in upcoming_sems:
+        if upc.signup_possible:
+            name = upc.name
+            action = Action(
+                ('Jobbpass %s') % name,
+                'semester_shifts',
+                args=(name,)
+            )
+            regulars_upcoming_sem_actions.append(action)
+
     levels = (
         ('superusers', 'Superanvändare', (
             Action('Djangos adminsida', 'admin:index'),
@@ -59,7 +71,7 @@ def categories_and_actions(request):
             Action('Profil', 'profile'),
             Action('Dina köp', 'orders', args=(1,)),
             Action('Personer och grupper', 'search_person'),
-            )),
+            ) + tuple(regulars_upcoming_sem_actions)),
         ('anyone', 'Användare', (
 
         )),

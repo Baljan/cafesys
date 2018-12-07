@@ -118,7 +118,7 @@ def labeled_field(data):
 
 
 @register.inclusion_tag('baljan/_order_item.html')
-def order_item(form, field_name, cost):
+def order_item(form, field_name, cost, classes=''):
     limit_field = form[field_name + 'Selected']
     input_field = form['numberOf' + field_name.title()]
 
@@ -131,7 +131,19 @@ def order_item(form, field_name, cost):
         'field_name': field_name,
         'display': display,
         'field': input_field,
-        'cost': cost
+        'cost': cost,
+        'classes': classes,
+    }
+
+
+@register.inclusion_tag('baljan/_order_group.html')
+def order_group(form, group_field_name, label, sub_fields, cost):
+    return {
+        'form': form,
+        'group_field_name': group_field_name,
+        'label': label,
+        'sub_fields': sub_fields,
+        'cost': cost,
     }
 
 
@@ -163,3 +175,22 @@ def detailed_name(user):
 
     return ''
 
+@register.inclusion_tag('baljan/_workable_fields.html')
+def workable_shift_fields(form, pair_label, classes=''):
+    return {
+        'is_workable': form['workable-'+pair_label],
+        'priority': form['priority-'+pair_label],
+        'classes': classes
+    }
+
+
+@register.inclusion_tag('baljan/_shifts_table.html')
+def shifts_table(pairs, form, workable_shift_fields, shift_numbers, body_id, hide_handle):
+    return {
+        'pairs': pairs,
+        'form': form,
+        'shift_numbers': shift_numbers,
+        'workable_shift_fields': workable_shift_fields,
+        'body_id': body_id,
+        'hide_handle': hide_handle,
+    }

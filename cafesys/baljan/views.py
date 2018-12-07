@@ -17,17 +17,18 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.core.serializers import serialize
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.html import escape
 
 from cafesys.baljan import phone, slack
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
 from cafesys.baljan.models import LegalConsent, MutedConsent
 from cafesys.baljan.pseudogroups import is_worker
 from cafesys.baljan.templatetags.baljan_extras import display_name
-from cafesys.baljan.models import Order
+from cafesys.baljan.models import Order, Good, OrderGood
 from . import credits as creditsmodule
 from . import (forms, ical, models, pdf, planning, pseudogroups, search,
                stats, trades, workdist)
@@ -71,6 +72,7 @@ def current_semester(request):
 def orderFromUs(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
+
         if (form.is_valid()):
             orderer = form.cleaned_data['orderer']
             ordererEmail = form.cleaned_data['ordererEmail']
@@ -84,6 +86,8 @@ def orderFromUs(request):
             numberOfTea = form.cleaned_data['numberOfTea']
             numberOfSoda = form.cleaned_data['numberOfSoda']
             numberOfKlagg = form.cleaned_data['numberOfKlagg']
+            numberOfJochen = form.cleaned_data['numberOfJochen']
+            numberOfMinijochen = form.cleaned_data['numberOfMinijochen']
             other = form.cleaned_data['other']
             pickup = form.cleaned_data['pickup']
             date = form.cleaned_data['date']
@@ -96,6 +100,9 @@ def orderFromUs(request):
             items = ""
             # String for calendar summary
             itemsDes = ""
+
+            jochen_table = ""
+            mini_jochen_table = ""
 
             if numberOfCoffee:
                 items = items +"Antal kaffe: "+str(numberOfCoffee)+"<br>"
@@ -112,6 +119,36 @@ def orderFromUs(request):
             if numberOfKlagg:
                 items = items +"Antal kl&auml;gg: "+str(numberOfKlagg) +"<br>"
                 itemsDes = itemsDes+" "+str(numberOfKlagg)+ " Klagg"
+
+            if numberOfJochen:
+                items = items + "Antal Jochen: "+str(numberOfJochen)+"<br>"
+                itemsDes = itemsDes+" "+str(numberOfJochen)+" Jochen"
+
+                jochen_table = "<b>Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
+
+                for i, (field_name, label) in enumerate(form.JOCHEN_TYPES):
+                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
+                    if not field_val:
+                        field_val = ''
+
+                    jochen_table = jochen_table + "<tr><td style=\"border: 1px solid black;\">%s</td><td style=\"border: 1px solid black;\">%s</td></tr>" % (escape(label), field_val)
+
+                jochen_table = jochen_table + "</table>"
+
+            if numberOfMinijochen:
+                items = items+"Antal Mini Jochen: "+str(numberOfMinijochen)+"<br>"
+                itemsDes = itemsDes+" "+str(numberOfMinijochen)+" Mini Jochen"
+
+                mini_jochen_table = "<b>Mini Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
+
+                for field_name, label in form.MINI_JOCHEN_TYPES:
+                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
+                    if not field_val:
+                        field_val = ''
+
+                    mini_jochen_table = mini_jochen_table + "<tr><td style=\"border: 1px solid black;\">%s</td><td style=\"border: 1px solid black;\">%s</td></tr>" % (escape(label), field_val)
+
+                mini_jochen_table = mini_jochen_table + "</table>"
 
             if orderSum:
                 orderSum += " SEK"
@@ -146,7 +183,10 @@ def orderFromUs(request):
                            'Summa: <u>'+orderSum+'</u><br><br>' + \
                            '<b>&Ouml;vrigt:</b><br>' +other+\
                            '<br> <br><b>Datum och tid: </b><br>'+\
-                           'Datum: '+date+'<br>Tid: '+pickuptext+' </div>'
+                           'Datum: '+date+'<br>Tid: '+pickuptext+'<br><br>'+\
+                           jochen_table+'<br>'+\
+                           mini_jochen_table+'<br>'+\
+                           ' </div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
 
             items = items.replace("&auml;","a")
@@ -1017,14 +1057,22 @@ def do_blipp(request):
         user.profile.balance = new_balance
         user.profile.save()
 
+    tz = pytz.timezone(settings.TIME_ZONE)
+
     order = Order()
-    order.made = datetime.now()
-    order.put_at = datetime.now()
+    order.made = datetime.now(tz)
+    order.put_at = datetime.now(tz)
     order.user = user
     order.paid = price
     order.currency = 'SEK'
     order.accepted = True
     order.save()
+
+    order_good = OrderGood()
+    order_good.order = order
+    order_good.good = Good.objects.get(pk=1)
+    order_good.count = 1
+    order_good.save()
 
     if is_coffee_free:
         user_balance = 'unlimited'
@@ -1053,3 +1101,98 @@ def _is_authenticated_for_blipp(request):
 
 def _json_error(status_code, message):
     return JsonResponse({'message': message}, status=status_code)
+
+
+@login_required
+def semester_shifts(request, sem_name):
+    # Get all shifts for the semester
+    try:
+        sem = models.Semester.objects.by_name(sem_name)
+        sched = workdist.Scheduler(sem)
+        pairs = sched.pairs_from_db()
+    except models.Semester.DoesNotExist:
+        raise Http404("%s är inte en giltig termin." % sem_name)
+
+    user = request.user
+
+    # Update the users workable shifts
+    if request.method == 'POST':
+        # Update the database to reflect the changed shifts in the form
+        workable_shifts_form = forms.WorkableShiftsForm(request.POST, pairs=pairs)
+
+        if workable_shifts_form.is_valid():
+            for pair in pairs:
+                combination_id = pair.label
+
+                is_workable = workable_shifts_form.cleaned_data['workable-' + combination_id]
+                priority = workable_shifts_form.cleaned_data['priority-' + combination_id]
+
+                try:
+                    db_combination = models.WorkableShift.objects.get(user=user, semester=sem, combination=combination_id)
+
+                    if not is_workable:
+                        db_combination.delete()
+                    elif priority != db_combination.priority:
+                        db_combination.priority = priority
+                        db_combination.save()
+                except models.WorkableShift.DoesNotExist:
+                    if is_workable:
+                        models.WorkableShift(user=user, semester=sem, combination=combination_id, priority=priority).save()
+
+        if request.is_ajax():
+            return HttpResponse(json.dumps({'OK': True}))
+
+    # Get the workable shifts for the user
+    workable_shifts = models.WorkableShift.objects.filter(user=user, semester=sem).order_by('priority')
+
+    # Split the shifts into the users workable and non-workable shifts.
+    # Is there a nicer way to do this?
+    pairs_dict = {}
+    for pair in pairs:
+        pairs_dict[pair.label] = pair
+
+    workable_arr = []
+    for ws in workable_shifts:
+        workable_arr.append(pairs_dict.pop(ws.combination))
+
+    pairs_arr = list(pairs_dict.values())
+    pairs_arr.sort(key=lambda x: x.label) # is this nessecery?
+
+    # Create form with checkboxes and priorities (position in table) of the shifts.
+    workable_shifts_form = forms.WorkableShiftsForm(pairs=pairs, workable_shifts=workable_shifts)
+
+    # Calculate the maximum number of shifts for any given shift combination.
+    max_shifts = max(map(lambda x: len(x.shifts), pairs))
+    shift_numbers = list(range(1, max_shifts+1))
+
+    tz = pytz.timezone(settings.TIME_ZONE)
+    now = datetime.now(tz).strftime('%H:%M:%S')
+
+    tpl = {
+        'pairs': pairs_arr,
+        'workable_shifts': workable_arr,
+        'form': workable_shifts_form,
+        'semester': sem_name,
+        'shift_numbers': shift_numbers,
+        'now': now,
+    }
+
+    return render(request, 'baljan/semester_shifts.html', tpl)
+
+
+@login_required
+def taken_shifts(request, sem_name):
+    sem = models.Semester.objects.by_name(sem_name)
+    sched = workdist.Scheduler(sem)
+    pairs = sched.pairs_from_db()
+
+    taken_pairs = []
+
+    for pair in pairs:
+        if pair.is_taken():
+            taken_pairs.append(pair.label)
+
+    tz = pytz.timezone(settings.TIME_ZONE)
+    now = datetime.now(tz).strftime('%H:%M:%S')
+
+    return JsonResponse({'taken_pairs': taken_pairs, 'now': now})

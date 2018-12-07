@@ -10,6 +10,8 @@ from .pseudogroups import was_worker, was_board
 
 from logging import getLogger
 
+import pytz
+
 log = getLogger('baljan.orders')
 prelog = getLogger('baljan.orders.pre')
 rebatelog = getLogger('baljan.orders.rebate')
@@ -73,7 +75,8 @@ class PreOrder(object):
     @staticmethod
     def from_group(user, goods, put_date=None):
         if put_date is None:
-            put_date = datetime.now()
+            tz = pytz.timezone(settings.TIME_ZONE)
+            put_date = datetime.now(tz)
 
         using_cls = DefaultPreOrder
         for member_func, cls in [
@@ -90,7 +93,8 @@ class PreOrder(object):
     @staticmethod
     def from_perms(user, goods, put_date=None):
         if put_date is None:
-            put_date = datetime.now()
+            tz = pytz.timezone(settings.TIME_ZONE)
+            put_date = datetime.now(tz)
         else:
             prelog.warning('permission-based does not take date into account')
 
@@ -121,7 +125,8 @@ class PreOrder(object):
         self.free = False
 
         if put_date is None:
-            self.put_date = datetime.now()
+            tz = pytz.timezone(settings.TIME_ZONE)
+            self.put_date = datetime.now(tz)
         else:
             self.put_date = put_date
 

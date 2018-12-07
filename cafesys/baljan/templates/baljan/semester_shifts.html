@@ -1,0 +1,184 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+{% load baljan_extras %}
+{% load static %}
+{% block body_class %}semester-shifts{% endblock %}
+{% block head_title %} {{'Jobbpass '|add:semester}} {% endblock %}
+
+{% block extra_head_base %}
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.ui.touch-punch.min.js' %}"></script>
+
+    <style>
+        table {
+            hyphens: auto;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            text-align: center;
+        }
+
+        #workable-body tr .handle {
+            cursor: grab;
+            cursor: -moz-grab;
+            cursor: -webkit-grab;
+        }
+
+        .ui-sortable-helper .handle {
+            cursor: grabbing !important;
+            cursor: -moz-grabbing !important;
+            cursor: -webkit-grabbing !important;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+{% endblock %}
+
+{% block body %}
+<h1>{{'Jobbpass '|add:semester}}</h1>
+<p id="last-updated" class="text-right">Uppdaterad {{ now }}</p>
+
+<div class="alert alert-info" role="alert">
+    <ul>
+        <li>
+            <s>Överstrukna</s> pass är redan tagna.
+        </li>
+        <li>
+            Tänkbara pass kan sorteras genom att dra och släppa passen i tabellen.
+        </li>
+    </ul>
+</div>
+
+<div id="save-alert-success" class="alert alert-success alert-dismissible collapse" role="alert" style="display:none">
+    <span>Dina tänkbara pass har sparats.</span>
+    <button type="button" class="close" onclick="$('#save-alert-success').hide()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<div id="save-alert-error" class="alert alert-danger alert-dismissible collapse" role="alert" style="display:none">
+    <span>Dina tänkbara pass kunde inte sparas.</span>
+    <button type="button" class="close" onclick="$('#save-alert-error').hide()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<form id="workable-form" method="POST">
+    {% csrf_token %}
+    <h3>Tänkbara pass</h3>
+    {% shifts_table workable_shifts form workable_shift_fields shift_numbers 'workable-body' False %}
+
+    <button id="save-btn" class="btn btn-primary" style="width:100%" type="submit" disabled>Spara tänkbara pass</button>
+    <br><br>
+
+    <h3>Övriga pass</h3>
+    {% shifts_table pairs form workable_shift_fields shift_numbers 'other-body' True %}
+</form>
+
+<script type="text/javascript">
+
+    function updatePriorities() {
+        var row_index = 0;
+
+        $("#workable-body").find("tr").each(function() {
+            $(this).find(".priority-input").val(row_index);
+            row_index += 1;
+        });
+    }
+
+    function upadateTaken(takenPairs) {
+        $(takenPairs).each(function() {
+            $("#shift-"+this).css("text-decoration", "line-through");
+        });
+    }
+
+    // Retains the width of the row while it is being sorted.
+    function fixWidthHelper(e, ui) {
+        ui.children().each(function() {
+            $(this).width($(this).width());
+        });
+
+        return ui;
+    }
+
+    // Move shifts from one table to the other
+    function switchTable(row_elem, checkbox) {
+        $("#save-btn").prop("disabled", false);
+
+        if ($(checkbox).is(":checked")) { // move to workable
+            $("#workable-body").append(row_elem);
+            $(row_elem).find("i").css("display", "block");
+        } else { // move to other
+            $("#other-body").prepend(row_elem);
+
+            // Move row to correct position
+            $("#other-body").children("tr").each(function() {
+                if (parseInt($(this).find(".cell-label").text()) < parseInt($(row_elem).find(".cell-label").text())) {
+                    $(row_elem).insertAfter(this);
+                }
+            });
+
+            $(row_elem).find("i").css("display", "none");
+        }
+    }
+
+    $( function() {
+        $( "#workable-body" ).sortable({
+            helper: fixWidthHelper,
+            handle: ".handle",
+            update: function (event, ui) {
+                $("#save-btn").prop("disabled", false);
+                updatePriorities();
+            }
+        });
+
+        $(".shift-row").each(function () {
+            var row_elem = this;
+
+            $(this).find("input").on("change", function() {
+                switchTable(row_elem, this);
+                updatePriorities();
+            });
+        });
+
+        var saveRequest = false;
+
+        $("#workable-form").on("submit", function(event) {
+            event.preventDefault();
+            if (saveRequest) saveRequest.abort();
+
+            saveRequest = $.ajax({ 
+                type: $(this).attr('method'), 
+                url: this.action, 
+                data: $(this).serialize(),
+                context: this,
+                success: function(data) {
+                    $("#save-alert-success").show();
+                    $("#save-btn").prop("disabled", true);
+                },
+                error: function(data) {
+                    $("#save-alert-error").show();
+                }
+            });
+        });
+
+        var updateRequest = false;
+        var updateFreq = 30; // seconds
+        var lastUpdate = $('#last-updated');
+
+        setInterval(function(){
+            if (updateRequest) updateRequest.abort();
+
+            updateRequest = $.ajax({
+                url: "{% url 'taken_shifts' semester %}",
+                dataType: 'json',
+                success: function(data) {
+                    upadateTaken(data.taken_pairs);
+                    $(lastUpdate).text('Uppdaterad '+ data.now);
+                }
+            });
+        }, updateFreq*1000);
+    });
+</script>
+{% endblock %}

@@ -6,6 +6,8 @@ from django.conf import settings
 
 from .models import BalanceCode, OldCoffeeCard
 
+import pytz
+
 log = getLogger(__name__)
 
 class CreditsError(Exception):
@@ -28,7 +30,8 @@ def used_by(user, old_card=False):
 def get_unused_code(entered_code, old_card=False):
     """Can return either an `OldCoffeeCard` or a `BalanceCode` depending
     on the value of the `old_card` parameter."""
-    now = datetime.now()
+    tz = pytz.timezone(settings.TIME_ZONE)
+    now = datetime.now(tz)
     try:
         if old_card:
             stringed = str(entered_code)
@@ -108,7 +111,8 @@ def use_code_on(bc, user):
     profile = user.profile
     assert bc.currency == profile.balance_currency
     bc.used_by = user
-    bc.used_at = datetime.now()
+    tz = pytz.timezone(settings.TIME_ZONE)
+    bc.used_at = datetime.now(tz)
     bc.save()
     profile.balance += bc.value
     profile.save()
