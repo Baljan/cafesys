@@ -35,7 +35,7 @@ else
 
         exit 1
     else
-        sudo git -C ${INSTALLATION_DIR} git pull
+        sudo git -C ${INSTALLATION_DIR} pull
     fi
 fi
 
