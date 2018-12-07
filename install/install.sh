@@ -14,6 +14,10 @@ sudo apt-get -y install git
 # Create organisation directory
 sudo mkdir -p ${ORGANIZATION_DIR}
 
+# Temporarily make the current user the owner of the organization directory
+# so that we can install the application properly
+sudo chown -R ${USER}:$USER ${ORGANIZATION_DIR}
+
 # Clone git repository into installation directory
 if [[ ! -d "${INSTALLATION_DIR}" ]]; then
     sudo git clone https://github.com/Baljan/cafesys.git ${INSTALLATION_DIR}
