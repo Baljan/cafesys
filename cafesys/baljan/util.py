@@ -53,7 +53,7 @@ def adjacent_weeks(some_date=None):
 
 def week_dates(year, week_number):
     dates = []
-    for daynum in [1, 2, 3, 4, 5, 6, 0]:
+    for daynum in [1, 2, 3, 4, 5, 6, 7]:
         date_str = "%d %d %d" % (year, week_number, daynum)
         fmt = '%G %V %u'
         dates.append(date(*datetime.strptime(date_str, fmt).timetuple()[0:3]))
