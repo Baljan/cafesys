@@ -42,7 +42,7 @@ def year_and_week(some_date=None):
     `date.today()`."""
     if some_date is None:
         some_date = date.today()
-    return tuple(int(x) for x in some_date.strftime('%Y %W').split())
+    return tuple(int(x) for x in some_date.strftime('%Y %V').split())
 
 
 def adjacent_weeks(some_date=None):
@@ -55,7 +55,7 @@ def week_dates(year, week_number):
     dates = []
     for daynum in [1, 2, 3, 4, 5, 6, 0]:
         date_str = "%d %d %d" % (year, week_number, daynum)
-        fmt = '%Y %W %w'
+        fmt = '%Y %V %u'
         dates.append(date(*datetime.strptime(date_str, fmt).timetuple()[0:3]))
     return dates
 

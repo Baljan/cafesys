@@ -24,7 +24,7 @@ class BoardWeek(object):
 
     @staticmethod
     def dom_id(shift):
-        daynum = int(shift.when.strftime('%w'))
+        daynum = int(shift.when.strftime('%u'))
         return "shift-%d-%d" % (daynum, shift.span)
 
     def dom_ids(self):
