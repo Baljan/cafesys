@@ -27,7 +27,7 @@ ANALYTICS_KEY = None
 CACHE_BACKEND = env.str('DJANGO_REDIS_URL')
 
 ADMINS = [
-    # ("Your Name", "your_email@domain.com"),
+    ('Nördarna', '1337@baljan.org'),
 ]
 
 MANAGERS = ADMINS
