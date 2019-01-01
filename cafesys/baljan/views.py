@@ -1178,21 +1178,3 @@ def semester_shifts(request, sem_name):
     }
 
     return render(request, 'baljan/semester_shifts.html', tpl)
-
-
-@login_required
-def taken_shifts(request, sem_name):
-    sem = models.Semester.objects.by_name(sem_name)
-    sched = workdist.Scheduler(sem)
-    pairs = sched.pairs_from_db()
-
-    taken_pairs = []
-
-    for pair in pairs:
-        if pair.is_taken():
-            taken_pairs.append(pair.label)
-
-    tz = pytz.timezone(settings.TIME_ZONE)
-    now = datetime.now(tz).strftime('%H:%M:%S')
-
-    return JsonResponse({'taken_pairs': taken_pairs, 'now': now})
