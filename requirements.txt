@@ -41,3 +41,6 @@ django-livereload-server==0.2.3
 
 # Handle time better
 pytz==2017.2
+
+# Error handling
+rollbar==0.14.*

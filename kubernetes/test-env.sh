@@ -12,6 +12,8 @@ test_env DJANGO_DATABASE_URL
 test_env DJANGO_EMAIL_URL
 test_env DJANGO_SECRET_KEY
 test_env SLACK_PHONE_WEBHOOK_URL
+test_env BLIPP_PASSWORD
+test_env ROLLBAR_ACCESS_TOKEN
 
 if [ "$anyFailure" -eq "0" ]; then
     echo "Environment variables properly configured!"

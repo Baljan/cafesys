@@ -26,9 +26,7 @@ ANALYTICS_KEY = None
 
 CACHE_BACKEND = env.str('DJANGO_REDIS_URL')
 
-ADMINS = [
-    ('Nördarna', '1337@baljan.org'),
-]
+ADMINS = []
 
 MANAGERS = ADMINS
 
@@ -123,6 +121,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'livereload.middleware.LiveReloadScript',
     'cafesys.baljan.gdpr.ConsentRedirectionMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
 ROOT_URLCONF = "cafesys.urls"
@@ -240,3 +239,9 @@ VERIFY_46ELKS_IP = True
 BLIPP_COFFEE_PRICE = 6
 BLIPP_USERNAME = env.str('BLIPP_USERNAME', default='')
 BLIPP_PASSWORD = env.str('BLIPP_PASSWORD', default='')
+
+ROLLBAR = {
+    'access_token': env.str('ROLLBAR_ACCESS_TOKEN', default=''),
+    'environment': 'development' if DEBUG else 'production',
+    'root': ROOT_DIR,
+}
