@@ -162,23 +162,5 @@
                 }
             });
         });
-
-        var updateRequest = false;
-        var updateFreq = 30; // seconds
-        var lastUpdate = $('#last-updated');
-
-        setInterval(function(){
-            if (updateRequest) updateRequest.abort();
-
-            updateRequest = $.ajax({
-                url: "{% url 'taken_shifts' semester %}",
-                dataType: 'json',
-                success: function(data) {
-                    upadateTaken(data.taken_pairs);
-                    $(lastUpdate).text('Uppdaterad '+ data.now);
-                }
-            });
-        }, updateFreq*1000);
-    });
 </script>
 {% endblock %}

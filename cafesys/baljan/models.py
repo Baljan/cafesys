@@ -14,6 +14,7 @@ from django.utils.encoding import smart_str
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext as _nl
 from django.utils.translation import ugettext_lazy as _
+from django.core.validators import RegexValidator
 
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from . import notifications, util
@@ -266,10 +267,14 @@ class SemesterManager(models.Manager):
 class Semester(Made):
     objects = SemesterManager()
 
+    name_validator = RegexValidator(r'^(V|H)T\d{4}$',
+    _('Invalid semester name. Must be something like HT2010 or VT2010.'))
+
     start = models.DateField(_("first day"), unique=True)
     end = models.DateField(_("last day"), unique=True)
     name = models.CharField(_("name"), max_length=6, unique=True,
-            help_text=_("must be something like HT2010")) # TODO: validation
+            help_text=_("must be something like HT2010"),
+            validators=[name_validator])
     signup_possible = models.BooleanField(_("sign-up possible"), default=False,
             help_text=_('if workers can sign up to work on this semester'))
 
