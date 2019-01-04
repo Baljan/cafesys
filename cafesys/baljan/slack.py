@@ -9,7 +9,7 @@ def compile_slack_message(phone_from, status):
     call_from = _format_caller(call_from_user, phone_from)
 
     fallback = 'Ett samtal från %s har %s.' % (
-        call_to,
+        call_from,
         'blivit taget' if status == 'success' else 'missats',
     )
 
