@@ -938,11 +938,9 @@ def post_call(request):
     if phone.request_from_46elks(request):
         result = request.POST.get('state')
         call_from = phone.remove_extension(request.POST.get('from', ''))
-        call_to = phone.remove_extension(request.POST.get('to', ''))
 
         slack_data = slack.compile_slack_message(
                 call_from,
-                call_to,
                 result
             )
 
