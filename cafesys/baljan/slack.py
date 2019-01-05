@@ -2,18 +2,15 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from cafesys.baljan.models import Profile
 
 
-def compile_slack_message(phone_from, phone_to, status):
+def compile_slack_message(phone_from, status):
     """Compiles a message that can be posted to Slack after a call has been made."""
 
     call_from_user = _query_user(phone_from)
     call_from = _format_caller(call_from_user, phone_from)
 
-    call_to = _format_caller(_query_user(phone_to), phone_to)
-
-    fallback = '%s har %s ett samtal från %s.' % (
-        call_to,
-        'tagit' if status == 'success' else 'missat',
-        call_from
+    fallback = 'Ett samtal från %s har %s.' % (
+        call_from,
+        'blivit taget' if status == 'success' else 'missats',
     )
 
     fields = [
@@ -22,11 +19,6 @@ def compile_slack_message(phone_from, phone_to, status):
             'value': 'Taget' if status == 'success' else 'Missat',
             'short': True
         },
-        {
-            'title': 'Av',
-            'value': call_to,
-            'short': False
-        }
     ]
 
     if call_from_user is not None and call_from_user['groups']:
