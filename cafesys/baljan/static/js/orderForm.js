@@ -125,21 +125,4 @@ $(function () {
         startDate: '0d',
         daysOfWeekDisabled: '06'
     });
-
-    datepicker.datepicker().on('changeDate', function() {
-        var date=$(this).datepicker('getDate').getDay();
-        if (date===5) {
-            if ($("#id_pickup").val() == 1){
-                $("#id_pickup").val(0);
-                bootbox.alert({
-                  title: "OBS: Din beställning har ändrats!",
-                  message: "Baljan lämnar inte ut några beställningar på fredag lunch och din upphämtningstid har därför ändrats till fredag morgon."
-                });
-            }
-            $("option[value=1]").prop('disabled', true);
-
-        }else{
-            $("option[value=1]").prop('disabled', false);
-        }
-    });
 });
