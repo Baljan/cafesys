@@ -79,13 +79,14 @@ def _format_caller(call_user, phone):
     if not phone:
         return 'dolt nummer'
 
-    caller = phone
+    # Set the phone number as a clickable link
+    caller = '<tel:%s|%s>' % (phone, phone)
 
     if call_user is not None:
         caller = '%s %s (%s)' % (
             call_user['first_name'],
             call_user['last_name'],
-            phone
+            caller
         )
 
     return caller
