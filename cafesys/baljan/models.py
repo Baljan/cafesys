@@ -29,6 +29,19 @@ class Made(models.Model):
     class Meta:
         abstract = True
 
+
+class Located(Made):
+    LOCATION_CHOICES = (
+        (0, 'Kårallen'),
+        (1, 'Studenthus Valla'),
+    )
+
+    location = models.PositiveSmallIntegerField('Plats', default=0, choices=LOCATION_CHOICES)
+
+    class Meta:
+        abstract = True
+
+
 PRIVATE_KEY_LENGTH = 25
 def generate_private_key():
     private_key = random_string(PRIVATE_KEY_LENGTH)
@@ -434,7 +447,7 @@ class ShiftManager(models.Manager):
         return self.filter(when__in=dates).order_by('when', 'span')
 
 
-class Shift(Made):
+class Shift(Located):
     SPAN_CHOICES = (
         (0, _('morning')),
         (1, _('lunch')),
@@ -761,7 +774,7 @@ class GoodCost(Made):
                 }
 
 
-class Order(Made):
+class Order(Located):
     put_at = models.DateTimeField(_("put at"), default=datetime.now, db_index=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), db_index=True)
     paid = models.PositiveIntegerField(_("paid"))
