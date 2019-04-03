@@ -29,6 +29,7 @@ from cafesys.baljan.models import LegalConsent, MutedConsent
 from cafesys.baljan.pseudogroups import is_worker
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from cafesys.baljan.models import Order, Good, OrderGood
+from cafesys.baljan.workdist.workdist_adapter import WorkdistAdapter
 from . import credits as creditsmodule
 from . import (forms, ical, models, pdf, planning, pseudogroups, search,
                stats, trades, workdist)
@@ -816,7 +817,7 @@ def admin_semester(request, name=None):
                 assert False
 
             if make != 'none':
-                sem.save() # generates new shift combinations
+                WorkdistAdapter.recreate_shift_combinations(sem)
 
     tpl = {}
     tpl['semester'] = sem

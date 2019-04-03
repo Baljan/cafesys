@@ -129,7 +129,7 @@ ROOT_URLCONF = "cafesys.urls"
 INSTALLED_APPS = [
     # Project
     # Must come before admin app to override login template
-    'cafesys.baljan',
+    'cafesys.baljan.apps.BaljanConfig',
 
     # Django
     "django.contrib.admin",

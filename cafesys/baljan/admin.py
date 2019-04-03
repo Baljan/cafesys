@@ -36,6 +36,13 @@ class SemesterAdmin(admin.ModelAdmin):
     list_display = ('name', 'start', 'end', 'signup_possible')
     list_filter = ('signup_possible',)
     #inlines = (ShiftInline,)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ['start', 'end']
+        else:
+            return []
+
 admin.site.register(models.Semester, SemesterAdmin)
 
 signup_oncall_fields = ('shift__when', 'user__username', 'user__first_name',
