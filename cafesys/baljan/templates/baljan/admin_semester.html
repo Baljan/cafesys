@@ -44,8 +44,19 @@
                             </dd>
                         </dl>
                         <p>
-                            Antalet jobbpass bör vara delbart med 3 för att ge snygga
-                            passkombinationer. <br/>
+                            Antalet jobbpass bör vara delbart med 4 för att ge snygga
+                            passkombinationer. Uppfyllt:
+
+                            {% if worker_shift_count|divisibleby:4 %}
+                                <b class="text-success">Ja!</b>
+                            {% else %}
+                                <b class="text-danger">Nej.</b>
+                                <br/><br/>
+                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                Lägg in en halvdag när styrelsen jobbar för att jämna ut antalet.
+                            {% endif %}
+
+                            <br/><br/>
                             <span class="badge badge-light">Öppet</span><br/>
                             <span class="badge badge-dark">Stängt</span><br/>
                             <span class="badge badge-primary">Tenta-P</span><br/>
