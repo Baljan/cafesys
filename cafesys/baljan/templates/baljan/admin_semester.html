@@ -8,125 +8,124 @@
 {% block body_class %}admin-semester{% endblock %}
 
 {% block full_body %}
-{% include 'baljan/_card_missing_notice.html' %}
-{% for message in messages %}
-    <!-- Needed to avoid delayed messages bug caused by logging out -->
-{% endfor %}
+    {% include 'baljan/_card_missing_notice.html' %}
+    {% for message in messages %}
+        <!-- Needed to avoid delayed messages bug caused by logging out -->
+    {% endfor %}
 
     <main class="bd-masthead wrapper--md" id="content" role="main">
-
-    <div class="container-fluid">
-    <h1>Administrera termin</h1>
-    <div class="row">
-        <div class="col-md-3 order-md-2">
-            <div class="choose-semester">
-                {% if semesters|length %}
-                <select class="form-control">
-                    {% for sem in semesters %}
-                    <option {% if sem == semester %}selected="selected" {% endif %}>{{ sem.name }}</option>
-                    {% endfor %}
-                </select>
-                {% endif %}
-                <a href="{% url 'admin:baljan_semester_add' %}">Skapa ny</a>
-            </div>
-
-            {% if semester %}
-                <h2>{{semester.name|default:"-"}}</h2>
-                <a href="{% url 'admin:baljan_semester_change' semester.id %}">
-                        Hantera på adminsidan
-                </a>
-                <dl>
-                    <dt>Dagar</dt>
-                    <dd>{{day_count}}</dd>
-                    <dt>Jobbarpass (Tenta-P)</dt>
-                    <dd>
-                        {{worker_shift_count}}
-                        ({{exam_period_count}})
-                    </dd>
-                </dl>
-                <p>
-                    Antalet jobbpass bör vara delbart med 3 för att ge snygga
-                    passkombinationer. <br/>
-                    <span class="badge badge-light">Öppet</span><br/>
-                    <span class="badge badge-dark">Stängt</span><br/>
-                    <span class="badge badge-primary">Tenta-P</span><br/>
-                    PDF:
-                    <a href="{% url 'shift_combinations_pdf' semester.name %}">
-                        Jobbpass</a>,
-                    <a href="{% url 'shift_combination_form_pdf' semester.name %}">
-                        Formulär</a>
-                </p>
-
-                <div class="selection">
-                    <h2>Gör markering</h2>
-                    <form method="POST" name="edit-shifts" action="">{% csrf_token %}
-                        <input type="hidden" name="task" value="edit_shifts" />
-                        <input type="hidden" name="make" value="none" />
-                        <input type="hidden" name="shift-ids" value="" />
-                        <input disabled="disabled" type="button" id="normal"
-                            class="btn btn-light" value="&laquo; öppet" /><br/>
-                        <input disabled="disabled" type="button" id="disabled"
-                            class="btn btn-dark" value="&laquo; stängt" /><br/>
-                        <input disabled="disabled" type="button" id="exam-period"
-                            class="btn btn-primary" value="&laquo; tenta-P" /><br/>
-                    </form>
-                </div>
-            {% endif %}
-        </div>
-        <div class="col-md-9 order-md-1">
+        <div class="container-fluid">
+            <h1>Administrera termin</h1>
             <div class="row">
-                {% regroup shifts by when.month as month_shifts %}
-                {% for month in month_shifts %}
-                <div class="col-md-4 months">
-                    <h2>{{month.grouper|monthname}}</h2>
-                    <table class="table table-baljan">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>fm</th>
-                                <th>lunch</th>
-                                <th>em</th>
-                            </tr>
-                        </thead>
-                        {% regroup month.list by when as days %}
-                        <tbody>
-                            {% for day in days %}
-                            <tr>
-                                <td class="day">{{day.grouper|date:"j"}}</td>
-                                {% regroup day.list by span as spans %}
-                                {% for span in spans %}
-                                    {% with sh0=span.list.0 %}
-                                    <td class="shift
-                                        span-{{ span.grouper }}
-                                        {% if sh0.enabled %}
-                                            {% if sh0.exam_period %}bg-primary{%endif%}
-                                        {% else %}
-                                        bg-dark
-                                        {%endif%}
-                                        {% if sh0.comb.is_taken %}taken{%endif%}
-                                        ">
-                                        {% for sh in span.list %}
-                                            {% if forloop.counter > 1 and sh.comb %}/{% endif %}
-                                            <span id="shift-{{sh.id}}" class="shift span-{{sh.span}}">
-                                                {{sh.comb.label|default:"&nbsp;"}}
-                                            </span>
-                                        {% endfor %}
-                                    </td>
-                                    {% endwith %}
-                                {% endfor %}
-                            </tr>
+                <div class="col-md-3 order-md-2">
+                    <div class="choose-semester">
+                        {% if semesters|length %}
+                        <select class="form-control">
+                            {% for sem in semesters %}
+                            <option {% if sem == semester %}selected="selected" {% endif %}>{{ sem.name }}</option>
                             {% endfor %}
-                        </tbody>
-                    </table>
+                        </select>
+                        {% endif %}
+                        <a href="{% url 'admin:baljan_semester_add' %}">Skapa ny</a>
+                    </div>
+
+                    {% if semester %}
+                        <h2>{{semester.name|default:"-"}}</h2>
+                        <a href="{% url 'admin:baljan_semester_change' semester.id %}">
+                            Hantera på adminsidan
+                        </a>
+                        <dl>
+                            <dt>Dagar</dt>
+                            <dd>{{day_count}}</dd>
+                            <dt>Jobbarpass (Tenta-P)</dt>
+                            <dd>
+                                {{worker_shift_count}}
+                                ({{exam_period_count}})
+                            </dd>
+                        </dl>
+                        <p>
+                            Antalet jobbpass bör vara delbart med 3 för att ge snygga
+                            passkombinationer. <br/>
+                            <span class="badge badge-light">Öppet</span><br/>
+                            <span class="badge badge-dark">Stängt</span><br/>
+                            <span class="badge badge-primary">Tenta-P</span><br/>
+                            PDF:
+                            <a href="{% url 'shift_combinations_pdf' semester.name %}">
+                                Jobbpass</a>,
+                            <a href="{% url 'shift_combination_form_pdf' semester.name %}">
+                                Formulär</a>
+                        </p>
+
+                        <div class="selection">
+                            <h2>Gör markering</h2>
+                            <form method="POST" name="edit-shifts" action="">{% csrf_token %}
+                                <input type="hidden" name="task" value="edit_shifts" />
+                                <input type="hidden" name="make" value="none" />
+                                <input type="hidden" name="shift-ids" value="" />
+                                <input disabled="disabled" type="button" id="normal"
+                                    class="btn btn-light" value="&laquo; öppet" /><br/>
+                                <input disabled="disabled" type="button" id="disabled"
+                                    class="btn btn-dark" value="&laquo; stängt" /><br/>
+                                <input disabled="disabled" type="button" id="exam-period"
+                                    class="btn btn-primary" value="&laquo; tenta-P" /><br/>
+                            </form>
+                        </div>
+                    {% endif %}
                 </div>
-                {% empty %}
-                    <p>Ingen termin vald.</p>
-                {% endfor %}
+                <div class="col-md-9 order-md-1">
+                    <div class="row">
+                        {% regroup shifts by when.month as month_shifts %}
+                        {% for month in month_shifts %}
+                        <div class="col-md-4 months">
+                            <h2>{{month.grouper|monthname}}</h2>
+                            <table class="table table-baljan">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>fm</th>
+                                        <th>lunch</th>
+                                        <th>em</th>
+                                    </tr>
+                                </thead>
+                                {% regroup month.list by when as days %}
+                                <tbody>
+                                    {% for day in days %}
+                                    <tr>
+                                        <td class="day">{{day.grouper|date:"j"}}</td>
+                                        {% regroup day.list by span as spans %}
+                                        {% for span in spans %}
+                                            {% with sh0=span.list.0 %}
+                                            <td class="shift
+                                                span-{{ span.grouper }}
+                                                {% if sh0.enabled %}
+                                                    {% if sh0.exam_period %}bg-primary{%endif%}
+                                                {% else %}
+                                                bg-dark
+                                                {%endif%}
+                                                {% if sh0.comb.is_taken %}taken{%endif%}
+                                                ">
+                                                {% for sh in span.list %}
+                                                    {% if forloop.counter > 1 and sh.comb %}/{% endif %}
+                                                    <span id="shift-{{sh.id}}" class="shift span-{{sh.span}}">
+                                                        {{sh.comb.label|default:"&nbsp;"}}
+                                                    </span>
+                                                {% endfor %}
+                                            </td>
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% empty %}
+                            <p>Ingen termin vald.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
             </div>
         </div>
-
-    </div>
-    </div>
     </main>
 {% endblock %}
 
