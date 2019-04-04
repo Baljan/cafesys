@@ -5,12 +5,17 @@
 {% load baljan_extras %}
 
 {% block head_title %}Administrera termin{% endblock %}
-
 {% block body_class %}admin-semester{% endblock %}
-{% block body %}
-    <style>
 
-    </style>
+{% block full_body %}
+{% include 'baljan/_card_missing_notice.html' %}
+{% for message in messages %}
+    <!-- Needed to avoid delayed messages bug caused by logging out -->
+{% endfor %}
+
+    <main class="bd-masthead wrapper--md" id="content" role="main">
+
+    <div class="container-fluid">
     <h1>Administrera termin</h1>
     <div class="row">
         <div class="col-md-3 order-md-2">
@@ -88,18 +93,26 @@
                             {% for day in days %}
                             <tr>
                                 <td class="day">{{day.grouper|date:"j"}}</td>
-                                {% for sh in day.list %}
-                                    <td id="shift-{{sh.id}}" class="shift
-                                        span-{{sh.span}}
-                                        {% if sh.enabled %}
-                                            {% if sh.exam_period %}bg-primary{%endif%}
+                                {% regroup day.list by span as spans %}
+                                {% for span in spans %}
+                                    {% with sh0=span.list.0 %}
+                                    <td class="shift
+                                        span-{{ span.grouper }}
+                                        {% if sh0.enabled %}
+                                            {% if sh0.exam_period %}bg-primary{%endif%}
                                         {% else %}
                                         bg-dark
                                         {%endif%}
-                                        {% if sh.comb.is_taken %}taken{%endif%}
+                                        {% if sh0.comb.is_taken %}taken{%endif%}
                                         ">
-                                        {{sh.comb.label|default:"&nbsp;"}}
+                                        {% for sh in span.list %}
+                                            {% if forloop.counter > 1 and sh.comb %}/{% endif %}
+                                            <span id="shift-{{sh.id}}" class="shift span-{{sh.span}}">
+                                                {{sh.comb.label|default:"&nbsp;"}}
+                                            </span>
+                                        {% endfor %}
                                     </td>
+                                    {% endwith %}
                                 {% endfor %}
                             </tr>
                             {% endfor %}
@@ -113,6 +126,8 @@
         </div>
 
     </div>
+    </div>
+    </main>
 {% endblock %}
 
 {% block extra_body %}
@@ -123,7 +138,7 @@
         BASE_URL = "{{admin_semester_base_url}}";
 
         var editShiftsForm = $('form[name=edit-shifts]');
-        var shiftInners = $('table td.shift');
+        var shiftInners = $('table td span.shift');
 
         $('.months').selectable({
             filter: 'td.shift',
@@ -156,7 +171,7 @@
         $('.selection input').click(function() {
             editShiftsForm.find('input[name=make]').attr('value', $(this).attr('id'));
             var shiftIds = [];
-            $('table td.ui-selected').each(function() {
+            $('table td.ui-selected span').each(function() {
                 shiftIds.push(parseInt($(this).attr('id').split('-')[1], 10));
             });
             editShiftsForm.find('input[name=shift-ids]')

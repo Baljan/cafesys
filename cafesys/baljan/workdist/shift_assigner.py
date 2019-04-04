@@ -64,7 +64,7 @@ class ShiftAssigner:
         num_combinations = math.ceil(len(self.all_shifts) / self.shifts_per_combination)
 
         for i in range(num_combinations):
-            self.shift_combinations.append(TemporaryShiftCombination())
+            self.shift_combinations.append(TemporaryShiftCombination(i))
 
         for shift in self.all_shifts:
             self.assign_to_best_combination(shift)

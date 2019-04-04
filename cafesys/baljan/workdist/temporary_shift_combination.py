@@ -1,5 +1,6 @@
 class TemporaryShiftCombination:
-    def __init__(self):
+    def __init__(self, index):
+        self.index = index
         self.shifts = []
 
     def number_of_shifts_in_exam_period(self):

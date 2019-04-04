@@ -828,7 +828,7 @@ def admin_semester(request, name=None):
     tpl['semesters'] = models.Semester.objects.order_by('-start').all()
     tpl['admin_semester_base_url'] = reverse('admin_semester')
     if sem:
-        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span')
+        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span', 'location')
         tpl['day_count'] = len(list(sem.date_range()))
 
         worker_shifts = shifts.exclude(enabled=False).exclude(span=1)

@@ -17,4 +17,4 @@ class AvailableShift:
                and self.date == o.date
 
     def __str__(self):
-        return '  ' + self.date + ', ' + self.location + ', ' + self.span + ' (tenta-p = ' + str(self.exam_period) + ')'
+        return '  ' + str(self.date) + ', ' + str(self.location) + ', ' + str(self.span) + ' (tenta-p = ' + str(self.exam_period) + ')'
