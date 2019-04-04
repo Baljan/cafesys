@@ -16,7 +16,7 @@
             {% for pair in pairs %}
             <tr id="{{'shift-'|add:pair.label}}" class="shift-row" {% if pair.is_taken %} style="text-decoration: line-through" {% endif %}>
                 <td class="cell-label">{{pair.label}}</td>
-                {% for shift in pair.shifts %}
+                {% for shift in pair.shifts.all|dictsort:"when" %}
                 <td>{{shift.name_short}}</td>
                 {% endfor %}
                 {% if pair.shifts|length < shift_numbers|length %}

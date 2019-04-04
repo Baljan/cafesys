@@ -376,6 +376,8 @@ SPAN_NAMES = {
 }
 
 
+# Note to future nerd: Trying to retrieve all shift combinations from a Semester WILL result in duplicate
+#                      objects caused by the Meta.ordering below. Solved by: semester.shiftcombination_set.order_by()
 class ShiftCombination(Made):
     semester = models.ForeignKey(Semester, verbose_name=_("semester"))
     shifts = models.ManyToManyField('baljan.Shift', verbose_name=_("shifts"))
