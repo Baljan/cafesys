@@ -264,6 +264,7 @@
                                 <th>Termin</th>
                                 <th>Datum</th>
                                 <th>fm/em</th>
+                                <th>Plats</th>
                             </tr>
                             </thead>
                             {% for gtitle, gclass, gsignups in grouped_signups %}
@@ -285,6 +286,9 @@
                                             </td>
                                             <td>
                                                 {{ shift.ampm }}
+                                            </td>
+                                            <td>
+                                                {{ shift.location_name }}
                                             </td>
                                         {% endwith %}
                                     </tr>

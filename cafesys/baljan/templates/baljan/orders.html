@@ -21,6 +21,9 @@
                     Klockslag
                 </th>
                 <th>
+                    Köpställe
+                </th>
+                <th>
                     Vara
                 </th>
                 </thead>
@@ -34,6 +37,9 @@
                             </td>
                             <td>
                                 {{order.put_at|time }}
+                            </td>
+                            <td>
+                                {{order.location_name}}
                             </td>
                             <td>
                                 {{order.ordergood_set.all|join:", "}}

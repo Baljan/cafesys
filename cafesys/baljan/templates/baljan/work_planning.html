@@ -15,6 +15,19 @@
     <p><a href="{% url 'admin:baljan_semester_change' selected_semester.id %}">Admin</a></p>
 {% endif %}
     <div class="row">
+        <div class="col" style="padding-bottom: 5px;">
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    {% for loc in locations %}
+                    <a class="nav-item nav-link {% if loc.0 == selected_location %}active{% endif %}" href="{% url 'located_semester' selected_semester.name loc.0 %}" role="tab" aria-selected="{% if loc.0 == selected_location %}true{% else %}false{% endif %}">
+                        {{ loc.1 }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-4">
             <div class="form-group">
                 <select id="sem" class="form-control" >

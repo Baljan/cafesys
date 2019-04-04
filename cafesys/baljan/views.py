@@ -245,18 +245,22 @@ END:VCALENDAR'''
 
 
 @login_required
-def semester(request, name):
-    return _semester(request, models.Semester.objects.by_name(name))
+def semester(request, name, loc=0):
+    return _semester(request, models.Semester.objects.by_name(name), loc)
 
 
-def _semester(request, sem):
+def _semester(request, sem, loc=0):
+    loc = int(loc)
+
     tpl = {}
     tpl['semesters'] = models.Semester.objects.order_by('-start').all()
     tpl['selected_semester'] = sem
     tpl['worker_group_name'] = settings.WORKER_GROUP
     tpl['board_group_name'] = settings.BOARD_GROUP
+    tpl['locations'] = models.Located.LOCATION_CHOICES
+    tpl['selected_location'] = loc
     if sem:
-        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span').filter(enabled=True).iterator()
+        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span').filter(enabled=True, location=loc).iterator()
         # Do not use iterator() on workers and oncall because the template is
         # unable to count() them. Last tested in Django 1.2.3.
         tpl['workers'] = workers = User.objects.filter(shiftsignup__shift__semester=sem).order_by('first_name').distinct()

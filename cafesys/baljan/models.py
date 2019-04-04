@@ -38,6 +38,9 @@ class Located(Made):
 
     location = models.PositiveSmallIntegerField('Plats', default=0, choices=LOCATION_CHOICES)
 
+    def location_name(self):
+        return self.LOCATION_CHOICES[self.location][1]
+
     class Meta:
         abstract = True
 
