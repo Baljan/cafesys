@@ -19,9 +19,6 @@
                 {% for shift in pair.shifts.all|dictsort:"when" %}
                 <td>{{shift.name_short}}</td>
                 {% endfor %}
-                {% if pair.shifts|length < shift_numbers|length %}
-                <td></td>
-                {% endif %}
                 <td style="text-align: center">{% workable_shift_fields form pair.label 'workable-check' %}</td>
                 <td class="handle"><i class="fa fa-sort" aria-hidden="true" {% if hide_handle %} style="display:none;" {% endif %}></i></td>
             </tr>
