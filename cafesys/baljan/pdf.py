@@ -92,6 +92,19 @@ def refill_series(file_object, list_of_series):
     return out_pdf
 
 
+def join_shifts(shifts):
+    result = ''
+    for i, shift in enumerate(shifts):
+        if i == 2:
+            result += ',\n'
+        elif i > 0:
+            result += ', '
+
+        result += shift
+
+    return result
+
+
 def shift_combinations(file_object, semester,
         empty_cells=False, cell_title=None):
     if cell_title is None:
@@ -125,14 +138,15 @@ def shift_combinations(file_object, semester,
 
         sh1 = [] if empty_cells else [str(sh.name_short()) for sh
                 in p1.shifts.order_by('when')]
+
         if p2 is None:
-            data.append([p1.label, ', '.join(sh1), '', ''])
+            data.append([p1.label, join_shifts(sh1), '', ''])
         else:
             sh2 = [] if empty_cells else [str(sh.name_short()) for sh
                     in p2.shifts.order_by('when')]
             if p2.is_taken():
                 taken_indexes.append((2, i))
-            data.append([p1.label, ', '.join(sh1), p2.label, ', '.join(sh2)])
+            data.append([p1.label, join_shifts(sh1), p2.label, join_shifts(sh2)])
 
     bg_color = colors.black
     table_style = [
