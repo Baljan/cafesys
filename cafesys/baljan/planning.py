@@ -25,7 +25,7 @@ class BoardWeek(object):
     @staticmethod
     def dom_id(shift):
         daynum = int(shift.when.strftime('%u'))
-        return "shift-%d-%d" % (daynum, shift.span)
+        return "shift-%d-%d-%d" % (daynum, shift.span, shift.location)
 
     def dom_ids(self):
         return [BoardWeek.dom_id(sh) for sh in self.shifts]

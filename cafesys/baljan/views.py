@@ -293,14 +293,16 @@ def toggle_tradable(request, pk, redir):
 def day_shifts(request, day):
     tpl = {}
     tpl['day'] = day = from_iso8601(day)
-    tpl['shifts'] = shifts = models.Shift.objects.filter(when=day, enabled=True).order_by('span')
+    tpl['shifts'] = shifts = models.Shift.objects.filter(when=day, enabled=True).order_by('location', 'span')
     tpl['available_for_call_duty'] = avail_call_duty = available_for_call_duty()
 
     if request.method == 'POST':
         assert request.user.is_authenticated()
         span = int(request.POST['span'])
         assert span in (0, 1, 2)
-        shift = models.Shift.objects.get(when__exact=day, span=span)
+        location = int(request.POST['location'])
+        assert location in (loc[0] for loc in models.Located.LOCATION_CHOICES)
+        shift = models.Shift.objects.get(when__exact=day, span=span, location=location)
         assert shift.enabled
 
         uid = int(request.POST['user'])
@@ -752,12 +754,20 @@ def call_duty_week(request, year=None, week=None):
                 if not old_user in new_users:
                     shift.oncallduty_set.filter(user=old_user).delete()
             for new_user in new_users:
-                if not new_user in old_users:
-                    o, created = models.OnCallDuty.objects.get_or_create(
-                        shift=shift,
-                        user=new_user
-                    )
-                    assert created
+                if not new_user in old_users :
+                    if models.OnCallDuty.objects\
+                        .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
+                        messages.add_message(request, messages.ERROR,
+                            "Kunde inte lägga till %s %s på pass %s." % 
+                            (new_user.first_name, new_user.last_name, shift.name_short()),
+                            extra_tags="danger")
+                    else:
+                        o, created = models.OnCallDuty.objects.get_or_create(
+                            shift=shift,
+                            user=new_user
+                        )
+                        assert created
+        
         messages.add_message(request, messages.SUCCESS,
                 _("Your changes were saved."))
         return HttpResponse(json.dumps({'OK':True}))
@@ -775,6 +785,9 @@ def call_duty_week(request, year=None, week=None):
     tpl['drags'] = json.dumps(id_drags)
     tpl['initials'] = json.dumps(id_initials)
     tpl['uids'] = json.dumps(uids)
+    tpl['locations'] = models.Located.LOCATION_CHOICES
+    tpl['weekdays'] = list(zip(range(1,6), ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag']))
+    tpl['spans'] = list(range(3))
     return render(request, 'baljan/call_duty_week.html', tpl)
 
 

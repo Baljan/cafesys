@@ -491,10 +491,10 @@ class Shift(Located):
         return lookup[self.span][0 if i18n else 1]
 
     def name(self):
-        return string_concat(self.timeofday(), ' ', self.when.strftime('%Y-%m-%d'))
+        return string_concat(self.timeofday(), ' ', self.when.strftime('%Y-%m-%d'), ' ', self.get_location_display())
 
     def name_short(self):
-        return string_concat(self.ampm(), ' ', self.when.strftime('%Y-%m-%d'))
+        return string_concat(self.ampm(), ' ', self.when.strftime('%Y-%m-%d'), ' ', self.get_location_display())
 
     def past(self):
         return self.when < date.today()
@@ -541,7 +541,7 @@ class Shift(Located):
         return ('day_shifts', (), {'day': util.to_iso8601(self.when)})
 
     def __str__(self):
-        return "%s %s" % (self.ampm(i18n=False), self.when.strftime('%Y-%m-%d'))
+        return "%s %s %s" % (self.ampm(i18n=False), self.when.strftime('%Y-%m-%d'), self.location_name())
 
 
 class ShiftSignup(Made):

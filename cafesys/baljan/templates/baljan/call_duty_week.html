@@ -29,36 +29,19 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td class="day">Måndag</td>
-            <td class="droppable" id="shift-1-0"></td>
-            <td class="droppable" id="shift-1-1"></td>
-            <td class="droppable" id="shift-1-2"></td>
-        </tr>
-        <tr>
-            <td class="day">Tisdag</td>
-            <td class="droppable" id="shift-2-0"></td>
-            <td class="droppable" id="shift-2-1"></td>
-            <td class="droppable" id="shift-2-2"></td>
-        </tr>
-        <tr>
-            <td class="day">Onsdag</td>
-            <td class="droppable" id="shift-3-0"></td>
-            <td class="droppable" id="shift-3-1"></td>
-            <td class="droppable" id="shift-3-2"></td>
-        </tr>
-        <tr>
-            <td class="day">Torsdag</td>
-            <td class="droppable" id="shift-4-0"></td>
-            <td class="droppable" id="shift-4-1"></td>
-            <td class="droppable" id="shift-4-2"></td>
-        </tr>
-        <tr>
-            <td class="day">Fredag</td>
-            <td class="droppable" id="shift-5-0"></td>
-            <td class="droppable" id="shift-5-1"></td>
-            <td class="droppable" id="shift-5-2"></td>
-        </tr>
+        {% for location in locations %}
+            <tr>
+            <td colspan="4"><strong>{{location.1}}</strong></td>
+            </tr>
+            {% for weekday in weekdays %}
+                <tr>
+                    <td class="day">{{weekday.1}}</td>
+                    {% for span in spans %}
+                        <td class="droppable" id="shift-{{weekday.0}}-{{span}}-{{location.0}}"></td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        {% endfor %}
         </tbody>
     </table>
     <h2>{% trans "Available Users" %} ({%trans "drag and drop"%})</h2>
@@ -151,7 +134,18 @@
                     if ($(this).hasClass('disabled')){
                         return false;
                     }
-                    return $(drop).find('.'+drag.attr('id')).length == 0;
+
+
+                    var dropId = $(drop).attr('id');
+                    var dropBaseId = dropId.substr(0, dropId.lastIndexOf('-')+1);
+
+                    for (loc in [{% for location in locations %}{{location.0}}{% if not forloop.last %}, {% endif %}{% endfor%}]) {
+                        if ($('#'+dropBaseId+loc).find('.'+drag.attr('id')).length > 0) {
+                            return false;
+                        }
+                    }
+
+                    return true;
                 },
                 activeClass: 'highlight',
                 hoverClass: 'hover',
