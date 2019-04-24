@@ -71,10 +71,11 @@ def _shift_link(shift, short):
     else:
         pre = shift.timeofday()
 
-    return mark_safe('<a href="%s">%s %s</a>' % (
+    return mark_safe('<a href="%s">%s %s %s</a>' % (
             shift.get_absolute_url(),
             pre,
-            shift.when.strftime('%Y-%m-%d')))
+            shift.when.strftime('%Y-%m-%d'),
+            shift.get_location_display()))
 
 @register.filter
 def shift_link_short(shift, autoescape=None):

@@ -269,7 +269,7 @@
                             </thead>
                             {% for gtitle, gclass, gsignups in grouped_signups %}
                                 <tr class="group {{ glclass|join:" " }}">
-                                    <td colspan="3">{{ gtitle }}</td>
+                                    <td colspan="4">{{ gtitle }}</td>
                                 </tr>
                                 {% for signup in gsignups %}
                                     <tr>
@@ -288,7 +288,7 @@
                                                 {{ shift.ampm }}
                                             </td>
                                             <td>
-                                                {{ shift.location_name }}
+                                                {{ shift.get_location_display }}
                                             </td>
                                         {% endwith %}
                                     </tr>

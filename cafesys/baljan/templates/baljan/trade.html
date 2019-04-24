@@ -31,6 +31,12 @@
             <a href="{{take.shift.get_absolute_url}}">{{take.signup.shift.timeofday}} {{take.shift.when|date}}</a>
             <br/>
             <strong>
+                Var
+            </strong>
+            <br/>
+            {{ take.shift.get_location_display }}
+            <br/>
+            <strong>
                 Från användare
             </strong>
             <br/>
@@ -48,20 +54,21 @@
                 {% csrf_token %}
                 <p>
                 {% for su in take.can_offer %}
-                <input {%if su in take.offered_signups%} checked="checked"{%endif%}
+                <input {% if su in take.offered_signups %} checked="checked"{%endif%}
                     type="checkbox" name="signup_{{su.pk}}"
                         value="{{su.pk}}"
                         id="id_signup_{{su.pk}}" />
                     <label for="id_signup_{{su.pk}}">
                     {{su.shift.timeofday}}
                     {{su.shift.when|date}}
+                    {{su.shift.get_location_display}}
                     </label><br/>
                 {% empty %}
                     Du har inga pass att erbjuda.
                 {% endfor %}
                 </p>
                 <div class="submit">
-                    <input class="btn btn-primary" type="submit" value="{%if take.offered_signups%}Uppdatera bytesförfrågan{%else%}Skicka bytesförfrågan{%endif%}"/>
+                    <input class="btn btn-primary" type="submit" value="{% if take.offered_signups %}Uppdatera bytesförfrågan{% else %}Skicka bytesförfrågan{% endif %}"/>
                 </div>
             </form>
         </div>

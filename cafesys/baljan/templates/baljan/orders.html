@@ -36,10 +36,10 @@
                                 {% endifchanged %}
                             </td>
                             <td>
-                                {{order.put_at|time }}
+                                {{order.put_at|time}}
                             </td>
                             <td>
-                                {{order.location_name}}
+                                {{order.get_location_display}}
                             </td>
                             <td>
                                 {{order.ordergood_set.all|join:", "}}
