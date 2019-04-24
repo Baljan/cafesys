@@ -92,9 +92,8 @@ def refill_series(file_object, list_of_series):
     return out_pdf
 
 
-def shift_combinations(file_object, scheduler,
+def shift_combinations(file_object, semester,
         empty_cells=False, cell_title=None):
-    """`scheduler` as in the `workdist` module."""
     if cell_title is None:
         cell_title = _("work shifts")
 
@@ -110,26 +109,27 @@ def shift_combinations(file_object, scheduler,
     now = datetime.now(tz)
 
     elems.append(
-        Paragraph(_("Job Opening %s") % scheduler.sem.name,
+        Paragraph(_("Job Opening %s") % semester.name,
             styles['Heading1']))
 
     data = []
     data.append(
         ['#', cell_title, '#', cell_title],
     )
-    pairs = scheduler.pairs_from_db()
+
+    combs = semester.shiftcombination_set.order_by('label')
     taken_indexes = []
-    for i, (p1, p2) in enumerate(grouper(2, pairs, None)):
+    for i, (p1, p2) in enumerate(grouper(2, combs, None)):
         if p1.is_taken():
             taken_indexes.append((0, i))
 
         sh1 = [] if empty_cells else [str(sh.name_short()) for sh
-                in p1.shifts]
+                in p1.shifts.order_by('when')]
         if p2 is None:
             data.append([p1.label, ', '.join(sh1), '', ''])
         else:
             sh2 = [] if empty_cells else [str(sh.name_short()) for sh
-                    in p2.shifts]
+                    in p2.shifts.order_by('when')]
             if p2.is_taken():
                 taken_indexes.append((2, i))
             data.append([p1.label, ', '.join(sh1), p2.label, ', '.join(sh2)])
@@ -164,10 +164,9 @@ def shift_combinations(file_object, scheduler,
 
 
 
-def shift_combination_form(file_object, scheduler):
-    """`scheduler` as in the `workdist` module."""
+def shift_combination_form(file_object, semester):
     pad = 30 # ugly way of getting enough room for text
-    return shift_combinations(file_object, scheduler,
+    return shift_combinations(file_object, semester,
             empty_cells=True,
             cell_title=" "*pad + _("liu ids") + " "*pad,
     )

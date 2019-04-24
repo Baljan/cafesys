@@ -29,6 +29,7 @@ from cafesys.baljan.models import LegalConsent, MutedConsent
 from cafesys.baljan.pseudogroups import is_worker
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from cafesys.baljan.models import Order, Good, OrderGood
+from cafesys.baljan.workdist.workdist_adapter import WorkdistAdapter
 from . import credits as creditsmodule
 from . import (forms, ical, models, pdf, planning, pseudogroups, search,
                stats, trades, workdist)
@@ -585,8 +586,7 @@ def job_opening_projector(request, semester_name):
     tpl['semester'] = sem = models.Semester.objects.get(name__exact=semester_name)
     user = request.user
 
-    sched = workdist.Scheduler(sem)
-    pairs = sched.pairs_from_db()
+    pairs = sem.shiftcombination_set.order_by('label')
     slots = _pair_matrix(pairs)
     tz = pytz.timezone(settings.TIME_ZONE)
     tpl['now'] = now = datetime.now(tz).strftime('%H:%M:%S')
@@ -683,15 +683,15 @@ def job_opening(request, semester_name):
                     else:
                         logger.info('%r already existed' % signup)
 
-    sched = workdist.Scheduler(sem)
-    pairs = sched.pairs_from_db()
+    pairs = sem.shiftcombination_set.order_by('label')
     slots = _pair_matrix(pairs)
 
     pair_javascript = {}
     for pair in pairs:
+        shifts = pair.shifts.order_by('when')
         pair_javascript[pair.label] = {
-            'shifts': [str(sh.name()) for sh in pair.shifts],
-            'ids': [sh.pk for sh in pair.shifts],
+            'shifts': [str(sh.name()) for sh in shifts],
+            'ids': [sh.pk for sh in shifts],
         }
 
     tpl['slots'] = slots
@@ -833,14 +833,14 @@ def admin_semester(request, name=None):
                 assert False
 
             if make != 'none':
-                sem.save() # generates new shift combinations
+                WorkdistAdapter.recreate_shift_combinations(sem)
 
     tpl = {}
     tpl['semester'] = sem
     tpl['semesters'] = models.Semester.objects.order_by('-start').all()
     tpl['admin_semester_base_url'] = reverse('admin_semester')
     if sem:
-        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span')
+        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span', 'location')
         tpl['day_count'] = len(list(sem.date_range()))
 
         worker_shifts = shifts.exclude(enabled=False).exclude(span=1)
@@ -861,12 +861,10 @@ def shift_combination_form_pdf(request, sem_name):
 def _shift_combinations_pdf(request, sem_name, form):
     buf = BytesIO()
     sem = models.Semester.objects.by_name(sem_name)
-    sched = workdist.Scheduler(sem)
-    pairs = sched.pairs_from_db()
     if form:
-        pdf.shift_combination_form(buf, sched)
+        pdf.shift_combination_form(buf, sem)
     else:
-        pdf.shift_combinations(buf, sched)
+        pdf.shift_combinations(buf, sem)
     buf.seek(0)
     response = HttpResponse(buf.read(), content_type="application/pdf")
 
@@ -1123,8 +1121,7 @@ def semester_shifts(request, sem_name):
     # Get all shifts for the semester
     try:
         sem = models.Semester.objects.by_name(sem_name)
-        sched = workdist.Scheduler(sem)
-        pairs = sched.pairs_from_db()
+        pairs = sem.shiftcombination_set.order_by('label')
     except models.Semester.DoesNotExist:
         raise Http404("%s är inte en giltig termin." % sem_name)
 
@@ -1177,7 +1174,7 @@ def semester_shifts(request, sem_name):
     workable_shifts_form = forms.WorkableShiftsForm(pairs=pairs, workable_shifts=workable_shifts)
 
     # Calculate the maximum number of shifts for any given shift combination.
-    max_shifts = max(map(lambda x: len(x.shifts), pairs))
+    max_shifts = max(map(lambda x: x.shifts.count(), pairs))
     shift_numbers = list(range(1, max_shifts+1))
 
     tz = pytz.timezone(settings.TIME_ZONE)

@@ -286,8 +286,8 @@ class Semester(Made):
     name_validator = RegexValidator(r'^(V|H)T\d{4}$',
     _('Invalid semester name. Must be something like HT2010 or VT2010.'))
 
-    start = models.DateField(_("first day"), unique=True)
-    end = models.DateField(_("last day"), unique=True)
+    start = models.DateField(_("first day"), unique=True, help_text='Detta går bara att ändra när du skapar en termin')
+    end = models.DateField(_("last day"), unique=True, help_text='Detta går bara att ändra när du skapar en termin')
     name = models.CharField(_("name"), max_length=6, unique=True,
             help_text=_("must be something like HT2010"),
             validators=[name_validator])
@@ -369,46 +369,6 @@ class Semester(Made):
         return self.name
 
 
-def semester_post_save(sender, instance, **kwargs):
-    sem = instance
-    shifts = sem.shift_set.filter(
-            Q(when__lt=sem.start) | Q(when__gt=sem.end))
-    deleted_count = len(shifts)
-    shifts.delete()
-
-    weekdays = (5, 6)
-    created_count = 0
-    for day in sem.date_range():
-        if day.weekday() in weekdays:
-            continue
-        for early_or_lunch_or_late in (0, 1, 2):
-            obj, created = Shift.objects.get_or_create(
-                    semester=sem,
-                    span=early_or_lunch_or_late,
-                    when=day)
-            if created:
-                created_count += 1
-    logger.info('%s: %d/%d shifts added/deleted, signups=%s' % (
-        sem.name, created_count, deleted_count, sem.signup_possible))
-
-    # Create new shift combinations for job openings.
-    from . import workdist
-    sched = workdist.Scheduler(sem)
-    try:
-        sched.save()
-    except workdist.Scheduler.Unsolvable:
-        logger.warning('could not save shift combs for %r' % sem)
-
-
-signals.post_save.connect(semester_post_save, sender=Semester)
-
-def semester_post_delete(sender, instance, **kwargs):
-    if instance is None:
-        return
-    sem = instance
-    logger.info('%s: deleted' % sem.name)
-signals.post_delete.connect(semester_post_delete, sender=Semester)
-
 SPAN_NAMES = {
     0: _('morning'),
     1: _('lunch'),
@@ -416,6 +376,8 @@ SPAN_NAMES = {
 }
 
 
+# Note to future nerd: Trying to retrieve all shift combinations from a Semester WILL result in duplicate
+#                      objects caused by the Meta.ordering below. Solved by: semester.shiftcombination_set.order_by()
 class ShiftCombination(Made):
     semester = models.ForeignKey(Semester, verbose_name=_("semester"))
     shifts = models.ManyToManyField('baljan.Shift', verbose_name=_("shifts"))

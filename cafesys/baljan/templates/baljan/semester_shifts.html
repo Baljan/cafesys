@@ -148,9 +148,9 @@
             event.preventDefault();
             if (saveRequest) saveRequest.abort();
 
-            saveRequest = $.ajax({ 
-                type: $(this).attr('method'), 
-                url: this.action, 
+            saveRequest = $.ajax({
+                type: $(this).attr('method'),
+                url: this.action,
                 data: $(this).serialize(),
                 context: this,
                 success: function(data) {
