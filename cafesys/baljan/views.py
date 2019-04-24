@@ -892,7 +892,7 @@ def high_score(request, year=None, week=None):
         (relativedelta(days=7), _("Last %d Days") % 7),
         (relativedelta(days=30), _("Last %d Days") % 30),
         (relativedelta(days=90), _("Last %d Days") % 90),
-        (relativedelta(days=2000), _("Forever")),
+        (relativedelta(years=2000), _("Forever")),
     ]
 
     if 'format' in request.GET:
