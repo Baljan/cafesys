@@ -25,7 +25,7 @@ from django.utils.html import escape
 
 from cafesys.baljan import phone, slack
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
-from cafesys.baljan.models import LegalConsent, MutedConsent
+from cafesys.baljan.models import LegalConsent, MutedConsent, BlippConfiguration
 from cafesys.baljan.pseudogroups import is_worker
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from cafesys.baljan.models import Order, Good, OrderGood
@@ -1022,10 +1022,9 @@ def do_blipp(request):
     if request.method == 'OPTIONS':
         return HttpResponse(status=200)
 
-    if not _is_authenticated_for_blipp(request):
-        response = HttpResponse()
-        response.status_code = 401
-        response['WWW-Authenticate'] = 'Basic'
+    config = _get_blipp_configuration(request)
+    if config is None:
+        response = HttpResponse(status=403)
         return response
 
     rfid = request.POST.get('id')
@@ -1056,7 +1055,7 @@ def do_blipp(request):
 
     # We will always have a user at this point
 
-    price = settings.BLIPP_COFFEE_PRICE
+    price = config.good.current_cost()
     is_coffee_free = user.profile.has_free_blipp()
 
     if is_coffee_free:
@@ -1073,6 +1072,7 @@ def do_blipp(request):
     tz = pytz.timezone(settings.TIME_ZONE)
 
     order = Order()
+    order.location = config.location
     order.made = datetime.now(tz)
     order.put_at = datetime.now(tz)
     order.user = user
@@ -1083,7 +1083,7 @@ def do_blipp(request):
 
     order_good = OrderGood()
     order_good.order = order
-    order_good.good = Good.objects.get(pk=1)
+    order_good.good = config.good
     order_good.count = 1
     order_good.save()
 
@@ -1101,15 +1101,19 @@ def integrity(request):
     return render(request, 'baljan/integrity.html')
 
 
-def _is_authenticated_for_blipp(request):
+def _get_blipp_configuration(request):
     if 'HTTP_AUTHORIZATION' in request.META:
         authorization = request.META['HTTP_AUTHORIZATION'].split()
         if len(authorization) == 2:
-            if authorization[0].lower() == "basic":
-                uname, passwd = base64.b64decode(authorization[1]).decode('ascii').split(':')
-                return uname == settings.BLIPP_USERNAME and passwd == settings.BLIPP_PASSWORD
+            if authorization[0].lower() == "token":
+                token = authorization[1]
 
-    return False
+                try:
+                    return BlippConfiguration.objects.get(token=token)
+                except BlippConfiguration.DoesNotExist:
+                    return None
+
+    return None
 
 
 def _json_error(status_code, message):
