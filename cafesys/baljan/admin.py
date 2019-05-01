@@ -348,3 +348,9 @@ class WorkableShift(admin.ModelAdmin):
     readonly_fields = ('combination', 'user', 'priority', 'semester',)
 
 admin.site.register(models.WorkableShift, WorkableShift)
+
+class BlippConfiguration(admin.ModelAdmin):
+    list_display = ('token', 'location', 'good',)
+    list_filter = ('location',)
+
+admin.site.register(models.BlippConfiguration, BlippConfiguration)

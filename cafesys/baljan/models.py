@@ -1042,3 +1042,12 @@ class WorkableShift(models.Model):
     priority = models.IntegerField(verbose_name=_("priority"), blank=False)
     combination = models.CharField(_("label"), max_length=10)
     semester = models.ForeignKey(Semester, verbose_name=_("semester"))
+
+
+class BlippConfiguration(Located):
+    token = models.CharField("Token", max_length=255, unique=True, blank=False)
+    good = models.ForeignKey(Good, verbose_name=_("good"))
+
+    class Meta:
+        verbose_name = "Blipp-konfiguration"
+        verbose_name_plural = "Blipp-konfigurationer"
