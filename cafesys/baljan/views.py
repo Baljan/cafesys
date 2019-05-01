@@ -1024,8 +1024,7 @@ def do_blipp(request):
 
     config = _get_blipp_configuration(request)
     if config is None:
-        response = HttpResponse(status=403)
-        return response
+        return _json_error(403, 'Felaktigt token')
 
     rfid = request.POST.get('id')
     if rfid is None or not rfid.isdigit():
