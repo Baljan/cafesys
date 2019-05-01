@@ -936,7 +936,7 @@ def high_score(request, year=None, week=None, location=None):
             return HttpResponse("INVALID FORMAT", content_type='text/plain')
 
     if settings.STATS_CACHE_KEY:
-        fetched_stats = cache.get(stats.get_cache_key(location))
+        fetched_stats = cache.get(stats.get_cache_key(location)) or []
     else:
         fetched_stats = stats.compute_stats_for_location(location)
 
