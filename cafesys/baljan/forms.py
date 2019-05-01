@@ -15,6 +15,10 @@ class UserForm(forms.ModelForm):
                 )
 
 class ProfileForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ProfileForm, self).__init__(*args, **kwargs)
+        self.initial['card_id'] = kwargs['instance'].pretty_card_id()
+
     class Meta:
         model = models.Profile
         fields = (
