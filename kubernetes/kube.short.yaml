@@ -17,7 +17,7 @@ deployment:
     run: baljan-blipp
   containers:
   - name: baljan-blipp
-    image: gcr.io/sektionscafe-baljan/blipp:latest
+    image: gcr.io/sektionscafe-baljan/github-baljan-baljans-balla-blipp:latest
     pull: always
     expose:
     - 80
