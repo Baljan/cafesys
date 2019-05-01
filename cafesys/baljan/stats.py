@@ -15,9 +15,14 @@ from .util import year_and_week, week_dates, adjacent_weeks
 log = getLogger(__name__)
 
 ALL_INTERVALS = ('today', 'yesterday', 'this_week', 'last_week', 'this_semester', 'total')
+ALL_LOCATIONS = [
+    None,
+    0,
+    1
+]
 
 
-def top_consumers(start=None, end=None, simple=False):
+def top_consumers(start=None, end=None, simple=False, location=None):
     """`start` and `end` are dates. Returns top consumers in the interval with
     order counts annotated (num_orders). If `simple` is true the returned list
     consists of serializable data types only. """
@@ -51,6 +56,15 @@ def top_consumers(start=None, end=None, simple=False):
             })
         return simple_top
     return top
+
+
+def compute_stats_for_location(location):
+    s = Stats()
+    return [s.get_interval(i, location) for i in ALL_INTERVALS]
+
+
+def get_cache_key(location):
+    return '%s-%s' % (settings.STATS_CACHE_KEY, location)
 
 
 class Meta(object):
@@ -202,7 +216,7 @@ class Stats(object):
         self.meta = Meta()
         self.meta.compute()
 
-    def get_interval(self, interval_key):
+    def get_interval(self, interval_key, location):
         interval = self.meta.interval_keys[interval_key]
         staff_users = set()
         for cls_name in interval['staff classes']:
@@ -219,12 +233,21 @@ class Stats(object):
                 id__in=[u.id for u in users],
                 profile__show_profile=True,
             )
+
+            filter_args = {}
             if interval['dates']:
                 dates = list(interval['dates'])
+                filter_args['order__put_at__gte'] = dates[0]
+                filter_args['order__put_at__lte'] = dates[-1] + timedelta(days=1)
+
+            if location is not None:
+                filter_args['order__location'] = location
+
+            if filter_args:
                 top = top.filter(
-                    order__put_at__gte=dates[0],
-                    order__put_at__lte=dates[-1] + timedelta(days=1),
+                    **filter_args
                 )
+
             top = top.annotate(
                 num_orders=Count('order'),
             ).order_by('-num_orders')[:limit]

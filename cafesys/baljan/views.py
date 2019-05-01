@@ -897,6 +897,8 @@ def high_score(request, year=None, week=None):
 
     tpl = {}
 
+    location = request.GET.get('location')
+
     today = date.today()
     end_offset = relativedelta(hours=23, minutes=59, seconds=59)
     end_of_today = today + end_offset
@@ -930,12 +932,12 @@ def high_score(request, year=None, week=None):
             return HttpResponse("INVALID FORMAT", content_type='text/plain')
 
     if settings.STATS_CACHE_KEY:
-        fetched_stats = cache.get(settings.STATS_CACHE_KEY)
+        fetched_stats = cache.get(stats.get_cache_key(location))
     else:
-        s = stats.Stats()
-        fetched_stats = [s.get_interval(i) for i in stats.ALL_INTERVALS]
+        fetched_stats = stats.compute_stats_for_location(location)
 
     tpl['stats'] = fetched_stats
+    tpl['all_empty'] = all([x['empty'] for x in fetched_stats])
     return render(request, 'baljan/high_score.html', tpl)
 
 
