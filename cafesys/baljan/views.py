@@ -888,16 +888,19 @@ def user_calendar(request, private_key):
     return HttpResponse(str(cal), content_type="text/calendar")
 
 
-def high_score(request, year=None, week=None):
+def high_score(request, year=None, week=None, location=None):
     if year is None or week is None:
         year, week = year_and_week()
     else:
         year = int(year)
         week = int(week)
 
-    tpl = {}
+    if location is None or location == 'None' or location == '':
+        location = None
+    else:
+        location = int(location)
 
-    location = request.GET.get('location')
+    tpl = {}
 
     today = date.today()
     end_offset = relativedelta(hours=23, minutes=59, seconds=59)
@@ -918,7 +921,8 @@ def high_score(request, year=None, week=None):
                 'consumers': stats.top_consumers(
                     end_of_today - delta,
                     end_of_today,
-                    simple=True
+                    simple=True,
+                    location=location,
                 )[:20],
                 'title': title,
             })
@@ -938,6 +942,8 @@ def high_score(request, year=None, week=None):
 
     tpl['stats'] = fetched_stats
     tpl['all_empty'] = all([x['empty'] for x in fetched_stats])
+    tpl['locations'] = ((None, 'Alla'),) + models.Located.LOCATION_CHOICES
+    tpl['selected_location'] = location
     return render(request, 'baljan/high_score.html', tpl)
 
 

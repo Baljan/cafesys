@@ -32,13 +32,20 @@ def top_consumers(start=None, end=None, simple=False, location=None):
         end = datetime(2999, 1, 1, 0, 0)
 
     fmt = '%Y-%m-%d'
-    key = 'baljan.stats.start-%s.end-%s' % (start.strftime(fmt), end.strftime(fmt))
+    key = 'baljan.stats.start-%s.end-%s.location-%s' % (start.strftime(fmt), end.strftime(fmt), location)
     top = cache.get(key)
     if top is None:
+        filter_args = {
+            'profile__show_profile': True,
+            'order__put_at__gte': start,
+            'order__put_at__lte': end
+        }
+
+        if location is not None:
+            filter_args['order__location'] = location
+
         top = User.objects.filter(
-            profile__show_profile=True,
-            order__put_at__gte=start,
-            order__put_at__lte=end,
+            **filter_args
         ).annotate(
             num_orders=Count('order'),
         ).order_by('-num_orders')
