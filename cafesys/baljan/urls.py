@@ -38,7 +38,8 @@ urlpatterns = (
 
     url(r'ical/user/(.+)/baljan.ics', views.user_calendar, name='user_calendar'),
 
-    url(r'high-score/(\d+)/(\d+)', views.high_score, name='high_score'),
+    url(r'high-score/(\d+)/(\d+)/(?P<location>.*)', views.high_score, name='high_score'),
+    url(r'high-score/(?P<location>.*)', views.high_score, name='high_score'),
     url(r'high-score', views.high_score, name='high_score'),
 
     url(r'bestallning', views.orderFromUs, name='order_from_us'),
