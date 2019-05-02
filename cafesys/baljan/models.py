@@ -80,6 +80,9 @@ class Profile(Made):
     def balcur(self):
         return "%s %s" % (self.balance, self.balance_currency)
 
+    def pretty_card_id(self):
+        return str(self.card_id).zfill(10)
+
     def has_free_blipp(self):
         return self.user.has_perm('baljan.free_coffee_unlimited') or self.user.has_perm('baljan.free_coffee_with_cooldown')
 
