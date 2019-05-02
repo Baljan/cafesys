@@ -4,7 +4,7 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 from icalendar import Calendar, Event
 
-from .models import ShiftSignup, OnCallDuty
+from .models import ShiftSignup, OnCallDuty, Located
 
 
 def to_utc(dt):
@@ -27,6 +27,9 @@ def encode_dt(dt):
     """Will also convert to UTC internally."""
     return to_utc(dt).strftime(UTC_FMT)
 
+def item_location(item):
+    return Located.LOCATION_CHOICES[item.shift.location][1]
+
 def for_user(user):
     """Returns an `icalendar.Calendar` object."""
     signups = ShiftSignup.objects.filter(
@@ -45,19 +48,21 @@ def for_user(user):
     for signup in signups:
         ev = Event()
         start, end = signup.shift.worker_times()
-        ev.add('summary', _("work in Baljan"))
+        ev.add('summary', 'Jobba i Baljan')
         ev.add('dtstart', encode_dt(start), encode=False)
         ev.add('dtend', encode_dt(end), encode=False)
         ev.add('dtstamp', encode_dt(signup.made), encode=False)
+        ev.add('location', item_location(signup))
         cal.add_component(ev)
 
     for oncall in oncalls:
         ev = Event()
         start, end = oncall.shift.oncall_times()
-        ev.add('summary', _("on call in Baljan"))
+        ev.add('summary', 'Jour i Baljan')
         ev.add('dtstart', encode_dt(start), encode=False)
         ev.add('dtend', encode_dt(end), encode=False)
         ev.add('dtstamp', encode_dt(oncall.made), encode=False)
+        ev.add('location', item_location(oncall))
         cal.add_component(ev)
 
     return cal.to_ical().decode('utf-8')

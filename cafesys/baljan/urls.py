@@ -13,6 +13,7 @@ urlpatterns = (
     url(r"^semester/$", views.current_semester, name='current_semester'),
     url(r"^day/(?P<day>[0-9-]+)$", views.day_shifts, name='day_shifts'),
     url(r"^semester/(?P<name>\w+)$", views.semester, name='semester'),
+    url(r"^semester/(?P<name>\w+)/(?P<loc>[0-9]+)$", views.semester, name='located_semester'),
     url(r"^admin-semester$", views.admin_semester, name='admin_semester'),
     url(r"^admin-semester/(\w+)$", views.admin_semester, name='admin_semester'),
 
@@ -37,7 +38,8 @@ urlpatterns = (
 
     url(r'ical/user/(.+)/baljan.ics', views.user_calendar, name='user_calendar'),
 
-    url(r'high-score/(\d+)/(\d+)', views.high_score, name='high_score'),
+    url(r'high-score/(\d+)/(\d+)/(?P<location>.*)', views.high_score, name='high_score'),
+    url(r'high-score/(?P<location>.*)', views.high_score, name='high_score'),
     url(r'high-score', views.high_score, name='high_score'),
 
     url(r'bestallning', views.orderFromUs, name='order_from_us'),

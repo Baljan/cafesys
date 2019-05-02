@@ -264,11 +264,12 @@
                                 <th>Termin</th>
                                 <th>Datum</th>
                                 <th>fm/em</th>
+                                <th>Plats</th>
                             </tr>
                             </thead>
                             {% for gtitle, gclass, gsignups in grouped_signups %}
                                 <tr class="group {{ glclass|join:" " }}">
-                                    <td colspan="3">{{ gtitle }}</td>
+                                    <td colspan="4">{{ gtitle }}</td>
                                 </tr>
                                 {% for signup in gsignups %}
                                     <tr>
@@ -285,6 +286,9 @@
                                             </td>
                                             <td>
                                                 {{ shift.ampm }}
+                                            </td>
+                                            <td>
+                                                {{ shift.get_location_display }}
                                             </td>
                                         {% endwith %}
                                     </tr>

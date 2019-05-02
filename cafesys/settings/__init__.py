@@ -129,7 +129,7 @@ ROOT_URLCONF = "cafesys.urls"
 INSTALLED_APPS = [
     # Project
     # Must come before admin app to override login template
-    'cafesys.baljan',
+    'cafesys.baljan.apps.BaljanConfig',
 
     # Django
     "django.contrib.admin",
@@ -236,7 +236,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_SSL', 'on')
 SLACK_PHONE_WEBHOOK_URL = env.str('SLACK_PHONE_WEBHOOK_URL', default='')
 VERIFY_46ELKS_IP = True
 
-BLIPP_COFFEE_PRICE = 6
 BLIPP_USERNAME = env.str('BLIPP_USERNAME', default='')
 BLIPP_PASSWORD = env.str('BLIPP_PASSWORD', default='')
 

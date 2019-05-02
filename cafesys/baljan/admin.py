@@ -36,6 +36,13 @@ class SemesterAdmin(admin.ModelAdmin):
     list_display = ('name', 'start', 'end', 'signup_possible')
     list_filter = ('signup_possible',)
     #inlines = (ShiftInline,)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ['start', 'end']
+        else:
+            return []
+
 admin.site.register(models.Semester, SemesterAdmin)
 
 signup_oncall_fields = ('shift__when', 'user__username', 'user__first_name',
@@ -69,8 +76,8 @@ class OnCallDutyInline(admin.TabularInline):
 
 class ShiftAdmin(admin.ModelAdmin):
     search_fields = ('when',)
-    list_display = ('when', 'span', 'exam_period', 'enabled', 'semester')
-    list_filter = ('enabled', 'semester', 'exam_period')
+    list_display = ('when', 'span', 'location', 'exam_period', 'enabled', 'semester')
+    list_filter = ('enabled', 'location', 'semester', 'exam_period')
     inlines = (ShiftSignupInline, OnCallDutyInline)
 
     def toggle_exam_period(self, request, queryset):
@@ -129,8 +136,8 @@ class OrderGoodInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'ordergood__good__title',
             'ordergood__good__description')
-    list_display = ('user', 'put_at', 'paid', 'currency', 'accepted')
-    list_filter = ('put_at', 'accepted')
+    list_display = ('user', 'put_at', 'location', 'paid', 'currency', 'accepted')
+    list_filter = ('location', 'put_at', 'accepted')
     inlines = (OrderGoodInline, )
 admin.site.register(models.Order, OrderAdmin)
 
@@ -341,3 +348,9 @@ class WorkableShift(admin.ModelAdmin):
     readonly_fields = ('combination', 'user', 'priority', 'semester',)
 
 admin.site.register(models.WorkableShift, WorkableShift)
+
+class BlippConfiguration(admin.ModelAdmin):
+    list_display = ('token', 'location', 'good',)
+    list_filter = ('location',)
+
+admin.site.register(models.BlippConfiguration, BlippConfiguration)

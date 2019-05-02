@@ -25,10 +25,11 @@ from django.utils.html import escape
 
 from cafesys.baljan import phone, slack
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
-from cafesys.baljan.models import LegalConsent, MutedConsent
+from cafesys.baljan.models import LegalConsent, MutedConsent, BlippConfiguration
 from cafesys.baljan.pseudogroups import is_worker
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from cafesys.baljan.models import Order, Good, OrderGood
+from cafesys.baljan.workdist.workdist_adapter import WorkdistAdapter
 from . import credits as creditsmodule
 from . import (forms, ical, models, pdf, planning, pseudogroups, search,
                stats, trades, workdist)
@@ -244,18 +245,22 @@ END:VCALENDAR'''
 
 
 @login_required
-def semester(request, name):
-    return _semester(request, models.Semester.objects.by_name(name))
+def semester(request, name, loc=0):
+    return _semester(request, models.Semester.objects.by_name(name), loc)
 
 
-def _semester(request, sem):
+def _semester(request, sem, loc=0):
+    loc = int(loc)
+
     tpl = {}
     tpl['semesters'] = models.Semester.objects.order_by('-start').all()
     tpl['selected_semester'] = sem
     tpl['worker_group_name'] = settings.WORKER_GROUP
     tpl['board_group_name'] = settings.BOARD_GROUP
+    tpl['locations'] = models.Located.LOCATION_CHOICES
+    tpl['selected_location'] = loc
     if sem:
-        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span').filter(enabled=True).iterator()
+        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span').filter(enabled=True, location=loc).iterator()
         # Do not use iterator() on workers and oncall because the template is
         # unable to count() them. Last tested in Django 1.2.3.
         tpl['workers'] = workers = User.objects.filter(shiftsignup__shift__semester=sem).order_by('first_name').distinct()
@@ -288,14 +293,16 @@ def toggle_tradable(request, pk, redir):
 def day_shifts(request, day):
     tpl = {}
     tpl['day'] = day = from_iso8601(day)
-    tpl['shifts'] = shifts = models.Shift.objects.filter(when=day, enabled=True).order_by('span')
+    tpl['shifts'] = shifts = models.Shift.objects.filter(when=day, enabled=True).order_by('location', 'span')
     tpl['available_for_call_duty'] = avail_call_duty = available_for_call_duty()
 
     if request.method == 'POST':
         assert request.user.is_authenticated()
         span = int(request.POST['span'])
         assert span in (0, 1, 2)
-        shift = models.Shift.objects.get(when__exact=day, span=span)
+        location = int(request.POST['location'])
+        assert location in (loc[0] for loc in models.Located.LOCATION_CHOICES)
+        shift = models.Shift.objects.get(when__exact=day, span=span, location=location)
         assert shift.enabled
 
         uid = int(request.POST['user'])
@@ -579,8 +586,7 @@ def job_opening_projector(request, semester_name):
     tpl['semester'] = sem = models.Semester.objects.get(name__exact=semester_name)
     user = request.user
 
-    sched = workdist.Scheduler(sem)
-    pairs = sched.pairs_from_db()
+    pairs = sem.shiftcombination_set.order_by('label')
     slots = _pair_matrix(pairs)
     tz = pytz.timezone(settings.TIME_ZONE)
     tpl['now'] = now = datetime.now(tz).strftime('%H:%M:%S')
@@ -677,15 +683,15 @@ def job_opening(request, semester_name):
                     else:
                         logger.info('%r already existed' % signup)
 
-    sched = workdist.Scheduler(sem)
-    pairs = sched.pairs_from_db()
+    pairs = sem.shiftcombination_set.order_by('label')
     slots = _pair_matrix(pairs)
 
     pair_javascript = {}
     for pair in pairs:
+        shifts = pair.shifts.order_by('when')
         pair_javascript[pair.label] = {
-            'shifts': [str(sh.name()) for sh in pair.shifts],
-            'ids': [sh.pk for sh in pair.shifts],
+            'shifts': [str(sh.name()) for sh in shifts],
+            'ids': [sh.pk for sh in shifts],
         }
 
     tpl['slots'] = slots
@@ -748,12 +754,20 @@ def call_duty_week(request, year=None, week=None):
                 if not old_user in new_users:
                     shift.oncallduty_set.filter(user=old_user).delete()
             for new_user in new_users:
-                if not new_user in old_users:
-                    o, created = models.OnCallDuty.objects.get_or_create(
-                        shift=shift,
-                        user=new_user
-                    )
-                    assert created
+                if not new_user in old_users :
+                    if models.OnCallDuty.objects\
+                        .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
+                        messages.add_message(request, messages.ERROR,
+                            "Kunde inte lägga till %s %s på pass %s." % 
+                            (new_user.first_name, new_user.last_name, shift.name_short()),
+                            extra_tags="danger")
+                    else:
+                        o, created = models.OnCallDuty.objects.get_or_create(
+                            shift=shift,
+                            user=new_user
+                        )
+                        assert created
+        
         messages.add_message(request, messages.SUCCESS,
                 _("Your changes were saved."))
         return HttpResponse(json.dumps({'OK':True}))
@@ -771,6 +785,9 @@ def call_duty_week(request, year=None, week=None):
     tpl['drags'] = json.dumps(id_drags)
     tpl['initials'] = json.dumps(id_initials)
     tpl['uids'] = json.dumps(uids)
+    tpl['locations'] = models.Located.LOCATION_CHOICES
+    tpl['weekdays'] = list(zip(range(1,6), ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag']))
+    tpl['spans'] = list(range(3))
     return render(request, 'baljan/call_duty_week.html', tpl)
 
 
@@ -816,14 +833,14 @@ def admin_semester(request, name=None):
                 assert False
 
             if make != 'none':
-                sem.save() # generates new shift combinations
+                WorkdistAdapter.recreate_shift_combinations(sem)
 
     tpl = {}
     tpl['semester'] = sem
     tpl['semesters'] = models.Semester.objects.order_by('-start').all()
     tpl['admin_semester_base_url'] = reverse('admin_semester')
     if sem:
-        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span')
+        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span', 'location')
         tpl['day_count'] = len(list(sem.date_range()))
 
         worker_shifts = shifts.exclude(enabled=False).exclude(span=1)
@@ -844,12 +861,10 @@ def shift_combination_form_pdf(request, sem_name):
 def _shift_combinations_pdf(request, sem_name, form):
     buf = BytesIO()
     sem = models.Semester.objects.by_name(sem_name)
-    sched = workdist.Scheduler(sem)
-    pairs = sched.pairs_from_db()
     if form:
-        pdf.shift_combination_form(buf, sched)
+        pdf.shift_combination_form(buf, sem)
     else:
-        pdf.shift_combinations(buf, sched)
+        pdf.shift_combinations(buf, sem)
     buf.seek(0)
     response = HttpResponse(buf.read(), content_type="application/pdf")
 
@@ -873,12 +888,17 @@ def user_calendar(request, private_key):
     return HttpResponse(str(cal), content_type="text/calendar")
 
 
-def high_score(request, year=None, week=None):
+def high_score(request, year=None, week=None, location=None):
     if year is None or week is None:
         year, week = year_and_week()
     else:
         year = int(year)
         week = int(week)
+
+    if location is None or location == 'None' or location == '':
+        location = None
+    else:
+        location = int(location)
 
     tpl = {}
 
@@ -890,7 +910,7 @@ def high_score(request, year=None, week=None):
         (relativedelta(days=7), _("Last %d Days") % 7),
         (relativedelta(days=30), _("Last %d Days") % 30),
         (relativedelta(days=90), _("Last %d Days") % 90),
-        (relativedelta(days=2000), _("Forever")),
+        (relativedelta(years=2000), _("Forever")),
     ]
 
     if 'format' in request.GET:
@@ -901,7 +921,8 @@ def high_score(request, year=None, week=None):
                 'consumers': stats.top_consumers(
                     end_of_today - delta,
                     end_of_today,
-                    simple=True
+                    simple=True,
+                    location=location,
                 )[:20],
                 'title': title,
             })
@@ -915,12 +936,14 @@ def high_score(request, year=None, week=None):
             return HttpResponse("INVALID FORMAT", content_type='text/plain')
 
     if settings.STATS_CACHE_KEY:
-        fetched_stats = cache.get(settings.STATS_CACHE_KEY)
+        fetched_stats = cache.get(stats.get_cache_key(location)) or []
     else:
-        s = stats.Stats()
-        fetched_stats = [s.get_interval(i) for i in stats.ALL_INTERVALS]
+        fetched_stats = stats.compute_stats_for_location(location)
 
     tpl['stats'] = fetched_stats
+    tpl['all_empty'] = all([x['empty'] for x in fetched_stats])
+    tpl['locations'] = ((None, 'Alla'),) + models.Located.LOCATION_CHOICES
+    tpl['selected_location'] = location
     return render(request, 'baljan/high_score.html', tpl)
 
 
@@ -1007,11 +1030,9 @@ def do_blipp(request):
     if request.method == 'OPTIONS':
         return HttpResponse(status=200)
 
-    if not _is_authenticated_for_blipp(request):
-        response = HttpResponse()
-        response.status_code = 401
-        response['WWW-Authenticate'] = 'Basic'
-        return response
+    config = _get_blipp_configuration(request)
+    if config is None:
+        return _json_error(403, 'Felaktigt token')
 
     rfid = request.POST.get('id')
     if rfid is None or not rfid.isdigit():
@@ -1041,7 +1062,7 @@ def do_blipp(request):
 
     # We will always have a user at this point
 
-    price = settings.BLIPP_COFFEE_PRICE
+    price = config.good.current_cost()
     is_coffee_free = user.profile.has_free_blipp()
 
     if is_coffee_free:
@@ -1058,6 +1079,7 @@ def do_blipp(request):
     tz = pytz.timezone(settings.TIME_ZONE)
 
     order = Order()
+    order.location = config.location
     order.made = datetime.now(tz)
     order.put_at = datetime.now(tz)
     order.user = user
@@ -1068,7 +1090,7 @@ def do_blipp(request):
 
     order_good = OrderGood()
     order_good.order = order
-    order_good.good = Good.objects.get(pk=1)
+    order_good.good = config.good
     order_good.count = 1
     order_good.save()
 
@@ -1086,15 +1108,19 @@ def integrity(request):
     return render(request, 'baljan/integrity.html')
 
 
-def _is_authenticated_for_blipp(request):
+def _get_blipp_configuration(request):
     if 'HTTP_AUTHORIZATION' in request.META:
         authorization = request.META['HTTP_AUTHORIZATION'].split()
         if len(authorization) == 2:
-            if authorization[0].lower() == "basic":
-                uname, passwd = base64.b64decode(authorization[1]).decode('ascii').split(':')
-                return uname == settings.BLIPP_USERNAME and passwd == settings.BLIPP_PASSWORD
+            if authorization[0].lower() == "token":
+                token = authorization[1]
 
-    return False
+                try:
+                    return BlippConfiguration.objects.get(token=token)
+                except BlippConfiguration.DoesNotExist:
+                    return None
+
+    return None
 
 
 def _json_error(status_code, message):
@@ -1106,8 +1132,7 @@ def semester_shifts(request, sem_name):
     # Get all shifts for the semester
     try:
         sem = models.Semester.objects.by_name(sem_name)
-        sched = workdist.Scheduler(sem)
-        pairs = sched.pairs_from_db()
+        pairs = sem.shiftcombination_set.order_by('label')
     except models.Semester.DoesNotExist:
         raise Http404("%s är inte en giltig termin." % sem_name)
 
@@ -1160,7 +1185,7 @@ def semester_shifts(request, sem_name):
     workable_shifts_form = forms.WorkableShiftsForm(pairs=pairs, workable_shifts=workable_shifts)
 
     # Calculate the maximum number of shifts for any given shift combination.
-    max_shifts = max(map(lambda x: len(x.shifts), pairs))
+    max_shifts = max(map(lambda x: x.shifts.count(), pairs))
     shift_numbers = list(range(1, max_shifts+1))
 
     tz = pytz.timezone(settings.TIME_ZONE)
