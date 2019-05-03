@@ -1062,7 +1062,7 @@ def do_blipp(request):
 
     # We will always have a user at this point
 
-    price = config.good.current_cost()
+    price = config.good.current_cost().cost
     is_coffee_free = user.profile.has_free_blipp()
 
     if is_coffee_free:
