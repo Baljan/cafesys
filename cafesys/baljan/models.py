@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.models import User, Group, Permission
 from django.core.urlresolvers import reverse
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q
 from django.db.models import signals
 from django.utils.encoding import smart_str
@@ -595,8 +595,14 @@ def _signup_notice_common(signup):
 def signup_notice_save(signup):
     if signup.shift.when < date.today():
         return
-    notifications.send('added_to_shift', signup.user,
-        shift=signup.shift.name())
+
+    def send_notification():
+        notifications.send('added_to_shift', signup.user,
+            shift=signup.shift.name())
+
+    # Delay notification until the transaction has been comitted, if any.
+    # If we are in a transaction-less context, this function will be called immediately.
+    transaction.on_commit(send_notification)
 
 
 def signup_notice_delete(signup):

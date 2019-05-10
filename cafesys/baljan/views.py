@@ -17,6 +17,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.core.serializers import serialize
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
@@ -606,6 +607,7 @@ def job_opening_projector(request, semester_name):
 
 @permission_required('baljan.manage_job_openings')
 @csrf_exempt
+@transaction.atomic
 def job_opening(request, semester_name):
     tpl = {}
     tpl['semester'] = sem = models.Semester.objects.get(name__exact=semester_name)
