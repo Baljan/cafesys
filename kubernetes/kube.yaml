@@ -38,8 +38,9 @@ spec:
           httpGet:
             path: /
             port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 10
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -158,6 +159,7 @@ spec:
       labels:
         run: cafesys-django
     spec:
+      terminationGracePeriodSeconds: 0
       containers:
       - env:
         - name: VIRTUAL_HOST
@@ -175,8 +177,9 @@ spec:
           httpGet:
             path: /
             port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 10
       - command:
         - /cloud_sql_proxy
         - -instances=sektionscafe-baljan:europe-west1:baljan-db=tcp:3306
