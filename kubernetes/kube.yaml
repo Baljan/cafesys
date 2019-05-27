@@ -34,6 +34,12 @@ spec:
         ports:
         - containerPort: 80
           protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -165,6 +171,12 @@ spec:
         ports:
         - containerPort: 80
           protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
       - command:
         - /cloud_sql_proxy
         - -instances=sektionscafe-baljan:europe-west1:baljan-db=tcp:3306
