@@ -72,6 +72,14 @@ data:
       [entryPoints.https]
       address = ":443"
       [entryPoints.https.tls]
+
+      # The ADFS login flow requires that the login request originates from
+      # www.baljan.org, so we must ensure that our users go there automatically.
+      [entryPoints.https.redirect]
+      regex = "^https://(baljan\\.org)(.*)"
+      replacement = "https://www.$1$2"
+      permanent = true
+
     [acme]
     email = "1337@baljan.org"
     storageFile = "/acme/acme.json"
