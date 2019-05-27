@@ -81,9 +81,9 @@ echo
 echo
 echo "The kubernetes yaml files are configured to use an already configured"
 echo " database in the Google cloud. This is setup using the gce-proxy image"
-echo " in kube.short.yaml."
+echo " in kube.yaml."
 echo "If you are not deploying against this exact cluster and database you"
-echo " will need to follow the following guide and modify kube.short.yaml"
+echo " will need to follow the following guide and modify kube.yaml"
 echo " accordingly:"
 echo
 echo "  https://cloud.google.com/sql/docs/mysql/connect-kubernetes-engine"
@@ -99,7 +99,7 @@ if [[ $? -eq "1" ]]; then
 fi
 
 echo "Deploying..."
-short -k -f kube.short.yaml | sed 's/selector: {}//g' | kubectl apply -f -
-short -k -f traefik.short.yaml | sed 's/selector: {}//g' | kubectl apply -f -
+kubectl apply -f kube.yaml
+kubectl apply -f traefik.yaml
 echo "Done!"
 
