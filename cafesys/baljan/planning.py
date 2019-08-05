@@ -30,10 +30,14 @@ class BoardWeek(object):
     def dom_ids(self):
         return [BoardWeek.dom_id(sh) for sh in self.shifts]
 
-    def oncall(self):
+    def oncall(self, location=None):
         oncall = []
+        filter_args = {}
+        if location is not None:
+            filter_args['oncallduty__shift__location'] = location
         for shift in self.shifts:
-            oncall.append(User.objects.filter(oncallduty__shift=shift).distinct())
+            filter_args['oncallduty__shift'] = shift
+            oncall.append(User.objects.filter(**filter_args).distinct())
         return oncall
 
     def shift_ids(self):

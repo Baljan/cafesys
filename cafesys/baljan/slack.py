@@ -1,14 +1,25 @@
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from cafesys.baljan.models import Profile
+from cafesys.baljan.models import Profile, Located
+from logging import getLogger
 
+logger = getLogger(__name__)
 
-def compile_slack_message(phone_from, status):
+def compile_slack_message(phone_from, status, location):
     """Compiles a message that can be posted to Slack after a call has been made."""
 
     call_from_user = _query_user(phone_from)
     call_from = _format_caller(call_from_user, phone_from)
 
-    fallback = 'Ett samtal från %s har %s.' % (
+    location_str = list(filter(lambda x: x[0] == location, Located.LOCATION_CHOICES))
+
+    if not location_str:
+        logger.error('Unknown café choice: %d' % (location,))
+        location_str = 'Okänt café'
+    else:
+        location_str = location_str[0][1]
+
+    fallback = 'Ett samtal till %s från %s har %s.' % (
+        location_str,
         call_from,
         'blivit taget' if status == 'success' else 'missats',
     )
@@ -19,6 +30,11 @@ def compile_slack_message(phone_from, status):
             'value': 'Taget' if status == 'success' else 'Missat',
             'short': True
         },
+        {
+            'title': 'Café',
+            'value': location_str,
+            'short': True
+        }
     ]
 
     if call_from_user is not None and call_from_user['groups']:

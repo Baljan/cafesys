@@ -950,6 +950,12 @@ def high_score(request, year=None, week=None, location=None):
 
 
 @csrf_exempt
+def incoming_ivr_call(request):
+    response = phone.compile_ivr_response(request)
+
+    return JsonResponse(response)
+
+@csrf_exempt
 def incoming_call(request):
     response = phone.compile_incoming_call_response(request)
 
@@ -957,7 +963,9 @@ def incoming_call(request):
 
 
 @csrf_exempt
-def post_call(request):
+def post_call(request, location):
+    location = int(location)
+
     # Verify that the request is from 46elks to avoid
     # unwanted webhook calls
     if phone.request_from_46elks(request):
@@ -966,7 +974,8 @@ def post_call(request):
 
         slack_data = slack.compile_slack_message(
                 call_from,
-                result
+                result,
+                location=location
             )
 
         if settings.SLACK_PHONE_WEBHOOK_URL:

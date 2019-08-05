@@ -31,12 +31,15 @@ class Made(models.Model):
 
 
 class Located(Made):
+    KARALLEN = 0
+    STH_VALLA = 1
+
     LOCATION_CHOICES = (
-        (0, 'Kårallen'),
-        (1, 'Studenthus Valla'),
+        (KARALLEN, 'Kårallen'),
+        (STH_VALLA, 'Studenthus Valla'),
     )
 
-    location = models.PositiveSmallIntegerField('Plats', default=0, choices=LOCATION_CHOICES)
+    location = models.PositiveSmallIntegerField('Plats', default=KARALLEN, choices=LOCATION_CHOICES)
 
     def location_name(self):
         return self.LOCATION_CHOICES[self.location][1]
