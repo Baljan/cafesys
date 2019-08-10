@@ -49,7 +49,7 @@ def _get_fallback_numbers():
     return [x.user.profile.mobile_phone for x in IncomingCallFallback.objects.all()]
 
 
-def _get_current_duty_phone_numbers(location=0):
+def _get_current_duty_phone_numbers(location=Located.KARALLEN):
     """
     Returns the phone number for every staff on duty at the moment,
     for the given location, or None if outside office hours.
