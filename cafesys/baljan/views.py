@@ -1079,8 +1079,8 @@ def do_blipp(request):
 
     last_user_order = user.order_set.first()
     if last_user_order is not None:
-        seconds_since_last_order = (datetime.now() -
-                                    last_user_order.put_at.replace(tzinfo=None)).total_seconds()
+        seconds_since_last_order = (datetime.now(tz) -
+                                    last_user_order.put_at.astimezone(tz)).total_seconds()
         time_until_next_blipp = int(settings.BLIPP_COOLDOWN -
                                     seconds_since_last_order)
         if time_until_next_blipp > 0:
