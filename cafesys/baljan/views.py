@@ -1077,18 +1077,14 @@ def do_blipp(request):
     # We will always have a user at this point
     tz = pytz.timezone(settings.TIME_ZONE)
 
-    last_user_order = user.order_set.first()
-    if last_user_order is not None:
-        seconds_since_last_order = (datetime.now(tz) -
-                                    last_user_order.put_at.astimezone(pytz.UTC)).total_seconds()
-        print(seconds_since_last_order)
-        time_until_next_blipp = int(settings.BLIPP_COOLDOWN -
-                                    seconds_since_last_order)
-        if time_until_next_blipp > 0:
-            return _json_error(
-                404, 'Du är för snabb! försök igen om %d sekund%s' %
-                (time_until_next_blipp,
-                 '' if time_until_next_blipp == 1 else 'er'))
+    orders_within_cooldown = user.order_set.filter(
+        put_at__gt=datetime.now(tz) -
+        relativedelta(seconds=settings.BLIPP_COOLDOWN))
+    if orders_within_cooldown.exists():
+        return _json_error(
+            404, 'Du är för snabb! försök igen om %d sekund%s' %
+            (settings.BLIPP_COOLDOWN,
+             '' if settings.BLIPP_COOLDOWN == 1 else 'er'))
 
     price = config.good.current_cost().cost
     is_coffee_free = user.profile.has_free_blipp()
