@@ -158,7 +158,7 @@ def orderFromUs(request):
                 orderSum = "0"
 
             if other:
-                 pass
+                pass
             else:
                 other = "Ingen &ouml;vrig information l&auml;mnades."
 
@@ -760,7 +760,7 @@ def call_duty_week(request, year=None, week=None):
                     if models.OnCallDuty.objects\
                         .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
                         messages.add_message(request, messages.ERROR,
-                            "Kunde inte lägga till %s %s på pass %s." % 
+                            "Kunde inte lägga till %s %s på pass %s." %
                             (new_user.first_name, new_user.last_name, shift.name_short()),
                             extra_tags="danger")
                     else:
@@ -769,7 +769,7 @@ def call_duty_week(request, year=None, week=None):
                             user=new_user
                         )
                         assert created
-        
+
         messages.add_message(request, messages.SUCCESS,
                 _("Your changes were saved."))
         return HttpResponse(json.dumps({'OK':True}))
@@ -1075,6 +1075,19 @@ def do_blipp(request):
         return _json_error(404, 'Du måste fylla i kortnumret i din profil\n(' + str(rfid_int) + ')')
 
     # We will always have a user at this point
+    tz = pytz.timezone(settings.TIME_ZONE)
+
+    last_user_order = user.order_set.first()
+    if last_user_order is not None:
+        seconds_since_last_order = (datetime.now() -
+                                    last_user_order.put_at).total_seconds()
+        time_until_next_blipp = int(settings.BLIPP_COOLDOWN -
+                                    seconds_since_last_order)
+        if time_until_next_blipp > 0:
+            return _json_error(
+                404, 'Du är för snabb! försök igen om %d sekund%s' %
+                (time_until_next_blipp,
+                 '' if time_until_next_blipp == 1 else 'er'))
 
     price = config.good.current_cost().cost
     is_coffee_free = user.profile.has_free_blipp()
@@ -1089,8 +1102,6 @@ def do_blipp(request):
         new_balance = balance - price
         user.profile.balance = new_balance
         user.profile.save()
-
-    tz = pytz.timezone(settings.TIME_ZONE)
 
     order = Order()
     order.location = config.location
