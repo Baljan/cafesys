@@ -1046,10 +1046,13 @@ def do_blipp(request):
         return _json_error(403, 'Felaktigt token')
 
     rfid = request.POST.get('id')
-    if rfid is None or not rfid.isdigit():
+    if rfid is None:
         return _json_error(404, 'Felaktigt användar-id')
 
-    rfid_int = int(rfid)
+    try:
+        rfid_int = config.get_standardised_reader_output(rfid)
+    except ValueError:
+        return _json_error(400, 'Felaktigt användar-id')
     user = None
 
     # Try to fetch user from cached card id
@@ -1145,7 +1148,7 @@ def semester_shifts(request, sem_name):
         sem = models.Semester.objects.by_name(sem_name)
         pairs = sem.shiftcombination_set.order_by('label')
     except models.Semester.DoesNotExist:
-        raise Http404("%s är inte en giltig termin." % sem_name)
+        raise Http404("%s är inte en giltig termin." % (sem_name, ))
 
     user = request.user
 

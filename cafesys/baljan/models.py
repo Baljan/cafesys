@@ -1057,8 +1057,53 @@ class WorkableShift(models.Model):
 
 
 class BlippConfiguration(Located):
-    token = models.CharField("Token", max_length=255, unique=True, blank=False)
+    RADIX_DEC = 10
+    RADIX_HEX = 16
+
+    RADIX_CHOICES = (
+        (RADIX_DEC, 'decimal'),
+        (RADIX_HEX, 'hexadecimal'),
+    )
+
+    LITTLE_ENDIAN = 'little'
+    BIG_ENDIAN = 'big'
+
+    ENDIANESS_CHOICES = ((LITTLE_ENDIAN, f'{LITTLE_ENDIAN} endian'),
+                         (BIG_ENDIAN, f'{BIG_ENDIAN} endian'))
+
+    token = models.CharField('Token', max_length=255, unique=True, blank=False)
     good = models.ForeignKey(Good, verbose_name=_("good"))
+    card_reader_radix = models.IntegerField(
+        'Talbas',
+        choices=RADIX_CHOICES,
+        default=RADIX_DEC,
+        help_text='Talbas för kortläsarens output')
+    card_reader_short_endianess = models.CharField(
+        'kort byte order',
+        max_length=6,
+        choices=ENDIANESS_CHOICES,
+        default=LITTLE_ENDIAN,
+        help_text=('"Byte order" för korta RFID-nummer (fyra bytes). '
+                   'Oftast "little endian".'))
+    card_reader_long_endianess = models.CharField(
+        'lång byte order',
+        max_length=6,
+        choices=ENDIANESS_CHOICES,
+        default=LITTLE_ENDIAN,
+        help_text=('"Byte order" för långa RFID-nummer (längre än fyra bytes). '
+                   'Vissa läsare byter ordning för nummer '
+                   'längre än fyra bytes.'))
+
+    def get_standardised_reader_output(self, reader_output):
+        standardised_reader_output = int(reader_output, self.card_reader_radix)
+        is_long_output = standardised_reader_output.bit_length() / 8 > 4
+        endian = self.card_reader_long_endianess if is_long_output else \
+            self.card_reader_short_endianess
+        output_bytes = standardised_reader_output.to_bytes(
+            (standardised_reader_output.bit_length() + 7) // 8, endian)
+        standardised_reader_output = int.from_bytes(
+            output_bytes, BlippConfiguration.LITTLE_ENDIAN)
+        return standardised_reader_output
 
     class Meta:
         verbose_name = "Blipp-konfiguration"

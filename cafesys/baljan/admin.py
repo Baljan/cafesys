@@ -350,7 +350,9 @@ class WorkableShift(admin.ModelAdmin):
 admin.site.register(models.WorkableShift, WorkableShift)
 
 class BlippConfiguration(admin.ModelAdmin):
-    list_display = ('token', 'location', 'good',)
+    list_display = ('token', 'location', 'good', 'card_reader_radix',
+                    'card_reader_short_endianess',
+                    'card_reader_long_endianess')
     list_filter = ('location',)
 
 admin.site.register(models.BlippConfiguration, BlippConfiguration)
