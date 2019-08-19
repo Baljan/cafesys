@@ -1079,11 +1079,24 @@ def do_blipp(request):
             type="error")
 
     # We will always have a user at this point
+    price = config.good.current_cost().cost
+    is_coffee_free = user.profile.has_free_blipp()
+    balance = user.profile.balance
+
+    if is_coffee_free:
+        price = 0
+    else:
+        if balance < price:
+            return _json_error(402,
+                               message='Du har för lite pengar för att blippa',
+                               type="error")
+
     tz = pytz.timezone(settings.TIME_ZONE)
 
     orders_within_cooldown = user.order_set.filter(
         put_at__gt=datetime.now(tz) -
         relativedelta(seconds=settings.BLIPP_COOLDOWN))
+
     if orders_within_cooldown.exists():
         return _json_error(
             404,
@@ -1092,18 +1105,7 @@ def do_blipp(request):
              '' if settings.BLIPP_COOLDOWN == 1 else 'er'),
             type="warning")
 
-    price = config.good.current_cost().cost
-    is_coffee_free = user.profile.has_free_blipp()
-
-    if is_coffee_free:
-        price = 0
-    else:
-        balance = user.profile.balance
-        if balance < price:
-            return _json_error(402,
-                               message='Du har för lite pengar för att blippa',
-                               type="error")
-
+    if not is_coffee_free:
         new_balance = balance - price
         user.profile.balance = new_balance
         user.profile.save()
