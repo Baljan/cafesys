@@ -238,7 +238,7 @@ VERIFY_46ELKS_IP = True
 
 BLIPP_USERNAME = env.str('BLIPP_USERNAME', default='')
 BLIPP_PASSWORD = env.str('BLIPP_PASSWORD', default='')
-BLIPP_COOLDOWN = env.int('BLIPP_COOLDOWN', default=4) # seconds
+BLIPP_COOLDOWN = env.int('BLIPP_COOLDOWN', default=3) # seconds
 
 ROLLBAR = {
     'access_token': env.str('ROLLBAR_ACCESS_TOKEN', default=''),

@@ -1043,16 +1043,16 @@ def do_blipp(request):
 
     config = _get_blipp_configuration(request)
     if config is None:
-        return _json_error(403, 'Felaktigt token')
+        return _json_error(403, message='Felaktigt token', type="error")
 
     rfid = request.POST.get('id')
     if rfid is None:
-        return _json_error(404, 'Felaktigt användar-id')
+        return _json_error(404, message='Felaktigt användar-id', type="error")
 
     try:
         rfid_int = config.get_standardised_reader_output(rfid)
     except ValueError:
-        return _json_error(400, 'Felaktigt användar-id')
+        return _json_error(400, message='Felaktigt användar-id', type="error")
     user = None
 
     # Try to fetch user from cached card id
@@ -1072,7 +1072,11 @@ def do_blipp(request):
         # FIXME: We should try to find the card id in an external database here, but this requires
         #        that there is such a database, which there isn't. Check again after midsummer 2018.
 
-        return _json_error(404, 'Du måste fylla i kortnumret i din profil\n(' + str(rfid_int) + ')')
+        return _json_error(
+            404,
+            message='Du måste fylla i kortnumret i din profil\n(' +
+            str(rfid_int) + ')',
+            type="error")
 
     # We will always have a user at this point
     tz = pytz.timezone(settings.TIME_ZONE)
@@ -1082,9 +1086,11 @@ def do_blipp(request):
         relativedelta(seconds=settings.BLIPP_COOLDOWN))
     if orders_within_cooldown.exists():
         return _json_error(
-            404, 'Du är för snabb! försök igen om %d sekund%s' %
+            404,
+            message='Du är för snabb! försök igen om %d sekund%s' %
             (settings.BLIPP_COOLDOWN,
-             '' if settings.BLIPP_COOLDOWN == 1 else 'er'))
+             '' if settings.BLIPP_COOLDOWN == 1 else 'er'),
+            type="warning")
 
     price = config.good.current_cost().cost
     is_coffee_free = user.profile.has_free_blipp()
@@ -1094,7 +1100,9 @@ def do_blipp(request):
     else:
         balance = user.profile.balance
         if balance < price:
-            return _json_error(402, 'Du har för lite pengar för att blippa')
+            return _json_error(402,
+                               message='Du har för lite pengar för att blippa',
+                               type="error")
 
         new_balance = balance - price
         user.profile.balance = new_balance
@@ -1123,7 +1131,11 @@ def do_blipp(request):
         user_balance = user.profile.balance
         message = 'Du har <b>%s kr</b> kvar att blippa för' % user_balance
 
-    return JsonResponse({'message': message, 'balance': user_balance})
+    return JsonResponse({
+        'message': message,
+        'balance': user_balance,
+        "type": "success"
+    })
 
 
 def integrity(request):
@@ -1145,8 +1157,8 @@ def _get_blipp_configuration(request):
     return None
 
 
-def _json_error(status_code, message):
-    return JsonResponse({'message': message}, status=status_code)
+def _json_error(status_code, **kwargs):
+    return JsonResponse(dict(**kwargs), status=status_code)
 
 
 @login_required
