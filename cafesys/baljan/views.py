@@ -1100,7 +1100,7 @@ def do_blipp(request):
     if orders_within_cooldown.exists():
         return _json_error(
             404,
-            message='Du är för snabb! försök igen om %d sekund%s' %
+            message='Ditt köp har redan gått igenom!<br/>Vänta %d sekund%s om du vill utföra ett till.' %
             (settings.BLIPP_COOLDOWN,
              '' if settings.BLIPP_COOLDOWN == 1 else 'er'),
             type="warning")
