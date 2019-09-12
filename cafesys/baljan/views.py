@@ -971,7 +971,9 @@ def post_call(request, location):
     if phone.request_from_46elks(request):
         call_id = request.POST.get('callid')
         if call_id is None:
-            logger.error('No call id supplied')
+            logger.error(
+                'No call id supplied. Got the following parameters:\n%s' %
+                request.POST)
         else:
             call_info = phone.get_log_entry_for(call_id)
             call = phone.get_call(call_info)
