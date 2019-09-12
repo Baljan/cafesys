@@ -970,31 +970,37 @@ def post_call(request, location):
     # unwanted webhook calls
     if phone.request_from_46elks(request):
         calls = request.POST.get('legs', None)
+        if calls is None:
+            logger.error('Unable to retreive calls')
+            return JsonResponse({})
+
+        calls = json.loads(calls)
         call = phone.get_call(calls)
 
         if call is None:
             logger.error('Unable to retreive call')
-        else:
-            result = call.get('state', 'failed')
-            call_from = phone.remove_extension(call.get('from', ''))
-            call_to = phone.remove_extension(call.get('to', ''))
+            return JsonResponse({})
 
-            slack_data = slack.compile_slack_message(
-                    call_from,
-                    call_to,
-                    result,
-                    location=location
-                )
+        result = call.get('state', 'failed')
+        call_from = phone.remove_extension(call.get('from', ''))
+        call_to = phone.remove_extension(call.get('to', ''))
 
-            if settings.SLACK_PHONE_WEBHOOK_URL:
-                slack_response = requests.post(
-                    settings.SLACK_PHONE_WEBHOOK_URL,
-                    json=slack_data,
-                    headers={'Content-Type': 'application/json'}
-                )
+        slack_data = slack.compile_slack_message(
+                call_from,
+                call_to,
+                result,
+                location=location
+            )
 
-                if slack_response.status_code != 200:
-                    logger.warning('Unable to post to Slack')
+        if settings.SLACK_PHONE_WEBHOOK_URL:
+            slack_response = requests.post(
+                settings.SLACK_PHONE_WEBHOOK_URL,
+                json=slack_data,
+                headers={'Content-Type': 'application/json'}
+            )
+
+            if slack_response.status_code != 200:
+                logger.warning('Unable to post to Slack')
 
     return JsonResponse({})
 
