@@ -4,11 +4,15 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-def compile_slack_message(phone_from, status, location):
-    """Compiles a message that can be posted to Slack after a call has been made."""
+def compile_slack_message(phone_from, phone_to, status, location):
+    """Compiles a message that can be posted to Slack after a call has been made
+    """
 
     call_from_user = _query_user(phone_from)
     call_from = _format_caller(call_from_user, phone_from)
+
+    call_to_user = _query_user(phone_to)
+    call_to = _format_caller(call_to_user, phone_to)
 
     location_str = list(filter(lambda x: x[0] == location, Located.LOCATION_CHOICES))
 
@@ -21,7 +25,7 @@ def compile_slack_message(phone_from, status, location):
     fallback = 'Ett samtal till %s från %s har %s.' % (
         location_str,
         call_from,
-        'blivit taget' if status == 'success' else 'missats',
+        ('blivit taget av %s' if status == 'success' else 'missats av %s') % (call_to,),
     )
 
     fields = [
@@ -34,6 +38,11 @@ def compile_slack_message(phone_from, status, location):
             'title': 'Café',
             'value': location_str,
             'short': True
+        },
+        {
+            'title': 'Mottagare',
+            'value': call_to,
+            'short': False
         }
     ]
 

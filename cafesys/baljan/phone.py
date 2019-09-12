@@ -16,6 +16,7 @@ from django.utils.http import urlquote
 
 from cafesys.baljan import planning
 from cafesys.baljan.models import Shift, IncomingCallFallback, Located
+import requests
 
 logger = getLogger(__name__)
 
@@ -236,3 +237,34 @@ def compile_incoming_call_response(request):
         response['whenhangup'] = hangup_url
 
     return response
+
+
+def get_log_entry_for(call_id):
+    """Get the log entry for a call from 46elks
+    If the request to 46elks fails, a requests.exceptions.RequestException
+    will be raised
+    """
+    elks_api_url = f'https://api.46elks.com/a1/calls/{call_id}'
+    auth = (settings.ELKS_USER, settings.ELKS_PASSWORD)
+    request = requests.get(url=elks_api_url, auth=auth)
+
+    if not request.status_code == 200:
+        logger.error('%s (%d)' % (request.text, request.status_code))
+        return {}
+
+    json_data = request.json()
+
+    return json_data
+
+
+def get_call(call_info):
+    """Get the most relevant call from the call_info, either the one that answered
+    or the first one that did not.
+    """
+    legs = call_info.get('legs')
+    if not legs:
+        return None
+    call = legs[-1]
+    if call.get('state') != 'success':
+        call = legs[0]
+    return call
