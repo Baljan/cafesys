@@ -973,7 +973,6 @@ def post_call(request, location):
         if calls is None:
             logger.error('Unable to retreive calls')
             return JsonResponse({})
-
         calls = json.loads(calls)
         call = phone.get_call(calls)
 
@@ -982,7 +981,7 @@ def post_call(request, location):
             return JsonResponse({})
 
         result = call.get('state', 'failed')
-        call_from = phone.remove_extension(call.get('from', ''))
+        call_from = phone.remove_extension(request.POST.get('from', ''))
         call_to = phone.remove_extension(call.get('to', ''))
 
         slack_data = slack.compile_slack_message(
