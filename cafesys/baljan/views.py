@@ -969,35 +969,32 @@ def post_call(request, location):
     # Verify that the request is from 46elks to avoid
     # unwanted webhook calls
     if phone.request_from_46elks(request):
-        call_id = request.POST.get('callid')
-        if call_id is None:
-            logger.error(
-                'No call id supplied. Got the following parameters:\n%s' %
-                request.POST)
+        calls = request.POST.get('legs', None)
+        call = phone.get_call(calls)
+
+        if call is None:
+            logger.error('Unable to retreive call')
         else:
-            call_info = phone.get_log_entry_for(call_id)
-            call = phone.get_call(call_info)
-            if call is not None:
-                result = call.get('state', 'failed')
-                call_from = phone.remove_extension(call.get('from', ''))
-                call_to = phone.remove_extension(call.get('to', ''))
+            result = call.get('state', 'failed')
+            call_from = phone.remove_extension(call.get('from', ''))
+            call_to = phone.remove_extension(call.get('to', ''))
 
-                slack_data = slack.compile_slack_message(
-                        call_from,
-                        call_to,
-                        result,
-                        location=location
-                    )
+            slack_data = slack.compile_slack_message(
+                    call_from,
+                    call_to,
+                    result,
+                    location=location
+                )
 
-                if settings.SLACK_PHONE_WEBHOOK_URL:
-                    slack_response = requests.post(
-                        settings.SLACK_PHONE_WEBHOOK_URL,
-                        json=slack_data,
-                        headers={'Content-Type': 'application/json'}
-                    )
+            if settings.SLACK_PHONE_WEBHOOK_URL:
+                slack_response = requests.post(
+                    settings.SLACK_PHONE_WEBHOOK_URL,
+                    json=slack_data,
+                    headers={'Content-Type': 'application/json'}
+                )
 
-                    if slack_response.status_code != 200:
-                        logger.warning('Unable to post to Slack')
+                if slack_response.status_code != 200:
+                    logger.warning('Unable to post to Slack')
 
     return JsonResponse({})
 

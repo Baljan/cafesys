@@ -236,8 +236,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_SSL', 'on')
 SLACK_PHONE_WEBHOOK_URL = env.str('SLACK_PHONE_WEBHOOK_URL', default='')
 
 VERIFY_46ELKS_IP = True
-ELKS_USER = env.str('ELKS_USER', default='')
-ELKS_PASSWORD = env.str('ELKS_PASSWORD', default='')
 
 BLIPP_USERNAME = env.str('BLIPP_USERNAME', default='')
 BLIPP_PASSWORD = env.str('BLIPP_PASSWORD', default='')

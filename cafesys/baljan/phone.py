@@ -239,32 +239,13 @@ def compile_incoming_call_response(request):
     return response
 
 
-def get_log_entry_for(call_id):
-    """Get the log entry for a call from 46elks
-    If the request to 46elks fails, a requests.exceptions.RequestException
-    will be raised
+def get_call(calls):
+    """Get the most relevant call from the given calls, either the one that
+    answered or the first one that did not.
     """
-    elks_api_url = f'https://api.46elks.com/a1/calls/{call_id}'
-    auth = (settings.ELKS_USER, settings.ELKS_PASSWORD)
-    request = requests.get(url=elks_api_url, auth=auth)
-
-    if not request.status_code == 200:
-        logger.error('%s (%d)' % (request.text, request.status_code))
-        return {}
-
-    json_data = request.json()
-
-    return json_data
-
-
-def get_call(call_info):
-    """Get the most relevant call from the call_info, either the one that answered
-    or the first one that did not.
-    """
-    legs = call_info.get('legs')
-    if not legs:
+    if not calls:
         return None
-    call = legs[-1]
+    call = calls[-1]
     if call.get('state') != 'success':
-        call = legs[0]
+        call = calls[0]
     return call
