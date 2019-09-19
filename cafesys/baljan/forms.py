@@ -80,7 +80,7 @@ class OrderForm(forms.Form):
     numberOfCoffee = forms.IntegerField(min_value=5, max_value=135, required = False, label="Antal koppar kaffe:")
     numberOfTea = forms.IntegerField(min_value=5, max_value=135, required = False,label="Antal koppar te:")
     numberOfSoda = forms.IntegerField(min_value=5, max_value=200, required = False, label="Antal läsk:")
-    numberOfKlagg = forms.IntegerField(min_value=5, max_value=200, required = False, label="Antal klägg:")
+    numberOfKlagg = forms.IntegerField(min_value=5, max_value=300, required = False, label="Antal klägg:")
     numberOfJochen = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal jochen:")
     numberOfMinijochen = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal mini jochen:")
     other = forms.CharField(widget=forms.Textarea(attrs={'cols':33,'rows':5}), required=False, label='Övrig information:')
