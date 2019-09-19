@@ -30,6 +30,13 @@ def encode_dt(dt):
 def item_location(item):
     return Located.LOCATION_CHOICES[item.shift.location][1]
 
+def get_cafe_name_for(located):
+    """Get the name of a located model object"""
+    if located.location == Located.KARALLEN:
+        return 'Baljan'
+    else:
+        return 'Byttan'
+
 def for_user(user):
     """Returns an `icalendar.Calendar` object."""
     signups = ShiftSignup.objects.filter(
@@ -48,7 +55,7 @@ def for_user(user):
     for signup in signups:
         ev = Event()
         start, end = signup.shift.worker_times()
-        ev.add('summary', 'Jobba i Baljan')
+        ev.add('summary', 'Jobba i %s' % (get_cafe_name_for(signup.shift), ))
         ev.add('dtstart', encode_dt(start), encode=False)
         ev.add('dtend', encode_dt(end), encode=False)
         ev.add('dtstamp', encode_dt(signup.made), encode=False)
@@ -58,7 +65,7 @@ def for_user(user):
     for oncall in oncalls:
         ev = Event()
         start, end = oncall.shift.oncall_times()
-        ev.add('summary', 'Jour i Baljan')
+        ev.add('summary', 'Jour i %s' % (get_cafe_name_for(oncall.shift), ))
         ev.add('dtstart', encode_dt(start), encode=False)
         ev.add('dtend', encode_dt(end), encode=False)
         ev.add('dtstamp', encode_dt(oncall.made), encode=False)
