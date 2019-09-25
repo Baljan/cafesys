@@ -51,6 +51,7 @@ urlpatterns = (
     url(r'incoming-call', views.incoming_call),
     url(r'post-call/(?P<location>\d+)$', views.post_call),
     url(r'post-call', views.post_call, {'location': 0}),
+    url(r'incoming-sms', views.incoming_sms),
     url(r'consent', views.consent, name='consent'),
     url(r'do-blipp', views.do_blipp),
     url(r'integrity', views.integrity, name='integrity'),

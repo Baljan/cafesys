@@ -4,7 +4,7 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-def compile_slack_message(phone_from, phone_to, status, location):
+def compile_slack_phone_message(phone_from, phone_to, status, location):
     """Compiles a message that can be posted to Slack after a call has been made
     """
 
@@ -72,6 +72,27 @@ def compile_slack_message(phone_from, phone_to, status, location):
                 'fallback': fallback,
                 'color': 'good' if status == 'success' else 'danger',
                 'fields': fields
+            }
+        ]
+    }
+
+
+def compile_slack_sms_message(_sms_from, message):
+    """Compile a message that can be posted to Slack after a SMS has been
+    received
+    """
+    sms_from_user = _query_user(_sms_from)
+    sms_from = _format_caller(sms_from_user, _sms_from)
+    pretext = "Nytt SMS från %s" % (sms_from, )
+    fallback =  "%s \n\"%s\"" % (pretext, message)
+
+    return {
+        'attachments': [
+            {
+                'pretext': pretext,
+                'fallback': fallback,
+                'color': 'warning',
+                'text': message
             }
         ]
     }

@@ -963,6 +963,27 @@ def incoming_call(request):
 
 
 @csrf_exempt
+def incoming_sms(request):
+    if phone.request_from_46elks(request):
+        sms_from = phone.remove_extension(request.POST.get('from', ''))
+        message = request.POST.get('message', '')
+
+        slack_data = slack.compile_slack_sms_message(sms_from, message)
+
+        if settings.SLACK_PHONE_WEBHOOK_URL:
+            slack_response = requests.post(
+                settings.SLACK_PHONE_WEBHOOK_URL,
+                json=slack_data,
+                headers={'Content-Type': 'application/json'}
+            )
+
+            if slack_response.status_code != 200:
+                logger.warning('Unable to post SMS to Slack')
+
+    return JsonResponse({})
+
+
+@csrf_exempt
 def post_call(request, location):
     location = int(location)
 
@@ -984,7 +1005,7 @@ def post_call(request, location):
         call_from = phone.remove_extension(request.POST.get('from', ''))
         call_to = phone.remove_extension(call.get('to', ''))
 
-        slack_data = slack.compile_slack_message(
+        slack_data = slack.compile_slack_phone_message(
                 call_from,
                 call_to,
                 result,
@@ -999,7 +1020,7 @@ def post_call(request, location):
             )
 
             if slack_response.status_code != 200:
-                logger.warning('Unable to post to Slack')
+                logger.warning('Unable to post call to Slack')
 
     return JsonResponse({})
 
