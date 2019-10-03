@@ -90,6 +90,7 @@ def orderFromUs(request):
             numberOfKlagg = form.cleaned_data['numberOfKlagg']
             numberOfJochen = form.cleaned_data['numberOfJochen']
             numberOfMinijochen = form.cleaned_data['numberOfMinijochen']
+            numberOfPastasalad = form.cleaned_data['numberOfPastasalad']
             other = form.cleaned_data['other']
             pickup = form.cleaned_data['pickup']
             date = form.cleaned_data['date']
@@ -105,6 +106,7 @@ def orderFromUs(request):
 
             jochen_table = ""
             mini_jochen_table = ""
+            pasta_salad_table = ""
 
             if numberOfCoffee:
                 items = items +"Antal kaffe: "+str(numberOfCoffee)+"<br>"
@@ -152,6 +154,21 @@ def orderFromUs(request):
 
                 mini_jochen_table = mini_jochen_table + "</table>"
 
+            if numberOfPastasalad:
+                items = items+"Antal Pastasallad: "+str(numberOfPastasalad)+"<br>"
+                itemsDes = itemsDes+" "+str(numberOfPastasalad)+" Pastasallad"
+
+                pasta_salad_table = "<b>Pastasallad: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
+
+                for field_name, label in form.PASTA_SALAD_TYPES:
+                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
+                    if not field_val:
+                        field_val = ''
+
+                    pasta_salad_table = pasta_salad_table + "<tr><td style=\"border: 1px solid black;\">%s</td><td style=\"border: 1px solid black;\">%s</td></tr>" % (escape(label), field_val)
+
+                pasta_salad_table = pasta_salad_table + "</table>"
+
             if orderSum:
                 orderSum += " SEK"
             else:
@@ -188,6 +205,7 @@ def orderFromUs(request):
                            'Datum: '+date+'<br>Tid: '+pickuptext+'<br><br>'+\
                            jochen_table+'<br>'+\
                            mini_jochen_table+'<br>'+\
+                           pasta_salad_table+'<br>'+\
                            ' </div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
 
