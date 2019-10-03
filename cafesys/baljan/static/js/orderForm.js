@@ -116,7 +116,16 @@ $(function () {
     });
 
     $(".order-item").on('input', function () {
-            calcSum();
+        calcSum();
+        if(window.onbeforeunload === null) {
+            window.onbeforeunload = function() {
+                return "";
+            }
+        }
+    });
+
+    $("form").on("submit", function() {
+        window.onbeforeunload = null;
     });
 
     var datepicker=$("#id_date");
