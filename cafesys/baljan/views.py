@@ -135,7 +135,7 @@ def orderFromUs(request):
                     if not field_val:
                         field_val = ''
 
-                    jochen_table = jochen_table + "<tr><td style=\"border: 1px solid black;\">%s</td><td style=\"border: 1px solid black;\">%s</td></tr>" % (escape(label), field_val)
+                    jochen_table = jochen_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
 
                 jochen_table = jochen_table + "</table>"
 
@@ -150,7 +150,7 @@ def orderFromUs(request):
                     if not field_val:
                         field_val = ''
 
-                    mini_jochen_table = mini_jochen_table + "<tr><td style=\"border: 1px solid black;\">%s</td><td style=\"border: 1px solid black;\">%s</td></tr>" % (escape(label), field_val)
+                    mini_jochen_table = mini_jochen_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
 
                 mini_jochen_table = mini_jochen_table + "</table>"
 
@@ -165,7 +165,7 @@ def orderFromUs(request):
                     if not field_val:
                         field_val = ''
 
-                    pasta_salad_table = pasta_salad_table + "<tr><td style=\"border: 1px solid black;\">%s</td><td style=\"border: 1px solid black;\">%s</td></tr>" % (escape(label), field_val)
+                    pasta_salad_table = pasta_salad_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
 
                 pasta_salad_table = pasta_salad_table + "</table>"
 
