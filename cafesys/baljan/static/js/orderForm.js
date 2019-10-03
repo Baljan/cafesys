@@ -134,4 +134,6 @@ $(function () {
         startDate: '0d',
         daysOfWeekDisabled: '06'
     });
+
+    calcSum();
 });
