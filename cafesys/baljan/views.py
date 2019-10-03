@@ -158,7 +158,7 @@ def orderFromUs(request):
                 orderSum = "0"
 
             if other:
-                pass
+                other = other.replace("\n", "<br/>")
             else:
                 other = "Ingen &ouml;vrig information l&auml;mnades."
 
