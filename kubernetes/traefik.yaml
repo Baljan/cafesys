@@ -124,7 +124,7 @@ spec:
         - --web
         - --kubernetes
         - --logLevel=DEBUG
-        image: traefik
+        image: traefik:v1.7
         imagePullPolicy: Always
         name: traefik-ingress-lb
         ports:
