@@ -1184,6 +1184,9 @@ def semester_shifts(request, sem_name):
     except models.Semester.DoesNotExist:
         raise Http404("%s är inte en giltig termin." % (sem_name, ))
 
+    if not pairs:
+        raise Http404("Inga passkombinationer kunde hittas för termin %s." % (sem_name, ))
+
     user = request.user
 
     # Update the users workable shifts
