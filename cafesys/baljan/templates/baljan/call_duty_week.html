@@ -17,7 +17,7 @@
                     &laquo;
                 </a>
                 <span class="num">{{year}}</span>
-                    vecka
+                vecka
                 <span class="num">{{week}}</span>
                 <a href="{% url 'call_duty_week' next_y next_w %}">
                     &raquo;
@@ -30,17 +30,17 @@
         </thead>
         <tbody>
         {% for location in locations %}
-            <tr>
+        <tr>
             <td colspan="4"><strong>{{location.1}}</strong></td>
-            </tr>
-            {% for weekday in weekdays %}
-                <tr>
-                    <td class="day">{{weekday.1}}</td>
-                    {% for span in spans %}
-                        <td class="droppable" id="shift-{{weekday.0}}-{{span}}-{{location.0}}"></td>
-                    {% endfor %}
-                </tr>
+        </tr>
+        {% for weekday in weekdays %}
+        <tr>
+            <td class="day">{{weekday.1}}</td>
+            {% for span in spans %}
+            <td class="droppable" id="shift-{{weekday.0}}-{{span}}-{{location.0}}"></td>
             {% endfor %}
+        </tr>
+        {% endfor %}
         {% endfor %}
         </tbody>
     </table>
@@ -48,170 +48,189 @@
     <div class="available-users"></div>
     <div class="submit wrapper">
         <a class="btn btn-primary save" href="#" role="button">Spara</a>
-        <a class="btn btn-secondary" role="button" href="{{request.path}}">Ångra osparade ändringar</a>
+        <a id="regret-changes" class="btn btn-secondary" role="button" href="{{request.path}}">Ångra osparade ändringar</a>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_body %}
-    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
-    <script type="text/javascript">
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+<script type="text/javascript">
     {% autoescape off %}
-        REAL_IDS = {{real_ids}};
-        ON_CALL = {{oncall}};
-        USER_IDS = {{uids}};
-        DRAGS = {{drags}};
-        INITIALS = {{initials}};
+    REAL_IDS = {{real_ids}};
+    ON_CALL = {{oncall}};
+    USER_IDS = {{uids}};
+    DRAGS = {{drags}};
+    INITIALS = {{initials}};
     {% endautoescape %}
 
-        var availUsers = $('.available-users');
-        var names = [];
+    var availUsers = $('.available-users');
+    var names = [];
 
-        for (i in USER_IDS) {
-            names.push(DRAGS[USER_IDS[i]]);
+    for (i in USER_IDS) {
+        names.push(DRAGS[USER_IDS[i]]);
+    }
+    availUsers.html(names.join(', '));
+
+    var redrawContained = function(cell) {
+        var listed = [],
+            containedInits = $(cell).data('initials');
+        for (i in containedInits) {
+            listed.push([
+                '<span class="drag-',containedInits[i],'">',
+                containedInits[i],'</span>'
+            ].join(''));
         }
-        availUsers.html(names.join(', '));
+        $(cell).html(listed.join(', '));
+        $(cell).children().each(function() {
+            $(this).click(function() {
 
-        var redrawContained = function(cell) {
-            var listed = [],
-                containedInits = $(cell).data('initials');
-            for (i in containedInits) {
-                listed.push([
-                    '<span class="drag-',containedInits[i],'">',
-                    containedInits[i],'</span>'
-                ].join(''));
-            }
-            $(cell).html(listed.join(', '));
-            $(cell).children().each(function() {
-                $(this).click(function() {
-                    var newContained = [];
-                    for (j in containedInits) {
-                        if (containedInits[j] != $(this).text()) {
-                            newContained.push(containedInits[j]);
-                        }
-                        $(cell).data('initials', newContained);
+                if(window.onbeforeunload === null) {
+                    window.onbeforeunload = function() {
+                        return "";
                     }
-                    $(this).trigger('mouseleave').remove();
-                    redrawContained(cell);
-                });
-            });
+                }
 
-            $(containedInits).each(function() {
-                var cls = $('.drag-' + this),
-                    id = $("#drag-" + this);
-                cls.hover(
-                    function() {
-                        cls.parent().addClass('highlight');
-                        id.addClass('highlight')
-                    },
-                    function() {
-                        cls.parent().removeClass('highlight');
-                        id.removeClass('highlight')
+                var newContained = [];
+                for (j in containedInits) {
+                    if (containedInits[j] != $(this).text()) {
+                        newContained.push(containedInits[j]);
                     }
-                );
+                    $(cell).data('initials', newContained);
+                }
+                $(this).trigger('mouseleave').remove();
+                redrawContained(cell);
             });
-        }
-
-        /* Load initial data. */
-        $('.droppable').each(function() {
-            var id = $(this).attr('id');
-            if (!REAL_IDS[id]) {
-                $(this).addClass('disabled');
-            }
-            var onCallUids = ON_CALL[id],
-                inits = [];
-            for (i in onCallUids) {
-                inits.push(INITIALS[onCallUids[i]]);
-            }
-            $(this).data('initials', inits);
-            redrawContained(this);
         });
 
-        $('.droppable').each(function() {
-            var drop = this;
-            $(this).droppable({
-                accept: function(drag) {
-                    if ($(this).hasClass('disabled')){
+        $(containedInits).each(function() {
+            var cls = $('.drag-' + this),
+                id = $("#drag-" + this);
+            cls.hover(
+                function() {
+                    cls.parent().addClass('highlight');
+                    id.addClass('highlight')
+                },
+                function() {
+                    cls.parent().removeClass('highlight');
+                    id.removeClass('highlight')
+                }
+            );
+        });
+    }
+
+    /* Load initial data. */
+    $('.droppable').each(function() {
+        var id = $(this).attr('id');
+        if (!REAL_IDS[id]) {
+            $(this).addClass('disabled');
+        }
+        var onCallUids = ON_CALL[id],
+            inits = [];
+        for (i in onCallUids) {
+            inits.push(INITIALS[onCallUids[i]]);
+        }
+        $(this).data('initials', inits);
+        redrawContained(this);
+    });
+
+    $('.droppable').each(function() {
+        var drop = this;
+        $(this).droppable({
+            accept: function(drag) {
+                if ($(this).hasClass('disabled')){
+                    return false;
+                }
+
+                var dropId = $(drop).attr('id');
+                var dropBaseId = dropId.substr(0, dropId.lastIndexOf('-')+1);
+
+                for (loc in [{% for location in locations %}{{location.0}}{% if not forloop.last %}, {% endif %}{% endfor%}]) {
+                    if ($('#'+dropBaseId+loc).find('.'+drag.attr('id')).length > 0) {
                         return false;
                     }
+                }
 
+                return true;
+            },
+            activeClass: 'highlight',
+            hoverClass: 'hover',
+            drop: function(ev, ui) {
 
-                    var dropId = $(drop).attr('id');
-                    var dropBaseId = dropId.substr(0, dropId.lastIndexOf('-')+1);
-
-                    for (loc in [{% for location in locations %}{{location.0}}{% if not forloop.last %}, {% endif %}{% endfor%}]) {
-                        if ($('#'+dropBaseId+loc).find('.'+drag.attr('id')).length > 0) {
-                            return false;
-                        }
+                if(window.onbeforeunload === null) {
+                    window.onbeforeunload = function() {
+                        return "";
                     }
-
-                    return true;
-                },
-                activeClass: 'highlight',
-                hoverClass: 'hover',
-                drop: function(ev, ui) {
-                    var dragId = $(ui.draggable).attr('id');
-                    var droppedInit = dragId.split('-')[1],
-                        containedInits = $(this).data('initials'),
-                        cell = this;
-                    if (!containedInits) containedInits = [droppedInit];
-                    else containedInits.push(droppedInit);
-                    $(this).data('initials', containedInits);
-                    redrawContained(cell);
                 }
-            });
+
+                var dragId = $(ui.draggable).attr('id');
+                var droppedInit = dragId.split('-')[1],
+                    containedInits = $(this).data('initials'),
+                    cell = this;
+                if (!containedInits) containedInits = [droppedInit];
+                else containedInits.push(droppedInit);
+                $(this).data('initials', containedInits);
+                redrawContained(cell);
+            }
+        });
+    });
+
+    availUsers.children().each(function() {
+        var initials = $(this).attr('id').split('-')[1]
+        cls = 'drag-' + $(this).attr('id').split('-')[1],
+            drag = this;
+
+        $(this).draggable({
+            cursorAt: {right: 3, bottom: 3},
+            helper: function(ev) {
+                var ui = $("<span class='drag "+cls+"'>"+initials+"</span>");
+                return ui;
+            },
+            opacity: 0.7
         });
 
-        availUsers.children().each(function() {
-            var initials = $(this).attr('id').split('-')[1]
-                cls = 'drag-' + $(this).attr('id').split('-')[1],
-                drag = this;
-
-            $(this).draggable({
-                cursorAt: {right: 3, bottom: 3},
-                helper: function(ev) {
-                    var ui = $("<span class='drag "+cls+"'>"+initials+"</span>");
-                    return ui;
-                },
-                opacity: 0.7
-            });
-
-            $(this).hover(function() {
-                var ui = $('.'+$(this).attr('id'));
-                ui.parent().addClass('highlight');
-                $(this).addClass('highlight');
-            }, function() {
-                var ui = $('.'+$(this).attr('id'));
-                ui.parent().removeClass('highlight');
-                $(this).removeClass('highlight');
-            });
+        $(this).hover(function() {
+            var ui = $('.'+$(this).attr('id'));
+            ui.parent().addClass('highlight');
+            $(this).addClass('highlight');
+        }, function() {
+            var ui = $('.'+$(this).attr('id'));
+            ui.parent().removeClass('highlight');
+            $(this).removeClass('highlight');
         });
+    });
 
-        $('.submit .save').click(function() {
-            var postData = {};
-            $('.droppable').each(function() {
-                var containedInits = $(this).data('initials');
-                if (!containedInits || containedInits.length == 0) return;
+    $('.submit .save').click(function() {
+        var postData = {};
+        $('.droppable').each(function() {
+            var containedInits = $(this).data('initials');
+            if (!containedInits || containedInits.length == 0) return;
 
-                postData[$(this).attr('id')] = containedInits.join('|');
-            });
-            curSearch = $.ajax({
-                data: postData,
-                type: 'post',
-                dataType: 'json',
-                beforeSend: function () {
-                    $('.submit .save').html("Sparar...");
-                },
-                success: function(result) {
-                    location.replace(document.location.pathname);
-                },
-                error: function() {
-                    location.replace(document.location.pathname);
-                }
-            });
+            postData[$(this).attr('id')] = containedInits.join('|');
         });
-        $('.droppable.disabled').each(function () {
-            $(this).text('Stängt');
+        curSearch = $.ajax({
+            data: postData,
+            type: 'post',
+            dataType: 'json',
+            beforeSend: function () {
+                $('.submit .save').html("Sparar...");
+                window.onbeforeunload = null;
+            },
+            success: function(result) {
+                location.replace(document.location.pathname);
+            },
+            error: function() {
+                location.replace(document.location.pathname);
+            }
         });
-    </script>
+    });
+    $('.droppable.disabled').each(function () {
+        $(this).text('Stängt');
+    });
+
+    $('#regret-changes').click(function(){
+        window.onbeforeunload = null;
+        return true;
+    });
+</script>
 {% endblock %}
