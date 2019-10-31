@@ -102,9 +102,26 @@
         return ui;
     }
 
+    // Set the state of the page as "unsaved" meaning the user has changes
+    // that are not saved.
+    function setUnsaved() {
+        $("#save-btn").prop("disabled", false);
+        if(window.onbeforeunload === null) {
+            window.onbeforeunload = function() {
+                return "";
+            }
+        }
+    }
+
+    // Set the state of the page as "saved".
+    function setSaved() {
+        $("#save-btn").prop("disabled", true);
+        window.onbeforeunload = null;
+    }
+
     // Move shifts from one table to the other
     function switchTable(row_elem, checkbox) {
-        $("#save-btn").prop("disabled", false);
+        setUnsaved();
 
         if ($(checkbox).is(":checked")) { // move to workable
             $("#workable-body").append(row_elem);
@@ -128,7 +145,7 @@
             helper: fixWidthHelper,
             handle: ".handle",
             update: function (event, ui) {
-                $("#save-btn").prop("disabled", false);
+                setUnsaved();
                 updatePriorities();
             }
         });
@@ -155,7 +172,7 @@
                 context: this,
                 success: function(data) {
                     $("#save-alert-success").show();
-                    $("#save-btn").prop("disabled", true);
+                    setSaved();
                 },
                 error: function(data) {
                     $("#save-alert-error").show();
