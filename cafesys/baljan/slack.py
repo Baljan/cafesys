@@ -1,6 +1,7 @@
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from cafesys.baljan.models import Profile, Located
 from logging import getLogger
+from cafesys.baljan.phone import is_valid_phone_number
 
 logger = getLogger(__name__)
 
@@ -104,6 +105,8 @@ def _query_user(phone):
     corresponding to a phone number from the database, if it exists.
     If multiple users have the same number, none will be queried
     """
+    if not is_valid_phone_number(phone):
+        return None
 
     try:
         user = Profile.objects.get(mobile_phone=_remove_area_code(phone)).user
@@ -125,8 +128,11 @@ def _format_caller(call_user, phone):
     if not phone:
         return 'dolt nummer'
 
-    # Set the phone number as a clickable link
-    caller = '<tel:%s|%s>' % (phone, phone)
+    if is_valid_phone_number(phone):
+        # Set the phone number as a clickable link
+        caller = '<tel:%s|%s>' % (phone, phone)
+    else:
+        caller = phone
 
     if call_user is not None:
         caller = '%s %s (%s)' % (

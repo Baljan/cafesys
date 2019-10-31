@@ -139,12 +139,13 @@ def remove_extension(phone):
 
 
 def is_valid_phone_number(phone):
-    """
-    Checks whether the given phone number is a valid swedish phone number.
-    Works with both mobile (+46/0 + 9) and landline (+46/0 + 7-9) numbers
+    """Checks whether the given phone number is valid. Works with both numbers
+    that begin with 0 or that are E.164 formatted. Assumes a fixed min- and max
+    length of 4 and 14 respectively for the subscriber part of the number which
+    may not be in line with the current standards.
     """
 
-    return match(r'^(\+46|0)[0-9]{7,9}$', phone) is not None
+    return match(r'^(\+[0-9]{1,3}|0)[0-9]{4,14}$', phone) is not None
 
 
 def _compile_number_list(location=Located.KARALLEN):
