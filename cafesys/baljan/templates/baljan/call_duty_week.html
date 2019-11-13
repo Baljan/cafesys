@@ -49,6 +49,7 @@
     <div class="submit wrapper">
         <a class="btn btn-primary save" href="#" role="button">Spara</a>
         <a id="regret-changes" class="btn btn-secondary" role="button" href="{{request.path}}">Ångra osparade ändringar</a>
+        <a id="random-shifts"class="btn btn-secondary" href="#" role="button">Get that shuffle up in here</a>
     </div>
 </div>
 {% endblock %}
@@ -75,6 +76,7 @@
     var redrawContained = function(cell) {
         var listed = [],
             containedInits = $(cell).data('initials');
+        console.log(containedInits)
         for (i in containedInits) {
             listed.push([
                 '<span class="drag-',containedInits[i],'">',
@@ -125,6 +127,7 @@
         if (!REAL_IDS[id]) {
             $(this).addClass('disabled');
         }
+
         var onCallUids = ON_CALL[id],
             inits = [];
         for (i in onCallUids) {
@@ -232,5 +235,42 @@
         window.onbeforeunload = null;
         return true;
     });
+
+    $('#random-shifts').click(function(){
+
+        console.log("random-shifts")
+
+        console.log(ON_CALL)
+
+        let onCallKeys = Object.keys(ON_CALL);
+         for (i = 0; i < onCallKeys.length; i++) {
+            ON_CALL[onCallKeys[i]] = "1";
+
+        }
+
+        console.log(ON_CALL)
+
+        $('.droppable').each(function() {
+        var id = $(this).attr('id');
+        if (!REAL_IDS[id]) {
+            $(this).addClass('disabled');
+        }
+
+        var onCallUids = ON_CALL[id],
+            inits = [];
+        for (i in onCallUids) {
+            inits.push(INITIALS[onCallUids[i]]);
+        }
+        $(this).data('initials', inits);
+        redrawContained(this);
+    });
+
+
+    });
+
+
+
+
+
 </script>
 {% endblock %}
