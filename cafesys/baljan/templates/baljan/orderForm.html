@@ -66,6 +66,7 @@
 
                     {% order_group form 'jochen' 'Antal jochen' form.JOCHEN_TYPES 30 %}
                     {% order_group form 'minijochen' 'Antal mini jochen' form.MINI_JOCHEN_TYPES 15 %}
+                    {% order_group form 'pastasalad' 'Antal pastasallad' form.PASTA_SALAD_TYPES 45 %}
 
                     <div class="row">
                         <div class="col-9">
@@ -142,11 +143,12 @@
                 <li><b>Kaffe (antal koppar):</b> minst 5, Morgon max 45, Lunch max 90, Eftermiddag max 135</li>
                 <li><b>Te (antal koppar):</b> minst 5, max 45</li>
                 <li><b>Jochen:</b> minst 5</li>
+                <li><b>Pastasallad:</b> minst 5, max 50</li>
                 <li><b>Läsk/vatten:</b> minst 5, max 200</li>
                 <li><b>Klägg:</b> minst 5, max 300</li>
             </ul>
 
-            Beställer ni över 100 stycken jochen måste ni hämta ut beställningen på morgonen (07.30-08.00) då vi inte möjlighet att förvara dessa i våra kylar.
+            Beställer ni någon pastasallad och/eller över 100 stycken Jochen måste ni hämta ut beställningen på morgonen (07.30 - 08.00) då vi inte möjlighet att förvara dessa i våra kylar.
         </div>
 
         <div class="wrapper">
@@ -160,16 +162,16 @@
                 <li>Koppar, skedar, socker och mjölk ingår vid beställning av kaffe och te. <br></li>
             </ul>
 
-            <h3> Jochen </h3>
+            <h3> Jochen/Pastasallad </h3>
             <div class="alert alert-warning" role="alert">
-                <i class="fa fa-exclamation-circle"></i> Notera att sista beställningsdag för Jochen, från och med vecka 38 2019, är <b>onsdagen</b> veckan innan er beställning ska hämtas ut.
+                <i class="fa fa-exclamation-triangle"></i> Notera att sista beställningsdag för Jochen/pastasallad, från och med vecka 38 2019, är <b>onsdagen</b> veckan innan er beställning ska hämtas ut.
             </div>
             <ul>
-                <li>Beställning av jochen måste vara inne <b>senast 16:15 på onsdagen veckan innan er beställning</b>.</li>
+                <li>Beställning av Jochen/pastasallad måste vara inne <b>senast 16:15 på onsdagen veckan innan er beställning</b>.</li>
                 <li>
-                    För information angående allergener och näringsinnehåll se följande <a href="{% static 'jochen-contents.pdf' %}" target="_blank">innehållsförteckning</a>.
+                    För information angående allergener och näringsinnehåll se följande <a href="{% static 'jochen-contents.pdf' %}" target="_blank">innehållsförteckning för Jochen</a> samt följande <a href="{% static 'salad-contents.pdf' %}" target="_blank">innehållsförteckning för pastasallad</a>.
                 </li>
-                <li>Önskar ni beställa Jochen fria från vissa allergener, fyll i dessa under ”Antal övriga” och ange allergierna under ”Övrig information”.</li>
+                <li>Önskar ni beställa Jochen/pastasallad fria från vissa allergener, fyll i dessa under ”Antal övriga” och ange allergierna under ”Övrig information”. Vid allergi kan samtliga pastasallader beställas utan pasta.</li>
             </ul>
 
             <h3> Läsk/vatten </h3>

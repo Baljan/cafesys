@@ -57,6 +57,16 @@ class OrderForm(forms.Form):
         ('ovrigMini', 'övriga'),
         ]
 
+    PASTA_SALAD_TYPES = [
+        ('kyckling', 'kyckling'),
+        ('ostOchSkinka', 'ost & skinka'),
+        ('rakorOchOst', 'räkor & ost'),
+        ('grekisk', 'grekisk'),
+        ('tonfisk', 'tonfisk'),
+        ('falafel', 'falafel'),
+        ('ovrigSallad', 'övriga')
+    ]
+
     def __init__(self, *args, **kwargs):
         super(OrderForm, self).__init__(*args, **kwargs)
 
@@ -67,6 +77,11 @@ class OrderForm(forms.Form):
 
         # Iteratively add mini jochen fields
         for field_name, label in self.MINI_JOCHEN_TYPES:
+            self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
+            self.fields['%sSelected' % field_name] = forms.BooleanField(required=False, label=label, label_suffix='')
+
+        # Iteratively add pasta salad fields
+        for field_name, label in self.PASTA_SALAD_TYPES:
             self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
             self.fields['%sSelected' % field_name] = forms.BooleanField(required=False, label=label, label_suffix='')
 
@@ -83,6 +98,7 @@ class OrderForm(forms.Form):
     numberOfKlagg = forms.IntegerField(min_value=5, max_value=300, required = False, label="Antal klägg:")
     numberOfJochen = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal jochen:")
     numberOfMinijochen = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal mini jochen:")
+    numberOfPastasalad = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal pastasallad:")
     other = forms.CharField(widget=forms.Textarea(attrs={'cols':33,'rows':5}), required=False, label='Övrig information:')
 
     PICKUP_CHOICES = (
@@ -101,6 +117,7 @@ class OrderForm(forms.Form):
     klaggSelected = forms.BooleanField(required=False, label='Klägg', label_suffix='')
     jochenSelected = forms.BooleanField(required=False, label='Jochen', label_suffix='')
     minijochenSelected = forms.BooleanField(required=False, label='Mini jochen', label_suffix='')
+    pastasaladSelected = forms.BooleanField(required=False, label='Pastasallad', label_suffix='')
 
 class RefillForm(forms.Form):
     code = forms.CharField(
