@@ -3,12 +3,14 @@
 {% load humanize %}
 {% load crispy_forms_tags %}
 {% load baljan_extras %}
+{% load static %}
 
 {% block head_title %}{{year}} vecka {{week}}{% endblock %}
 
 {% block body_class %}board-week{% endblock %}
 {% block body %}
-<div class="chalkboard">
+<div class="chalkboard row">
+    <div class="col-md-6">
     <table class="table table-baljan">
         <thead>
         <tr>
@@ -44,17 +46,22 @@
         {% endfor %}
         </tbody>
     </table>
-    <h2>{% trans "Available Users" %} ({%trans "drag and drop"%})</h2>
-    <div class="available-users"></div>
-    <div class="submit wrapper">
-        <a class="btn btn-primary save" href="#" role="button">Spara</a>
-        <a id="regret-changes" class="btn btn-secondary" role="button" href="{{request.path}}">Ångra osparade ändringar</a>
+    </div>
+    <div class="col-md-6">
+        <h2>{% trans "Available Users" %} ({%trans "drag and drop"%})</h2>
+        <div class="available-users"></div>
+        <div class="submit wrapper">
+            <a class="btn btn-primary save" href="#" role="button">Spara</a>
+            <a id="regret-changes" class="btn btn-secondary" role="button" href="{{request.path}}">Ångra osparade ändringar</a>
+            <button class="btn btn-primary" id="random-shifts">Shuffle</button>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_body %}
 <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{% static 'js/shuffle.js' %}"></script>
 <script type="text/javascript">
     {% autoescape off %}
     REAL_IDS = {{real_ids}};
@@ -231,6 +238,42 @@
     $('#regret-changes').click(function(){
         window.onbeforeunload = null;
         return true;
+    });
+
+    function applyShifts(shifts) {
+        let on_call_keys = Object.keys(ON_CALL);
+        if (shifts.length != on_call_keys.length) {
+            throw new Error(`To many shifts to apply: ${shifts.length}, should be ${on_call_keys.length}`);
+        }
+
+        for (let i = 0; i < on_call_keys.length; ++i) {
+            ON_CALL[on_call_keys[i]] = shifts[i];
+        }
+
+        $('.droppable').each(function() {
+            var id = $(this).attr('id');
+            if (!REAL_IDS[id]) {
+                $(this).addClass('disabled');
+            }
+            var onCallUids = ON_CALL[id], inits = [];
+            for (i in onCallUids) {
+                inits.push(INITIALS[onCallUids[i]]);
+            }
+            $(this).data('initials', inits);
+            redrawContained(this);
+        });
+    }
+
+    $('#random-shifts').click(function() {
+        let numCafes = 2;
+        let personShifts = {
+            1: 10,
+            2: 10,
+            3: 10,
+        };
+
+        let shifts = distribute(personShifts, numCafes);
+        applyShifts(shifts);
     });
 </script>
 {% endblock %}
