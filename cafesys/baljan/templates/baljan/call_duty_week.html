@@ -10,7 +10,7 @@
 {% block body_class %}board-week{% endblock %}
 {% block body %}
 <div class="chalkboard row">
-    <div class="col-md-6">
+    <div class="col-lg-6">
     <table class="table table-baljan">
         <thead>
         <tr>
@@ -39,7 +39,7 @@
         <tr>
             <td class="day">{{weekday.1}}</td>
             {% for span in spans %}
-            <td class="droppable" id="shift-{{weekday.0}}-{{span}}-{{location.0}}"></td>
+            <td class="shift-droppable" id="shift-{{weekday.0}}-{{span}}-{{location.0}}"></td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -47,13 +47,51 @@
         </tbody>
     </table>
     </div>
-    <div class="col-md-6">
-        <h2>{% trans "Available Users" %} ({%trans "drag and drop"%})</h2>
-        <div class="available-users"></div>
-        <div class="submit wrapper">
-            <a class="btn btn-primary save" href="#" role="button">Spara</a>
-            <a id="regret-changes" class="btn btn-secondary" role="button" href="{{request.path}}">Ångra osparade ändringar</a>
-            <button class="btn btn-primary" id="random-shifts">Shuffle</button>
+    <div class="col-lg-6">
+        <div class="card mb-1">
+            <div class="card-body">
+                <h5 class="card-title">Slumpa pass <span id="shuffle-status"></span></h5>
+                <table class="table table-sm table-baljan text-center">
+                    <thead>
+                        <tr>
+                            <td>Person</td>
+                            <td>Antal pass</td>
+                            <td>Ta bort</td>
+                        </tr>
+                    </thead>
+                    <tbody id="shuffle-table-body"></tbody>
+                </table>
+                <div class="row mb-2 ml-1">
+                    <div class="form-check col-auto">
+                        <input type="checkbox" class="form-check-input" id="shufflePreferWholeDays" />
+                        <label class="form-check-label" for="shufflePreferWholeDays">Föredra heldagar</label>
+                    </div>
+                    <div class="from-check col-auto ml-1">
+                        <input type="checkbox" class="form-check-input" id="shufflePreferOneCafe" disabled />
+                        <label class="form-check-label" for="shufflePreferOneCafe">Föredra ett café under dagen</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-9">
+                        <div class="card my-1">
+                                <div class="shuffle-drop card-body py-3">
+                                    Släpp här
+                                </div>
+                        </div>
+                    </div>
+                    <div class="col-3 my-auto">
+                        <button class="btn btn-primary my-auto" id="random-shifts">Slumpa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>{% trans "Available Users" %} ({%trans "drag and drop"%})</h2>
+            <div class="available-users"></div>
+            <div class="submit wrapper">
+                <a class="btn btn-primary save" href="#" role="button">Spara</a>
+                <a id="regret-changes" class="btn btn-secondary" role="button" href="{{request.path}}">Ångra osparade ändringar</a>
+            </div>
         </div>
     </div>
 </div>
@@ -61,6 +99,7 @@
 
 {% block extra_body %}
 <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{% static 'js/jquery.ui.touch-punch.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/shuffle.js' %}"></script>
 <script type="text/javascript">
     {% autoescape off %}
@@ -127,7 +166,7 @@
     }
 
     /* Load initial data. */
-    $('.droppable').each(function() {
+    $('.shift-droppable').each(function() {
         var id = $(this).attr('id');
         if (!REAL_IDS[id]) {
             $(this).addClass('disabled');
@@ -141,7 +180,7 @@
         redrawContained(this);
     });
 
-    $('.droppable').each(function() {
+    $('.shift-droppable').each(function() {
         var drop = this;
         $(this).droppable({
             accept: function(drag) {
@@ -209,7 +248,7 @@
 
     $('.submit .save').click(function() {
         var postData = {};
-        $('.droppable').each(function() {
+        $('.shift-droppable').each(function() {
             var containedInits = $(this).data('initials');
             if (!containedInits || containedInits.length == 0) return;
 
@@ -231,7 +270,7 @@
             }
         });
     });
-    $('.droppable.disabled').each(function () {
+    $('.shift-droppable.disabled').each(function () {
         $(this).text('Stängt');
     });
 
@@ -240,20 +279,21 @@
         return true;
     });
 
+    var onCallKeys = Object.keys(ON_CALL).sort();
     function applyShifts(shifts) {
-        let on_call_keys = Object.keys(ON_CALL);
-        if (shifts.length != on_call_keys.length) {
-            throw new Error(`To many shifts to apply: ${shifts.length}, should be ${on_call_keys.length}`);
+        if (shifts.length !== onCallKeys.length) {
+            throw new Error(`To many shifts to apply: ${shifts.length}, should be ${onCallKeys.length}`);
         }
 
-        for (let i = 0; i < on_call_keys.length; ++i) {
-            ON_CALL[on_call_keys[i]] = shifts[i];
+        for (let i = 0; i < onCallKeys.length; ++i) {
+            ON_CALL[onCallKeys[i]] = [shifts[i]];
         }
 
-        $('.droppable').each(function() {
+        $('.shift-droppable').each(function() {
             var id = $(this).attr('id');
             if (!REAL_IDS[id]) {
                 $(this).addClass('disabled');
+                return;
             }
             var onCallUids = ON_CALL[id], inits = [];
             for (i in onCallUids) {
@@ -264,15 +304,125 @@
         });
     }
 
-    $('#random-shifts').click(function() {
-        let numCafes = 2;
-        let personShifts = {
-            1: 10,
-            2: 10,
-            3: 10,
-        };
+    $('.shuffle-drop').droppable({
+        accept: function(drag) {
+            let dragIdSplit = drag.attr('id').split('-');
+            let dragInitials = dragIdSplit[dragIdSplit.length-1];
 
-        let shifts = distribute(personShifts, numCafes);
+            return !shuffles.some(e => e.initials === dragInitials);
+        },
+        drop: function(ev, ui) {
+            let dragIdSplit = $(ui.draggable).attr('id').split('-');
+            let dragInitials = dragIdSplit[dragIdSplit.length-1];
+            let id = USER_IDS.filter(e => INITIALS[e] === dragInitials)[0];
+            addShuffle(id);
+        }
+    });
+
+    $('#shufflePreferWholeDays').change(function() {
+        $('#shufflePreferOneCafe')[0].disabled = !this.checked;
+    });
+
+    var shuffles = [];
+    var lastShuffleId = 0;
+    const numShifts = onCallKeys.length;
+    var shiftsToDistribute = 0;
+    const numCafes = Object.keys(REAL_IDS).reduce((acc, cur) => {
+        let idSplit = cur.split('-');
+        let cafeId = parseInt(idSplit[idSplit.length-1]);
+        return Math.max(acc, cafeId+1);
+    }, 0);
+    const shiftsPerDayAndCafe = Object.keys(REAL_IDS).reduce((acc, cur) => {
+        let idSplit = cur.split('-');
+        let cafeId = parseInt(idSplit[idSplit.length-2]);
+        return Math.max(acc, cafeId+1);
+    }, 0);
+
+    function removeShuffle(id) {
+        shuffles = shuffles.filter(e => e.id === id);
+        redrawShuffles();
+    }
+
+    function shuffleItem(shuffleObj) {
+        return `<tr id="shuffle-list-row-${shuffleObj.id}">` +
+                    `<td class="align-middle">${shuffleObj.initials}</td>` +
+                    `<td class="align-middle">` +
+                        `<input type="number" class="form-control w-50 mx-auto" id="shuffle-input-${shuffleObj.id}" value="${shuffleObj.value}" min="0", max="${numShifts/numCafes}"/>` +
+                    `</td>` +
+                    `<td class="align-middle">` +
+                            `<button class="btn btn-sm btn-danger" id="shuffle-remove-btn-${shuffleObj.id}"><i class="fa fa-times"></i></button>` +
+                    `</td>` +
+                `</tr>`
+    }
+
+    function redrawShuffle(containerElem, shuffleObj) {
+        containerElem.append(shuffleItem(shuffleObj));
+        $(`#shuffle-input-${shuffleObj.id}`).on('input', function() {
+            let val = parseInt($(this)[0].value);
+            if (val > numShifts/numCafes) {
+                val = numShifts/numCafes;
+                $(this)[0].value = val;
+            } else if (val < 0) {
+                val = 0;
+                $(this)[0].value = val;
+            } else if (!val) {
+                val = 0;
+            }
+            shiftsToDistribute += val - shuffleObj.value;
+            shuffleObj.value = val;
+            updateShuffleStatus();
+        });
+        $(`#shuffle-remove-btn-${shuffleObj.id}`).click(function() {
+            shiftsToDistribute -= shuffleObj.value;
+            shuffles = shuffles.filter(e => e.id !== shuffleObj.id);
+            redrawShuffles();
+        });
+    }
+
+    function updateShuffleStatus() {
+        $('#shuffle-status').html(`(${shiftsToDistribute}/${numShifts}) ` +
+                `<i class="fa ${shiftsToDistribute === numShifts ? 'fa-check-circle text-success' : 'fa-times-circle text-danger'}"></i>`);
+        $('#random-shifts').attr('disabled', shiftsToDistribute !== numShifts);
+    }
+
+    function redrawShuffles() {
+        let shuffleListElem = $('#shuffle-table-body');
+        shuffleListElem.empty();
+        shuffles.forEach(e => redrawShuffle(shuffleListElem, e));
+
+        updateShuffleStatus();
+    }
+
+    function addShuffle(userId) {
+        if (shuffles.filter(e => e.key === userId).length > 0) {
+            return;
+        }
+
+        let shuffleObj = {
+            id: lastShuffleId,
+            key: userId,
+            initials: INITIALS[userId],
+            value: Math.min(10, numShifts - shiftsToDistribute)
+        };
+        shiftsToDistribute += shuffleObj.value;
+        shuffles.push(shuffleObj);
+        ++lastShuffleId;
+        redrawShuffles();
+    }
+
+    updateShuffleStatus();
+
+    $('#random-shifts').click(function() {
+        let numToDistribute = shuffles.reduce((acc, cur) => acc + cur.value, 0);
+        if (numToDistribute !== numShifts) {
+            throw new Error(`Shifts have to be ${numShifts}, not ${numToDistribute}`);
+        }
+
+        let shifts = distribute(shuffles, numCafes, shiftsPerDayAndCafe,
+                $('#shufflePreferWholeDays')[0].checked,
+                $('#shufflePreferOneCafe')[0].checked
+            );
+
         applyShifts(shifts);
     });
 </script>
