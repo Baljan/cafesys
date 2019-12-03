@@ -728,7 +728,6 @@ def job_opening(request, semester_name):
 @permission_required('baljan.change_oncallduty')
 @csrf_exempt
 def call_duty_week(request, year=None, week=None):
-    user = request.user
     if year is None or week is None:
         year, week = year_and_week()
         plan = planning.BoardWeek.current_week()
@@ -763,16 +762,25 @@ def call_duty_week(request, year=None, week=None):
 
     if request.method == 'POST' and request.is_ajax():
         initial_users = dict(list(zip(initials, avails)))
-        for dom_id, shift in zip(dom_ids, plan.shifts):
-            old_users = User.objects.filter(oncallduty__shift=shift).distinct()
-            new_users = []
+        all_old_users = [User.objects.filter(oncallduty__shift=shift).distinct() \
+                    for shift in plan.shifts]
 
+        all_new_users = []
+        for dom_id, shift in zip(dom_ids, plan.shifts):
             if dom_id in request.POST:
-                new_users = [initial_users[x] for x
-                        in request.POST[dom_id].split('|')]
+                all_new_users.append([initial_users[x] for x
+                        in request.POST[dom_id].split('|')])
+            else:
+                all_new_users.append([])
+
+        # Remove old users
+        for shift, old_users, new_users in zip(plan.shifts, all_old_users, all_new_users):
             for old_user in old_users:
                 if not old_user in new_users:
                     shift.oncallduty_set.filter(user=old_user).delete()
+
+        # add new users
+        for shift, old_users, new_users in zip(plan.shifts, all_old_users, all_new_users):
             for new_user in new_users:
                 if not new_user in old_users :
                     if models.OnCallDuty.objects\
