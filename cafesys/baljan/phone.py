@@ -30,7 +30,7 @@ DUTY_CALL_ROUTING = {
 }
 
 # IP addresses used by 46Elks
-ELKS_IPS = ['62.109.57.12', '212.112.190.140', '176.10.154.199', '2001:9b0:2:902::199']
+ELKS_IPS = ['176.10.154.199', '85.24.146.132', '185.39.146.243', '2001:9b0:2:902::199']
 
 # Extension that is added to numbers calling Baljans 013-number
 PHONE_EXTENSION = '239927'
