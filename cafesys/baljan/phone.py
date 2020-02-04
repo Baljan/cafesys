@@ -24,8 +24,8 @@ tz = pytz.timezone(settings.TIME_ZONE)
 
 # Mapping from office hours to shift indexes
 DUTY_CALL_ROUTING = {
-    (time(7, 0, 0, tzinfo=tz), time(12, 0, 0, tzinfo=tz)): 0,
-    (time(12, 0, 0, tzinfo=tz), time(13, 0, 0, tzinfo=tz)): 1,
+    (time(7, 0, 0, tzinfo=tz), time(10, 0, 0, tzinfo=tz)): 0,
+    (time(10, 0, 0, tzinfo=tz), time(13, 0, 0, tzinfo=tz)): 1,
     (time(13, 0, 0, tzinfo=tz), time(18, 0, 0, tzinfo=tz)): 2,
 }
 
