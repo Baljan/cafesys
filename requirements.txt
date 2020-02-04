@@ -1,4 +1,4 @@
-Django==1.11.23
+Django==1.11.27
 django-extensions==1.7.9
 psycopg2==2.7.1
 django-environ==0.4.3
