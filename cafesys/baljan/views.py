@@ -1181,6 +1181,9 @@ def do_blipp(request):
 def integrity(request):
     return render(request, 'baljan/integrity.html')
 
+def penaltyreg(request):
+    return render(request, 'baljan/penalty_register.html')
+
 
 def _get_blipp_configuration(request):
     if 'HTTP_AUTHORIZATION' in request.META:
