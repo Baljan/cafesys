@@ -1181,7 +1181,7 @@ def do_blipp(request):
 def integrity(request):
     return render(request, 'baljan/integrity.html')
 
-def penaltyreg(request):
+def styrelsen(request):
     return render(request, 'baljan/penalty_register.html')
 
 
