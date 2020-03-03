@@ -99,8 +99,6 @@ img {
 .styrelse-member {
 
   transition: .5s ease;
-
-
   background-color: blue;
   opacity: 0.1;
   width: 10%;
@@ -110,10 +108,11 @@ img {
   }
 
 .styrelse-profile {
-  max-width: 540px;
+  width: 40vw;
+  height: 20vh;
   position: absolute;
-  top: 100px;
-  left: 100px;
+  top: 20vh;
+  left: 18vw;
   opacity: 0;
 }
 
@@ -126,8 +125,9 @@ img {
   z-index: 200;
 }
 
-#vice-ordf:hover {
+#vice-ordf:hover ~ #vice-prof{
   opacity: 1;
+  z-index: 200;
 }
 
 #kass:hover {
