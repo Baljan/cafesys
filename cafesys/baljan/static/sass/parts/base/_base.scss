@@ -109,13 +109,21 @@ img {
   position: absolute;
   }
 
+.styrelse-profile {
+  max-width: 540px;
+  position: absolute;
+  top: 100px;
+  left: 100px;
+  opacity: 0;
+}
 
 .styrelse-member:hover ~ .image-styrelsen {
   opacity: 0.3;
 }
 
-#ordf:hover {
+#ordf:hover ~ #ordf-prof{
   opacity: 1;
+  z-index: 200;
 }
 
 #vice-ordf:hover {
