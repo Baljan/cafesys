@@ -9,15 +9,17 @@
 {% block body_class %}Penalty-reg{% endblock %}
 {% block body %}
 
+
+
 <div class="container-styrelsen"> <!-- d-flex justify-content-center -->
 
     <div id="ordf" class="styrelse-member" style="top: 32%; left: 3%;"></div>
-    <div id="vice-ordf" class="styrelse-member" style="top: 32%; left: 17%;"></div>
+    <div id="vice" class="styrelse-member" style="top: 32%; left: 17%;"></div>
     <div id="kass" class="styrelse-member" style="top: 32%; left: 31%;"></div>
-    <div class="styrelse-member" style="top: 32%; left: 45%;"></div>
-    <div class="styrelse-member" style="top: 32%; left: 59%;"></div>
-    <div class="styrelse-member" style="top: 32%; left: 73%;"></div>
-    <div class="styrelse-member" style="top: 32%; left: 87%;"></div>
+    <div id="pers" class="styrelse-member" style="top: 32%; left: 45%;"></div>
+    <div id="ink" class="styrelse-member" style="top: 32%; left: 59%;"></div>
+    <div id="p1" class="styrelse-member" style="top: 32%; left: 73%;"></div>
+    <div id="p2" class="styrelse-member" style="top: 32%; left: 87%;"></div>
 
     <div class="styrelse-member" style="top: 54%; left: 3%;"></div>
     <div class="styrelse-member" style="top: 54%; left: 17%;"></div>
@@ -37,35 +39,96 @@
 
     <img src="/static/img/Straffregister.png" alt="Glada jobbare" style="border-radius: 25px; width: 70vw" class="image-styrelsen" />
 
-    <div id="ordf-prof" class="card mb-3 styrelse-profile">
-        <div class="row no-gutters">
-            <div class="col-md-4">
-                <img src="/static/img/styrelse-imgs/danne.jpg" class="card-img" alt="ordf">
-            </div>
-            <div class="col-md-8">
-                <div class="card-body">
-                    <h5 class="card-title">Daniel Granath, Ordförande</h5>
-                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                </div>
-            </div>
+    <div id="ordf-prof" class="card mb-3 styrelse-profile " style="right: 100px;">
+        <img src="/static/img/styrelse-imgs/danne.jpg" class="card-img-top image-prof" alt="Ordf" style="object-position: 0% 30%;">
+        <div class="card-body d-flex flex-column">
+            <h5 class="card-title" style="color: rgb(230,0,139);">Daniel Granath, Ordförande</h5>
+            <p class="bold prof-text">Vad innebär din post?</p>
+            <p>Ingen aning helt ärligt. Som ordförande.</p>
+            <p class="bold prof-text">Berätta om din uppväxt.</p>
+            <p>Gameboy och Tom & Jerry-kex</p>
+            <p class="bold prof-text">Vad ljugs det om till jobbare?</p>
+            <p>Det tar vi upp på nästa möte.</p>
         </div>
     </div>
 
-    <div id="vice-prof" class="card mb-3 styrelse-profile">
-        <div class="row no-gutters">
-            <div class="col-md-4">
-                <img src="/static/img/styrelse-imgs/david" class="card-img" alt="vice">
-            </div>
-            <div class="col-md-8">
-                <div class="card-body">
-                    <h5 class="card-title">David Åström, Vice-Ordförande</h5>
-                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                </div>
-            </div>
+    <div id="vice-prof" class="card mb-3 styrelse-profile " style="right: 100px;">
+        <img src="/static/img/styrelse-imgs/david" class="card-img-top image-prof" alt="Vice" style="object-position: 0% 35%;">
+        <div class="card-body d-flex flex-column">
+            <h5 class="card-title" style="color: rgb(230,0,139);">David Åström, Vice Ordförande</h5>
+            <p class="bold prof-text">Vad innebär din post?</p>
+            <p>TODO</p>
+            <p class="bold prof-text"></p>
+            <p></p>
+            <p class="bold prof-text"></p>
+            <p></p>
         </div>
     </div>
 
+    <div id="kass-prof" class="card mb-3 styrelse-profile" style="right: 50px;">
+        <img src="/static/img/styrelse-imgs/gave" class="card-img-top image-prof" alt="Kassör" style="object-position: 0% 25%;">
+        <div class="card-body">
+            <h5 class="card-title" style="color: rgb(230,0,139);">Filip Gavefalk, Kassör</h5>
+            <p class="bold prof-text">Vad innebär din post?</p>
+            <p>Det är jag som ser till att Baljan går med vinst! Vill du ha en faktura betald? Behöver bokföring göras? Behöver Baljan en schyst budget? I'm your guy!</p>
+            <p class="bold prof-text">Berätta om din uppväxt.</p>
+            <p>Hockey + Köttbullar & makaroner</p>
+            <p class="bold prof-text">Vilket är Baljans ballaste klägg?</p>
+            <p>Loka.</p>
+        </div>
+    </div>
 
+    <div id="pers-prof" class="card mb-3 styrelse-profile" style="left: -100px;">
+        <img src="/static/img/styrelse-imgs/anna" class="card-img-top image-prof" alt="Personaliz" style="object-position: 0% 25%;">
+        <div class="card-body">
+            <h5 class="card-title" style="color: rgb(230,0,139);">Anna Bergnäs, Personaliz</h5>
+            <p class="bold prof-text">Vad innebär din post?</p>
+            <p>Som personalis så har jag den främsta kontakten med jobbarna och hjälper dem med jobbrelaterade frågor samt styr upp jobbinfo-kvällar och jobbsläpp.</p>
+            <p class="bold prof-text">Berätta om din uppväxt.</p>
+            <p>Ensam tjej med fyra bröder...</p>
+            <p class="bold prof-text">Vilket är Baljans ballaste klägg?</p>
+            <p>Kolasnittar! Men vid tillfälle så morotskakalyxklägg eller saffranskakan</p>
+        </div>
+    </div>
+
+    <div id="ink-prof" class="card mb-3 styrelse-profile" style="left: -100px;">
+        <img src="/static/img/styrelse-imgs/adam.jpg" class="card-img-top image-prof" alt="Kassör" style="object-position: 0% 25%;">
+        <div class="card-body">
+            <h5 class="card-title" style="color: rgb(230,0,139);">Adam Andersson, Inköpsansvarig</h5>
+            <p class="bold prof-text">Vad innebär din post?</p>
+            <p>TODO</p>
+            <p class="bold prof-text"></p>
+            <p></p>
+            <p class="bold prof-text"></p>
+            <p></p>
+        </div>
+    </div>
+
+    <div id="p1-prof" class="card mb-3 styrelse-profile" style="left: -100px;">
+        <img src="/static/img/styrelse-imgs/emma" class="card-img-top image-prof" alt="Projekt1" style="object-position: 0% 35%;">
+        <div class="card-body">
+            <h5 class="card-title" style="color: rgb(230,0,139);">Emma Gustafsson, Projektansvarig 1</h5>
+            <p class="bold prof-text">Vad innebär din post?</p>
+            <p>TODO</p>
+            <p class="bold prof-text">Om du vore en växt, vilken skulle du vara och varför?</p>
+            <p>Poaceae.</p>
+            <p class="bold prof-text">Vilket är Baljans ballaste klägg?</p>
+            <p>Kolakakor, kolasnittar, nötcremesrullen, pärlboll, chokladcookie, mazarin, delicatoboll,pepparkaksrulle, hallongrotta, päronbiskvi & LYXKLÄGG!!!</p>
+        </div>
+    </div>
+
+    <div id="p2-prof" class="card mb-3 styrelse-profile" style="left: -100px;">
+        <img src="/static/img/styrelse-imgs/agge.jpg" class="card-img-top image-prof" alt="Projekt2" style="object-position: 0% 35%;">
+        <div class="card-body">
+            <h5 class="card-title" style="color: rgb(230,0,139);">Agnes Pettersson, Projektansvarig 2</h5>
+            <p class="bold prof-text">Vad innebär din post?</p>
+            <p>Som projekt #2 får du den stora äran att bli vapendragare tillsammans med projekt #1. Tillsammans driver vi projekt som inte faller naturligt på någon övrig styrelsemedlem alternativt projekt som vi själva är taggade på att dra i. The sky is the limit, typ. </p>
+            <p class="bold prof-text">Vad händer i Nollberga?</p>
+            <p>Dricker lättöl och kramas</p>
+            <p class="bold prof-text">Vad ljugs det om till jobbare?</p>
+            <p>Ja det kommer nog mjölk och klägg idag.</p>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
