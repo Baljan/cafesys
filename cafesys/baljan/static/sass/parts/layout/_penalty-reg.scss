@@ -1,18 +1,33 @@
+@media only screen
+and (min-device-width: 320px)
+and (max-device-width: 480px)
+and (-webkit-min-device-pixel-ratio: 2) {
 
+  .styrelse-profile {
+    width: 90vw !important;
+    margin: 0 auto !important;
+    left: -15vw !important;
+    top: 21vh !important;
+  }
+
+}
 
 
 .container-styrelsen {
   position: relative;
-  width: 70vw;
+  width: 60vw;
+  margin: 0 auto;
 }
 
 .image-styrelsen{
   opacity: 1;
   display: block;
-  width: 100%;
   height: auto;
   transition: .5s ease;
   backface-visibility: hidden;
+  border-radius: 25px;
+  width: 70vw;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .info-styrelsen {
@@ -43,10 +58,11 @@
 }
 
 .styrelse-profile {
+  transition: .65s ease;
   width: 40vw;
   height: auto;
   position: absolute;
-  top: 20vh;
+  top: 10vh;
   right: 5vw;
   opacity: 0;
 
@@ -54,20 +70,23 @@
   border-width: 7px;
   border-color: rgb(230,0,139);
   /*border-color: rgb(0,164,224);*/
+
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
-p {
+.p {
   margin-bottom: 5px;
   font-family: 'Lobster', cursive;
 }
 
-h5 {
+.h5 {
   font-family: 'Lobster', cursive;
 }
 
 .prof-text {
   font-family: "Lobster", cursive;
   color: rgb(0,164,224);
+  margin-bottom: 5px;
 }
 
 .image-prof {
@@ -115,3 +134,74 @@ h5 {
   opacity: 1;
   z-index: 200;
 }
+
+#sek:hover ~ #sek-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#syss:hover ~ #syss-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#pyss:hover ~ #pyss-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#info:hover ~ #info-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#piff:hover ~ #piff-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#paff:hover ~ #paff-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#puff:hover ~ #puff-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#lev:hover ~ #lev-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#event:hover ~ #event-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#bytt:hover ~ #bytt-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#kul:hover ~ #kul-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#nerd00:hover ~ #nerd00-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#nerd01:hover ~ #nerd01-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
+#n00b:hover ~ #n00b-prof{
+  opacity: 1;
+  z-index: 200;
+}
+
