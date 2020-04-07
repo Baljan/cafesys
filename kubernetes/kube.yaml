@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   name: baljan
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -42,7 +42,7 @@ spec:
           periodSeconds: 10
           timeoutSeconds: 10
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -90,7 +90,7 @@ spec:
         secret:
           secretName: cloudsql-instance-credentials
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -138,7 +138,7 @@ spec:
         secret:
           secretName: cloudsql-instance-credentials
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -195,7 +195,7 @@ spec:
         secret:
           secretName: cloudsql-instance-credentials
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -225,7 +225,7 @@ spec:
         - containerPort: 5432
           protocol: TCP
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -255,7 +255,7 @@ spec:
         - containerPort: 6379
           protocol: TCP
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
