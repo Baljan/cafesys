@@ -2,7 +2,7 @@
 Cafesys is the Django application driving the website of Sektionscafé Baljan. It features staff management and the
 fantastic *Blipp* system for coffee.
 
-## Setting up a development environment in Docker
+## Setting up of development environment in Docker
 This assumes you already have Docker and Docker Compose installed.
 ```sh
 cp .env.docker.tmpl .env.docker
@@ -31,7 +31,7 @@ docker-compose run --rm cafesys-django django-admin.py collectstatic --noinput
 
 This environment will use the `.env.docker` file for environment variables, **not** `.env`.
 
-## Setting up a local development environment
+## Setting up of local development environment
 ### macOS
 **Note: This guide requires that you have installed Docker and Docker Compose (see https://docs.docker.com/compose/install/).**
 
