@@ -2,8 +2,8 @@
 Cafesys is the Django application driving the website of Sektionscafé Baljan. It features staff management and the
 fantastic *Blipp* system for coffee.
 
-## Setting up a development environment in Docker
-This assumes you already have Docker and Docker Compose installed.
+## Setting up development environment in Docker
+This assumes you already have Docker and Docker Compose is installed.
 ```sh
 cp .env.docker.tmpl .env.docker
 docker-compose up
