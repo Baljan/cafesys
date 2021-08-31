@@ -375,12 +375,12 @@ def profile(request):
 
 
 @login_required
-def credits(request):
+def credits(request, code=None):
     user = request.user
     profile = user.profile
     tpl = {}
 
-    refill_form = forms.RefillForm()
+    refill_form = forms.RefillForm(code=code)
 
     if request.method == 'POST':
         try:

@@ -113,6 +113,15 @@ class OrderForm(forms.Form):
     pastasaladSelected = forms.BooleanField(required=False, label='Pastasallad', label_suffix='')
 
 class RefillForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        code = None
+        if 'code' in kwargs:
+            code = kwargs.pop('code')
+        super(RefillForm, self).__init__(*args, **kwargs)
+        if code:
+            self.initial['code'] = code
+            self.fields['code'].widget.attrs['readonly'] = True
+
     code = forms.CharField(
         max_length=models.BALANCE_CODE_LENGTH,
         label="Kod",

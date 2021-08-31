@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls import url
 from django.urls import path
-from django.views.generic import TemplateView
 
 from . import views
-
 
 urlpatterns = (
     path("", views.index),
@@ -20,6 +17,7 @@ urlpatterns = (
 
     path("profile", views.profile, name='profile'),
     path("credits", views.credits, name='credits'),
+    path("credits/<slug:code>", views.credits, name='credits'),
     path("orders/<int:page_no>", views.orders, name='orders'),
 
     path("user/<int:who>", views.see_user),
