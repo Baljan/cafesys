@@ -6,6 +6,8 @@ from io import BytesIO
 from datetime import datetime
 
 from django.conf import settings
+from django.contrib.sites.models import Site
+from django.urls import reverse
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
@@ -15,6 +17,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, Paragraph, SimpleDocTemplate
+from reportlab.graphics.barcode import qr
 
 from .util import grouper
 
@@ -62,7 +65,12 @@ class RefillCard(object):
             c.drawCentredString(w/2, h * 0.7, add_to_group.name.lstrip("_"))
 
         c.setFont(*code_font)
-        c.drawCentredString(w/2, h * 0.46, code.code)
+        c.drawRightString(w-pad, h * 0.46, code.code)
+
+        current_site = Site.objects.get_current()
+        code_path = reverse('credits', kwargs={'code': code.code})
+        code_url_qr = qr.QrCode(f'https://{current_site}{code_path}')
+        code_url_qr.drawOn(c, 0, (h-code_url_qr.height)/2)
 
         c.setFont(*footer_font)
         c.drawString(pad, pad,
