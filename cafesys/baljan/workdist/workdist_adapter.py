@@ -72,5 +72,5 @@ class WorkdistAdapter:
         # We must save the ShiftCombination before we can assign the shifts
         comb.save()
 
-        comb.shifts = shifts
+        comb.shifts.set(shifts)
         comb.save()
