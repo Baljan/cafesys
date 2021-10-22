@@ -58,8 +58,10 @@
     <div class="ml-auto button-container order-lg-3">
       {% block login %}
           {% if user.is_authenticated %}
-              <i class="fa fa-user usericon ml-3 mr-1 d-none d-sm-inline-block" aria-hidden="true"></i>
-              <a href="{{user.get_absolute_url}}" class="mr-2 username">{{user | display_name }}</a>
+              <a href="{{user.get_absolute_url}}" class="btn my-2 my-sm-0 d-none d-sm-inline-block">
+                <i class="fa fa-user" aria-hidden="true"></i>
+                {{user | display_name }}
+              </a>
               <a href="{% url 'logout' %}" class="btn my-2 my-sm-0 d-none d-sm-inline-block">
                 <i class="fa fa-sign-out" aria-hidden="true"></i>
                   Logga ut
