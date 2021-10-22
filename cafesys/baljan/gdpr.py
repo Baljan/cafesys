@@ -194,7 +194,7 @@ class ConsentRedirectionMiddleware:
 
     def __call__(self, request):
         user = request.user
-        if user.is_authenticated() and not user.profile.has_seen_consent:
+        if user.is_authenticated and not user.profile.has_seen_consent:
             current_url = resolve(request.path_info).url_name
             if current_url != 'consent' and current_url != 'logout':
                 return redirect(reverse('consent'))
