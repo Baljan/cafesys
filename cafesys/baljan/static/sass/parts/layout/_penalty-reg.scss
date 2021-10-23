@@ -1,15 +1,14 @@
-@media only screen and (min-device-width: 320px) and (max-device-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+@media only screen and (max-width: 600px) {
   .styrelse-profile {
-    width: 90vw !important;
-    margin: 0 auto !important;
-    left: -15vw !important;
-    top: 21vh !important;
+    width: auto !important;
+    right: 0 !important;
+    left: 0 !important;
+    top: 60vw !important;
   }
 }
 
 .container-styrelsen {
   position: relative;
-  width: 60vw;
   margin: 0 auto;
 }
 
@@ -20,7 +19,8 @@
   transition: 0.5s ease;
   backface-visibility: hidden;
   border-radius: 25px;
-  width: 70vw;
+  max-width: 1192px;
+  width: 100%;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
@@ -54,6 +54,7 @@
 .styrelse-profile {
   transition: 0.65s ease;
   width: 40vw;
+  max-width: 40rem;
   height: auto;
   position: absolute;
   top: 10vh;
@@ -76,7 +77,6 @@
 
 .p {
   margin-bottom: 5px;
-  font-family: "Lobster", cursive;
 }
 
 .h5 {
@@ -91,13 +91,20 @@
 }
 
 .image-prof {
-  height: 250px;
-  padding-top: 10px;
+  max-height: 250px;
+  padding: 10px 20px 0;
   border-radius: 0;
   object-fit: contain;
   object-position: center 4px;
   background: #ffc300;
-  background: linear-gradient(180deg, rgba(255, 195, 0, 0.6) 0%, #e6008b 100%);
+
+  background: linear-gradient(180deg, rgba(#ffc300, 0.6) 0%, #e6008b 100%);
+  @supports not (backdrop-filter: blur(10px)) {
+    /* CSS to provide fallback alternative for Firefox and similar browsers */
+    & {
+      background: linear-gradient(180deg, #ffc300 0%, #e6008b 100%);
+    }
+  }
 }
 
 .styrelse-member:hover ~ .image-styrelsen {
