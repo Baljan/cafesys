@@ -1,37 +1,31 @@
-@media only screen
-and (min-device-width: 320px)
-and (max-device-width: 480px)
-and (-webkit-min-device-pixel-ratio: 2) {
-
+@media only screen and (max-width: 600px) {
   .styrelse-profile {
-    width: 90vw !important;
-    margin: 0 auto !important;
-    left: -15vw !important;
-    top: 21vh !important;
+    width: auto !important;
+    right: 0 !important;
+    left: 0 !important;
+    top: 60vw !important;
   }
-
 }
-
 
 .container-styrelsen {
   position: relative;
-  width: 60vw;
   margin: 0 auto;
 }
 
-.image-styrelsen{
+.image-styrelsen {
   opacity: 1;
   display: block;
   height: auto;
-  transition: .5s ease;
+  transition: 0.5s ease;
   backface-visibility: hidden;
   border-radius: 25px;
-  width: 70vw;
+  max-width: 1192px;
+  width: 100%;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .info-styrelsen {
-  transition: .5s ease;
+  transition: 0.5s ease;
   opacity: 0;
   position: absolute;
   top: 50%;
@@ -42,166 +36,182 @@ and (-webkit-min-device-pixel-ratio: 2) {
 }
 
 .text-styrelsen {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   font-size: 16px;
   padding: 16px 32px;
 }
 
 .styrelse-member {
-  transition: .5s ease;
+  transition: 0.5s ease;
   opacity: 0;
   width: 10%;
-  height: 14%;
+  height: 20%;
   z-index: 100;
   position: absolute;
 }
 
 .styrelse-profile {
-  transition: .65s ease;
+  transition: 0.65s ease;
   width: 40vw;
+  max-width: 40rem;
   height: auto;
   position: absolute;
   top: 10vh;
   right: 5vw;
   opacity: 0;
-
-  border-style: solid;
-  border-width: 7px;
-  border-color: rgb(230,0,139);
-  /*border-color: rgb(0,164,224);*/
+  border: none;
+  background-color: transparent;
+  backdrop-filter: blur(10px);
 
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
+.styrelse-profile > .card-body {
+  border-style: solid;
+  border-width: 7px;
+  border-color: rgb(230, 0, 139);
+  border-top: none;
+  background-color: #fff;
+}
+
 .p {
   margin-bottom: 5px;
-  font-family: 'Lobster', cursive;
 }
 
 .h5 {
-  font-family: 'Lobster', cursive;
+  font-family: "Lobster", cursive;
+  color: rgb(230, 0, 139);
 }
 
 .prof-text {
   font-family: "Lobster", cursive;
-  color: rgb(0,164,224);
+  color: rgb(0, 164, 224);
   margin-bottom: 5px;
 }
 
 .image-prof {
-  width: 600px;
-  height: 250px;
+  max-height: 250px;
+  padding: 10px 20px 0;
   border-radius: 0;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center 4px;
+  background: #ffc300;
+
+  background: linear-gradient(180deg, rgba(#ffc300, 0.6) 0%, #e6008b 100%);
+  @supports not (backdrop-filter: blur(10px)) {
+    /* CSS to provide fallback alternative for Firefox and similar browsers */
+    & {
+      background: linear-gradient(180deg, #ffc300 0%, #e6008b 100%);
+    }
+  }
 }
 
 .styrelse-member:hover ~ .image-styrelsen {
   opacity: 0.6;
 }
 
-#ordf:hover ~ #ordf-prof{
+#ordf:hover ~ #ordf-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#vice:hover ~ #vice-prof{
+#vice:hover ~ #vice-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#kass:hover ~ #kass-prof{
+#kass:hover ~ #kass-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#pers:hover ~ #pers-prof{
+#pers:hover ~ #pers-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#ink:hover ~ #ink-prof{
+#ink:hover ~ #ink-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#p1:hover ~ #p1-prof{
+#p1:hover ~ #p1-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#p2:hover ~ #p2-prof{
+#p2:hover ~ #p2-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#sek:hover ~ #sek-prof{
+#sek:hover ~ #sek-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#syss:hover ~ #syss-prof{
+#syss:hover ~ #syss-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#pyss:hover ~ #pyss-prof{
+#pyss:hover ~ #pyss-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#info:hover ~ #info-prof{
+#info:hover ~ #info-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#piff:hover ~ #piff-prof{
+#piff:hover ~ #piff-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#paff:hover ~ #paff-prof{
+#paff:hover ~ #paff-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#puff:hover ~ #puff-prof{
+#puff:hover ~ #puff-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#lev:hover ~ #lev-prof{
+#lev:hover ~ #lev-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#event:hover ~ #event-prof{
+#event:hover ~ #event-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#bytt:hover ~ #bytt-prof{
+#bytt:hover ~ #bytt-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#kul:hover ~ #kul-prof{
+#kul:hover ~ #kul-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#nerd00:hover ~ #nerd00-prof{
+#nerd00:hover ~ #nerd00-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#nerd01:hover ~ #nerd01-prof{
+#nerd01:hover ~ #nerd01-prof {
   opacity: 1;
   z-index: 200;
 }
 
-#n00b:hover ~ #n00b-prof{
+#nerd10:hover ~ #nerd10-prof {
   opacity: 1;
   z-index: 200;
 }
-
