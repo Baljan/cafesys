@@ -10,12 +10,14 @@ import pytz
 from re import match
 from datetime import date, datetime, time
 from logging import getLogger
+from collections import Counter
 
 from django.conf import settings
 from django.utils.http import urlquote
 
 from cafesys.baljan import planning
-from cafesys.baljan.models import Shift, IncomingCallFallback, Located
+from cafesys.baljan.models import Shift, IncomingCallFallback, Located, OnCallDuty, User
+from .util import week_dates, year_and_week
 import requests
 
 logger = getLogger(__name__)
@@ -30,52 +32,76 @@ DUTY_CALL_ROUTING = {
 }
 
 # IP addresses used by 46Elks
-ELKS_IPS = ['176.10.154.199', '85.24.146.132', '185.39.146.243', '2001:9b0:2:902::199']
+ELKS_IPS = ["176.10.154.199", "85.24.146.132", "185.39.146.243", "2001:9b0:2:902::199"]
 
 # Extension that is added to numbers calling Baljans 013-number
-PHONE_EXTENSION = '239927'
+PHONE_EXTENSION = "239927"
 
 # Maximum length of a phone number (+46 + 9 digits)
 MAX_PHONE_LENGTH = 12
 
 # Map the keystrokes from IVR to a location
-IVR_LOCATION_MAPPING = {
-    1: Located.KARALLEN,
-    2: Located.STH_VALLA
-}
+IVR_LOCATION_MAPPING = {1: Located.KARALLEN, 2: Located.STH_VALLA}
+
 
 def _get_fallback_numbers():
     """Retrieves the list of fallback phone numbers from the database"""
 
-    return [x.user.profile.mobile_phone for x in IncomingCallFallback.objects.all()]
+    return [
+        x.user.profile.mobile_phone
+        for x in IncomingCallFallback.objects.all().select_related("user__profile")
+    ]
 
 
 def _get_current_duty_phone_numbers(location=Located.KARALLEN):
     """
     Returns the phone number for every staff on duty at the moment,
-    for the given location, or None if outside office hours.
+    prioritizing the given location, or None if outside office hours.
     """
 
     current_time = datetime.now(tz).time()
-    shifts_today = Shift.objects.filter(when=date.today(), location=location)
-
+    current_span = None
     for time_range, shift_index in DUTY_CALL_ROUTING.items():
         if _time_in_range(time_range[0], time_range[1], current_time):
-            current_shift = shifts_today.filter(span=shift_index).first()
-            if current_shift is not None:
-                on_callduty = current_shift.on_callduty()
-                return [x.profile.mobile_phone for x in on_callduty]
+            current_span = shift_index
 
-    return None
+    # If outside on-call hours
+    if current_span is None:
+        return None
+
+    # Get users who are currently on call (in any café)
+    oncall = (
+        OnCallDuty.objects.filter(shift__span=current_span, shift__when=date.today())
+        .select_related("user__profile")
+        .select_related("shift")
+    )
+
+    # Within working hours but nobody is on call (could for example be weekend)
+    if len(oncall) == 0:
+        return None
+
+    # Sort oncall based on location id. Current location first.
+    oncall_sorted = sorted(oncall, key=lambda x: abs(x.shift.location - location))
+
+    return [x.user.profile.mobile_phone for x in oncall_sorted]
 
 
-def _get_week_duty_phone_numbers(location=Located.KARALLEN):
-    """Returns the phone number for every staff on duty this week on the given location"""
+def _get_week_duty_phone_numbers():
+    """Returns the phone number for every staff on duty this week"""
+    dates = week_dates(*year_and_week())
+    oncall = OnCallDuty.objects.filter(shift__when__in=dates)
 
-    plan = planning.BoardWeek.current_week()
-    on_callduty = [item for sublist in plan.oncall(location=location) for item in sublist]
+    user_ids = [x.user_id for x in oncall]
+    # count occurrences of every user_id in oncall
+    unique_user_ids_ordered = [x[0] for x in Counter(user_ids).most_common(3)]
 
-    return [x.profile.mobile_phone for x in on_callduty]
+    users = User.objects.filter(id__in=unique_user_ids_ordered).select_related(
+        "profile"
+    )
+
+    users_sorted = sorted(users, key=lambda x: unique_user_ids_ordered.index(x.id))
+
+    return [x.profile.mobile_phone for x in users_sorted]
 
 
 def _time_in_range(start, end, x):
@@ -102,10 +128,10 @@ def _append(lst, element):
 def _format_phone(phone):
     """Makes sure that the number starts with an area code (needed by 46elks API)"""
 
-    if phone[0] == '+':
+    if phone[0] == "+":
         return phone
     else:
-        return '+46' + phone[1:]
+        return "+46" + phone[1:]
 
 
 def request_from_46elks(request):
@@ -117,11 +143,11 @@ def request_from_46elks(request):
     if not settings.VERIFY_46ELKS_IP:
         return True
 
-    client_IP = request.META.get('REMOTE_ADDR')
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    client_IP = request.META.get("REMOTE_ADDR")
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
 
     if x_forwarded_for:
-        client_IP = x_forwarded_for.split(',')[0]
+        client_IP = x_forwarded_for.split(",")[0]
 
     return client_IP in ELKS_IPS
 
@@ -133,7 +159,7 @@ def remove_extension(phone):
     """
 
     if len(phone) > MAX_PHONE_LENGTH and phone.endswith(PHONE_EXTENSION):
-        return phone[:len(phone) - len(PHONE_EXTENSION)]
+        return phone[: len(phone) - len(PHONE_EXTENSION)]
     else:
         return phone
 
@@ -145,7 +171,7 @@ def is_valid_phone_number(phone):
     may not be in line with the current standards.
     """
 
-    return match(r'^(\+[0-9]{1,3}|0)[0-9]{4,14}$', phone) is not None
+    return match(r"^(\+[0-9]{1,3}|0)[0-9]{4,14}$", phone) is not None
 
 
 def _compile_number_list(location=Located.KARALLEN):
@@ -155,12 +181,12 @@ def _compile_number_list(location=Located.KARALLEN):
     # Check if we are within office hours
     if current_duty_phone_numbers is not None:
         _append(phone_numbers, current_duty_phone_numbers)
-        _append(phone_numbers, _get_week_duty_phone_numbers(location=location))
+        _append(phone_numbers, _get_week_duty_phone_numbers())
 
     # Always append the fallback numbers
     _append(phone_numbers, _get_fallback_numbers())
 
-    return phone_numbers
+    return phone_numbers[:4]  # Never try more than four numbers
 
 
 def _build_46elks_response(phone_numbers):
@@ -168,15 +194,15 @@ def _build_46elks_response(phone_numbers):
 
     if phone_numbers:
         data = {
-            'connect': phone_numbers[0],
-            'callerid': '+46766860043',
+            "connect": phone_numbers[0],
+            "callerid": "+46766860043",
         }
 
         busy = _build_46elks_response(phone_numbers[1:])
         if busy:
-            data['timeout'] = '20'
-            data['busy'] = busy
-            data['failed'] = busy
+            data["timeout"] = "20"
+            data["busy"] = busy
+            data["failed"] = busy
 
         return data
     else:
@@ -184,18 +210,18 @@ def _build_46elks_response(phone_numbers):
 
 
 def compile_ivr_response(request):
-    next_url = request.build_absolute_uri('/baljan/incoming-call')
-    audio_url = request.build_absolute_uri('/static/audio/phone/ivr.mp3')
+    next_url = request.build_absolute_uri("/baljan/incoming-call")
+    audio_url = request.build_absolute_uri("/static/audio/phone/ivr.mp3")
     if settings.SOCIAL_AUTH_REDIRECT_IS_HTTPS:
-        next_url = next_url.replace('http://', 'https://')
-        audio_url = audio_url.replace('http://', 'https://')
+        next_url = next_url.replace("http://", "https://")
+        audio_url = audio_url.replace("http://", "https://")
 
     return {
-        'ivr': audio_url,
-        'digits': '1',
-        'timeout': '10',
-        'repeat': '3',
-        'next': next_url
+        "ivr": audio_url,
+        "digits": "1",
+        "timeout": "10",
+        "repeat": "3",
+        "next": next_url,
     }
 
 
@@ -205,12 +231,12 @@ def compile_incoming_call_response(request):
     response is found in the file header.
     """
 
-    ivr_key = request.POST.get('result', None)
+    ivr_key = request.POST.get("result", None)
 
     if ivr_key is not None:
-        if ivr_key == 'failed':
-            why = request.POST['why']
-            logger.error('46elks IVR request failed, [why: %s]' % (why, ))
+        if ivr_key == "failed":
+            why = request.POST["why"]
+            logger.error("46elks IVR request failed, [why: %s]" % (why,))
 
             # We can't know which location the caller was trying to reach,
             # default route the call to Kårallen.
@@ -231,11 +257,11 @@ def compile_incoming_call_response(request):
 
     if response:
         # Attach 'whenhangup' to top of call chain
-        hangup_url = request.build_absolute_uri('/baljan/post-call/{}'.format(location))
+        hangup_url = request.build_absolute_uri("/baljan/post-call/{}".format(location))
         if settings.SOCIAL_AUTH_REDIRECT_IS_HTTPS:
-            hangup_url = hangup_url.replace('http://', 'https://')
+            hangup_url = hangup_url.replace("http://", "https://")
 
-        response['whenhangup'] = hangup_url
+        response["whenhangup"] = hangup_url
 
     return response
 
@@ -247,6 +273,6 @@ def get_call(calls):
     if not calls:
         return None
     call = calls[-1]
-    if call.get('state') != 'success':
+    if call.get("state") != "success":
         call = calls[0]
     return call
