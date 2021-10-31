@@ -11,31 +11,33 @@
 
 <main class="bd-masthead" id="content" role="main">
 
-<div id="header-image" class="row align-items-center">
-<h1 class="bd-text-purple-bright lobster">Mer kaffe åt folket!</h1>
+<div id="header-image">
+  <h1 class="bd-text-purple-bright lobster">Mer kaffe åt folket!</h1>
+  <section>
+    <div class="container">
+      <h3>Mål och mening</h3>
+      <p class="lead mb-4">
+        Kaffe åt folket! — helt enkelt. Vi säljer kaffe, te, varm choklad, läsk, mackor och klägg till studentanpassade priser. Vi
+        är helt ideella. Allt överskott återinvesteras i utrustning, möbler och vår fantastiska personal.
+      </p>
+      <div class="d-flex flex-column flex-md-row lead mb-3">
+          <a href="{% url 'order_from_us' %}" class="btn btn-lg btn-primary mr-md-3 mb-3 mb-md-0">
+              <i class="fa fa-shopping-cart"></i> Beställa
+          </a>
+          <a href="{% url 'credits' %}" class="btn btn-lg btn-primary btn-outline-info mr-md-3 mb-3 mb-md-0">
+            <i class="fa fa-coffee"></i> Fylla på kaffekort
+          </a>
+      </div>
+    </div>
+  </section>
 </div>
 
 <!-- container -->
 <!-- main#content -->
 
-<section class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h3>Mål och mening</h3>
-    <p class="lead mb-4">
-      Kaffe åt folket! — helt enkelt. Vi säljer kaffe, te, varm choklad, läsk, mackor och klägg till studentanpassade priser. Vi
-      är helt ideella. Allt överskott återinvesteras i utrustning, möbler och vår fantastiska personal.
-    </p>
-
-    <div class="d-flex flex-column flex-md-row lead mb-3">
-        <a href="{% url 'order_from_us' %}" class="btn btn-lg btn-primary mr-md-3 mb-3 mb-md-0">
-            <i class="fa fa-shopping-cart"></i> Beställa
-        </a>
-        <a href="{% url 'credits' %}" class="btn btn-lg btn-primary btn-outline-info mr-md-3 mb-3 mb-md-0">
-          <i class="fa fa-coffee"></i> Fylla på kaffekort
-        </a>
-    </div>
-  </div>
-</section>
+<h2 class="section-header">
+  Våra caféer
+</h2>
 
 <section class="Baljan__timeline wrapper" style="padding-bottom: 40px">
   <div class="container">
@@ -138,47 +140,38 @@
   </div>
 </section>
 
-<section class="jumbotron jumbotron-fluid mb-3">
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-6">
-        <h2>Jobba i Baljan</h2>
+<h2 class="section-header">
+  Engagera dig!
+</h2>
+<div class="container">
+  <section class="row">
+    <div class="col-lg-6">
+      <h3>Jobba i Baljan</h3>
+      <div class="happy-workers">
+        <img src="{% static 'img/jobbare.jpg' %}" alt="Glada jobbare" style="border-radius: 25px;" />
+        <br>
+        <p class="text-center pink baljan-font mt-2">Glada jobbare!</p>
+      </div>
+      <div>
         <p>Det är personalen som håller igång vårt fik! Det är dem du träffar när du handlar hos oss. Som personal jobbar man fyra halvdagar under en termin, två i Baljan i Kårallen och två i Byttan i Studenthuset. Som tack för detta får man gratis kaffe/te hela terminen, en duktigt subventionerad P-fest, en subventionerad cykelfest och den beryktade P-presenten™.</p>
-        <p>För höstterminens jobbpass har vi ett jobbsläpp, i slutet av vårterminen. För vårens jobbpass är släppet strax före jul-tenta-p. Jobbsläppen släpps digitalt och det gäller att vara het på gröten, håll utkik på våra sociala medier!</p>
+        <p>För höstterminens jobbpass har vi ett jobbsläpp, i slutet av vårterminen. För vårens jobbpass är släppet strax före jul-tenta-p. Jobbsläppen släpps digitalt och det gäller att vara het på gröten, håll utkik på våra sociala medier!</p>     
       </div>
-      <div class="col-sm-6">
-        <div class="happy-workers">
-          <img src="{% static 'img/jobbare.jpg' %}" alt="Glada jobbare" style="border-radius: 25px;" />
-          <br>
-          <p class="text-center pink baljan-font mt-2">Glada jobbare!</p>
-        </div>
+    </div>  
+    <div class="col-lg-6">
+      <h3>Styrelsen</h3>
+      <div class="happy-workers">
+        <img src="{% static 'img//Straffregister-HT2021.png' %}" alt="Straffregister" style="border-radius: 25px;" />
+        <br>
+        <p class="text-center pink baljan-font mt-2">Glad styrelse!</p>
       </div>
-    </div>
-  </div>
-</section>
-
-  <section class="jumbotron jumbotron-fluid">
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="happy-workers">
-            <img src="{% static 'img//Straffregister-HT2021.png' %}" alt="Straffregister" style="border-radius: 25px;" />
-            <br>
-
-            <p class="text-center pink baljan-font mt-2">Glad styrelse!</p>
-
-          </div>
-        </div>
-        <div class="col-sm-6">
-          <h2>Styrelsen</h2>
-          <p>Baljans styrelse består av 21 studenter från allehanda sektioner. Vårt uppdrag är att aktivt jobba för att driva föreningen framåt och göra det så bra som möjligt för våra älskade kunder och jobbare. Vi är en salig blandning individer med allt från ett gäng nördar som ser till att ni kan blippa er förbi den vanliga kaffekön till tre partypeeps som varje termin anordnar norra Europas billigaste och ballaste bal. Mer om varje styrelsepost kan du hitta genom att klicka på "Läs mer" nedan.</p>
-          <a href="{% url 'styrelsen' %}" class="btn btn-outline-primary btn-attention">Läs mer</a>
-        </div>
+      <div>
+        <p>Baljans styrelse består av 21 studenter från allehanda sektioner. Vårt uppdrag är att aktivt jobba för att driva föreningen framåt och göra det så bra som möjligt för våra älskade kunder och jobbare. Vi är en salig blandning individer med allt från ett gäng nördar som ser till att ni kan blippa er förbi den vanliga kaffekön till tre partypeeps som varje termin anordnar norra Europas billigaste och ballaste bal. Mer om varje styrelsepost kan du hitta genom att klicka på "Läs mer" nedan.</p>
+        <a href="{% url 'styrelsen' %}" class="btn btn-outline-primary btn-attention">Läs mer</a>
       </div>
     </div>
   </section>
-
-<div id="map-container"></div>
+</div>
+  
 
 <div>
     <!-- hpfix -->

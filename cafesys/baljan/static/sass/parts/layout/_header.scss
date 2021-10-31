@@ -1,3 +1,4 @@
+@import "../utilities/colors";
 //==============================================
 // Layout/header
 //==============================================
@@ -7,7 +8,7 @@
 //   }
 // }
 //
-body main.bd-masthead{
+body main.bd-masthead {
   padding-top: (74px); // navbar-height
 }
 
@@ -29,8 +30,8 @@ body main.bd-masthead.wrapper--md {
   z-index: 10;
   min-height: 75px;
   min-width: 320px;
-  box-shadow: 0 2px 5px -1px rgba(0, 0, 0, .09);
-  background: #FFF;
+  box-shadow: 0 2px 5px -1px rgba(0, 0, 0, 0.09);
+  background: #fff;
   position: fixed;
 
   .container {
@@ -39,7 +40,7 @@ body main.bd-masthead.wrapper--md {
       padding-right: 0;
     }
   }
-  
+
   &.fixed {
     position: fixed;
     .btn-attention {
@@ -112,46 +113,62 @@ body main.bd-masthead.wrapper--md {
 }
 
 body.about {
-    #header-image {
-      background: darken(#352723, 4) url('/static/img/splash.jpeg'); // #352723 is average color of splash image.
-      background-size: cover;
-      height: 30vw;
-      min-height: 400px;
+  #header-image {
+    background: darken(#352723, 4) url('/static/img/splash.jpeg'); // #352723 is average color of splash image.
+    background-size: 100% auto;
+    background-position: center 0;
+    background-repeat: no-repeat;
+    // height: 50vw;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
-
-      h1 {
-         display: inline-block;
-         width: 100%;
-         text-align: center;
-         color: #fff;
-         padding: 20px;
-         font-size: 65px;
-         border-radius: 8px;
-         text-shadow: 0 0 25px #000;
-        margin-bottom: 18vw;
-
-        @media screen and (max-width: 600px) {
-          font-size: 50px;
-        }
-      }
+    h1 {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      color: #fff;
+      padding: 20px;
+      font-size: 65px;
+      border-radius: 8px;
+      text-shadow: 0 0 25px #000;
+      margin-bottom: 25vh;
+      margin-top: 3rem;
 
       @media screen and (max-width: 600px) {
-        background-position: center;
+        font-size: 50px;
       }
-
-     p.lead {
-      display: none;
-      padding: 20px;
-      background-color: $dark-blue;
-      color: #FFF;
-      font-weight: bold;
-      border-radius: 8px;
     }
+
+    @media screen and (max-width: 600px) {
+      background-position: center;
+    }
+
+    section {
+      background: rgba(#000, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 2rem 0;
+
+      h3,
+      p {
+        color: white;
+      }
+    }
+  }
+
+  .section-header {
+    background: linear-gradient(70deg, $blue, $pink);
+    color: white;
+    font-size: 4rem;
+    padding: 4rem 2rem;
+    text-align: center;
+    font-family: Lobster;
   }
 }
 
 // Fix to show hamburger icon for authenticated users
-  .navbar-toggler.is-authenticated {
+.navbar-toggler.is-authenticated {
   display: block !important;
 }
 
@@ -182,7 +199,7 @@ body.about {
 }
 
 .sidenav::-webkit-scrollbar {
-    display: none;  // Safari and Chrome
+  display: none; // Safari and Chrome
 }
 
 .sidenav {
@@ -190,19 +207,19 @@ body.about {
   //border-top: 1px solid rgba(0, 0, 0, .14);
   margin-top: 0px;
   padding-top: 20px;
-    z-index: 1;
+  z-index: 1;
   left: 0;
-    bottom: 0;
+  bottom: 0;
   background-color: white;
   overflow-y: scroll;
 
-  -ms-overflow-style: none;  // IE 10+
+  -ms-overflow-style: none; // IE 10+
   //overflow: -moz-scrollbars-none;  // Firefox
 
   h3 {
     text-align: center;
     color: $pink;
-      font-family: $font-second;
+    font-family: $font-second;
   }
   ul {
     padding-left: 0;
@@ -235,7 +252,7 @@ body.about {
     padding-top: 20px;
     padding-left: 20px;
     overflow-x: hidden;
-    border-left: 1px solid rgba(0, 0, 0, .14);
+    border-left: 1px solid rgba(0, 0, 0, 0.14);
     background-color: rgb(255, 255, 255);
     &.is-open {
       transform: translateX(0);
