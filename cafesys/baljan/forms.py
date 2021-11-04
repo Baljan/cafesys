@@ -32,22 +32,15 @@ class OrderForm(forms.Form):
 
     # [(field name, jochen name), ... ]
     JOCHEN_TYPES = [
-        ('salamiOchBrieCiabatta', 'salami & brie ciabatta'),
-        ('salamiOchBrieBaguette', 'salami & brie baguette'),
-        ('ostOchBrieostCiabatta', 'ost & brieost ciabatta'),
-        ('ostOchBrieostBaguette', 'ost & brieost baguette'),
-        ('ostOchSkinkCiabatta', 'ost & skink ciabatta'),
-        ('ostOchSkinkBaguette', 'ost & skink Baguette'),
-        ('rodbetsalladCiabatta', 'rödbetsallad med köttbullar ciabatta'),
-        ('rodbetsalladBaguette', 'rödbetsallad med köttbullar baguette'),
-        ('skinkroraCiabatta', 'skinkröra ciabatta'),
-        ('skinkroraBaguette', 'skinkröra baguette'),
-        ('kycklingroraCiabatta', 'kycklingröra ciabatta'),
-        ('kycklingroraBaguette', 'kycklingröra baguette'),
-        ('skagenroraCiabatta', 'skagenröra ciabatta'),
-        ('skagenroraBaguette', 'skagenröra baguette'),
-        ('falafelCiabatta', 'falafel ciabatta (vegan)'),
-        ('falafelBaguette', 'falafel baguette (vegan)'),
+        ('ostOchBrieostJochen', 'ost & brieost (ljust bröd)'),
+        ('ostOchSkinkaJochen', 'ost & skinka (mörkt bröd)'),
+        ('kottbullarJochen', 'rödbetsallad med köttbullar (ljust bröd)'),
+        ('falafelJochen', 'falafel (mörkt bröd))'),
+        ('kebabJochen', 'kebab (ljust bröd)'),
+        ('kycklingCurryJochen', 'kyckling curry (ljust bröd)'),
+        ('kycklingBaconJochen', 'kyckling bacon (ljust bröd)'),
+        ('skagenroraJochen', 'skagenröra (ljust bröd)'),
+        ('tonfiskJochen', 'tonfisk (mörkt bröd)'),
         ('ovrigJochen', 'övriga'),
         ]
 
@@ -58,12 +51,12 @@ class OrderForm(forms.Form):
         ]
 
     PASTA_SALAD_TYPES = [
-        ('kyckling', 'kyckling'),
-        ('ostOchSkinka', 'ost & skinka'),
-        ('rakorOchOst', 'räkor & ost'),
-        ('grekisk', 'grekisk'),
-        ('tonfisk', 'tonfisk'),
-        ('falafel', 'falafel'),
+        ('kycklingSallad', 'kyckling'),
+        ('ostOchSkinkaSallad', 'ost & skinka'),
+        ('rakorSallad', 'räkor'),
+        ('grekiskSallad', 'grekisk'),
+        ('tonfiskSallad', 'tonfisk'),
+        ('falafelSallad', 'falafel'),
         ('ovrigSallad', 'övriga')
     ]
 
