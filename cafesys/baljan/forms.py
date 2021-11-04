@@ -32,7 +32,7 @@ class OrderForm(forms.Form):
 
     # [(field name, jochen name), ... ]
     JOCHEN_TYPES = [
-        ('ostOchBrieostJochen', 'ost & brieost (mörkt bröd)'),
+        ('ostOchBrieostJochen', 'ost & brieost (ljust bröd)'),
         ('ostOchSkinkaJochen', 'ost & skinka (mörkt bröd)'),
         ('kottbullarJochen', 'rödbetsallad med köttbullar (ljust bröd)'),
         ('falafelJochen', 'falafel (mörkt bröd))'),
@@ -56,6 +56,7 @@ class OrderForm(forms.Form):
         ('rakorSallad', 'räkor'),
         ('grekiskSallad', 'grekisk'),
         ('tonfiskSallad', 'tonfisk'),
+        ('falafelSallad', 'falafel'),
         ('ovrigSallad', 'övriga')
     ]
 
