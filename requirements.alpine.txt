@@ -4,6 +4,7 @@ python3
 py3-pip
 
 # Build dependencies
+cargo
 curl
 gcc
 g++
@@ -15,4 +16,5 @@ make
 musl-dev
 postgresql-dev
 python3-dev
+rust
 zlib-dev
