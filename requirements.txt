@@ -14,6 +14,7 @@ celery==4.1.1
 social-auth-core==4.1.0
 social-auth-app-django==5.0.0
 git+https://github.com/Baljan/python-social-auth-liu.git
+# temp comment to rebuild
 
 # PDFs
 reportlab==3.4.0
