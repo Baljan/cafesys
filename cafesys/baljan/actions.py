@@ -2,7 +2,7 @@
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from .models import Semester
@@ -77,7 +77,7 @@ def categories_and_actions(request):
         )),
     )
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         if user.is_superuser:
             group = 'superusers'
         elif user.groups.filter(name__exact = settings.BOARD_GROUP).exists():

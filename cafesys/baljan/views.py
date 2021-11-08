@@ -16,7 +16,7 @@ from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.core.serializers import serialize
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, redirect
@@ -316,7 +316,7 @@ def day_shifts(request, day):
     tpl['available_for_call_duty'] = avail_call_duty = available_for_call_duty()
 
     if request.method == 'POST':
-        assert request.user.is_authenticated()
+        assert request.user.is_authenticated
         span = int(request.POST['span'])
         assert span in (0, 1, 2)
         location = int(request.POST['location'])
@@ -437,7 +437,7 @@ def see_user(request, who):
 
     watched = User.objects.get(id=who)
     watching_self = u == watched
-    if u.is_authenticated():
+    if u.is_authenticated:
         profile_form_cls_inst = (
                 (forms.UserForm, u),
                 (forms.ProfileForm, u.profile),
@@ -1052,7 +1052,7 @@ def post_call(request, location):
 
 
 def consent(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return redirect('/')
 
     if request.method == 'POST':

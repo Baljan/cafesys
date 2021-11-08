@@ -6,12 +6,12 @@ from logging import getLogger
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.models import User, Group, Permission
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models, transaction
 from django.db.models import Q
 from django.db.models import signals
 from django.utils.encoding import smart_str
-from django.utils.translation import string_concat
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext as _nl
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import RegexValidator
@@ -57,7 +57,7 @@ def generate_private_key():
 
 
 class Profile(Made):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='profile', verbose_name=_("user"), editable=False)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='profile', verbose_name=_("user"), editable=False, on_delete=models.CASCADE)
     mobile_phone = models.CharField(_("mobile phone number"), max_length=10, blank=True, null=True, db_index=True)
     balance = models.IntegerField(default=0)
     balance_currency = models.CharField(_("balance currency"), max_length=5, default="SEK",
@@ -136,10 +136,12 @@ class TradeRequest(Made):
     """
     wanted_signup = models.ForeignKey('baljan.ShiftSignup',
             verbose_name=_("wanted sign-up"),
-            related_name='traderequests_wanted')
+            related_name='traderequests_wanted',
+            on_delete=models.CASCADE)
     offered_signup = models.ForeignKey('baljan.ShiftSignup',
             verbose_name=_("offered sign-up"),
-            related_name='traderequests_offered')
+            related_name='traderequests_offered',
+            on_delete=models.CASCADE)
     accepted = models.BooleanField(_("accepted"), default=False)
     answered = models.BooleanField(_("answered"), default=False,
             help_text=_("if this is true when the shift is deleted, and \"accepted\" is true as well, the trade will be performed even if it was in the past"))
@@ -360,9 +362,8 @@ class Semester(Made):
     def group_names(self):
         return [self.worker_group_name(), self.board_group_name()]
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('semester', (), {'name': self.name})
+        return reverse('semester', kwargs={'name': self.name})
 
     class Meta:
         verbose_name = _("semester")
@@ -385,7 +386,8 @@ SPAN_NAMES = {
 # Note to future nerd: Trying to retrieve all shift combinations from a Semester WILL result in duplicate
 #                      objects caused by the Meta.ordering below. Solved by: semester.shiftcombination_set.order_by()
 class ShiftCombination(Made):
-    semester = models.ForeignKey(Semester, verbose_name=_("semester"))
+    semester = models.ForeignKey(Semester, verbose_name=_("semester"),
+            on_delete=models.CASCADE)
     shifts = models.ManyToManyField('baljan.Shift', verbose_name=_("shifts"))
     label = models.CharField(_("label"), max_length=10)
 
@@ -427,7 +429,8 @@ class Shift(Located):
 
     objects = ShiftManager()
 
-    semester = models.ForeignKey(Semester, verbose_name=_("semester"))
+    semester = models.ForeignKey(Semester, verbose_name=_("semester"),
+            on_delete=models.CASCADE)
     when = models.DateField(_("what day the shift is on"))
     span = models.PositiveSmallIntegerField(_("time span"),
             default=0, choices=SPAN_CHOICES)
@@ -497,10 +500,10 @@ class Shift(Located):
         return lookup[self.span][0 if i18n else 1]
 
     def name(self):
-        return string_concat(self.timeofday(), ' ', self.when.strftime('%Y-%m-%d'), ' ', self.get_location_display())
+        return format_lazy('{} {} {}', self.timeofday(), self.when.strftime('%Y-%m-%d'), self.get_location_display())
 
     def name_short(self):
-        return string_concat(self.ampm(), ' ', self.when.strftime('%Y-%m-%d'), ' ', self.get_location_display())
+        return format_lazy('{} {} {}', self.ampm(), self.when.strftime('%Y-%m-%d'), self.get_location_display())
 
     def past(self):
         return self.when < date.today()
@@ -539,20 +542,21 @@ class Shift(Located):
         verbose_name_plural = _("shifts")
         ordering = ('-when', 'span')
 
-    @models.permalink
     def get_absolute_url(self):
         return self._url()
 
     def _url(self):
-        return ('day_shifts', (), {'day': util.to_iso8601(self.when)})
+        return reverse('day_shifts', kwargs={'day': util.to_iso8601(self.when)})
 
     def __str__(self):
         return "%s %s %s" % (self.ampm(i18n=False), self.when.strftime('%Y-%m-%d'), self.location_name())
 
 
 class ShiftSignup(Made):
-    shift = models.ForeignKey(Shift, verbose_name=_("shift"))
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("worker"))
+    shift = models.ForeignKey(Shift, verbose_name=_("shift"),
+            on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("worker"),
+            on_delete=models.CASCADE)
     tradable = models.BooleanField(
             _('the user wants to switch this shift for some other'),
             help_text=_('remember that trade requests of sign-ups are removed whenever the sign-up is altered'),
@@ -569,7 +573,6 @@ class ShiftSignup(Made):
                 ('self_and_friend_signup', _nl("Can sign up self and friends")), # for workers
                 )
 
-    @models.permalink
     def get_absolute_url(self):
         return self.shift._url()
 
@@ -653,15 +656,16 @@ signals.pre_delete.connect(signup_pre_delete, sender=ShiftSignup)
 
 
 class OnCallDuty(Made):
-    shift = models.ForeignKey(Shift, verbose_name=_("shift"))
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"))
+    shift = models.ForeignKey(Shift, verbose_name=_("shift"),
+            on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"),
+            on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("on call duty")
         verbose_name_plural = _("on call duties")
         ordering = ('-shift__when', 'shift__span')
 
-    @models.permalink
     def get_absolute_url(self):
         return self.shift._url()
 
@@ -733,7 +737,8 @@ class Good(Made):
 
 
 class GoodCost(Made):
-    good = models.ForeignKey(Good, verbose_name=_("good"))
+    good = models.ForeignKey(Good, verbose_name=_("good"),
+            on_delete=models.CASCADE)
     cost = models.PositiveIntegerField(_("cost"))
     currency = models.CharField(_("currency"), max_length=5, default="SEK")
     from_date = models.DateField(_("from date"), default=date.today)
@@ -753,7 +758,8 @@ class GoodCost(Made):
 
 class Order(Located):
     put_at = models.DateTimeField(_("put at"), default=datetime.now, db_index=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), db_index=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), db_index=True,
+            on_delete=models.CASCADE)
     paid = models.PositiveIntegerField(_("paid"))
     currency = models.CharField(_("currency"), max_length=5, default="SEK")
     accepted = models.BooleanField(_("accepted"), default=True)
@@ -786,8 +792,10 @@ class Order(Located):
 
 
 class OrderGood(Made):
-    order = models.ForeignKey(Order, verbose_name=_("order"))
-    good = models.ForeignKey(Good, verbose_name=_("good"))
+    order = models.ForeignKey(Order, verbose_name=_("order"),
+            on_delete=models.CASCADE)
+    good = models.ForeignKey(Good, verbose_name=_("good"),
+            on_delete=models.CASCADE)
     count = models.PositiveIntegerField(_("count"), default=1)
 
     class Meta:
@@ -825,7 +833,9 @@ class RefillSeries(Made):
     issued = models.DateField(_("issued"), default=default_issued)
     least_valid_until = models.DateField(_("least valid until"),
             default=default_least_valid_until)
-    made_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("made by"), editable=False)
+    made_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("made by"), editable=False,
+            null=True,
+            on_delete=models.SET_NULL)
 
     code_count = models.PositiveIntegerField(_("code count"),
             default=SERIES_CODE_DEFAULT_COUNT,
@@ -837,7 +847,8 @@ class RefillSeries(Made):
 
     add_to_group = models.ForeignKey("auth.Group", verbose_name=_("add to group"),
             help_text=_("if set, users will be added to this group"),
-            null=True, default=None, blank=True)
+            null=True, default=None, blank=True,
+            on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = _('refill series')
@@ -888,13 +899,15 @@ class RefillSeries(Made):
 
 class RefillSeriesPDF(Made):
     refill_series = models.ForeignKey(RefillSeries, verbose_name=_("series"),
-            editable=False)
+            editable=False,
+            on_delete=models.CASCADE)
     generated_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("generated by"),
-            editable=False)
+            editable=False,
+            null=True,
+            on_delete=models.CASCADE)
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('admin:baljan_shift_change', (self.id))
+        return reverse('admin:baljan_shift_change', args=(self.id))
 
     class Meta:
         verbose_name = _('generated refill series PDF')
@@ -910,9 +923,11 @@ class BalanceCode(Made):
     value = models.PositiveIntegerField(_("value"), default=BALANCE_CODE_DEFAULT_VALUE)
     currency = models.CharField(_("currency"), max_length=5, default="SEK",
             help_text=_("currency"))
-    refill_series = models.ForeignKey(RefillSeries, verbose_name=_("refill series"))
+    refill_series = models.ForeignKey(RefillSeries, verbose_name=_("refill series"),
+            on_delete=models.CASCADE)
     used_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
-            verbose_name=_("used by"))
+            verbose_name=_("used by"),
+            on_delete=models.SET_NULL)
     used_at = models.DateField(_("used at"), blank=True, null=True)
 
     def serid(self):
@@ -931,8 +946,10 @@ class BalanceCode(Made):
 
 
 class BoardPost(Made):
-    semester = models.ForeignKey(Semester, verbose_name=_("semester"))
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"))
+    semester = models.ForeignKey(Semester, verbose_name=_("semester"),
+            on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"),
+            on_delete=models.CASCADE)
     post = models.CharField(_("post"), max_length=50)
 
     class Meta:
@@ -950,7 +967,8 @@ class BoardPost(Made):
 
 class OldCoffeeCardSet(models.Model):
     set_id = models.IntegerField(_("set id"))
-    made_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("made by"))
+    made_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("made by"),
+            on_delete=models.CASCADE)
     file = models.CharField(_("file"), max_length=100, blank=True, null=True)
 
     created = models.DateTimeField(_("created"))
@@ -966,9 +984,11 @@ class OldCoffeeCardSet(models.Model):
 
 
 class OldCoffeeCard(models.Model):
-    set = models.ForeignKey(OldCoffeeCardSet, verbose_name=_("set"))
+    set = models.ForeignKey(OldCoffeeCardSet, verbose_name=_("set"),
+            on_delete=models.CASCADE)
     card_id = models.IntegerField(_("card id"))
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True,
+            on_delete=models.SET_NULL)
 
     created = models.DateTimeField(_("created"), blank=True, null=True)
     time_stamp = models.DateTimeField(_("time stamp"), blank=True, null=True)
@@ -978,7 +998,8 @@ class OldCoffeeCard(models.Model):
     count = models.IntegerField(_("count"), blank=True, null=True)
     left = models.IntegerField(_("left"), blank=True, null=True)
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True,
+            on_delete=models.SET_NULL)
 
     imported = models.BooleanField(_("imported"), default=False)
 
@@ -992,7 +1013,8 @@ class OldCoffeeCard(models.Model):
 
 
 class IncomingCallFallback(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True,
+            on_delete=models.SET_NULL)
     priority = models.IntegerField('Prioritet', help_text='Högst prioritet kommer ringas upp först')
 
     class Meta:
@@ -1002,7 +1024,8 @@ class IncomingCallFallback(models.Model):
 
 
 class LegalConsent(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False, null=True,
+            on_delete=models.SET_NULL)
     policy_name = models.CharField(blank=False, max_length=64)
     policy_version = models.IntegerField(blank=False)
     time_of_consent = models.DateTimeField(auto_now_add=True)
@@ -1040,7 +1063,8 @@ class MutedConsent(models.Model):
     but there we already have the Order model which keeps track of this information.
     """
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False, null=True,
+            on_delete=models.SET_NULL)
     action = models.CharField(blank=False, max_length=64)
     time_of_consent = models.DateTimeField(auto_now_add=True)
 
@@ -1050,10 +1074,12 @@ class MutedConsent(models.Model):
 
 
 class WorkableShift(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=False,
+            on_delete=models.CASCADE)
     priority = models.IntegerField(verbose_name=_("priority"), blank=False)
     combination = models.CharField(_("label"), max_length=10)
-    semester = models.ForeignKey(Semester, verbose_name=_("semester"))
+    semester = models.ForeignKey(Semester, verbose_name=_("semester"),
+            on_delete=models.CASCADE)
 
 
 class BlippConfiguration(Located):
@@ -1072,7 +1098,8 @@ class BlippConfiguration(Located):
                          (BIG_ENDIAN, f'{BIG_ENDIAN} endian'))
 
     token = models.CharField('Token', max_length=255, unique=True, blank=False)
-    good = models.ForeignKey(Good, verbose_name=_("good"))
+    good = models.ForeignKey(Good, verbose_name=_("good"), null=True,
+            on_delete=models.SET_NULL)
     card_reader_radix = models.IntegerField(
         'Talbas',
         choices=RADIX_CHOICES,
