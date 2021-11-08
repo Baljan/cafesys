@@ -45,8 +45,8 @@ class OrderForm(forms.Form):
         ]
 
     MINI_JOCHEN_TYPES = [
-        ('ostFralla', 'ost fralla'),
-        ('ostOchSkinkFralla', 'ost & skink fralla'),
+        ('ostFralla', 'ostfralla'),
+        ('ostOchSkinkFralla', 'ost- & skinkfralla'),
         ('ovrigMini', 'övriga'),
         ]
 
