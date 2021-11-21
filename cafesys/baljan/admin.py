@@ -384,51 +384,6 @@ class BoardPostAdmin(admin.ModelAdmin):
 admin.site.register(models.BoardPost, BoardPostAdmin)
 
 
-class OldCoffeeCardInline(admin.TabularInline):
-    fields = ("card_id", "user", "time_stamp", "count", "left", "expires", "imported")
-    model = models.OldCoffeeCard
-    extra = 0
-    can_delete = False
-
-
-class OldCoffeeCardSetAdmin(admin.ModelAdmin):
-    inlines = (OldCoffeeCardInline,)
-    search_fields = (
-        "made_by__first_name",
-        "made_by__last_name",
-        "made_by__username",
-        "set_id",
-    )
-    list_display = ("set_id", "made_by", "file", "created")
-
-
-admin.site.register(models.OldCoffeeCardSet, OldCoffeeCardSetAdmin)
-
-
-class OldCoffeeCardAdmin(admin.ModelAdmin):
-    search_fields = (
-        "user__first_name",
-        "user__last_name",
-        "user__username",
-        "card_id",
-        "code",
-        "set__set_id",
-    )
-    list_display = (
-        "card_id",
-        "set",
-        "created",
-        "count",
-        "left",
-        "expires",
-        "user",
-        "imported",
-    )
-
-
-admin.site.register(models.OldCoffeeCard, OldCoffeeCardAdmin)
-
-
 class IncomingCallFallback(admin.ModelAdmin):
     list_display = ("user", "priority")
 

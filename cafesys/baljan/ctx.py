@@ -6,16 +6,17 @@ from .actions import categories_and_actions
 
 
 def actions(request):
-    return {'action_categories': categories_and_actions(request)}
+    return {"action_categories": categories_and_actions(request)}
+
 
 def analytics(request):
-    return {'ANALYTICS_KEY': settings.ANALYTICS_KEY}
+    return {"ANALYTICS_KEY": settings.ANALYTICS_KEY}
+
 
 def common(request):
     current_site = Site.objects.get_current()
     return {
-        'current_site': current_site.domain,
-        'KLIPP_WORTH': settings.KLIPP_WORTH,
-        'CONTACT_EMAIL': settings.CONTACT_EMAIL,
-        'CONTACT_PHONE': settings.CONTACT_PHONE,
+        "current_site": current_site.domain,
+        "CONTACT_EMAIL": settings.CONTACT_EMAIL,
+        "CONTACT_PHONE": settings.CONTACT_PHONE,
     }

@@ -965,53 +965,6 @@ class BoardPost(Made):
         }
 
 
-class OldCoffeeCardSet(models.Model):
-    set_id = models.IntegerField(_("set id"))
-    made_by = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("made by"),
-            on_delete=models.CASCADE)
-    file = models.CharField(_("file"), max_length=100, blank=True, null=True)
-
-    created = models.DateTimeField(_("created"))
-    time_stamp = models.DateTimeField(_("time stamp"), blank=True, null=True)
-
-    class Meta:
-        verbose_name = _('old coffee card set')
-        verbose_name_plural = _('old coffee card sets')
-        ordering = ('-set_id',)
-
-    def __str__(self):
-        return "%d" % self.set_id
-
-
-class OldCoffeeCard(models.Model):
-    set = models.ForeignKey(OldCoffeeCardSet, verbose_name=_("set"),
-            on_delete=models.CASCADE)
-    card_id = models.IntegerField(_("card id"))
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True,
-            on_delete=models.SET_NULL)
-
-    created = models.DateTimeField(_("created"), blank=True, null=True)
-    time_stamp = models.DateTimeField(_("time stamp"), blank=True, null=True)
-    expires = models.DateTimeField(_("expires"), blank=True, null=True)
-
-    code = models.IntegerField(_("code"))
-    count = models.IntegerField(_("count"), blank=True, null=True)
-    left = models.IntegerField(_("left"), blank=True, null=True)
-
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True,
-            on_delete=models.SET_NULL)
-
-    imported = models.BooleanField(_("imported"), default=False)
-
-    class Meta:
-        verbose_name = _('old coffee card')
-        verbose_name_plural = _('old coffee cards')
-        ordering = ('-card_id',)
-
-    def __str__(self):
-        return "%d.%d (old)" % (self.set.set_id, self.card_id)
-
-
 class IncomingCallFallback(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"), blank=True, null=True,
             on_delete=models.SET_NULL)
