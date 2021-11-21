@@ -9,10 +9,6 @@ def actions(request):
     return {"action_categories": categories_and_actions(request)}
 
 
-def analytics(request):
-    return {"ANALYTICS_KEY": settings.ANALYTICS_KEY}
-
-
 def common(request):
     current_site = Site.objects.get_current()
     return {
