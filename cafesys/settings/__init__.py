@@ -21,9 +21,6 @@ with warnings.catch_warnings():
 DEBUG = env.bool("DJANGO_DEBUG")
 SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 
-# Disabled until further notice as we haven't been using this functionality lately
-ANALYTICS_KEY = None
-
 CACHE_BACKEND = env.str("DJANGO_REDIS_URL")
 
 ADMINS = []
@@ -99,7 +96,6 @@ TEMPLATES = [
                 "social_django.context_processors.backends",
                 "social_django.context_processors.login_redirect",
                 "cafesys.baljan.ctx.actions",
-                "cafesys.baljan.ctx.analytics",
                 "cafesys.baljan.ctx.common",
             ]
         },
