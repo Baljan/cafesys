@@ -20,10 +20,7 @@ from .util import grouper
 
 import pytz
 
-if __name__ == '__main__':
-    from .pdfstimuli import gettext as _
-else:
-    from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _
 
 A8 = (74 * mm, 52 * mm)
 paper_size = A8
