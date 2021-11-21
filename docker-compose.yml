@@ -2,6 +2,7 @@ version: "3.2"
 services:
   blipp:
     image: baljan/blipp
+    build: https://github.com/Baljan/baljans-balla-blipp.git
     env_file: .env.docker
     ports:
       - "8001:80"
