@@ -904,64 +904,19 @@ def _shift_combinations_pdf(request, sem_name, form):
     response['Content-Disposition'] = 'attachment; filename=%s' % name
     return response
 
-
-def price_list(request):
-    goods = models.Good.objects.order_by('position', 'title').all()
-    return render(request, 'baljan/price_list.html', {"goods": goods})
-
-
 def user_calendar(request, private_key):
     user = User.objects.get(profile__private_key__exact=private_key)
     cal = ical.for_user(user)
     return HttpResponse(str(cal), content_type="text/calendar")
 
 
-def high_score(request, year=None, week=None, location=None):
-    if year is None or week is None:
-        year, week = year_and_week()
-    else:
-        year = int(year)
-        week = int(week)
-
+def high_score(request, location=None):
     if location is None or location == 'None' or location == '':
         location = None
     else:
         location = int(location)
 
     tpl = {}
-
-    today = date.today()
-    end_offset = relativedelta(hours=23, minutes=59, seconds=59)
-    end_of_today = today + end_offset
-    interval_starts = [
-        (relativedelta(days=1), _("Today")),
-        (relativedelta(days=7), _("Last %d Days") % 7),
-        (relativedelta(days=30), _("Last %d Days") % 30),
-        (relativedelta(days=90), _("Last %d Days") % 90),
-        (relativedelta(years=2000), _("Forever")),
-    ]
-
-    if 'format' in request.GET:
-        format = request.GET['format']
-        high_scores = []
-        for delta, title in interval_starts:
-            high_scores.append({
-                'consumers': stats.top_consumers(
-                    end_of_today - delta,
-                    end_of_today,
-                    simple=True,
-                    location=location,
-                )[:20],
-                'title': title,
-            })
-
-        if format == 'json':
-            return HttpResponse(
-                json.dumps({'high_scores': high_scores}),
-                content_type='text/plain',
-            )
-        else:
-            return HttpResponse("INVALID FORMAT", content_type='text/plain')
 
     if settings.STATS_CACHE_KEY:
         fetched_stats = cache.get(stats.get_cache_key(location)) or []

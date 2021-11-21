@@ -11,14 +11,6 @@ from django.utils.translation import ugettext_lazy
 logger = logging.getLogger(__name__)
 
 TITLE_TEMPLATES = {
-    'friend_request_denied': ugettext_lazy("""%(requestee)s denied your friend request"""),
-
-    'friend_request_accepted': ugettext_lazy("""You are now friends with %(requestee)s"""),
-
-    'friend_request_received': ugettext_lazy("""You have received a friend request from %(requestor)s"""),
-
-    'friend_request_canceled': ugettext_lazy("""The friend request from %(requestor)s was canceled"""),
-
     'added_to_shift': ugettext_lazy("""You were signed up for %(shift)s"""),
 
     'removed_from_shift': ugettext_lazy("""You were removed from %(shift)s"""),
@@ -31,26 +23,6 @@ TITLE_TEMPLATES = {
 }
 
 BODY_TEMPLATES = {
-    'friend_request_denied': ugettext_lazy("""%(requestee)s denied your friend request.
-
-Your profile page: %(profile_url)s
-"""),
-
-    'friend_request_accepted': ugettext_lazy("""You are now friends with %(requestee)s.
-
-Your profile page: %(profile_url)s
-"""),
-
-    'friend_request_received': ugettext_lazy("""You have received a friend request from %(requestor)s. Friends can sign each other up for work shifts.
-
-Answer here: %(profile_url)s
-"""),
-
-    'friend_request_canceled': ugettext_lazy("""The friend request from %(requestor)s was canceled.
-
-Your profile page: %(profile_url)s
-"""),
-
     'added_to_shift': ugettext_lazy("""You were signed up for %(shift)s.
 
 See your shifts here: %(profile_url)s
