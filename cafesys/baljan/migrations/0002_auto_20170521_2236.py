@@ -49,17 +49,20 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='profile',
             name='user',
-            field=models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL, verbose_name='user'),
+            field=models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE,
+                                       related_name='profile', to=settings.AUTH_USER_MODEL, verbose_name='user'),
         ),
         migrations.AlterField(
             model_name='refillseries',
             name='code_count',
-            field=models.PositiveIntegerField(default=16, help_text='multipel av 16 rekommenderas (4x4 på A4-papper), totalt maxvärde är 8000 SEK', verbose_name='code count'),
+            field=models.PositiveIntegerField(
+                default=16, help_text='multipel av 16 rekommenderas (4x4 på A4-papper), totalt maxvärde är 8000 SEK', verbose_name='code count'),
         ),
         migrations.AlterField(
             model_name='refillseries',
             name='code_value',
-            field=models.PositiveIntegerField(default=300, help_text='maxvärde är 500 SEK', verbose_name='code value'),
+            field=models.PositiveIntegerField(
+                default=300, help_text='maxvärde är 500 SEK', verbose_name='code value'),
         ),
         migrations.DeleteModel(
             name='FriendRequest',

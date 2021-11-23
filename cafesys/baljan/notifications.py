@@ -77,6 +77,7 @@ See your shifts here: %(profile_url)s
 """),
 }
 
+
 def send(notification_type, to_user, **kwargs):
     assert notification_type and TITLE_TEMPLATES
     assert notification_type in BODY_TEMPLATES
@@ -91,4 +92,5 @@ def send(notification_type, to_user, **kwargs):
     title = TITLE_TEMPLATES[notification_type] % kwargs
     body = BODY_TEMPLATES[notification_type] % kwargs
     send_mail(title, body, settings.CONTACT_EMAIL, [to_user.email])
-    logger.info('%s sent to %s with kwargs %r' % (notification_type, to_user, kwargs))
+    logger.info('%s sent to %s with kwargs %r' %
+                (notification_type, to_user, kwargs))

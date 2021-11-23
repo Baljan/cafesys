@@ -47,8 +47,10 @@ class Command(BaseCommand):
     help = 'Dump all blipps between two dates in CSV format.'
 
     def add_arguments(self, parser):
-        parser.add_argument('date_from', type=lambda d: datetime.strptime(d, '%Y-%m-%d'))
-        parser.add_argument('date_to', type=lambda d: datetime.strptime(d, '%Y-%m-%d'))
+        parser.add_argument(
+            'date_from', type=lambda d: datetime.strptime(d, '%Y-%m-%d'))
+        parser.add_argument(
+            'date_to', type=lambda d: datetime.strptime(d, '%Y-%m-%d'))
 
         location_choices = [
             location_choice[0] for location_choice in Order.LOCATION_CHOICES
@@ -69,7 +71,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         date_from = options['date_from']
-        date_to = options['date_to'] + timedelta(hours=23, minutes=59, seconds=59)
+        date_to = options['date_to'] + \
+            timedelta(hours=23, minutes=59, seconds=59)
         location = options['location']
 
         orders = Order.objects.filter(put_at__range=(date_from, date_to),
@@ -79,7 +82,8 @@ class Command(BaseCommand):
 
         iterations_since_sleep = 0
         for order in orders_queryset:
-            print('%s, %d, %d' % (order.put_at.strftime('%Y-%m-%d %H:%M:%S'), order.paid, order.location))
+            print('%s, %d, %d' % (order.put_at.strftime(
+                '%Y-%m-%d %H:%M:%S'), order.paid, order.location))
             iterations_since_sleep += 1
 
             if iterations_since_sleep >= 1000:

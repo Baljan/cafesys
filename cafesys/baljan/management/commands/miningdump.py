@@ -19,18 +19,22 @@ class Command(BaseCommand):
             raise CommandError('File exists: %s' % out_file)
 
         user_related = ['profile__section']
-        users = User.objects.select_related(*user_related).order_by('first_name')
+        users = User.objects.select_related(
+            *user_related).order_by('first_name')
         order_related = ['user']
-        orders = Order.objects.select_related(*order_related).order_by('put_at')
+        orders = Order.objects.select_related(
+            *order_related).order_by('put_at')
         sections = Section.objects.order_by('name')
         semester_related = ['shift_set']
-        semesters = Semester.objects.select_related(*semester_related).order_by('start')
-        shift_related = ['semester', 'shiftsignup_set__user', 'oncallduty_set__user']
+        semesters = Semester.objects.select_related(
+            *semester_related).order_by('start')
+        shift_related = ['semester',
+                         'shiftsignup_set__user', 'oncallduty_set__user']
         shifts = Shift.objects.select_related(*shift_related).order_by('when')
 
         dump = {}
         dump['first_order'] = orders[0].put_at
-        dump['latest_order'] =  Order.objects.latest('put_at').put_at
+        dump['latest_order'] = Order.objects.latest('put_at').put_at
 
         dump['users'] = []
         dump['user_orders'] = collections.defaultdict(list)
@@ -91,7 +95,8 @@ class Command(BaseCommand):
         for semester in semesters:
             dump['semesters'].append(semester.id)
             dump['semester_name'][semester.id] = semester.name
-            dump['semester_startend'][semester.id] = (semester.start, semester.end)
+            dump['semester_startend'][semester.id] = (
+                semester.start, semester.end)
         print("Finished with semesters")
 
         for section in sections:

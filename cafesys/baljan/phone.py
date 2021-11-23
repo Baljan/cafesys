@@ -32,7 +32,8 @@ DUTY_CALL_ROUTING = {
 }
 
 # IP addresses used by 46Elks
-ELKS_IPS = ["176.10.154.199", "85.24.146.132", "185.39.146.243", "2001:9b0:2:902::199"]
+ELKS_IPS = ["176.10.154.199", "85.24.146.132",
+            "185.39.146.243", "2001:9b0:2:902::199"]
 
 # Extension that is added to numbers calling Baljans 013-number
 PHONE_EXTENSION = "239927"
@@ -71,7 +72,8 @@ def _get_current_duty_phone_numbers(location=Located.KARALLEN):
 
     # Get users who are currently on call (in any café)
     oncall = (
-        OnCallDuty.objects.filter(shift__span=current_span, shift__when=date.today())
+        OnCallDuty.objects.filter(
+            shift__span=current_span, shift__when=date.today())
         .select_related("user__profile")
         .select_related("shift")
     )
@@ -81,7 +83,8 @@ def _get_current_duty_phone_numbers(location=Located.KARALLEN):
         return None
 
     # Sort oncall based on location id. Current location first.
-    oncall_sorted = sorted(oncall, key=lambda x: abs(x.shift.location - location))
+    oncall_sorted = sorted(
+        oncall, key=lambda x: abs(x.shift.location - location))
 
     return [x.user.profile.mobile_phone for x in oncall_sorted]
 
@@ -99,7 +102,8 @@ def _get_week_duty_phone_numbers():
         "profile"
     )
 
-    users_sorted = sorted(users, key=lambda x: unique_user_ids_ordered.index(x.id))
+    users_sorted = sorted(
+        users, key=lambda x: unique_user_ids_ordered.index(x.id))
 
     return [x.profile.mobile_phone for x in users_sorted]
 
@@ -176,7 +180,8 @@ def is_valid_phone_number(phone):
 
 def _compile_number_list(location=Located.KARALLEN):
     phone_numbers = []
-    current_duty_phone_numbers = _get_current_duty_phone_numbers(location=location)
+    current_duty_phone_numbers = _get_current_duty_phone_numbers(
+        location=location)
 
     # Check if we are within office hours
     if current_duty_phone_numbers is not None:
@@ -257,7 +262,8 @@ def compile_incoming_call_response(request):
 
     if response:
         # Attach 'whenhangup' to top of call chain
-        hangup_url = request.build_absolute_uri("/baljan/post-call/{}".format(location))
+        hangup_url = request.build_absolute_uri(
+            "/baljan/post-call/{}".format(location))
         if settings.SOCIAL_AUTH_REDIRECT_IS_HTTPS:
             hangup_url = hangup_url.replace("http://", "https://")
 

@@ -6,13 +6,15 @@ from django.utils.translation import ugettext as _
 
 from . import models
 
+
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = (
-                'first_name',
-                'last_name',
-                )
+            'first_name',
+            'last_name',
+        )
+
 
 class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -22,11 +24,12 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = models.Profile
         fields = (
-                'mobile_phone',
-                'card_id',
-                'motto',
-                'show_profile',
-                )
+            'mobile_phone',
+            'card_id',
+            'motto',
+            'show_profile',
+        )
+
 
 class OrderForm(forms.Form):
 
@@ -42,13 +45,13 @@ class OrderForm(forms.Form):
         ('skagenroraJochen', 'skagenröra (ljust bröd)'),
         ('tonfiskJochen', 'tonfisk (mörkt bröd)'),
         ('ovrigJochen', 'övriga'),
-        ]
+    ]
 
     MINI_JOCHEN_TYPES = [
         ('ostFralla', 'ostfralla'),
         ('ostOchSkinkFralla', 'ost- & skinkfralla'),
         ('ovrigMini', 'övriga'),
-        ]
+    ]
 
     PASTA_SALAD_TYPES = [
         ('kycklingSallad', 'kyckling'),
@@ -65,52 +68,82 @@ class OrderForm(forms.Form):
 
         # Iteratively add jochen fields
         for field_name, label in self.JOCHEN_TYPES:
-            self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
-            self.fields['%sSelected' % field_name] = forms.BooleanField(required=False, label=label, label_suffix='')
+            self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(
+                min_value=1, required=False, label="Antal %s:" % label)
+            self.fields['%sSelected' % field_name] = forms.BooleanField(
+                required=False, label=label, label_suffix='')
 
         # Iteratively add mini jochen fields
         for field_name, label in self.MINI_JOCHEN_TYPES:
-            self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
-            self.fields['%sSelected' % field_name] = forms.BooleanField(required=False, label=label, label_suffix='')
+            self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(
+                min_value=1, required=False, label="Antal %s:" % label)
+            self.fields['%sSelected' % field_name] = forms.BooleanField(
+                required=False, label=label, label_suffix='')
 
         # Iteratively add pasta salad fields
         for field_name, label in self.PASTA_SALAD_TYPES:
-            self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
-            self.fields['%sSelected' % field_name] = forms.BooleanField(required=False, label=label, label_suffix='')
+            self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(
+                min_value=1, required=False, label="Antal %s:" % label)
+            self.fields['%sSelected' % field_name] = forms.BooleanField(
+                required=False, label=label, label_suffix='')
 
-    orderer = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
+    orderer = forms.RegexField(min_length=4, max_length=100, required=True,
+                               label="Namn:", regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     ordererEmail = forms.EmailField(required=True, label="Email:")
-    phoneNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
-    association = forms.CharField(min_length=2, max_length=40, required = True, label="Sektion eller förening att fakturera:")
-    pickupName = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
+    phoneNumber = forms.RegexField(
+        max_length=11, required=True, label="Telefon:", regex=r'[0-9]{6,11}')
+    association = forms.CharField(
+        min_length=2, max_length=40, required=True, label="Sektion eller förening att fakturera:")
+    pickupName = forms.RegexField(min_length=4, max_length=100, required=True,
+                                  label="Namn:", regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     pickupEmail = forms.EmailField(required=True, label="Email:")
-    pickupNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
-    numberOfCoffee = forms.IntegerField(min_value=5, max_value=135, required = False, label="Antal koppar kaffe:")
-    numberOfTea = forms.IntegerField(min_value=5, max_value=135, required = False,label="Antal koppar te:")
-    numberOfSoda = forms.IntegerField(min_value=5, max_value=200, required = False, label="Antal läsk:")
-    numberOfKlagg = forms.IntegerField(min_value=5, max_value=300, required = False, label="Antal klägg:")
-    numberOfJochen = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal jochen:")
-    numberOfMinijochen = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal mini jochen:")
-    numberOfPastasalad = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal pastasallad:")
-    other = forms.CharField(widget=forms.Textarea(attrs={'cols':33,'rows':5}), required=False, label='Övrig information:')
+    pickupNumber = forms.RegexField(
+        max_length=11, required=True, label="Telefon:", regex=r'[0-9]{6,11}')
+    numberOfCoffee = forms.IntegerField(
+        min_value=5, max_value=135, required=False, label="Antal koppar kaffe:")
+    numberOfTea = forms.IntegerField(
+        min_value=5, max_value=135, required=False, label="Antal koppar te:")
+    numberOfSoda = forms.IntegerField(
+        min_value=5, max_value=200, required=False, label="Antal läsk:")
+    numberOfKlagg = forms.IntegerField(
+        min_value=5, max_value=300, required=False, label="Antal klägg:")
+    numberOfJochen = forms.IntegerField(widget=forms.TextInput(
+        attrs={'readonly': 'readonly'}), required=False, label="Antal jochen:")
+    numberOfMinijochen = forms.IntegerField(widget=forms.TextInput(
+        attrs={'readonly': 'readonly'}), required=False, label="Antal mini jochen:")
+    numberOfPastasalad = forms.IntegerField(widget=forms.TextInput(
+        attrs={'readonly': 'readonly'}), required=False, label="Antal pastasallad:")
+    other = forms.CharField(widget=forms.Textarea(
+        attrs={'cols': 33, 'rows': 5}), required=False, label='Övrig information:')
 
     PICKUP_CHOICES = (
-        (0,'Morgon 07:30-08:00'),
-        (1,'Lunch 12:15-13:00'),
-        (2,'Eftermiddag 16:15-17:00'),
+        (0, 'Morgon 07:30-08:00'),
+        (1, 'Lunch 12:15-13:00'),
+        (2, 'Eftermiddag 16:15-17:00'),
     )
 
-    pickup = forms.ChoiceField(choices=PICKUP_CHOICES, label='Tid för uthämtning')
-    date = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}),required=True, label="Datum:")
-    sameAsOrderer = forms.BooleanField(initial=True, required=False, label="Samma som beställare")
+    pickup = forms.ChoiceField(
+        choices=PICKUP_CHOICES, label='Tid för uthämtning')
+    date = forms.CharField(widget=forms.TextInput(
+        attrs={'readonly': 'readonly'}), required=True, label="Datum:")
+    sameAsOrderer = forms.BooleanField(
+        initial=True, required=False, label="Samma som beställare")
     orderSum = forms.CharField(required=False)
-    coffeeSelected= forms.BooleanField(required=False, label='Kaffe', label_suffix='')
-    teaSelected = forms.BooleanField(required=False, label='Te', label_suffix='')
-    sodaSelected = forms.BooleanField(required=False, label='Läsk', label_suffix='')
-    klaggSelected = forms.BooleanField(required=False, label='Klägg', label_suffix='')
-    jochenSelected = forms.BooleanField(required=False, label='Jochen', label_suffix='')
-    minijochenSelected = forms.BooleanField(required=False, label='Mini jochen', label_suffix='')
-    pastasaladSelected = forms.BooleanField(required=False, label='Pastasallad', label_suffix='')
+    coffeeSelected = forms.BooleanField(
+        required=False, label='Kaffe', label_suffix='')
+    teaSelected = forms.BooleanField(
+        required=False, label='Te', label_suffix='')
+    sodaSelected = forms.BooleanField(
+        required=False, label='Läsk', label_suffix='')
+    klaggSelected = forms.BooleanField(
+        required=False, label='Klägg', label_suffix='')
+    jochenSelected = forms.BooleanField(
+        required=False, label='Jochen', label_suffix='')
+    minijochenSelected = forms.BooleanField(
+        required=False, label='Mini jochen', label_suffix='')
+    pastasaladSelected = forms.BooleanField(
+        required=False, label='Pastasallad', label_suffix='')
+
 
 class RefillForm(forms.Form):
     code = forms.CharField(
@@ -147,8 +180,10 @@ class WorkableShiftsForm(forms.Form):
 
         if pairs is not None:
             for pair in pairs:
-                self.fields['workable-'+pair.label] = forms.BooleanField(required=False, initial=False)
-                self.fields['priority-'+pair.label] = forms.IntegerField(required=False, min_value=0, initial=0, widget=forms.HiddenInput())
+                self.fields['workable-' +
+                            pair.label] = forms.BooleanField(required=False, initial=False)
+                self.fields['priority-'+pair.label] = forms.IntegerField(
+                    required=False, min_value=0, initial=0, widget=forms.HiddenInput())
 
         if workable_shifts is not None:
             for sh in workable_shifts:

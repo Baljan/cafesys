@@ -8,13 +8,13 @@ class AvailableShift:
 
     def is_same_kind(self, o):
         return self.location == o.location \
-               and self.span == o.span
+            and self.span == o.span
 
     def __eq__(self, o):
         return self.location == o.location \
-               and self.span == o.span \
-               and self.exam_period == o.exam_period \
-               and self.date == o.date
+            and self.span == o.span \
+            and self.exam_period == o.exam_period \
+            and self.date == o.date
 
     def __str__(self):
         return '  ' + str(self.date) + ', ' + str(self.location) + ', ' + str(self.span) + ' (tenta-p = ' + str(self.exam_period) + ')'

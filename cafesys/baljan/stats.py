@@ -14,7 +14,8 @@ from .util import year_and_week, week_dates, adjacent_weeks
 
 log = getLogger(__name__)
 
-ALL_INTERVALS = ('today', 'yesterday', 'this_week', 'last_week', 'this_semester', 'total')
+ALL_INTERVALS = ('today', 'yesterday', 'this_week',
+                 'last_week', 'this_semester', 'total')
 ALL_LOCATIONS = [
     None,
     0,
@@ -32,7 +33,8 @@ def top_consumers(start=None, end=None, simple=False, location=None):
         end = datetime(2999, 1, 1, 0, 0)
 
     fmt = '%Y-%m-%d'
-    key = 'baljan.stats.start-%s.end-%s.location-%s' % (start.strftime(fmt), end.strftime(fmt), location)
+    key = 'baljan.stats.start-%s.end-%s.location-%s' % (
+        start.strftime(fmt), end.strftime(fmt), location)
     top = cache.get(key)
     if top is None:
         filter_args = {
@@ -50,7 +52,7 @@ def top_consumers(start=None, end=None, simple=False, location=None):
             num_orders=Count('order'),
         ).order_by('-num_orders')
 
-        quarter = 60 * 15 # seconds
+        quarter = 60 * 15  # seconds
         cache.set(key, top, quarter)
 
     if simple:
@@ -87,7 +89,7 @@ class Meta(object):
             ('worker', _('worker')),
             ('old worker', _('old worker')),
             ('normal user', _('normal user')),
-            ]:
+        ]:
             self.classes[name] = {}
             self.classes_i18n[name] = name_i18n
             self.class_members[name] = []
@@ -97,15 +99,18 @@ class Meta(object):
         self.interval_keys = {}
 
     def compute_users(self):
-        board_users = User.objects.filter(groups__name=settings.BOARD_GROUP).distinct()
+        board_users = User.objects.filter(
+            groups__name=settings.BOARD_GROUP).distinct()
         for user in board_users:
             self.classes['board member'][user] = True
 
-        oldie_users = User.objects.filter(groups__name=settings.OLDIE_GROUP).distinct()
+        oldie_users = User.objects.filter(
+            groups__name=settings.OLDIE_GROUP).distinct()
         for user in oldie_users:
             self.classes['old board member'][user] = True
 
-        worker_users = User.objects.filter(groups__name=settings.WORKER_GROUP).distinct()
+        worker_users = User.objects.filter(
+            groups__name=settings.WORKER_GROUP).distinct()
         for user in worker_users:
             self.classes['worker'][user] = True
 
@@ -181,7 +186,7 @@ class Meta(object):
                         'name': sem_last.name,
                         'staff classes': std_staff_classes + ['old worker'],
                         'dates': list(sem_last.date_range()),
-                        })
+                    })
             except Exception as e:
                 log.warning('could not fetch last semester: %s' % e)
 
@@ -207,7 +212,6 @@ class Meta(object):
         for interval in self.intervals:
             self.interval_keys[interval['key']] = interval
 
-
     def compute(self):
         self.compute_users()
         self.compute_intervals()
@@ -216,6 +220,7 @@ class Meta(object):
         for name in self.classes_ordered:
             if user in self.classes[name]:
                 return name
+
 
 class Stats(object):
 
@@ -235,7 +240,7 @@ class Stats(object):
         for title, users in [
             (_('Normal Users'), normal_users),
             (_('Staff'), staff_users),
-            ]:
+        ]:
             top = User.objects.filter(
                 id__in=[u.id for u in users],
                 profile__show_profile=True,
@@ -245,7 +250,8 @@ class Stats(object):
             if interval['dates']:
                 dates = list(interval['dates'])
                 filter_args['order__put_at__gte'] = dates[0]
-                filter_args['order__put_at__lte'] = dates[-1] + timedelta(days=1)
+                filter_args['order__put_at__lte'] = dates[-1] + \
+                    timedelta(days=1)
 
             if location is not None:
                 filter_args['order__location'] = location

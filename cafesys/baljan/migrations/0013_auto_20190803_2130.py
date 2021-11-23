@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='blippconfiguration',
-            options={'verbose_name': 'Blipp-konfiguration', 'verbose_name_plural': 'Blipp-konfigurationer'},
+            options={'verbose_name': 'Blipp-konfiguration',
+                     'verbose_name_plural': 'Blipp-konfigurationer'},
         ),
     ]

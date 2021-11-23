@@ -10,11 +10,14 @@ import pytz
 
 log = getLogger(__name__)
 
+
 class CreditsError(Exception):
     pass
 
+
 class BadCode(CreditsError):
     pass
+
 
 def used_by(user, old_card=False):
     if old_card:
@@ -38,7 +41,8 @@ def get_unused_code(entered_code, old_card=False):
             code_len = 6
             actual_len = len(stringed)
             if actual_len <= code_len:
-                raise BadCode("string version of code (%s) too short (%d)" % (stringed, actual_len))
+                raise BadCode("string version of code (%s) too short (%d)" % (
+                    stringed, actual_len))
             card_id = int(stringed[:-code_len], 10)
             code = int(stringed[-code_len:], 10)
             oc = OldCoffeeCard.objects.get(
@@ -71,7 +75,8 @@ def is_used(entered_code, lookup_by_user=None, old_card=False):
         return not bc_or_oc
     except BadCode:
         if lookup_by_user:
-            log.info('%s found %s used or invalid' % (lookup_by_user, entered_code), exc_info=True)
+            log.info('%s found %s used or invalid' %
+                     (lookup_by_user, entered_code), exc_info=True)
         return True
 
 
@@ -82,7 +87,8 @@ def manual_refill(entered_code, by_user):
         log.info('%s refilled %s using %s' % (by_user, bc.valcur(), bc))
         return True
     except Exception:
-        log.warning('manual_refill: %s tried bad code %s' % (by_user, entered_code), exc_info=True)
+        log.warning('manual_refill: %s tried bad code %s' %
+                    (by_user, entered_code), exc_info=True)
         raise BadCode()
 
 
@@ -101,7 +107,8 @@ def manual_import(entered_code, by_user):
         log.info('%s imported %s worth %s %s' % (by_user, oc, worth, cur))
         return True
     except Exception as e:
-        log.warning('manual_import: %s tried bad code %s' % (by_user, entered_code), exc_info=True)
+        log.warning('manual_import: %s tried bad code %s' %
+                    (by_user, entered_code), exc_info=True)
         raise BadCode()
 
 

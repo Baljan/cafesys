@@ -25,7 +25,7 @@ class Command(BaseCommand):
         except Group.DoesNotExist:
             raise CommandError('bad semester: %s' % options["semester"])
 
-        all_users = (list(group.user_set.distinct().order_by("first_name") \
+        all_users = (list(group.user_set.distinct().order_by("first_name")
                           ))
 
         start = semester.start
@@ -34,11 +34,13 @@ class Command(BaseCommand):
         user_order = []
         total_sum = 0
         for u in all_users:
-            orders = len(Order.objects.filter(user=u).filter(made__gte=start, made__lte=end))
+            orders = len(Order.objects.filter(user=u).filter(
+                made__gte=start, made__lte=end))
             total_sum += orders
             user_order.append((u, orders))
 
-        print("\nTotal (free) orders by %s between %s and %s:" % (group.name, str(start), str(end)))
+        print("\nTotal (free) orders by %s between %s and %s:" %
+              (group.name, str(start), str(end)))
         print("Username\t#")
         print("------------------------------")
 
@@ -47,4 +49,5 @@ class Command(BaseCommand):
 
         print("------------------------------")
         print("Total:\t\t%i\torders" % total_sum)
-        print("Most orders: %s (%.1f %%)\n" % (str("i dont know who"), (max(b for (a, b) in user_order)) / float(total_sum) * 101))
+        print("Most orders: %s (%.1f %%)\n" % (str("i dont know who"),
+              (max(b for (a, b) in user_order)) / float(total_sum) * 101))

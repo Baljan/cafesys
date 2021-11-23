@@ -57,21 +57,24 @@ def categories_and_actions(request):
         )),
         (settings.BOARD_GROUP, 'Styrelsen', (
             Action('Veckoplanering', 'call_duty_week'),
-            ) + tuple(upcoming_sem_actions) + (
+        ) + tuple(upcoming_sem_actions) + (
             Action('Skapa nya kaffekort', 'admin:baljan_refillseries_add'),
-            )
+        )
         ),
         (settings.WORKER_GROUP, 'Jobbare', (
             Action('Jobbplanering', 'current_semester'),
-            Action('Jobbarguide', settings.STATIC_URL + 'guide.pdf', resolve_func=None),
-            Action('Jobbkontrakt', settings.STATIC_URL + 'contract.pdf', resolve_func=None),
-            Action('Lägga in pass i kalenderprogram', settings.STATIC_URL + 'ical-calendar.pdf', resolve_func=None),
-            )),
+            Action('Jobbarguide', settings.STATIC_URL +
+                   'guide.pdf', resolve_func=None),
+            Action('Jobbkontrakt', settings.STATIC_URL +
+                   'contract.pdf', resolve_func=None),
+            Action('Lägga in pass i kalenderprogram',
+                   settings.STATIC_URL + 'ical-calendar.pdf', resolve_func=None),
+        )),
         ('regulars', 'Ditt konto', (
             Action('Profil', 'profile'),
             Action('Dina köp', 'orders', args=(1,)),
             Action('Personer och grupper', 'search_person'),
-            ) + tuple(regulars_upcoming_sem_actions)),
+        ) + tuple(regulars_upcoming_sem_actions)),
         ('anyone', 'Användare', (
 
         )),
@@ -80,12 +83,12 @@ def categories_and_actions(request):
     if user.is_authenticated:
         if user.is_superuser:
             group = 'superusers'
-        elif user.groups.filter(name__exact = settings.BOARD_GROUP).exists():
+        elif user.groups.filter(name__exact=settings.BOARD_GROUP).exists():
             group = settings.BOARD_GROUP
-        elif user.groups.filter(name__exact = settings.WORKER_GROUP).exists():
+        elif user.groups.filter(name__exact=settings.WORKER_GROUP).exists():
             group = settings.WORKER_GROUP
         else:
-           group = 'regulars'
+            group = 'regulars'
     else:
         group = 'anyone'
 

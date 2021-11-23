@@ -9,9 +9,11 @@ from mock import Mock
 def gettext(s):
     return s
 
+
 def generate_balance_code():
     pool = 'abcdefghjkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ023456789'
     return ''.join(random.choice(pool) for _ in range(8))
+
 
 def dummy_balance_code():
     m = Mock()

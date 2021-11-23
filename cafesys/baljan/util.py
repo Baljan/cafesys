@@ -75,6 +75,7 @@ def week_range(start_date, end_date):
         got[yw] = True
     return weeks
 
+
 def initials(user, from_first_name=1, from_last_name=1, num=None):
     first_name = user.first_name.replace('-', ' ')
     last_name = user.last_name.replace('-', ' ')
@@ -92,7 +93,7 @@ def initials(user, from_first_name=1, from_last_name=1, num=None):
         last_name_last = ''
     lmids = ''.join([m[0] for m in last_name.split()[:-1]])
 
-    inits = "%s%s%s%s" % ( # FIXME: deuglify
+    inits = "%s%s%s%s" % (  # FIXME: deuglify
         first_name_first[0:from_first_name],
         fmids, lmids,
         last_name_last[0:from_last_name]
@@ -110,7 +111,7 @@ def all_initials(users):
         inits = initials(user)
         if inits in used_inits:
             used_inits[inits] += 1
-            inits = initials(user, num=used_inits[inits]) # start at 2
+            inits = initials(user, num=used_inits[inits])  # start at 2
         else:
             used_inits[inits] = 1
         dupfixed.append(inits)
@@ -133,8 +134,11 @@ def overlap(x, y):
 
 ISO8601_1 = '%Y-%m-%d'
 ISO8601_2 = '%Y%m%d'
+
+
 def from_iso8601(datestr, fmt=ISO8601_1):
     return datetime.strptime(datestr, fmt).date()
+
 
 def to_iso8601(dateobj, fmt=ISO8601_1):
     return dateobj.strftime(fmt)
@@ -143,7 +147,7 @@ def to_iso8601(dateobj, fmt=ISO8601_1):
 def available_for_call_duty():
     #perm = Permission.objects.get(codename='add_oncallduty')
     #users = User.objects.filter(Q(groups__permissions=perm)|Q(user_permissions=perm)).distinct()
-    users = User.objects.filter( # FIXME: make permission-based
+    users = User.objects.filter(  # FIXME: make permission-based
         groups__name=settings.BOARD_GROUP,
     ).order_by('first_name', 'last_name').distinct()
     return users
@@ -172,7 +176,7 @@ def asciilize(s):
             ('å', 'a'),
             ('ä', 'a'),
             ('ö', 'o'),
-            ]:
+    ]:
         new = new.replace(f, t)
     return new
 

@@ -8,6 +8,7 @@ from ...models import Semester
 from logging import getLogger
 log = getLogger(__name__)
 
+
 class Command(BaseCommand):
     help = 'Set workers to everyone signed up for a shift in SEMESTER.'
 

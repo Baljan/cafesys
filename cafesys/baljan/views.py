@@ -71,6 +71,7 @@ def current_semester(request):
             pass
     return _semester(request, sem)
 
+
 def orderFromUs(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
@@ -99,7 +100,8 @@ def orderFromUs(request):
             if sameAsOrderer:
                 ordererIsSame = "Samma som best&auml;llare"
             else:
-                ordererIsSame = "Namn: "+pickupName+"<br>Email: "+pickupEmail+"<br>Telefon: "+pickupNumber+"<br>"
+                ordererIsSame = "Namn: "+pickupName+"<br>Email: " + \
+                    pickupEmail+"<br>Telefon: "+pickupNumber+"<br>"
             items = ""
             # String for calendar summary
             itemsDes = ""
@@ -109,20 +111,22 @@ def orderFromUs(request):
             pasta_salad_table = ""
 
             if numberOfCoffee:
-                items = items +"Antal kaffe: "+str(numberOfCoffee)+"<br>"
+                items = items + "Antal kaffe: "+str(numberOfCoffee)+"<br>"
                 itemsDes = itemsDes+" "+str(numberOfCoffee)+" Kaffe"
 
             if numberOfTea:
-                items = items +"Antal te: "+str(numberOfTea)+"<br>"
+                items = items + "Antal te: "+str(numberOfTea)+"<br>"
                 itemsDes = itemsDes+" "+str(numberOfTea)+" Te"
 
             if numberOfSoda:
-                items = items +"Antal l&auml;sk/vatten: "+str(numberOfSoda)+"<br>"
+                items = items + "Antal l&auml;sk/vatten: " + \
+                    str(numberOfSoda)+"<br>"
                 itemsDes = itemsDes+" "+str(numberOfSoda)+" Lask/vatten"
 
             if numberOfKlagg:
-                items = items +"Antal kl&auml;gg: "+str(numberOfKlagg) +"<br>"
-                itemsDes = itemsDes+" "+str(numberOfKlagg)+ " Klagg"
+                items = items + "Antal kl&auml;gg: " + \
+                    str(numberOfKlagg) + "<br>"
+                itemsDes = itemsDes+" "+str(numberOfKlagg) + " Klagg"
 
             if numberOfJochen:
                 items = items + "Antal Jochen: "+str(numberOfJochen)+"<br>"
@@ -131,41 +135,52 @@ def orderFromUs(request):
                 jochen_table = "<b>Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
 
                 for i, (field_name, label) in enumerate(form.JOCHEN_TYPES):
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
+                    field_val = form.cleaned_data['numberOf%s' %
+                                                  field_name.title()]
                     if not field_val:
                         field_val = ''
 
-                    jochen_table = jochen_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
+                    jochen_table = jochen_table + \
+                        "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (
+                            escape(label), field_val)
 
                 jochen_table = jochen_table + "</table>"
 
             if numberOfMinijochen:
-                items = items+"Antal Mini Jochen: "+str(numberOfMinijochen)+"<br>"
+                items = items+"Antal Mini Jochen: " + \
+                    str(numberOfMinijochen)+"<br>"
                 itemsDes = itemsDes+" "+str(numberOfMinijochen)+" Mini Jochen"
 
                 mini_jochen_table = "<b>Mini Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
 
                 for field_name, label in form.MINI_JOCHEN_TYPES:
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
+                    field_val = form.cleaned_data['numberOf%s' %
+                                                  field_name.title()]
                     if not field_val:
                         field_val = ''
 
-                    mini_jochen_table = mini_jochen_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
+                    mini_jochen_table = mini_jochen_table + \
+                        "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (
+                            escape(label), field_val)
 
                 mini_jochen_table = mini_jochen_table + "</table>"
 
             if numberOfPastasalad:
-                items = items+"Antal Pastasallad: "+str(numberOfPastasalad)+"<br>"
+                items = items+"Antal Pastasallad: " + \
+                    str(numberOfPastasalad)+"<br>"
                 itemsDes = itemsDes+" "+str(numberOfPastasalad)+" Pastasallad"
 
                 pasta_salad_table = "<b>Pastasallad: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
 
                 for field_name, label in form.PASTA_SALAD_TYPES:
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
+                    field_val = form.cleaned_data['numberOf%s' %
+                                                  field_name.title()]
                     if not field_val:
                         field_val = ''
 
-                    pasta_salad_table = pasta_salad_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
+                    pasta_salad_table = pasta_salad_table + \
+                        "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (
+                            escape(label), field_val)
 
                 pasta_salad_table = pasta_salad_table + "</table>"
 
@@ -190,46 +205,47 @@ def orderFromUs(request):
             else:
                 pickuptext = 'Eftermiddag 16:15-17:00'
 
-            html_content = '<div style="border:1px dotted black;padding:2em;">'+\
-                           '<b> Kontaktuppgifter: </b><br>'+\
-                           'Namn: '+orderer+'<br>'+\
-                           'Email: '+ordererEmail+'<br>'+\
-                           'Telefon: '+phoneNumber +' <br>'+\
-                           'F&ouml;rening/Sektion: '+association+'<br><br>'+\
-                           '<b>Uth&auml;mtare:</b><br> '+\
-                           ordererIsSame+'<br><br>'+\
-                           '<b>Best&auml;llning: </b> <br>'+items+\
+            html_content = '<div style="border:1px dotted black;padding:2em;">' +\
+                           '<b> Kontaktuppgifter: </b><br>' +\
+                           'Namn: '+orderer+'<br>' +\
+                           'Email: '+ordererEmail+'<br>' +\
+                           'Telefon: '+phoneNumber + ' <br>' +\
+                           'F&ouml;rening/Sektion: '+association+'<br><br>' +\
+                           '<b>Uth&auml;mtare:</b><br> ' +\
+                           ordererIsSame+'<br><br>' +\
+                           '<b>Best&auml;llning: </b> <br>'+items +\
                            'Summa: <u>'+orderSum+'</u><br><br>' + \
-                           '<b>&Ouml;vrigt:</b><br>' +other+\
-                           '<br> <br><b>Datum och tid: </b><br>'+\
-                           'Datum: '+date+'<br>Tid: '+pickuptext+'<br><br>'+\
-                           jochen_table+'<br>'+\
-                           mini_jochen_table+'<br>'+\
-                           pasta_salad_table+'<br>'+\
+                           '<b>&Ouml;vrigt:</b><br>' + other +\
+                           '<br> <br><b>Datum och tid: </b><br>' +\
+                           'Datum: '+date+'<br>Tid: '+pickuptext+'<br><br>' +\
+                           jochen_table+'<br>' +\
+                           mini_jochen_table+'<br>' +\
+                           pasta_salad_table+'<br>' +\
                            ' </div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
 
-            items = items.replace("&auml;","a")
-            items = items.replace("<br>","\\n")
+            items = items.replace("&auml;", "a")
+            items = items.replace("<br>", "\\n")
             calendarDescription = f"Namn: {orderer}\\nTelefon: {phoneNumber}\\nEmail: {ordererEmail}\\n \\n {items}"
 
-            msg = EmailMultiAlternatives(subject, "", from_email, [to], headers={'Reply-To': ordererEmail})
+            msg = EmailMultiAlternatives(subject, "", from_email, [
+                                         to], headers={'Reply-To': ordererEmail})
 
             msg.attach(htmlpart)
 
-            dtStart=""
+            dtStart = ""
             if pickup == '0':  # Morgon
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T073000Z"
-                dtEnd=dPickUp+"T080000Z"
+                dPickUp = date.replace("-", "")
+                dtStart = dPickUp+"T073000Z"
+                dtEnd = dPickUp+"T080000Z"
             if pickup == '1':  # Lunch
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T121500Z"
-                dtEnd=dPickUp+"T130000Z"
+                dPickUp = date.replace("-", "")
+                dtStart = dPickUp+"T121500Z"
+                dtEnd = dPickUp+"T130000Z"
             if pickup == '2':  # Eftermiddag
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T161500Z"
-                dtEnd=dPickUp+"T170000Z"
+                dPickUp = date.replace("-", "")
+                dtStart = dPickUp+"T161500Z"
+                dtEnd = dPickUp+"T170000Z"
             ics_data = f'''BEGIN:VCALENDAR
 PRODID:-//Google Inc//Google Calendar 70.9054//EN
 VERSION:2.0
@@ -253,14 +269,14 @@ SUMMARY:{association} - {itemsDes}
 TRANSP:OPAQUE
 END:VEVENT
 END:VCALENDAR'''
-            msg.attach('event.ics',ics_data,'text/calendar')
+            msg.attach('event.ics', ics_data, 'text/calendar')
             msg.send()
             messages.add_message(request, messages.SUCCESS, _("Thank you!"))
             return HttpResponseRedirect("bestallning")
     else:
         form = OrderForm()
 
-    return render(request, 'baljan/orderForm.html', {'form': form,})
+    return render(request, 'baljan/orderForm.html', {'form': form, })
 
 
 @login_required
@@ -279,11 +295,14 @@ def _semester(request, sem, loc=0):
     tpl['locations'] = models.Located.LOCATION_CHOICES
     tpl['selected_location'] = loc
     if sem:
-        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span').filter(enabled=True, location=loc).iterator()
+        tpl['shifts'] = shifts = sem.shift_set.order_by(
+            'when', 'span').filter(enabled=True, location=loc).iterator()
         # Do not use iterator() on workers and oncall because the template is
         # unable to count() them. Last tested in Django 1.2.3.
-        tpl['workers'] = workers = User.objects.filter(shiftsignup__shift__semester=sem).order_by('first_name').distinct()
-        tpl['oncall'] = oncall = User.objects.filter(oncallduty__shift__semester=sem).order_by('first_name').distinct()
+        tpl['workers'] = workers = User.objects.filter(
+            shiftsignup__shift__semester=sem).order_by('first_name').distinct()
+        tpl['oncall'] = oncall = User.objects.filter(
+            oncallduty__shift__semester=sem).order_by('first_name').distinct()
     return render(request, 'baljan/work_planning.html', tpl)
 
 
@@ -302,7 +321,8 @@ def delete_callduty(request, pk, redir):
 @login_required
 def toggle_tradable(request, pk, redir):
     su = models.ShiftSignup.objects.get(pk=int(pk))
-    assert su.user == request.user #or request.user.has_perm('baljan.change_shiftsignup')
+    # or request.user.has_perm('baljan.change_shiftsignup')
+    assert su.user == request.user
     su.tradable = not su.tradable
     su.save()
     return redirect_prepend_root(redir)
@@ -312,7 +332,8 @@ def toggle_tradable(request, pk, redir):
 def day_shifts(request, day):
     tpl = {}
     tpl['day'] = day = from_iso8601(day)
-    tpl['shifts'] = shifts = models.Shift.objects.filter(when=day, enabled=True).order_by('location', 'span')
+    tpl['shifts'] = shifts = models.Shift.objects.filter(
+        when=day, enabled=True).order_by('location', 'span')
     tpl['available_for_call_duty'] = avail_call_duty = available_for_call_duty()
 
     if request.method == 'POST':
@@ -321,7 +342,8 @@ def day_shifts(request, day):
         assert span in (0, 1, 2)
         location = int(request.POST['location'])
         assert location in (loc[0] for loc in models.Located.LOCATION_CHOICES)
-        shift = models.Shift.objects.get(when__exact=day, span=span, location=location)
+        shift = models.Shift.objects.get(
+            when__exact=day, span=span, location=location)
         assert shift.enabled
 
         uid = int(request.POST['user'])
@@ -342,7 +364,8 @@ def day_shifts(request, day):
         signup.save()
 
     if len(shifts) == 0:
-        messages.add_message(request, messages.ERROR, _("Nothing scheduled for this shift (yet)."))
+        messages.add_message(request, messages.ERROR, _(
+            "Nothing scheduled for this shift (yet)."))
     tpl['semester'] = semester = models.Semester.objects.for_date(day)
     return render(request, 'baljan/day.html', tpl)
 
@@ -356,7 +379,7 @@ def _su_or_oc_for(s):
     for shgroup, shclass, shfilt, falling in (
             (_('upcoming'), ('upcoming',), {filtfmt % 'gte': today}, False),
             (_('past'), ('past',), {filtfmt % 'lt': today}, True),
-            ):
+    ):
         if falling:
             order = '-' + col
             pref = '↓ '
@@ -369,11 +392,14 @@ def _su_or_oc_for(s):
             grouped_signups += [(pref + shgroup, shclass, in_group)]
     return grouped_signups
 
+
 def signups_for(user):
     return _su_or_oc_for(user.shiftsignup_set)
 
+
 def callduties_for(user):
     return _su_or_oc_for(user.oncallduty_set)
+
 
 @login_required
 def profile(request):
@@ -399,7 +425,7 @@ def credits(request):
                 refill_form = forms.RefillForm(request.POST)
                 if refill_form.is_valid():
                     entered_code = refill_form.cleaned_data['code']
-                    creditsmodule.is_used(entered_code, user) # for logging
+                    creditsmodule.is_used(entered_code, user)  # for logging
                     try:
                         creditsmodule.manual_refill(entered_code, user)
                         tpl['used_card'] = True
@@ -411,7 +437,8 @@ def credits(request):
     tpl['refill_form'] = refill_form
     tpl['currently_available'] = profile.balcur()
     tpl['used_cards'] = used_cards = creditsmodule.used_by(user)
-    tpl['used_old_cards'] = used_old_cards = creditsmodule.used_by(user, old_card=True)
+    tpl['used_old_cards'] = used_old_cards = creditsmodule.used_by(
+        user, old_card=True)
 
     return render(request, 'baljan/credits.html', tpl)
 
@@ -439,15 +466,16 @@ def see_user(request, who):
     watching_self = u == watched
     if u.is_authenticated:
         profile_form_cls_inst = (
-                (forms.UserForm, u),
-                (forms.ProfileForm, u.profile),
-                )
+            (forms.UserForm, u),
+            (forms.ProfileForm, u.profile),
+        )
 
     if watching_self and request.method == 'POST':
         # Handle policy consent and revocation actions
         if request.POST.get('policy') is not None:
             if not is_worker(u):
-                policy_name, policy_version, action = request.POST.get('policy').split('/')
+                policy_name, policy_version, action = request.POST.get(
+                    'policy').split('/')
                 if action == 'revoke':
                     revoke_policy(u, policy_name)
                     return redirect(request.path)
@@ -471,13 +499,15 @@ def see_user(request, who):
 
                 MutedConsent.log(u, ACTION_PROFILE_SAVED)
             else:
-                messages.add_message(request, messages.WARNING, 'Kunde inte spara din profil. Ditt LiU-kortnummer kanske finns sparat hos någon annan användare.')
+                messages.add_message(
+                    request, messages.WARNING, 'Kunde inte spara din profil. Ditt LiU-kortnummer kanske finns sparat hos någon annan användare.')
 
         return redirect(reverse('profile'))
 
     tpl['watched'] = watched
     tpl['watching_self'] = watching_self
-    tpl['watched_groups'] = pseudogroups.real_only().filter(user=watched).order_by('name')
+    tpl['watched_groups'] = pseudogroups.real_only().filter(
+        user=watched).order_by('name')
 
     if watching_self:
         tpl['sent_trade_requests'] = tr_sent = trades.requests_sent_by(u)
@@ -493,9 +523,9 @@ def see_user(request, who):
 
     # Call duties come after work shifts because they are more frequent.
     tpl['signup_types'] = (
-            (_("work shifts"), ['work'], signups_for(watched)),
-            (_("call duties"), ['call-duty'], callduties_for(watched)),
-            )
+        (_("work shifts"), ['work'], signups_for(watched)),
+        (_("call duties"), ['call-duty'], callduties_for(watched)),
+    )
     return render(request, 'baljan/user.html', tpl)
 
 
@@ -504,8 +534,10 @@ def see_group(request, group_name):
     user = request.user
     tpl = {}
     tpl['group'] = group = Group.objects.get(name__exact=group_name)
-    tpl['other_groups'] = pseudogroups.real_only().exclude(name__exact=group_name).order_by('name')
-    tpl['members'] = members = group.user_set.all().order_by('first_name', 'last_name')
+    tpl['other_groups'] = pseudogroups.real_only().exclude(
+        name__exact=group_name).order_by('name')
+    tpl['members'] = members = group.user_set.all().order_by(
+        'first_name', 'last_name')
     tpl['pseudo_groups'] = pseudo_groups = pseudogroups.for_group(group)
     return render(request, 'baljan/group.html', tpl)
 
@@ -523,7 +555,7 @@ def search_person(request):
     if request.is_ajax():
         ser = serialize('json', hits, fields=(
             'first_name', 'last_name', 'username',
-            ))
+        ))
         return HttpResponse(ser)
 
     tpl['terms'] = terms
@@ -559,10 +591,11 @@ def trade_take(request, signup_pk, redir):
         return render(request, 'baljan/trade.html', tpl)
     except trades.TakeRequest.DoubleSignup:
         messages.add_message(request, messages.ERROR,
-                _("This would result in a double booking."))
+                             _("This would result in a double booking."))
         return redirect_prepend_root(redir)
     except trades.TakeRequest.Error:
-        messages.add_message(request, messages.ERROR, _("Invalid trade request."))
+        messages.add_message(request, messages.ERROR,
+                             _("Invalid trade request."))
         return redirect_prepend_root(redir)
 
 
@@ -580,6 +613,7 @@ def _trade_answer(request, request_pk, redir, accept):
 @permission_required('baljan.self_and_friend_signup')
 def trade_accept(request, request_pk, redir):
     return _trade_answer(request, request_pk, redir, accept=True)
+
 
 @permission_required('baljan.self_and_friend_signup')
 def trade_deny(request, request_pk, redir):
@@ -602,7 +636,8 @@ def _pair_matrix(pairs):
 @permission_required('baljan.manage_job_openings')
 def job_opening_projector(request, semester_name):
     tpl = {}
-    tpl['semester'] = sem = models.Semester.objects.get(name__exact=semester_name)
+    tpl['semester'] = sem = models.Semester.objects.get(
+        name__exact=semester_name)
     user = request.user
 
     pairs = sem.shiftcombination_set.order_by('label')
@@ -628,12 +663,13 @@ def job_opening_projector(request, semester_name):
 @transaction.atomic
 def job_opening(request, semester_name):
     tpl = {}
-    tpl['semester'] = sem = models.Semester.objects.get(name__exact=semester_name)
+    tpl['semester'] = sem = models.Semester.objects.get(
+        name__exact=semester_name)
     user = request.user
 
     found_user = None
     if request.method == 'POST':
-        if request.is_ajax(): # find user
+        if request.is_ajax():  # find user
             searched_for = request.POST['liu_id']
             valid_search = valid_username(searched_for)
 
@@ -657,14 +693,14 @@ def job_opening(request, semester_name):
             info['all_ok'] = False
             if found_user:
                 info['user'] = {
-                        'username': found_user.username,
-                        'text': "%s (%s)" % (
+                    'username': found_user.username,
+                    'text': "%s (%s)" % (
                             found_user.get_full_name(),
                             found_user.username
-                        ),
-                        'phone': found_user.profile.mobile_phone,
-                        'url': found_user.get_absolute_url(),
-                        }
+                    ),
+                    'phone': found_user.profile.mobile_phone,
+                    'url': found_user.get_absolute_url(),
+                }
                 info['msg'] = _('OK')
                 info['msg_class'] = 'saved'
                 info['all_ok'] = True
@@ -673,7 +709,7 @@ def job_opening(request, semester_name):
                     info['msg'] = _('liu id unfound')
                     info['msg_class'] = 'invalid'
             return HttpResponse(json.dumps(info))
-        else: # the user hit save, assign users to shifts
+        else:  # the user hit save, assign users to shifts
             shift_ids = [int(x) for x in request.POST['shift-ids'].split('|')]
             usernames = request.POST['user-ids'].split('|')
             phones = request.POST['phones'].split('|')
@@ -749,7 +785,8 @@ def call_duty_week(request, year=None, week=None):
     initials = all_initials(avails)
     id_initials = dict(list(zip(uids, initials)))
 
-    disp_names = ["%s (%s)" % (name, inits) for name, inits in zip(names, initials)]
+    disp_names = ["%s (%s)" % (name, inits)
+                  for name, inits in zip(names, initials)]
     disp_names = [htmlents(dn) for dn in disp_names]
     disp_names = ["&nbsp;".join(dn.split()) for dn in disp_names]
 
@@ -762,14 +799,14 @@ def call_duty_week(request, year=None, week=None):
 
     if request.method == 'POST' and request.is_ajax():
         initial_users = dict(list(zip(initials, avails)))
-        all_old_users = [User.objects.filter(oncallduty__shift=shift).distinct() \
-                    for shift in plan.shifts]
+        all_old_users = [User.objects.filter(oncallduty__shift=shift).distinct()
+                         for shift in plan.shifts]
 
         all_new_users = []
         for dom_id, shift in zip(dom_ids, plan.shifts):
             if dom_id in request.POST:
                 all_new_users.append([initial_users[x] for x
-                        in request.POST[dom_id].split('|')])
+                                      in request.POST[dom_id].split('|')])
             else:
                 all_new_users.append([])
 
@@ -782,13 +819,14 @@ def call_duty_week(request, year=None, week=None):
         # add new users
         for shift, old_users, new_users in zip(plan.shifts, all_old_users, all_new_users):
             for new_user in new_users:
-                if not new_user in old_users :
+                if not new_user in old_users:
                     if models.OnCallDuty.objects\
-                        .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
+                            .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
                         messages.add_message(request, messages.ERROR,
-                            "Kunde inte lägga till %s %s på pass %s." %
-                            (new_user.first_name, new_user.last_name, shift.name_short()),
-                            extra_tags="danger")
+                                             "Kunde inte lägga till %s %s på pass %s." %
+                                             (new_user.first_name,
+                                              new_user.last_name, shift.name_short()),
+                                             extra_tags="danger")
                     else:
                         o, created = models.OnCallDuty.objects.get_or_create(
                             shift=shift,
@@ -797,8 +835,8 @@ def call_duty_week(request, year=None, week=None):
                         assert created
 
         messages.add_message(request, messages.SUCCESS,
-                _("Your changes were saved."))
-        return HttpResponse(json.dumps({'OK':True}))
+                             _("Your changes were saved."))
+        return HttpResponse(json.dumps({'OK': True}))
 
     adjacent = adjacent_weeks(week_dates(year, week)[0])
     tpl = {}
@@ -814,7 +852,8 @@ def call_duty_week(request, year=None, week=None):
     tpl['initials'] = json.dumps(id_initials)
     tpl['uids'] = json.dumps(uids)
     tpl['locations'] = models.Located.LOCATION_CHOICES
-    tpl['weekdays'] = list(zip(range(1,6), ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag']))
+    tpl['weekdays'] = list(
+        zip(range(1, 6), ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag']))
     tpl['spans'] = list(range(3))
     return render(request, 'baljan/call_duty_week.html', tpl)
 
@@ -837,7 +876,7 @@ def admin_semester(request, name=None):
     user = request.user
 
     if request.method == 'POST':
-        if request.POST['task']  == 'edit_shifts':
+        if request.POST['task'] == 'edit_shifts':
             assert sem is not None
             raw_ids = request.POST['shift-ids'].strip()
             edit_shift_ids = []
@@ -868,12 +907,14 @@ def admin_semester(request, name=None):
     tpl['semesters'] = models.Semester.objects.order_by('-start').all()
     tpl['admin_semester_base_url'] = reverse('admin_semester')
     if sem:
-        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span', 'location')
+        tpl['shifts'] = shifts = sem.shift_set.order_by(
+            'when', 'span', 'location')
         tpl['day_count'] = len(list(sem.date_range()))
 
         worker_shifts = shifts.exclude(enabled=False).exclude(span=1)
         tpl['worker_shift_count'] = worker_shifts.count()
-        tpl['exam_period_count'] = worker_shifts.filter(exam_period=True).count()
+        tpl['exam_period_count'] = worker_shifts.filter(
+            exam_period=True).count()
 
     return render(request, 'baljan/admin_semester.html', tpl)
 
@@ -882,9 +923,11 @@ def admin_semester(request, name=None):
 def shift_combinations_pdf(request, sem_name):
     return _shift_combinations_pdf(request, sem_name, form=False)
 
+
 @permission_required('baljan.change_semester')
 def shift_combination_form_pdf(request, sem_name):
     return _shift_combinations_pdf(request, sem_name, form=True)
+
 
 def _shift_combinations_pdf(request, sem_name, form):
     buf = BytesIO()
@@ -981,6 +1024,7 @@ def incoming_ivr_call(request):
 
     return JsonResponse(response)
 
+
 @csrf_exempt
 def incoming_call(request):
     response = phone.compile_incoming_call_response(request)
@@ -1032,11 +1076,11 @@ def post_call(request, location):
         call_to = phone.remove_extension(call.get('to', ''))
 
         slack_data = slack.compile_slack_phone_message(
-                call_from,
-                call_to,
-                result,
-                location=location
-            )
+            call_from,
+            call_to,
+            result,
+            location=location
+        )
 
         if settings.SLACK_PHONE_WEBHOOK_URL:
             slack_response = requests.post(
@@ -1181,6 +1225,7 @@ def do_blipp(request):
 def integrity(request):
     return render(request, 'baljan/integrity.html')
 
+
 def styrelsen(request):
     return render(request, 'baljan/penalty_register.html')
 
@@ -1214,14 +1259,16 @@ def semester_shifts(request, sem_name):
         raise Http404("%s är inte en giltig termin." % (sem_name, ))
 
     if not pairs:
-        raise Http404("Inga passkombinationer kunde hittas för termin %s." % (sem_name, ))
+        raise Http404(
+            "Inga passkombinationer kunde hittas för termin %s." % (sem_name, ))
 
     user = request.user
 
     # Update the users workable shifts
     if request.method == 'POST':
         # Update the database to reflect the changed shifts in the form
-        workable_shifts_form = forms.WorkableShiftsForm(request.POST, pairs=pairs)
+        workable_shifts_form = forms.WorkableShiftsForm(
+            request.POST, pairs=pairs)
 
         if workable_shifts_form.is_valid():
             for pair in pairs:
@@ -1231,7 +1278,8 @@ def semester_shifts(request, sem_name):
                 priority = workable_shifts_form.cleaned_data['priority-' + combination_id]
 
                 try:
-                    db_combination = models.WorkableShift.objects.get(user=user, semester=sem, combination=combination_id)
+                    db_combination = models.WorkableShift.objects.get(
+                        user=user, semester=sem, combination=combination_id)
 
                     if not is_workable:
                         db_combination.delete()
@@ -1240,13 +1288,15 @@ def semester_shifts(request, sem_name):
                         db_combination.save()
                 except models.WorkableShift.DoesNotExist:
                     if is_workable:
-                        models.WorkableShift(user=user, semester=sem, combination=combination_id, priority=priority).save()
+                        models.WorkableShift(
+                            user=user, semester=sem, combination=combination_id, priority=priority).save()
 
         if request.is_ajax():
             return HttpResponse(json.dumps({'OK': True}))
 
     # Get the workable shifts for the user
-    workable_shifts = models.WorkableShift.objects.filter(user=user, semester=sem).order_by('priority')
+    workable_shifts = models.WorkableShift.objects.filter(
+        user=user, semester=sem).order_by('priority')
 
     # Split the shifts into the users workable and non-workable shifts.
     # Is there a nicer way to do this?
@@ -1259,10 +1309,11 @@ def semester_shifts(request, sem_name):
         workable_arr.append(pairs_dict.pop(ws.combination))
 
     pairs_arr = list(pairs_dict.values())
-    pairs_arr.sort(key=lambda x: x.label) # is this nessecery?
+    pairs_arr.sort(key=lambda x: x.label)  # is this nessecery?
 
     # Create form with checkboxes and priorities (position in table) of the shifts.
-    workable_shifts_form = forms.WorkableShiftsForm(pairs=pairs, workable_shifts=workable_shifts)
+    workable_shifts_form = forms.WorkableShiftsForm(
+        pairs=pairs, workable_shifts=workable_shifts)
 
     # Calculate the maximum number of shifts for any given shift combination.
     max_shifts = max(map(lambda x: x.shifts.count(), pairs))

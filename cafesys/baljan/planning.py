@@ -10,6 +10,7 @@ from .util import year_and_week
 
 log = getLogger(__name__)
 
+
 class BoardWeek(object):
     """Board activities of a week. Used for editing people on call and such
     things.
@@ -44,7 +45,8 @@ class BoardWeek(object):
         return [sh.id for sh in self.shifts]
 
     def available(self):
-        oncall = User.objects.filter(oncallduty__shift__in=self.shifts).distinct()
+        oncall = User.objects.filter(
+            oncallduty__shift__in=self.shifts).distinct()
         avails = available_for_call_duty()
         all = oncall | avails
         return all.distinct()

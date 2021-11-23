@@ -16,11 +16,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BlippConfiguration',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
-                ('location', models.PositiveSmallIntegerField(choices=[(0, 'Kårallen'), (1, 'Studenthus Valla')], default=0, verbose_name='Plats')),
-                ('token', models.CharField(max_length=255, unique=True, verbose_name='Token')),
-                ('good', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='baljan.Good', verbose_name='good')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
+                ('location', models.PositiveSmallIntegerField(choices=[
+                 (0, 'Kårallen'), (1, 'Studenthus Valla')], default=0, verbose_name='Plats')),
+                ('token', models.CharField(max_length=255,
+                 unique=True, verbose_name='Token')),
+                ('good', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='baljan.Good', verbose_name='good')),
             ],
             options={
                 'abstract': False,
@@ -29,11 +34,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='semester',
             name='end',
-            field=models.DateField(help_text='Detta går bara att ändra när du skapar en termin', unique=True, verbose_name='last day'),
+            field=models.DateField(
+                help_text='Detta går bara att ändra när du skapar en termin', unique=True, verbose_name='last day'),
         ),
         migrations.AlterField(
             model_name='semester',
             name='start',
-            field=models.DateField(help_text='Detta går bara att ändra när du skapar en termin', unique=True, verbose_name='first day'),
+            field=models.DateField(
+                help_text='Detta går bara att ändra när du skapar en termin', unique=True, verbose_name='first day'),
         ),
     ]

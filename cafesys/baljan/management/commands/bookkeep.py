@@ -25,13 +25,16 @@ class Command(BaseCommand):
         excluded_balance_codes_sum = 0
         excluded_orders_sum = 0
         for user in users:
-            user_excluded_balance_codes = user.balancecode_set.filter(used_at__gt=year_end).distinct()
+            user_excluded_balance_codes = user.balancecode_set.filter(
+                used_at__gt=year_end).distinct()
             for balance_code in user_excluded_balance_codes:
                 excluded_balance_codes_sum += balance_code.value
-            user_excluded_orders = user.order_set.filter(put_at__gt=year_end).distinct()
+            user_excluded_orders = user.order_set.filter(
+                put_at__gt=year_end).distinct()
             for order in user_excluded_orders:
                 excluded_orders_sum += order.paid
-        current_users_total_balance = sum([user.profile.balance for user in users])
+        current_users_total_balance = sum(
+            [user.profile.balance for user in users])
         accumulated_excluded = excluded_orders_sum - excluded_balance_codes_sum
 
         print("users", len(users))
@@ -39,4 +42,5 @@ class Command(BaseCommand):
         print("excluded orders sum", excluded_orders_sum)
         print("current total balance", current_users_total_balance)
         print("accumulated excluded", accumulated_excluded)
-        print("total balance in year", current_users_total_balance + accumulated_excluded)
+        print("total balance in year",
+              current_users_total_balance + accumulated_excluded)

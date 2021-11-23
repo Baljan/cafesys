@@ -12,6 +12,7 @@ from ...models import OldCoffeeCard, Good, BalanceCode
 _today = date.today()
 _klipp_worth = settings.KLIPP_WORTH
 
+
 def dump_info(user):
     coffee = Good.objects.get(
         title=settings.DEFAULT_ORDER_NAME,
@@ -30,7 +31,7 @@ def dump_info(user):
         else:
             imp = 'unimported'
         print("  %-7d worth %3d %s (%s)" % (
-        old_card.card_id, now_worth, ccur, imp))
+            old_card.card_id, now_worth, ccur, imp))
     if not len(old_cards):
         print("  %-7s" % "none")
 
@@ -113,6 +114,7 @@ task_funs = {
     'union': union_info,
 }
 
+
 class Command(BaseCommand):
     help = 'List, show, or update balance for accounts.'
 
@@ -182,7 +184,7 @@ class Command(BaseCommand):
         user_count = len(users)
         if user_count <= 10:
             print("%s user(s): %s" % (
-            user_count, ", ".join(str(u) for u in users)))
+                user_count, ", ".join(str(u) for u in users)))
         else:
             print("%s user(s)" % user_count)
 

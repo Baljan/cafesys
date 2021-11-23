@@ -5,6 +5,7 @@ from cafesys.baljan.phone import is_valid_phone_number
 
 logger = getLogger(__name__)
 
+
 def compile_slack_phone_message(phone_from, phone_to, status, location):
     """Compiles a message that can be posted to Slack after a call has been made
     """
@@ -15,7 +16,8 @@ def compile_slack_phone_message(phone_from, phone_to, status, location):
     call_to_user = _query_user(phone_to)
     call_to = _format_caller(call_to_user, phone_to)
 
-    location_str = list(filter(lambda x: x[0] == location, Located.LOCATION_CHOICES))
+    location_str = list(
+        filter(lambda x: x[0] == location, Located.LOCATION_CHOICES))
 
     if not location_str:
         logger.error('Unknown café choice: %d' % (location,))
@@ -26,7 +28,8 @@ def compile_slack_phone_message(phone_from, phone_to, status, location):
     fallback = 'Ett samtal till %s från %s har %s.' % (
         location_str,
         call_from,
-        ('blivit taget av %s' if status == 'success' else 'missats av %s') % (call_to,),
+        ('blivit taget av %s' if status ==
+         'success' else 'missats av %s') % (call_to,),
     )
 
     fields = [
@@ -85,7 +88,7 @@ def compile_slack_sms_message(_sms_from, message):
     sms_from_user = _query_user(_sms_from)
     sms_from = _format_caller(sms_from_user, _sms_from)
     pretext = "Nytt SMS från %s" % (sms_from, )
-    fallback =  "%s \n\"%s\"" % (pretext, message)
+    fallback = "%s \n\"%s\"" % (pretext, message)
 
     return {
         'attachments': [

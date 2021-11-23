@@ -13,12 +13,14 @@ import cafesys.baljan.models
 
 register = template.Library()
 
+
 def _find_user(obj):
     if type(obj) in (
             cafesys.baljan.models.ShiftSignup,
             cafesys.baljan.models.OnCallDuty):
         return obj.user
     return obj
+
 
 @register.filter
 def user_link(user, autoescape=None):
@@ -34,10 +36,12 @@ def user_link(user, autoescape=None):
     if user:
         full_name = escape(display_name(user))
         return mark_safe('<a href="%s">%s (%s)</a>' % (
-                user.get_absolute_url(),
-                full_name,
-                user.username))
+            user.get_absolute_url(),
+            full_name,
+            user.username))
     return mark_safe(_("unnamed"))
+
+
 user_link.needs_autoescape = True
 
 
@@ -51,10 +55,13 @@ def name_link(user, autoescape=None):
     if user:
         full_name = escape(display_name(user))
         return mark_safe('<a href="%s">%s</a>' % (
-                user.get_absolute_url(),
-                full_name))
+            user.get_absolute_url(),
+            full_name))
     return mark_safe(_("unnamed"))
+
+
 name_link.needs_autoescape = True
+
 
 def _find_shift(obj):
     if type(obj) in (
@@ -62,6 +69,7 @@ def _find_shift(obj):
             cafesys.baljan.models.OnCallDuty):
         return obj.shift
     return obj
+
 
 def _shift_link(shift, short):
     shift = _find_shift(shift)
@@ -72,39 +80,51 @@ def _shift_link(shift, short):
         pre = shift.timeofday()
 
     return mark_safe('<a href="%s">%s %s %s</a>' % (
-            shift.get_absolute_url(),
-            pre,
-            shift.when.strftime('%Y-%m-%d'),
-            shift.get_location_display()))
+        shift.get_absolute_url(),
+        pre,
+        shift.when.strftime('%Y-%m-%d'),
+        shift.get_location_display()))
+
 
 @register.filter
 def shift_link_short(shift, autoescape=None):
     shift = _find_shift(shift)
     return _shift_link(shift, short=True)
+
+
 shift_link_short.needs_autoescape = True
+
 
 @register.filter
 def shift_link(shift, autoescape=None):
     shift = _find_shift(shift)
     return _shift_link(shift, short=False)
+
+
 shift_link.needs_autoescape = True
 
 
 @register.filter
 def year(some_date, autoescape=None):
     return year_and_week(some_date)[0]
+
+
 year.needs_autoescape = True
 
 
 @register.filter
 def week(some_date, autoescape=None):
     return year_and_week(some_date)[1]
+
+
 week.needs_autoescape = True
 
 
 @register.filter
 def monthname(num, autoescape=None):
     return _(date(2000, num, 1).strftime('%B'))
+
+
 monthname.needs_autoescape = True
 
 
@@ -175,6 +195,7 @@ def detailed_name(user):
             return user.get_username()
 
     return ''
+
 
 @register.inclusion_tag('baljan/_workable_fields.html')
 def workable_shift_fields(form, pair_label, classes=''):

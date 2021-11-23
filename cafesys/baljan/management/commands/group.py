@@ -15,7 +15,8 @@ log = getLogger(__name__)
 
 def google_apps_identifier(user, ctx):
     """For Google Apps bulk uploads."""
-    email = "%s@baljan.org" % (asciilize(display_name(user).lower()).replace(' ', '.'))
+    email = "%s@baljan.org" % (asciilize(display_name(user).lower()
+                                         ).replace(' ', '.'))
     return ','.join([email, user.first_name, user.last_name, random_string(8)])
 
 
@@ -24,6 +25,7 @@ def full_identifier(user, ctx):
     uname = user.username
     full = "%s, %s" % (name, uname)
     return full
+
 
 def csv_identifier(user, ctx):
     fields = [
@@ -67,6 +69,7 @@ id_header = {
     'googleapps': 'email address,first name,last name,password'
 }
 
+
 def get_groups(names):
     groups = Group.objects.filter(name__in=names)
     if groups is None or len(names) != len(groups):
@@ -75,11 +78,14 @@ def get_groups(names):
             ", ".join(missing)))
     return groups
 
+
 def get_group_names(groups):
     return [g.name for g in groups]
 
+
 def get_members(groups):
     return User.objects.filter(groups__in=groups)
+
 
 def task_list(from_groups, to_groups, opts):
     try:
@@ -94,8 +100,10 @@ def task_list(from_groups, to_groups, opts):
     ctx = dict(opts=opts)
     if opts["semester"] is not None:
         ctx["semester"] = sem = Semester.objects.by_name(opts["semester"])
-        ctx["combinations"] = ShiftCombination.objects.filter(semester=sem).distinct()
+        ctx["combinations"] = ShiftCombination.objects.filter(
+            semester=sem).distinct()
     print("\n".join(id(m, ctx) for m in users))
+
 
 @transaction.atomic
 def task_add(from_groups, to_groups, opts):
@@ -134,11 +142,13 @@ def task_delete(from_groups, to_groups, opts):
         sys.stderr.write('removed %s from %s\n' % (
             id(user, ctx), ", ".join(from_group_names)))
 
+
 tasks = {
     'list': task_list,
     'add':  task_add,
     'delete': task_delete,
 }
+
 
 class Command(BaseCommand):
     args = ''
@@ -223,7 +233,8 @@ class Command(BaseCommand):
         if group_to_add:
             if group_to_add in all_group_names:
                 raise CommandError('group already exists: %s' % group_to_add)
-            added_group, created = Group.objects.get_or_create(name=group_to_add)
+            added_group, created = Group.objects.get_or_create(
+                name=group_to_add)
             assert created
             return
 

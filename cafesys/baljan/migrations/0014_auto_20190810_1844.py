@@ -15,16 +15,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='blippconfiguration',
             name='card_reader_long_endianess',
-            field=models.CharField(choices=[('little', 'little endian'), ('big', 'big endian')], default='little', help_text='"Byte order" för långa RFID-nummer (mer än fyra bytes). Vissa läsare byter ordning för nummer längre än fyra bytes.', max_length=6, verbose_name='lång byte order'),
+            field=models.CharField(choices=[('little', 'little endian'), ('big', 'big endian')], default='little',
+                                   help_text='"Byte order" för långa RFID-nummer (mer än fyra bytes). Vissa läsare byter ordning för nummer längre än fyra bytes.', max_length=6, verbose_name='lång byte order'),
         ),
         migrations.AddField(
             model_name='blippconfiguration',
             name='card_reader_radix',
-            field=models.IntegerField(choices=[(10, 'decimal'), (16, 'hexadecimal')], default=10, help_text='Talbas för kortläsarens output', verbose_name='Talbas'),
+            field=models.IntegerField(choices=[(10, 'decimal'), (16, 'hexadecimal')],
+                                      default=10, help_text='Talbas för kortläsarens output', verbose_name='Talbas'),
         ),
         migrations.AddField(
             model_name='blippconfiguration',
             name='card_reader_short_endianess',
-            field=models.CharField(choices=[('little', 'little endian'), ('big', 'big endian')], default='little', help_text='"Byte order" för korta RFID-nummer (fyra bytes). Oftast "little endian".', max_length=6, verbose_name='kort byte order'),
+            field=models.CharField(choices=[('little', 'little endian'), ('big', 'big endian')], default='little',
+                                   help_text='"Byte order" för korta RFID-nummer (fyra bytes). Oftast "little endian".', max_length=6, verbose_name='kort byte order'),
         ),
     ]

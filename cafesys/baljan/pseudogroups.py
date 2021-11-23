@@ -11,11 +11,14 @@ from .models import Semester, BoardPost
 
 log = getLogger(__name__)
 
+
 def real_only():
     return Group.objects.all().exclude(name__startswith='_')
 
+
 class PseudoGroupError(Exception):
     pass
+
 
 def _semname(is_spring, year):
     pre = 'HT'
@@ -44,7 +47,7 @@ def manual_group(base_group, is_spring, year):
 
 def _was_in(user, day, cls, base_group_name):
     res = False
-    if hasattr(day, 'date'): # convert datetimes to date
+    if hasattr(day, 'date'):  # convert datetimes to date
         day = day.date()
     if day == date.today():
         base, created = Group.objects.get_or_create(name=base_group_name)
@@ -71,7 +74,7 @@ def was_worker(user, day):
 
 
 def is_worker(user):
-    return user.groups.filter(name__exact = settings.WORKER_GROUP).exists()
+    return user.groups.filter(name__exact=settings.WORKER_GROUP).exists()
 
 
 def was_board(user, day):
@@ -99,9 +102,9 @@ class SemesterGroup(PseudoGroup):
     def name(self):
         if self.base_group:
             return "%s %s" % (
-                    self.base_group,
-                    self._semester.name,
-                    )
+                self.base_group,
+                self._semester.name,
+            )
         return self._semester.name
 
     def link(self):
@@ -111,6 +114,7 @@ class SemesterGroup(PseudoGroup):
 USER_ORDER = ('first_name', 'last_name')
 
 # FIXME: DRY in worker/semester groups.
+
 
 class WorkerSemesterGroup(SemesterGroup):
     #base_group = settings.WORKER_GROUP.capitalize()
@@ -144,17 +148,17 @@ class BoardSemesterGroup(SemesterGroup):
         sem = self._semester
         for member in members:
             titles = BoardPost.objects.filter(
-                    semester=sem,
-                    user=member)
+                semester=sem,
+                user=member)
             member_titles.append((member, [t.post for t in titles]))
         return member_titles
 
 
 def for_group(group):
     lookups = {
-            settings.WORKER_GROUP: for_worker_group,
-            settings.BOARD_GROUP: for_board_group,
-            }
+        settings.WORKER_GROUP: for_worker_group,
+        settings.BOARD_GROUP: for_board_group,
+    }
     name = group.name
     if name in lookups:
         return lookups[name]()

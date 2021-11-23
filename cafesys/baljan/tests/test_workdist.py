@@ -25,7 +25,8 @@ class WorkdistTestCase(TestCase):
         self.assertPairDoesNotWorkTwiceOnSameDay(assigner.shift_combinations)
         self.assertMinimalAmountInExamPeriod(assigner.shift_combinations)
         self.assertEvenDistributionOfShiftTypes(assigner.shift_combinations)
-        self.assertEvenDistributionOfNumberOfShifts(assigner.shift_combinations)
+        self.assertEvenDistributionOfNumberOfShifts(
+            assigner.shift_combinations)
         self.assertEvenDistributionOverTheSemester(assigner.shift_combinations)
 
     # Inte samma dag
@@ -109,13 +110,17 @@ def generate_shifts(instance, num_dates_list, karall=True, sth=True, prefix='Dat
             # NOTE: The shifts MUST be created in this order (with alternating location)
 
             if karall:
-                instance.all_shifts.append(AvailableShift(date, 'Kårallen', 'Morning', exam_period))
+                instance.all_shifts.append(AvailableShift(
+                    date, 'Kårallen', 'Morning', exam_period))
 
             if sth:
-                instance.all_shifts.append(AvailableShift(date, 'Studenthus Valla', 'Morning', exam_period))
+                instance.all_shifts.append(AvailableShift(
+                    date, 'Studenthus Valla', 'Morning', exam_period))
 
             if karall:
-                instance.all_shifts.append(AvailableShift(date, 'Kårallen', 'Afternoon', exam_period))
+                instance.all_shifts.append(AvailableShift(
+                    date, 'Kårallen', 'Afternoon', exam_period))
 
             if sth:
-                instance.all_shifts.append(AvailableShift(date, 'Studenthus Valla', 'Afternoon', exam_period))
+                instance.all_shifts.append(AvailableShift(
+                    date, 'Studenthus Valla', 'Afternoon', exam_period))

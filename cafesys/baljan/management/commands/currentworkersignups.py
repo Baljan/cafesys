@@ -34,10 +34,11 @@ class Command(BaseCommand):
                             quoting=QUOTE_MINIMAL)
 
         workers = User.objects.filter(groups__name=settings.WORKER_GROUP)\
-                    .annotate(
-                        num_signups=Count('shiftsignup', distinct=True),
-                        num_semesters=Count('shiftsignup__shift__semester', distinct=True)
-                        )
+            .annotate(
+            num_signups=Count('shiftsignup', distinct=True),
+            num_semesters=Count(
+                'shiftsignup__shift__semester', distinct=True)
+        )
         rows = ((worker.first_name, worker.last_name, worker.username,
                  worker.num_signups, worker.num_semesters)
                 for worker in workers)

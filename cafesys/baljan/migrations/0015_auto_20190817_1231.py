@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='blippconfiguration',
             name='card_reader_long_endianess',
-            field=models.CharField(choices=[('little', 'little endian'), ('big', 'big endian')], default='little', help_text='"Byte order" för långa RFID-nummer (längre än fyra bytes). Vissa läsare byter ordning för nummer längre än fyra bytes.', max_length=6, verbose_name='lång byte order'),
+            field=models.CharField(choices=[('little', 'little endian'), ('big', 'big endian')], default='little',
+                                   help_text='"Byte order" för långa RFID-nummer (längre än fyra bytes). Vissa läsare byter ordning för nummer längre än fyra bytes.', max_length=6, verbose_name='lång byte order'),
         ),
     ]

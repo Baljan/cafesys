@@ -56,14 +56,14 @@ class Command(BaseCommand):
             help='Output type. Can be text or csv.'
         )
 
-
     def handle(self, *args, **options):
 
         semester_name = options['semester']
         try:
             semester = Semester.objects.get(name=semester_name)
         except:
-            raise CommandError('could not find semester named %s' % semester_name)
+            raise CommandError(
+                'could not find semester named %s' % semester_name)
 
         names_limit = int(options['names_limit'])
         upper_limit = int(options['upper_limit'])
@@ -74,9 +74,12 @@ class Command(BaseCommand):
         today = date.today()
 
         # FIXME: This can be done much faster.
-        workers = list(User.objects.filter(shiftsignup__shift__semester=semester).distinct())
-        workers.sort(key=lambda x: x.shiftsignup_set.all().count(), reverse=True)
-        signup_counts = sorted(set([w.shiftsignup_set.all().count() for w in workers]), reverse=True)
+        workers = list(User.objects.filter(
+            shiftsignup__shift__semester=semester).distinct())
+        workers.sort(
+            key=lambda x: x.shiftsignup_set.all().count(), reverse=True)
+        signup_counts = sorted(
+            set([w.shiftsignup_set.all().count() for w in workers]), reverse=True)
 
         if options['type'] == 'text':
             print("%d worker(s):" % len(workers))
@@ -84,13 +87,14 @@ class Command(BaseCommand):
         indent = " " * 4
         for signup_count in signup_counts:
             workers_with_count_signups = [w for w in workers
-                    if w.shiftsignup_set.all().count()==signup_count]
+                                          if w.shiftsignup_set.all().count() == signup_count]
             c = len(workers_with_count_signups)
             tot_count += c
             if signup_count > upper_limit:
                 continue
             if options['type'] == 'text':
-                print("%3d shift(s): %3d (%.2G%%)" % (signup_count, c, 100.0*c/len(workers)))
+                print("%3d shift(s): %3d (%.2G%%)" %
+                      (signup_count, c, 100.0*c/len(workers)))
             if signup_count < names_limit:
                 for w in workers_with_count_signups:
                     if future_count is not None:

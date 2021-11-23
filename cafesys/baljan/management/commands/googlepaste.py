@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from logging import getLogger
 log = getLogger(__name__)
 
+
 class Command(BaseCommand):
     help = 'Utility for updating email addresses in a Google group.'
     _page_size = 25
@@ -39,8 +40,8 @@ class Command(BaseCommand):
             raise CommandError('bad group: %s' % options["group"])
 
         all_emails = [settings.CONTACT_EMAIL]
-        all_emails.extend(list(group.user_set.distinct().order_by("email") \
-                .values_list("email", flat=True)))
+        all_emails.extend(list(group.user_set.distinct().order_by("email")
+                               .values_list("email", flat=True)))
         paginator = Paginator(all_emails, page_size)
         pages = [paginator.page(p).object_list for p in paginator.page_range]
         for i, emails in enumerate(pages):

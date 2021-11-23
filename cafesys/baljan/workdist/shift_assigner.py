@@ -11,11 +11,13 @@ class ShiftAssigner:
 
     def assign_to_best_combination(self, shift):
         # Always assign to combinations with the fewest number of shifts already assigned
-        used_combinations = self.select_from_smallest_number_of(self.shift_combinations, lambda x: len(x.shifts))
+        used_combinations = self.select_from_smallest_number_of(
+            self.shift_combinations, lambda x: len(x.shifts))
 
         if shift.exam_period:
             # Don't assign more than one exam period shift before every combination has at least one
-            used_combinations = self.select_combinations_with_smallest_number_of_exam_period_shifts(used_combinations)
+            used_combinations = self.select_combinations_with_smallest_number_of_exam_period_shifts(
+                used_combinations)
 
         self.assign_to_best_combination_in_list(shift, used_combinations)
 
@@ -34,7 +36,8 @@ class ShiftAssigner:
                 return
 
         # 3. Indicate failure (should never happen)
-        raise Exception('Impossible to assign shifts without assigning two shifts at the same day')
+        raise Exception(
+            'Impossible to assign shifts without assigning two shifts at the same day')
 
     def assign_shift_to_combination(self, shift, comb):
         # Move combination to end of list to get an even distribution of dates
@@ -61,7 +64,8 @@ class ShiftAssigner:
         return segments[min(segments.keys())]
 
     def assign(self):
-        num_combinations = math.ceil(len(self.all_shifts) / self.shifts_per_combination)
+        num_combinations = math.ceil(
+            len(self.all_shifts) / self.shifts_per_combination)
 
         for i in range(num_combinations):
             self.shift_combinations.append(TemporaryShiftCombination(i))

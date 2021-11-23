@@ -16,6 +16,7 @@ log = getLogger('baljan.orders')
 prelog = getLogger('baljan.orders.pre')
 rebatelog = getLogger('baljan.orders.rebate')
 
+
 class Processed(object):
     default_reason = _("The order was processed.")
 
@@ -61,9 +62,9 @@ class Accepted(Processed):
         profile.save()
         for good, count in preorder.goods:
             og = OrderGood(
-                    order=order,
-                    good=good,
-                    count=count)
+                order=order,
+                good=good,
+                count=count)
             og.save()
         log.info('created order %r' % order)
 
@@ -82,7 +83,7 @@ class PreOrder(object):
         for member_func, cls in [
                 (was_board, BoardPreOrder),
                 (was_worker, WorkerPreOrder),
-                ]:
+        ]:
             if member_func(user, put_date):
                 using_cls = cls
                 break
@@ -102,7 +103,7 @@ class PreOrder(object):
         for perm, cls in [
                 ('baljan.free_coffee_unlimited', BoardPreOrder),
                 ('baljan.free_coffee_with_cooldown', WorkerPreOrder),
-                ]:
+        ]:
             if user.has_perm(perm):
                 using_cls = cls
                 break
@@ -165,7 +166,8 @@ class FreePreOrder(PreOrder):
         raw_cost, cur = self._raw_costcur()
         self.rebate = raw_cost
         if not silent:
-            rebatelog.info('%d %s rebate for %r (free)' % (raw_cost, cur, self.user))
+            rebatelog.info('%d %s rebate for %r (free)' %
+                           (raw_cost, cur, self.user))
         return (0, cur)
 
 
@@ -177,7 +179,8 @@ class BoardPreOrder(PreOrder):
         raw_cost, cur = self._raw_costcur()
         self.rebate = raw_cost
         if not silent:
-            rebatelog.info('%d %s rebate for %r (board)' % (raw_cost, cur, self.user))
+            rebatelog.info('%d %s rebate for %r (board)' %
+                           (raw_cost, cur, self.user))
         return (0, cur)
 
 
@@ -186,13 +189,14 @@ class WorkerPreOrder(PreOrder):
         raw_cost, cur = self._raw_costcur()
         cooldown = settings.WORKER_COOLDOWN_SECONDS
 
-        start, end = self.put_date - relativedelta(seconds=cooldown), self.put_date
+        start, end = self.put_date - \
+            relativedelta(seconds=cooldown), self.put_date
         if not silent:
             log.debug('recent in interval %s-%s' % (start, end))
         recent_orders = Order.objects.filter(
-                user=self.user,
-                put_at__gte=start,
-                put_at__lte=end,
+            user=self.user,
+            put_at__gte=start,
+            put_at__lte=end,
         )
         if len(recent_orders):
             in_cooldown = False
@@ -213,7 +217,8 @@ class WorkerPreOrder(PreOrder):
 
         if in_cooldown:
             if not silent:
-                rebatelog.info('no rebate because of cooldown for %r (worker)' % self.user)
+                rebatelog.info(
+                    'no rebate because of cooldown for %r (worker)' % self.user)
             cost = raw_cost
             rebate = 0
         else:
@@ -251,7 +256,7 @@ class Clerk(object):
         elif balance < cost:
             return Denied(preorder, _("Insufficient funds."))
         else:
-            accepted =  Accepted(preorder)
+            accepted = Accepted(preorder)
             accepted.create_order_and_update_balance()
 
             return accepted

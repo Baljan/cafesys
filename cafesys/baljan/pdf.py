@@ -37,10 +37,12 @@ group_font = ('Helvetica-Bold', 14)
 footer_font = ('Helvetica', 8)
 
 try:
-    pdfmetrics.registerFont(TTFont('CourierNew-Bold', os.path.join(settings.PROJECT_ROOT, 'courbd.ttf')))
+    pdfmetrics.registerFont(
+        TTFont('CourierNew-Bold', os.path.join(settings.PROJECT_ROOT, 'courbd.ttf')))
     code_font = ('CourierNew-Bold', 23)
 except:
     code_font = ('Courier-Bold', 23)
+
 
 class RefillCard(object):
     def __init__(self, balance_code):
@@ -52,12 +54,13 @@ class RefillCard(object):
         code = self.balance_code
         series = code.refill_series
 
-        font_height = 9.8 # FIXME: how fetch programmatically?
+        font_height = 9.8  # FIXME: how fetch programmatically?
         topmost_off = h-(pad+font_height)
 
         c.setFont(*font)
         c.drawString(pad, topmost_off, 'Baljan (baljan.org)')
-        c.drawRightString(w-pad, topmost_off, '%d %s' % (code.value, code.currency))
+        c.drawRightString(w-pad, topmost_off, '%d %s' %
+                          (code.value, code.currency))
 
         add_to_group = series.add_to_group
         if add_to_group:
@@ -69,8 +72,8 @@ class RefillCard(object):
 
         c.setFont(*footer_font)
         c.drawString(pad, pad,
-                _('expires no sooner than %s') \
-                    % series.least_valid_until.strftime(DATE_FORMAT))
+                     _('expires no sooner than %s')
+                     % series.least_valid_until.strftime(DATE_FORMAT))
         c.drawRightString(w-pad, pad, '%d.%d' % (series.pk, code.pk))
         c.showPage()
         c.save()
@@ -106,7 +109,7 @@ def join_shifts(shifts):
 
 
 def shift_combinations(file_object, semester,
-        empty_cells=False, cell_title=None):
+                       empty_cells=False, cell_title=None):
     if cell_title is None:
         cell_title = _("work shifts")
 
@@ -123,7 +126,7 @@ def shift_combinations(file_object, semester,
 
     elems.append(
         Paragraph(_("Job Opening %s") % semester.name,
-            styles['Heading1']))
+                  styles['Heading1']))
 
     data = []
     data.append(
@@ -137,16 +140,17 @@ def shift_combinations(file_object, semester,
             taken_indexes.append((0, i))
 
         sh1 = [] if empty_cells else [str(sh.name_short()) for sh
-                in p1.shifts.order_by('when')]
+                                      in p1.shifts.order_by('when')]
 
         if p2 is None:
             data.append([p1.label, join_shifts(sh1), '', ''])
         else:
             sh2 = [] if empty_cells else [str(sh.name_short()) for sh
-                    in p2.shifts.order_by('when')]
+                                          in p2.shifts.order_by('when')]
             if p2.is_taken():
                 taken_indexes.append((2, i))
-            data.append([p1.label, join_shifts(sh1), p2.label, join_shifts(sh2)])
+            data.append([p1.label, join_shifts(sh1),
+                        p2.label, join_shifts(sh2)])
 
     bg_color = colors.black
     table_style = [
@@ -163,24 +167,25 @@ def shift_combinations(file_object, semester,
     ]
     for col, row in taken_indexes:
         incl_header = row + 1
-        table_style += [('TEXTCOLOR', (col, incl_header), (col, incl_header), bg_color)]
-        table_style += [('TEXTCOLOR', (col+1, incl_header), (col+1, incl_header), colors.grey)]
+        table_style += [('TEXTCOLOR', (col, incl_header),
+                         (col, incl_header), bg_color)]
+        table_style += [('TEXTCOLOR', (col+1, incl_header),
+                         (col+1, incl_header), colors.grey)]
 
     table = Table(data, style=table_style)
     elems.append(table)
 
     elems.append(
         Paragraph(_("document generated %s") % now.strftime(DATETIME_FORMAT),
-            styles['Center']))
+                  styles['Center']))
 
     doc.build(elems)
     return doc
 
 
-
 def shift_combination_form(file_object, semester):
-    pad = 30 # ugly way of getting enough room for text
+    pad = 30  # ugly way of getting enough room for text
     return shift_combinations(file_object, semester,
-            empty_cells=True,
-            cell_title=" "*pad + _("liu ids") + " "*pad,
-    )
+                              empty_cells=True,
+                              cell_title=" "*pad + _("liu ids") + " "*pad,
+                              )

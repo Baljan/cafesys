@@ -21,14 +21,18 @@ def to_utc(dt):
     utc_dt = local_dt.astimezone(pytz.utc)
     return utc_dt
 
+
 UTC_FMT = "%Y%m%dT%H%M%SZ"
+
 
 def encode_dt(dt):
     """Will also convert to UTC internally."""
     return to_utc(dt).strftime(UTC_FMT)
 
+
 def item_location(item):
     return Located.LOCATION_CHOICES[item.shift.location][1]
+
 
 def get_cafe_name_for(located):
     """Get the name of a located model object"""
@@ -36,6 +40,7 @@ def get_cafe_name_for(located):
         return 'Baljan'
     else:
         return 'Byttan'
+
 
 def for_user(user):
     """Returns an `icalendar.Calendar` object."""

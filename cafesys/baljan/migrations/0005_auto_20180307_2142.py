@@ -14,7 +14,8 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='incomingcallfallback',
-            options={'ordering': ('-priority', 'user__username'), 'verbose_name': 'Styrelsemedlem att ringa', 'verbose_name_plural': 'Uppringningslista jourtelefon'},
+            options={'ordering': ('-priority', 'user__username'), 'verbose_name': 'Styrelsemedlem att ringa',
+                     'verbose_name_plural': 'Uppringningslista jourtelefon'},
         ),
         migrations.AddField(
             model_name='profile',

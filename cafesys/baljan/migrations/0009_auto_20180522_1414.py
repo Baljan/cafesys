@@ -18,20 +18,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MutedConsent',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('action', models.CharField(max_length=64)),
                 ('time_of_consent', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE,
+                 to=settings.AUTH_USER_MODEL, verbose_name='user')),
             ],
         ),
         migrations.AlterField(
             model_name='profile',
             name='card_id',
-            field=models.BigIntegerField(blank=True, help_text='card ids can be manually set', null=True, unique=True, verbose_name='LiU-kortnummer'),
+            field=models.BigIntegerField(blank=True, help_text='card ids can be manually set',
+                                         null=True, unique=True, verbose_name='LiU-kortnummer'),
         ),
         migrations.AlterField(
             model_name='profile',
             name='show_profile',
-            field=models.BooleanField(default=True, verbose_name='Visa mitt namn i topplistan'),
+            field=models.BooleanField(
+                default=True, verbose_name='Visa mitt namn i topplistan'),
         ),
     ]

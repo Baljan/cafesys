@@ -68,7 +68,8 @@ def _is_friday(d):
 
 def _get_week_dates(monday):
     assert _is_monday(monday)
-    dates = [d.date() for d in rrule.rrule(rrule.DAILY, count=5, dtstart=monday)]
+    dates = [d.date() for d in rrule.rrule(
+        rrule.DAILY, count=5, dtstart=monday)]
     assert len(dates) == 5
     assert _is_friday(dates[-1])
     return dates

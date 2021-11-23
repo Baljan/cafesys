@@ -22,12 +22,18 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BalanceCode',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
-                ('code', models.CharField(default=cafesys.baljan.models.generate_balance_code, help_text="To create a bulk of codes, <a href='../../refillseries/add'>create a new refill series</a> instead.", max_length=8, unique=True, verbose_name='code')),
-                ('value', models.PositiveIntegerField(default=300, verbose_name='value')),
-                ('currency', models.CharField(default='SEK', help_text='currency', max_length=5, verbose_name='currency')),
-                ('used_at', models.DateField(blank=True, null=True, verbose_name='used at')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
+                ('code', models.CharField(default=cafesys.baljan.models.generate_balance_code,
+                 help_text="To create a bulk of codes, <a href='../../refillseries/add'>create a new refill series</a> instead.", max_length=8, unique=True, verbose_name='code')),
+                ('value', models.PositiveIntegerField(
+                    default=300, verbose_name='value')),
+                ('currency', models.CharField(default='SEK',
+                 help_text='currency', max_length=5, verbose_name='currency')),
+                ('used_at', models.DateField(
+                    blank=True, null=True, verbose_name='used at')),
             ],
             options={
                 'verbose_name': 'balance code',
@@ -38,8 +44,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BoardPost',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
                 ('post', models.CharField(max_length=50, verbose_name='post')),
             ],
             options={
@@ -51,12 +59,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FriendRequest',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
                 ('accepted', models.BooleanField(verbose_name='accepted')),
-                ('answered_at', models.DateTimeField(blank=True, default=None, null=True, verbose_name='answered at')),
-                ('sent_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='friendrequests_sent', to=settings.AUTH_USER_MODEL, verbose_name='sent by')),
-                ('sent_to', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='friendrequests_received', to=settings.AUTH_USER_MODEL, verbose_name='sent to')),
+                ('answered_at', models.DateTimeField(blank=True,
+                 default=None, null=True, verbose_name='answered at')),
+                ('sent_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 related_name='friendrequests_sent', to=settings.AUTH_USER_MODEL, verbose_name='sent by')),
+                ('sent_to', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 related_name='friendrequests_received', to=settings.AUTH_USER_MODEL, verbose_name='sent to')),
             ],
             options={
                 'verbose_name': 'friend request',
@@ -66,12 +79,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Good',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
                 ('title', models.CharField(max_length=50, verbose_name='title')),
-                ('description', models.CharField(blank=True, max_length=100, verbose_name='short description')),
-                ('img', models.ImageField(blank=True, upload_to='img/goods', verbose_name='image')),
-                ('position', models.PositiveIntegerField(default=0, help_text='when listing goods, this value tells at what position this good should be put', verbose_name='position')),
+                ('description', models.CharField(blank=True,
+                 max_length=100, verbose_name='short description')),
+                ('img', models.ImageField(blank=True,
+                 upload_to='img/goods', verbose_name='image')),
+                ('position', models.PositiveIntegerField(
+                    default=0, help_text='when listing goods, this value tells at what position this good should be put', verbose_name='position')),
             ],
             options={
                 'verbose_name': 'good',
@@ -81,12 +99,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='GoodCost',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
                 ('cost', models.PositiveIntegerField(verbose_name='cost')),
-                ('currency', models.CharField(default='SEK', max_length=5, verbose_name='currency')),
-                ('from_date', models.DateField(default=datetime.date.today, verbose_name='from date')),
-                ('good', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='baljan.Good', verbose_name='good')),
+                ('currency', models.CharField(default='SEK',
+                 max_length=5, verbose_name='currency')),
+                ('from_date', models.DateField(
+                    default=datetime.date.today, verbose_name='from date')),
+                ('good', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='baljan.Good', verbose_name='good')),
             ],
             options={
                 'verbose_name': 'good cost',
@@ -97,10 +120,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='JoinGroupRequest',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
-                ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='auth.Group', verbose_name='group')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
+                ('group', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='auth.Group', verbose_name='group')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 to=settings.AUTH_USER_MODEL, verbose_name='user')),
             ],
             options={
                 'verbose_name': 'join group request',
@@ -111,15 +138,22 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='OldCoffeeCard',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('card_id', models.IntegerField(verbose_name='card id')),
-                ('created', models.DateTimeField(blank=True, null=True, verbose_name='created')),
-                ('time_stamp', models.DateTimeField(blank=True, null=True, verbose_name='time stamp')),
-                ('expires', models.DateTimeField(blank=True, null=True, verbose_name='expires')),
+                ('created', models.DateTimeField(
+                    blank=True, null=True, verbose_name='created')),
+                ('time_stamp', models.DateTimeField(
+                    blank=True, null=True, verbose_name='time stamp')),
+                ('expires', models.DateTimeField(
+                    blank=True, null=True, verbose_name='expires')),
                 ('code', models.IntegerField(verbose_name='code')),
-                ('count', models.IntegerField(blank=True, null=True, verbose_name='count')),
-                ('left', models.IntegerField(blank=True, null=True, verbose_name='left')),
-                ('imported', models.BooleanField(default=False, verbose_name='imported')),
+                ('count', models.IntegerField(
+                    blank=True, null=True, verbose_name='count')),
+                ('left', models.IntegerField(
+                    blank=True, null=True, verbose_name='left')),
+                ('imported', models.BooleanField(
+                    default=False, verbose_name='imported')),
             ],
             options={
                 'verbose_name': 'old coffee card',
@@ -130,12 +164,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='OldCoffeeCardSet',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('set_id', models.IntegerField(verbose_name='set id')),
-                ('file', models.CharField(blank=True, max_length=100, null=True, verbose_name='file')),
+                ('file', models.CharField(blank=True,
+                 max_length=100, null=True, verbose_name='file')),
                 ('created', models.DateTimeField(verbose_name='created')),
-                ('time_stamp', models.DateTimeField(blank=True, null=True, verbose_name='time stamp')),
-                ('made_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='made by')),
+                ('time_stamp', models.DateTimeField(
+                    blank=True, null=True, verbose_name='time stamp')),
+                ('made_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 to=settings.AUTH_USER_MODEL, verbose_name='made by')),
             ],
             options={
                 'verbose_name': 'old coffee card set',
@@ -146,8 +184,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='OnCallDuty',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
             ],
             options={
                 'verbose_name': 'on call duty',
@@ -158,13 +198,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Order',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
-                ('put_at', models.DateTimeField(db_index=True, default=datetime.datetime.now, verbose_name='put at')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
+                ('put_at', models.DateTimeField(db_index=True,
+                 default=datetime.datetime.now, verbose_name='put at')),
                 ('paid', models.PositiveIntegerField(verbose_name='paid')),
-                ('currency', models.CharField(default='SEK', max_length=5, verbose_name='currency')),
-                ('accepted', models.BooleanField(default=True, verbose_name='accepted')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                ('currency', models.CharField(default='SEK',
+                 max_length=5, verbose_name='currency')),
+                ('accepted', models.BooleanField(
+                    default=True, verbose_name='accepted')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 to=settings.AUTH_USER_MODEL, verbose_name='user')),
             ],
             options={
                 'verbose_name': 'order',
@@ -175,11 +221,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='OrderGood',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
-                ('count', models.PositiveIntegerField(default=1, verbose_name='count')),
-                ('good', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='baljan.Good', verbose_name='good')),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='baljan.Order', verbose_name='order')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
+                ('count', models.PositiveIntegerField(
+                    default=1, verbose_name='count')),
+                ('good', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='baljan.Good', verbose_name='good')),
+                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 to='baljan.Order', verbose_name='order')),
             ],
             options={
                 'verbose_name': 'order good',
@@ -189,19 +240,31 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Profile',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
-                ('mobile_phone', models.CharField(blank=True, max_length=10, null=True, verbose_name='mobile phone number')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
+                ('mobile_phone', models.CharField(blank=True, max_length=10,
+                 null=True, verbose_name='mobile phone number')),
                 ('balance', models.IntegerField(default=0)),
-                ('balance_currency', models.CharField(default='SEK', help_text='currency', max_length=5, verbose_name='balance currency')),
-                ('picture', models.ImageField(blank=True, null=True, upload_to='profile_pics', verbose_name='picture')),
-                ('show_email', models.BooleanField(default=False, verbose_name='show email address')),
-                ('show_profile', models.BooleanField(default=True, verbose_name='show profile')),
-                ('motto', models.CharField(blank=True, help_text='displayed in high scores', max_length=40, null=True, verbose_name='motto')),
-                ('private_key', models.CharField(default=cafesys.baljan.models.generate_private_key, max_length=25, unique=True, verbose_name='private key')),
-                ('card_id', models.BigIntegerField(blank=True, help_text='card ids can be manually set', null=True, unique=True, verbose_name='card id')),
-                ('fb_access_token', models.CharField(blank=True, default='', max_length=150, null=True, verbose_name='Facebook access token')),
-                ('friend_profiles', models.ManyToManyField(blank=True, null=True, related_name='_profile_friend_profiles_+', to='baljan.Profile', verbose_name='friend profiles')),
+                ('balance_currency', models.CharField(default='SEK',
+                 help_text='currency', max_length=5, verbose_name='balance currency')),
+                ('picture', models.ImageField(blank=True, null=True,
+                 upload_to='profile_pics', verbose_name='picture')),
+                ('show_email', models.BooleanField(
+                    default=False, verbose_name='show email address')),
+                ('show_profile', models.BooleanField(
+                    default=True, verbose_name='show profile')),
+                ('motto', models.CharField(blank=True, help_text='displayed in high scores',
+                 max_length=40, null=True, verbose_name='motto')),
+                ('private_key', models.CharField(default=cafesys.baljan.models.generate_private_key,
+                 max_length=25, unique=True, verbose_name='private key')),
+                ('card_id', models.BigIntegerField(blank=True, help_text='card ids can be manually set',
+                 null=True, unique=True, verbose_name='card id')),
+                ('fb_access_token', models.CharField(blank=True, default='',
+                 max_length=150, null=True, verbose_name='Facebook access token')),
+                ('friend_profiles', models.ManyToManyField(blank=True, null=True,
+                 related_name='_profile_friend_profiles_+', to='baljan.Profile', verbose_name='friend profiles')),
             ],
             options={
                 'verbose_name': 'profile',
@@ -212,15 +275,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RefillSeries',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
-                ('issued', models.DateField(default=cafesys.baljan.models.default_issued, verbose_name='issued')),
-                ('least_valid_until', models.DateField(default=cafesys.baljan.models.default_least_valid_until, verbose_name='least valid until')),
-                ('code_count', models.PositiveIntegerField(default=16, help_text='multiple of 16 recommended (4x4 on A4 paper), total value can be at most 8000 SEK', verbose_name='code count')),
-                ('code_value', models.PositiveIntegerField(default=300, help_text='maximum value is 500 SEK', verbose_name='code value')),
-                ('code_currency', models.CharField(default='SEK', max_length=5, verbose_name='code currency')),
-                ('add_to_group', models.ForeignKey(blank=True, default=None, help_text='if set, users will be added to this group', null=True, on_delete=django.db.models.deletion.CASCADE, to='auth.Group', verbose_name='add to group')),
-                ('made_by', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='made by')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
+                ('issued', models.DateField(
+                    default=cafesys.baljan.models.default_issued, verbose_name='issued')),
+                ('least_valid_until', models.DateField(
+                    default=cafesys.baljan.models.default_least_valid_until, verbose_name='least valid until')),
+                ('code_count', models.PositiveIntegerField(
+                    default=16, help_text='multiple of 16 recommended (4x4 on A4 paper), total value can be at most 8000 SEK', verbose_name='code count')),
+                ('code_value', models.PositiveIntegerField(
+                    default=300, help_text='maximum value is 500 SEK', verbose_name='code value')),
+                ('code_currency', models.CharField(default='SEK',
+                 max_length=5, verbose_name='code currency')),
+                ('add_to_group', models.ForeignKey(blank=True, default=None, help_text='if set, users will be added to this group',
+                 null=True, on_delete=django.db.models.deletion.CASCADE, to='auth.Group', verbose_name='add to group')),
+                ('made_by', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE,
+                 to=settings.AUTH_USER_MODEL, verbose_name='made by')),
             ],
             options={
                 'verbose_name': 'refill series',
@@ -231,10 +303,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RefillSeriesPDF',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
-                ('generated_by', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='generated by')),
-                ('refill_series', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, to='baljan.RefillSeries', verbose_name='series')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
+                ('generated_by', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE,
+                 to=settings.AUTH_USER_MODEL, verbose_name='generated by')),
+                ('refill_series', models.ForeignKey(editable=False,
+                 on_delete=django.db.models.deletion.CASCADE, to='baljan.RefillSeries', verbose_name='series')),
             ],
             options={
                 'verbose_name': 'generated refill series PDF',
@@ -245,7 +321,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Section',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=30, verbose_name='name')),
             ],
             options={
@@ -257,12 +334,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Semester',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
                 ('start', models.DateField(unique=True, verbose_name='first day')),
                 ('end', models.DateField(unique=True, verbose_name='last day')),
-                ('name', models.CharField(help_text='must be something like HT2010', max_length=6, unique=True, verbose_name='name')),
-                ('signup_possible', models.BooleanField(default=False, help_text='if workers can sign up to work on this semester', verbose_name='sign-up possible')),
+                ('name', models.CharField(help_text='must be something like HT2010',
+                 max_length=6, unique=True, verbose_name='name')),
+                ('signup_possible', models.BooleanField(default=False,
+                 help_text='if workers can sign up to work on this semester', verbose_name='sign-up possible')),
             ],
             options={
                 'verbose_name': 'semester',
@@ -273,13 +354,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Shift',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
                 ('when', models.DateField(verbose_name='what day the shift is on')),
-                ('span', models.PositiveSmallIntegerField(choices=[(0, 'morning'), (1, 'lunch'), (2, 'afternoon')], default=0, verbose_name='time span')),
-                ('exam_period', models.BooleanField(default=False, help_text='the work scheduler takes this field into account', verbose_name='exam period')),
-                ('enabled', models.BooleanField(default=True, help_text='shifts can be disabled on special days', verbose_name='enabled')),
-                ('semester', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='baljan.Semester', verbose_name='semester')),
+                ('span', models.PositiveSmallIntegerField(choices=[
+                 (0, 'morning'), (1, 'lunch'), (2, 'afternoon')], default=0, verbose_name='time span')),
+                ('exam_period', models.BooleanField(default=False,
+                 help_text='the work scheduler takes this field into account', verbose_name='exam period')),
+                ('enabled', models.BooleanField(
+                    default=True, help_text='shifts can be disabled on special days', verbose_name='enabled')),
+                ('semester', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 to='baljan.Semester', verbose_name='semester')),
             ],
             options={
                 'verbose_name': 'shift',
@@ -290,11 +377,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ShiftCombination',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
                 ('label', models.CharField(max_length=10, verbose_name='label')),
-                ('semester', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='baljan.Semester', verbose_name='semester')),
-                ('shifts', models.ManyToManyField(to='baljan.Shift', verbose_name='shifts')),
+                ('semester', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 to='baljan.Semester', verbose_name='semester')),
+                ('shifts', models.ManyToManyField(
+                    to='baljan.Shift', verbose_name='shifts')),
             ],
             options={
                 'verbose_name': 'shift combination',
@@ -305,11 +396,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ShiftSignup',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
-                ('tradable', models.BooleanField(default=False, help_text='remember that trade requests of sign-ups are removed whenever the sign-up is altered', verbose_name='the user wants to switch this shift for some other')),
-                ('shift', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='baljan.Shift', verbose_name='shift')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='worker')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
+                ('tradable', models.BooleanField(default=False, help_text='remember that trade requests of sign-ups are removed whenever the sign-up is altered',
+                 verbose_name='the user wants to switch this shift for some other')),
+                ('shift', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 to='baljan.Shift', verbose_name='shift')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 to=settings.AUTH_USER_MODEL, verbose_name='worker')),
             ],
             options={
                 'verbose_name': 'shift sign-up',
@@ -321,12 +417,18 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TradeRequest',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True, help_text='when the object was created', verbose_name='made at')),
-                ('accepted', models.BooleanField(default=False, verbose_name='accepted')),
-                ('answered', models.BooleanField(default=False, help_text='if this is true when the shift is deleted, and "accepted" is true as well, the trade will be performed even if it was in the past', verbose_name='answered')),
-                ('offered_signup', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='traderequests_offered', to='baljan.ShiftSignup', verbose_name='offered sign-up')),
-                ('wanted_signup', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='traderequests_wanted', to='baljan.ShiftSignup', verbose_name='wanted sign-up')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('made', models.DateTimeField(auto_now_add=True,
+                 help_text='when the object was created', verbose_name='made at')),
+                ('accepted', models.BooleanField(
+                    default=False, verbose_name='accepted')),
+                ('answered', models.BooleanField(default=False,
+                 help_text='if this is true when the shift is deleted, and "accepted" is true as well, the trade will be performed even if it was in the past', verbose_name='answered')),
+                ('offered_signup', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 related_name='traderequests_offered', to='baljan.ShiftSignup', verbose_name='offered sign-up')),
+                ('wanted_signup', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 related_name='traderequests_wanted', to='baljan.ShiftSignup', verbose_name='wanted sign-up')),
             ],
             options={
                 'verbose_name': 'trade request',
@@ -336,52 +438,62 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='profile',
             name='section',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='baljan.Section', verbose_name='section'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='baljan.Section', verbose_name='section'),
         ),
         migrations.AddField(
             model_name='profile',
             name='user',
-            field=models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user'),
+            field=models.OneToOneField(
+                editable=False, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user'),
         ),
         migrations.AddField(
             model_name='oncallduty',
             name='shift',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='baljan.Shift', verbose_name='shift'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to='baljan.Shift', verbose_name='shift'),
         ),
         migrations.AddField(
             model_name='oncallduty',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    to=settings.AUTH_USER_MODEL, verbose_name='user'),
         ),
         migrations.AddField(
             model_name='oldcoffeecard',
             name='set',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='baljan.OldCoffeeCardSet', verbose_name='set'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    to='baljan.OldCoffeeCardSet', verbose_name='set'),
         ),
         migrations.AddField(
             model_name='oldcoffeecard',
             name='user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    to=settings.AUTH_USER_MODEL, verbose_name='user'),
         ),
         migrations.AddField(
             model_name='boardpost',
             name='semester',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='baljan.Semester', verbose_name='semester'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    to='baljan.Semester', verbose_name='semester'),
         ),
         migrations.AddField(
             model_name='boardpost',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='user'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    to=settings.AUTH_USER_MODEL, verbose_name='user'),
         ),
         migrations.AddField(
             model_name='balancecode',
             name='refill_series',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='baljan.RefillSeries', verbose_name='refill series'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    to='baljan.RefillSeries', verbose_name='refill series'),
         ),
         migrations.AddField(
             model_name='balancecode',
             name='used_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='used by'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    to=settings.AUTH_USER_MODEL, verbose_name='used by'),
         ),
         migrations.AlterUniqueTogether(
             name='friendrequest',
