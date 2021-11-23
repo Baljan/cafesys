@@ -8,21 +8,21 @@ from .models import ShiftSignup, Shift, TradeRequest
 
 def _requests(user, wanted):
     if wanted:
-        su = 'wanted_signup'
-        su_other = 'offered_signup'
+        su = "wanted_signup"
+        su_other = "offered_signup"
     else:
-        su = 'offered_signup'
-        su_other = 'wanted_signup'
+        su = "offered_signup"
+        su_other = "wanted_signup"
 
     order = (
-        'wanted_signup__shift__when',
-        'offered_signup__shift__when',
+        "wanted_signup__shift__when",
+        "offered_signup__shift__when",
     )
     today = date.today()
     filt = {
         "%s__user" % su: user,
-        'wanted_signup__shift__when__gte': today,
-        'offered_signup__shift__when__gte': today,
+        "wanted_signup__shift__when__gte": today,
+        "offered_signup__shift__when__gte": today,
     }
     return TradeRequest.objects.filter(**filt).distinct().order_by(*order)
 
@@ -57,13 +57,13 @@ class TakeRequest(object):
         pass
 
     def __init__(self, signup, requester, offered_signups=None):
-        if not requester.has_perm('baljan.self_and_friend_signup'):
+        if not requester.has_perm("baljan.self_and_friend_signup"):
             raise self.BadUser()
         if requester == signup.user:
             raise self.DoubleSignup()
         if ShiftSignup.objects.filter(  # prevent double bookings
-                shift=signup.shift,
-                user=requester):
+            shift=signup.shift, user=requester
+        ):
             raise self.DoubleSignup()
         if not signup.tradable:
             raise self.BadSignup()
@@ -91,7 +91,7 @@ class TakeRequest(object):
             raise self.BadOffer()
 
     def valid_offer(self, offered_signup):
-        """Returns True if offered_signup is valid. """
+        """Returns True if offered_signup is valid."""
         return offered_signup in self.can_offer()
 
     def can_offer(self):
@@ -99,27 +99,26 @@ class TakeRequest(object):
         double_shifts = Shift.objects.filter(
             shiftsignup__user=self.signup.user)
         user_signups = ShiftSignup.objects.filter(
-            user=self.requester,
-            shift__when__gte=date.today()).exclude(
-            Q(shift=self.shift) | Q(shift__in=double_shifts))
+            user=self.requester, shift__when__gte=date.today()
+        ).exclude(Q(shift=self.shift) | Q(shift__in=double_shifts))
         return user_signups
 
     def save(self):
         # Remove and add trade requests.
         current_trs = self._current_trade_requests()
         for tr in current_trs:
-            if not tr.offered_signup in self.offered_signups:
+            if tr.offered_signup not in self.offered_signups:
                 tr.delete()
 
         for ofs in self.offered_signups:
             tr, created = TradeRequest.objects.get_or_create(
-                wanted_signup=self.signup,
-                offered_signup=ofs)
+                wanted_signup=self.signup, offered_signup=ofs
+            )
 
     def _current_trade_requests(self):
         return TradeRequest.objects.filter(
-            wanted_signup=self.signup,
-            offered_signup__user=self.requester)
+            wanted_signup=self.signup, offered_signup__user=self.requester
+        )
 
     def load(self):
         trs = self._current_trade_requests()

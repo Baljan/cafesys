@@ -32,8 +32,11 @@ DUTY_CALL_ROUTING = {
 }
 
 # IP addresses used by 46Elks
-ELKS_IPS = ["176.10.154.199", "85.24.146.132",
-            "185.39.146.243", "2001:9b0:2:902::199"]
+ELKS_IPS = [
+    "176.10.154.199",
+    "85.24.146.132",
+    "185.39.146.243",
+    "2001:9b0:2:902::199"]
 
 # Extension that is added to numbers calling Baljans 013-number
 PHONE_EXTENSION = "239927"
@@ -72,8 +75,7 @@ def _get_current_duty_phone_numbers(location=Located.KARALLEN):
 
     # Get users who are currently on call (in any café)
     oncall = (
-        OnCallDuty.objects.filter(
-            shift__span=current_span, shift__when=date.today())
+        OnCallDuty.objects.filter(shift__span=current_span, shift__when=date.today())
         .select_related("user__profile")
         .select_related("shift")
     )
@@ -84,7 +86,8 @@ def _get_current_duty_phone_numbers(location=Located.KARALLEN):
 
     # Sort oncall based on location id. Current location first.
     oncall_sorted = sorted(
-        oncall, key=lambda x: abs(x.shift.location - location))
+        oncall, key=lambda x: abs(
+            x.shift.location - location))
 
     return [x.user.profile.mobile_phone for x in oncall_sorted]
 
@@ -103,7 +106,9 @@ def _get_week_duty_phone_numbers():
     )
 
     users_sorted = sorted(
-        users, key=lambda x: unique_user_ids_ordered.index(x.id))
+        users,
+        key=lambda x: unique_user_ids_ordered.index(
+            x.id))
 
     return [x.profile.mobile_phone for x in users_sorted]
 

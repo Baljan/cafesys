@@ -8,6 +8,7 @@ from django.db import transaction
 from ...models import ShiftSignup
 
 from logging import getLogger
+
 log = getLogger(__name__)
 
 MORNING, AFTERNOON = 0, 2
@@ -15,15 +16,15 @@ SPANS = [MORNING, AFTERNOON]
 
 
 class Command(BaseCommand):
-    args = 'MONDAY_DATE_1 MONDAY_DATE_2'
-    help = 'Swap workers on two weeks. Dates must be formatted as YYYY-MM-DD.'
+    args = "MONDAY_DATE_1 MONDAY_DATE_2"
+    help = "Swap workers on two weeks. Dates must be formatted as YYYY-MM-DD."
 
     def handle(self, *args, **options):
         if len(args) != 2:
             raise CommandError("invalid args (should be: %s)" % self.args)
         try:
             dates = [_str_to_date(d) for d in args]
-        except:
+        except BaseException:
             raise CommandError("invalid args (not formatted like YYYY-MM-DD)")
         if not all(_is_monday(d) for d in dates):
             raise CommandError("both dates must be Mondays")
@@ -35,11 +36,13 @@ class Command(BaseCommand):
         def assert_two_signups(signups_1, signups_2):
             if signups_1.count() != 2 or signups_2.count() != 2:
                 raise CommandError("week(s) not full")
+
         _map_signups(assert_two_signups, dates_1, dates_2)
 
         def print_signups(signups_1, signups_2):
             print("week 1", signups_1)
             print("week 2", signups_2)
+
         _map_signups(print_signups, dates_1, dates_2)
 
         def swap_signups(signups_1, signups_2):
@@ -50,6 +53,7 @@ class Command(BaseCommand):
                 new2.save()
                 s1.delete()
                 s2.delete()
+
         with transaction.atomic():
             _map_signups(swap_signups, dates_1, dates_2)
 
@@ -68,8 +72,11 @@ def _is_friday(d):
 
 def _get_week_dates(monday):
     assert _is_monday(monday)
-    dates = [d.date() for d in rrule.rrule(
-        rrule.DAILY, count=5, dtstart=monday)]
+    dates = [
+        d.date() for d in rrule.rrule(
+            rrule.DAILY,
+            count=5,
+            dtstart=monday)]
     assert len(dates) == 5
     assert _is_friday(dates[-1])
     return dates
@@ -85,4 +92,8 @@ def _map_signups(func, dates_1, dates_2):
 
 def _get_signups_on_date_and_span(d, span):
     assert span in SPANS
-    return ShiftSignup.objects.filter(shift__when=d, shift__span=span).order_by("shift__when", "shift__span")
+    return ShiftSignup.objects.filter(
+        shift__when=d,
+        shift__span=span).order_by(
+        "shift__when",
+        "shift__span")

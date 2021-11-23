@@ -9,26 +9,42 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('baljan', '0010_workableshift'),
+        ("baljan", "0010_workableshift"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='location',
-            field=models.PositiveSmallIntegerField(choices=[(
-                0, 'Kårallen'), (1, 'Studenthus Valla')], default=0, verbose_name='Plats'),
+            model_name="order",
+            name="location",
+            field=models.PositiveSmallIntegerField(
+                choices=[(0, "Kårallen"), (1, "Studenthus Valla")],
+                default=0,
+                verbose_name="Plats",
+            ),
         ),
         migrations.AddField(
-            model_name='shift',
-            name='location',
-            field=models.PositiveSmallIntegerField(choices=[(
-                0, 'Kårallen'), (1, 'Studenthus Valla')], default=0, verbose_name='Plats'),
+            model_name="shift",
+            name="location",
+            field=models.PositiveSmallIntegerField(
+                choices=[(0, "Kårallen"), (1, "Studenthus Valla")],
+                default=0,
+                verbose_name="Plats",
+            ),
         ),
         migrations.AlterField(
-            model_name='semester',
-            name='name',
-            field=models.CharField(help_text='must be something like HT2010', max_length=6, unique=True, validators=[django.core.validators.RegexValidator(
-                '^(V|H)T\\d{4}$', 'Invalid semester name. Must be something like HT2010 or VT2010.')], verbose_name='name'),
+            model_name="semester",
+            name="name",
+            field=models.CharField(
+                help_text="must be something like HT2010",
+                max_length=6,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^(V|H)T\\d{4}$",
+                        "Invalid semester name. Must be something like HT2010 or VT2010.",
+                    )
+                ],
+                verbose_name="name",
+            ),
         ),
     ]

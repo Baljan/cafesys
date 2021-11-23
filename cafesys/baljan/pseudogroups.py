@@ -13,7 +13,7 @@ log = getLogger(__name__)
 
 
 def real_only():
-    return Group.objects.all().exclude(name__startswith='_')
+    return Group.objects.all().exclude(name__startswith="_")
 
 
 class PseudoGroupError(Exception):
@@ -21,9 +21,9 @@ class PseudoGroupError(Exception):
 
 
 def _semname(is_spring, year):
-    pre = 'HT'
+    pre = "HT"
     if is_spring:
-        pre = 'VT'
+        pre = "VT"
     return "%s%d" % (pre, year)
 
 
@@ -33,26 +33,26 @@ def manual_group_from_semester(base_group, sem):
 
 def manual_group(base_group, is_spring, year):
     if base_group.name == settings.BOARD_GROUP:
-        name = settings.BOARD_GROUP + ' ' + _semname(is_spring, year)
+        name = settings.BOARD_GROUP + " " + _semname(is_spring, year)
     elif base_group.name == settings.WORKER_GROUP:
-        name = settings.WORKER_GROUP + ' ' + _semname(is_spring, year)
+        name = settings.WORKER_GROUP + " " + _semname(is_spring, year)
     else:
         raise PseudoGroupError("bad base group")
     pseudo_group_name = settings.PSEUDO_GROUP_FORMAT % name
     group, created = Group.objects.get_or_create(name=pseudo_group_name)
     if created:
-        log.info('created %r' % group)
+        log.info("created %r" % group)
     return group
 
 
 def _was_in(user, day, cls, base_group_name):
     res = False
-    if hasattr(day, 'date'):  # convert datetimes to date
+    if hasattr(day, "date"):  # convert datetimes to date
         day = day.date()
     if day == date.today():
         base, created = Group.objects.get_or_create(name=base_group_name)
         if created:
-            log.info('created group %r' % base)
+            log.info("created group %r" % base)
         res = base in user.groups.all()
     else:
         sem = Semester.objects.for_date(day)
@@ -65,7 +65,7 @@ def _was_in(user, day, cls, base_group_name):
         msg = "%r was in group %s on date %s"
     else:
         msg = "%r was not in group %s on date %s"
-    log.info(msg % (user, base_group_name, day.strftime('%Y-%m-%d')))
+    log.info(msg % (user, base_group_name, day.strftime("%Y-%m-%d")))
     return res
 
 
@@ -111,26 +111,31 @@ class SemesterGroup(PseudoGroup):
         return self._semester.get_absolute_url()
 
 
-USER_ORDER = ('first_name', 'last_name')
+USER_ORDER = ("first_name", "last_name")
 
 # FIXME: DRY in worker/semester groups.
 
 
 class WorkerSemesterGroup(SemesterGroup):
-    #base_group = settings.WORKER_GROUP.capitalize()
+    # base_group = settings.WORKER_GROUP.capitalize()
 
     def members(self):
         """Uses on shift sign-ups."""
         sem = self._semester
         base_group = Group.objects.get(name__exact=settings.WORKER_GROUP)
         manual_group = manual_group_from_semester(base_group, sem)
-        return User.objects.filter(
-            Q(shiftsignup__shift__semester=sem) | Q(groups=manual_group)
-        ).all().distinct().order_by(*USER_ORDER)
+        return (
+            User.objects.filter(
+                Q(shiftsignup__shift__semester=sem) | Q(groups=manual_group)
+            )
+            .all()
+            .distinct()
+            .order_by(*USER_ORDER)
+        )
 
 
 class BoardSemesterGroup(SemesterGroup):
-    #base_group = settings.BOARD_GROUP.capitalize()
+    # base_group = settings.BOARD_GROUP.capitalize()
     titles = True
 
     def members(self):
@@ -138,18 +143,21 @@ class BoardSemesterGroup(SemesterGroup):
         sem = self._semester
         base_group = Group.objects.get(name__exact=settings.BOARD_GROUP)
         manual_group = manual_group_from_semester(base_group, sem)
-        return User.objects.filter(
-            Q(oncallduty__shift__semester=sem) | Q(groups=manual_group)
-        ).all().distinct().order_by(*USER_ORDER)
+        return (
+            User.objects.filter(
+                Q(oncallduty__shift__semester=sem) | Q(groups=manual_group)
+            )
+            .all()
+            .distinct()
+            .order_by(*USER_ORDER)
+        )
 
     def members_with_titles(self):
         members = self.members()
         member_titles = []
         sem = self._semester
         for member in members:
-            titles = BoardPost.objects.filter(
-                semester=sem,
-                user=member)
+            titles = BoardPost.objects.filter(semester=sem, user=member)
             member_titles.append((member, [t.post for t in titles]))
         return member_titles
 
@@ -166,7 +174,7 @@ def for_group(group):
 
 
 def _all_semesters():
-    return Semester.objects.all().order_by('-start')
+    return Semester.objects.all().order_by("-start")
 
 
 def for_worker_group():

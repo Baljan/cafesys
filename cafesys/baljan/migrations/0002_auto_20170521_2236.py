@@ -10,67 +10,76 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('baljan', '0001_initial'),
+        ("baljan", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='friendrequest',
+            name="friendrequest",
             unique_together=set([]),
         ),
         migrations.RemoveField(
-            model_name='friendrequest',
-            name='sent_by',
+            model_name="friendrequest",
+            name="sent_by",
         ),
         migrations.RemoveField(
-            model_name='friendrequest',
-            name='sent_to',
+            model_name="friendrequest",
+            name="sent_to",
         ),
         migrations.RemoveField(
-            model_name='joingrouprequest',
-            name='group',
+            model_name="joingrouprequest",
+            name="group",
         ),
         migrations.RemoveField(
-            model_name='joingrouprequest',
-            name='user',
+            model_name="joingrouprequest",
+            name="user",
         ),
         migrations.RemoveField(
-            model_name='profile',
-            name='fb_access_token',
+            model_name="profile",
+            name="fb_access_token",
         ),
         migrations.RemoveField(
-            model_name='profile',
-            name='friend_profiles',
+            model_name="profile",
+            name="friend_profiles",
         ),
         migrations.RemoveField(
-            model_name='profile',
-            name='section',
+            model_name="profile",
+            name="section",
         ),
         migrations.AlterField(
-            model_name='profile',
-            name='user',
-            field=models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE,
-                                       related_name='profile', to=settings.AUTH_USER_MODEL, verbose_name='user'),
+            model_name="profile",
+            name="user",
+            field=models.OneToOneField(
+                editable=False,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="profile",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="user",
+            ),
         ),
         migrations.AlterField(
-            model_name='refillseries',
-            name='code_count',
+            model_name="refillseries",
+            name="code_count",
             field=models.PositiveIntegerField(
-                default=16, help_text='multipel av 16 rekommenderas (4x4 på A4-papper), totalt maxvärde är 8000 SEK', verbose_name='code count'),
+                default=16,
+                help_text="multipel av 16 rekommenderas (4x4 på A4-papper), totalt maxvärde är 8000 SEK",
+                verbose_name="code count",
+            ),
         ),
         migrations.AlterField(
-            model_name='refillseries',
-            name='code_value',
+            model_name="refillseries",
+            name="code_value",
             field=models.PositiveIntegerField(
-                default=300, help_text='maxvärde är 500 SEK', verbose_name='code value'),
+                default=300, help_text="maxvärde är 500 SEK", verbose_name="code value"
+            ),
         ),
         migrations.DeleteModel(
-            name='FriendRequest',
+            name="FriendRequest",
         ),
         migrations.DeleteModel(
-            name='JoinGroupRequest',
+            name="JoinGroupRequest",
         ),
         migrations.DeleteModel(
-            name='Section',
+            name="Section",
         ),
     ]

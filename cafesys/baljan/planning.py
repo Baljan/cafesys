@@ -25,7 +25,7 @@ class BoardWeek(object):
 
     @staticmethod
     def dom_id(shift):
-        daynum = int(shift.when.strftime('%u'))
+        daynum = int(shift.when.strftime("%u"))
         return "shift-%d-%d-%d" % (daynum, shift.span, shift.location)
 
     def dom_ids(self):
@@ -35,9 +35,9 @@ class BoardWeek(object):
         oncall = []
         filter_args = {}
         if location is not None:
-            filter_args['oncallduty__shift__location'] = location
+            filter_args["oncallduty__shift__location"] = location
         for shift in self.shifts:
-            filter_args['oncallduty__shift'] = shift
+            filter_args["oncallduty__shift"] = shift
             oncall.append(User.objects.filter(**filter_args).distinct())
         return oncall
 

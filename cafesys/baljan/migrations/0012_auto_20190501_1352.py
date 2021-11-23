@@ -9,38 +9,71 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('baljan', '0011_auto_20190225_1727'),
+        ("baljan", "0011_auto_20190225_1727"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='BlippConfiguration',
+            name="BlippConfiguration",
             fields=[
-                ('id', models.AutoField(auto_created=True,
-                 primary_key=True, serialize=False, verbose_name='ID')),
-                ('made', models.DateTimeField(auto_now_add=True,
-                 help_text='when the object was created', verbose_name='made at')),
-                ('location', models.PositiveSmallIntegerField(choices=[
-                 (0, 'Kårallen'), (1, 'Studenthus Valla')], default=0, verbose_name='Plats')),
-                ('token', models.CharField(max_length=255,
-                 unique=True, verbose_name='Token')),
-                ('good', models.ForeignKey(
-                    on_delete=django.db.models.deletion.CASCADE, to='baljan.Good', verbose_name='good')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "made",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                        help_text="when the object was created",
+                        verbose_name="made at",
+                    ),
+                ),
+                (
+                    "location",
+                    models.PositiveSmallIntegerField(
+                        choices=[(0, "Kårallen"), (1, "Studenthus Valla")],
+                        default=0,
+                        verbose_name="Plats",
+                    ),
+                ),
+                (
+                    "token",
+                    models.CharField(max_length=255, unique=True, verbose_name="Token"),
+                ),
+                (
+                    "good",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="baljan.Good",
+                        verbose_name="good",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.AlterField(
-            model_name='semester',
-            name='end',
+            model_name="semester",
+            name="end",
             field=models.DateField(
-                help_text='Detta går bara att ändra när du skapar en termin', unique=True, verbose_name='last day'),
+                help_text="Detta går bara att ändra när du skapar en termin",
+                unique=True,
+                verbose_name="last day",
+            ),
         ),
         migrations.AlterField(
-            model_name='semester',
-            name='start',
+            model_name="semester",
+            name="start",
             field=models.DateField(
-                help_text='Detta går bara att ändra när du skapar en termin', unique=True, verbose_name='first day'),
+                help_text="Detta går bara att ändra när du skapar en termin",
+                unique=True,
+                verbose_name="first day",
+            ),
         ),
     ]

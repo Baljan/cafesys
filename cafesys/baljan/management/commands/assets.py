@@ -9,5 +9,5 @@ class Command(BaseCommand):
     help = "Collect static files and create assets."
 
     def handle(self, **options):
-        call_command('collectstatic', link=True, interactive=False)
-        call(['jammit', '--output', 'jammit/assets', '--force'])
+        call_command("collectstatic", link=True, interactive=False)
+        call(["jammit", "--output", "jammit/assets", "--force"])

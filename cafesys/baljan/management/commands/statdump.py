@@ -26,8 +26,8 @@ def queryset_iterator(queryset, chunksize=1000):
         return
 
     pk = 0
-    last_pk = queryset.order_by('-pk')[0].pk
-    queryset = queryset.order_by('pk')
+    last_pk = queryset.order_by("-pk")[0].pk
+    queryset = queryset.order_by("pk")
     while pk < last_pk:
         for row in queryset.filter(pk__gt=pk)[:chunksize]:
             pk = row.pk
@@ -44,46 +44,62 @@ class Command(BaseCommand):
     performance implications.
     """
 
-    help = 'Dump all blipps between two dates in CSV format.'
+    help = "Dump all blipps between two dates in CSV format."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'date_from', type=lambda d: datetime.strptime(d, '%Y-%m-%d'))
+            "date_from", type=lambda d: datetime.strptime(d, "%Y-%m-%d")
+        )
         parser.add_argument(
-            'date_to', type=lambda d: datetime.strptime(d, '%Y-%m-%d'))
+            "date_to",
+            type=lambda d: datetime.strptime(
+                d,
+                "%Y-%m-%d"))
 
         location_choices = [
             location_choice[0] for location_choice in Order.LOCATION_CHOICES
         ]
         parser.add_argument(
-            '--location',
-            metavar='location',
+            "--location",
+            metavar="location",
             type=int,
-            nargs='*',
+            nargs="*",
             required=False,
             choices=location_choices,
             default=location_choices,
-            help=('Location(s) from which to include orders.\n'
-                  'Available choices are:\n' +
-                  ',\n'.join(f'{location_choice[0]} - {location_choice[1]}'
-                             for location_choice in Order.LOCATION_CHOICES) +
-                  f' (default: {location_choices}).'))
+            help=(
+                "Location(s) from which to include orders.\n"
+                "Available choices are:\n"
+                + ",\n".join(
+                    f"{location_choice[0]} - {location_choice[1]}"
+                    for location_choice in Order.LOCATION_CHOICES
+                )
+                + f" (default: {location_choices})."
+            ),
+        )
 
     def handle(self, *args, **options):
-        date_from = options['date_from']
-        date_to = options['date_to'] + \
+        date_from = options["date_from"]
+        date_to = options["date_to"] + \
             timedelta(hours=23, minutes=59, seconds=59)
-        location = options['location']
+        location = options["location"]
 
-        orders = Order.objects.filter(put_at__range=(date_from, date_to),
-                                      location__in=location)
+        orders = Order.objects.filter(
+            put_at__range=(date_from, date_to), location__in=location
+        )
         orders_queryset = queryset_iterator(orders)
-        print('time, paid, location')
+        print("time, paid, location")
 
         iterations_since_sleep = 0
         for order in orders_queryset:
-            print('%s, %d, %d' % (order.put_at.strftime(
-                '%Y-%m-%d %H:%M:%S'), order.paid, order.location))
+            print(
+                "%s, %d, %d"
+                % (
+                    order.put_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    order.paid,
+                    order.location,
+                )
+            )
             iterations_since_sleep += 1
 
             if iterations_since_sleep >= 1000:

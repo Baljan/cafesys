@@ -8,18 +8,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('baljan', '0004_incomingcallfallback'),
+        ("baljan", "0004_incomingcallfallback"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='incomingcallfallback',
-            options={'ordering': ('-priority', 'user__username'), 'verbose_name': 'Styrelsemedlem att ringa',
-                     'verbose_name_plural': 'Uppringningslista jourtelefon'},
+            name="incomingcallfallback",
+            options={
+                "ordering": ("-priority", "user__username"),
+                "verbose_name": "Styrelsemedlem att ringa",
+                "verbose_name_plural": "Uppringningslista jourtelefon",
+            },
         ),
         migrations.AddField(
-            model_name='profile',
-            name='card_cache',
+            model_name="profile",
+            name="card_cache",
             field=models.BigIntegerField(blank=True, db_index=True, null=True),
         ),
     ]

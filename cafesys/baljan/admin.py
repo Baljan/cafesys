@@ -98,8 +98,13 @@ class OnCallDutyInline(admin.TabularInline):
 
 class ShiftAdmin(admin.ModelAdmin):
     search_fields = ("when",)
-    list_display = ("when", "span", "location",
-                    "exam_period", "enabled", "semester")
+    list_display = (
+        "when",
+        "span",
+        "location",
+        "exam_period",
+        "enabled",
+        "semester")
     list_filter = ("enabled", "location", "semester", "exam_period")
     inlines = (ShiftSignupInline, OnCallDutyInline)
 
@@ -194,8 +199,13 @@ class OrderAdmin(admin.ModelAdmin):
         "ordergood__good__title",
         "ordergood__good__description",
     )
-    list_display = ("user", "put_at", "location",
-                    "paid", "currency", "accepted")
+    list_display = (
+        "user",
+        "put_at",
+        "location",
+        "paid",
+        "currency",
+        "accepted")
     list_filter = ("location", "put_at", "accepted")
     inlines = (OrderGoodInline,)
 
@@ -324,8 +334,9 @@ class RefillSeriesAdmin(admin.ModelAdmin):
             obj.save()
             for i in range(obj.code_count):
                 code = models.BalanceCode(
-                    refill_series=obj, currency=obj.code_currency, value=obj.code_value
-                )
+                    refill_series=obj,
+                    currency=obj.code_currency,
+                    value=obj.code_value)
                 code.save()
 
     def make_pdf(self, request, queryset):
@@ -336,9 +347,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
                 break
         if has_used:
             self.message_user(
-                request, _(
-                    "There are used codes in one or more of the series.")
-            )
+                request, _("There are used codes in one or more of the series."))
             return
 
         buf = BytesIO()
@@ -388,8 +397,14 @@ admin.site.register(models.BoardPost, BoardPostAdmin)
 
 
 class OldCoffeeCardInline(admin.TabularInline):
-    fields = ("card_id", "user", "time_stamp",
-              "count", "left", "expires", "imported")
+    fields = (
+        "card_id",
+        "user",
+        "time_stamp",
+        "count",
+        "left",
+        "expires",
+        "imported")
     model = models.OldCoffeeCard
     extra = 0
     can_delete = False

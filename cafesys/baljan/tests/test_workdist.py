@@ -9,14 +9,14 @@ from cafesys.baljan.workdist.shift_assigner import ShiftAssigner
 class WorkdistTestCase(TestCase):
     def test_fall_semester(self):
         assigner = ShiftAssigner()
-        generate_shifts(assigner, [10, 34, 10, 34], prefix='Date ')
+        generate_shifts(assigner, [10, 34, 10, 34], prefix="Date ")
         assigner.assign()
 
         self.assertShiftAssignmentIsReasonable(assigner)
 
     def test_spring_semester(self):
         assigner = ShiftAssigner()
-        generate_shifts(assigner, [10, 34, 10, 34, 10], prefix='Date ')
+        generate_shifts(assigner, [10, 34, 10, 34, 10], prefix="Date ")
         assigner.assign()
 
         self.assertShiftAssignmentIsReasonable(assigner)
@@ -71,7 +71,8 @@ class WorkdistTestCase(TestCase):
             if num_same > max_num_same:
                 max_num_same = num_same
 
-        # It should be possible to distribute the shifts so that there are no more than 2 shifts of the same kind
+        # It should be possible to distribute the shifts so that there are no
+        # more than 2 shifts of the same kind
         self.assertLessEqual(max_num_same, 2)
 
     # Jämnt antal (alla får 4 t.ex.)
@@ -97,7 +98,12 @@ class WorkdistTestCase(TestCase):
         pass
 
 
-def generate_shifts(instance, num_dates_list, karall=True, sth=True, prefix='Date 0'):
+def generate_shifts(
+        instance,
+        num_dates_list,
+        karall=True,
+        sth=True,
+        prefix="Date 0"):
     exam_period = False
     date_index = 0
     for num_dates in num_dates_list:
@@ -107,20 +113,31 @@ def generate_shifts(instance, num_dates_list, karall=True, sth=True, prefix='Dat
             date = prefix + str(date_index)
             date_index += 1
 
-            # NOTE: The shifts MUST be created in this order (with alternating location)
+            # NOTE: The shifts MUST be created in this order (with alternating
+            # location)
 
             if karall:
-                instance.all_shifts.append(AvailableShift(
-                    date, 'Kårallen', 'Morning', exam_period))
+                instance.all_shifts.append(
+                    AvailableShift(date, "Kårallen", "Morning", exam_period)
+                )
 
             if sth:
-                instance.all_shifts.append(AvailableShift(
-                    date, 'Studenthus Valla', 'Morning', exam_period))
+                instance.all_shifts.append(
+                    AvailableShift(
+                        date,
+                        "Studenthus Valla",
+                        "Morning",
+                        exam_period))
 
             if karall:
-                instance.all_shifts.append(AvailableShift(
-                    date, 'Kårallen', 'Afternoon', exam_period))
+                instance.all_shifts.append(
+                    AvailableShift(date, "Kårallen", "Afternoon", exam_period)
+                )
 
             if sth:
-                instance.all_shifts.append(AvailableShift(
-                    date, 'Studenthus Valla', 'Afternoon', exam_period))
+                instance.all_shifts.append(
+                    AvailableShift(
+                        date,
+                        "Studenthus Valla",
+                        "Afternoon",
+                        exam_period))

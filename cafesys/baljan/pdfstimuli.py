@@ -11,8 +11,8 @@ def gettext(s):
 
 
 def generate_balance_code():
-    pool = 'abcdefghjkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ023456789'
-    return ''.join(random.choice(pool) for _ in range(8))
+    pool = "abcdefghjkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ023456789"
+    return "".join(random.choice(pool) for _ in range(8))
 
 
 def dummy_balance_code():

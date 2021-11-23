@@ -21,7 +21,7 @@ class WorkdistAdapter:
         adapter.store_in_db()
 
     def load_from_db(self):
-        shifts = self.semester.shift_set.order_by('when', 'span', 'location')
+        shifts = self.semester.shift_set.order_by("when", "span", "location")
         for shift in shifts:
             self.add_shift_from_db(shift)
 
@@ -32,7 +32,8 @@ class WorkdistAdapter:
     def store_in_db(self):
         combinations = self.assigner.shift_combinations
 
-        # Pad to the same length as the number representing the shift combination count
+        # Pad to the same length as the number representing the shift
+        # combination count
         self.comb_label_len = math.ceil(math.log(len(combinations) + 1, 10))
 
         self.semester.shiftcombination_set.all().delete()
@@ -54,7 +55,7 @@ class WorkdistAdapter:
             location=model_shift.location,
             span=model_shift.span,
             exam_period=model_shift.exam_period,
-            database_id=model_shift.id
+            database_id=model_shift.id,
         )
 
         self.assigner.all_shifts.append(shift)
@@ -66,7 +67,7 @@ class WorkdistAdapter:
 
         comb = ShiftCombination(
             semester=self.semester,
-            label=str(tmp_comb.index + 1).zfill(self.comb_label_len)
+            label=str(tmp_comb.index + 1).zfill(self.comb_label_len),
         )
 
         # We must save the ShiftCombination before we can assign the shifts

@@ -27,11 +27,13 @@ def semester_post_save(sender, instance, created, **kwargs):
                     semester=sem,
                     span=early_or_lunch_or_late,
                     when=day,
-                    location=location
+                    location=location,
                 )
                 if created:
                     created_count += 1
-    logger.info('%s: %d shifts added, signups=%s' %
-                (sem.name, created_count, sem.signup_possible))
+    logger.info(
+        "%s: %d shifts added, signups=%s"
+        % (sem.name, created_count, sem.signup_possible)
+    )
 
     WorkdistAdapter.recreate_shift_combinations(sem)

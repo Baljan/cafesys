@@ -8,13 +8,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('baljan', '0012_auto_20190501_1352'),
+        ("baljan", "0012_auto_20190501_1352"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='blippconfiguration',
-            options={'verbose_name': 'Blipp-konfiguration',
-                     'verbose_name_plural': 'Blipp-konfigurationer'},
+            name="blippconfiguration",
+            options={
+                "verbose_name": "Blipp-konfiguration",
+                "verbose_name_plural": "Blipp-konfigurationer",
+            },
         ),
     ]

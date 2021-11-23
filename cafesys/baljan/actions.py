@@ -9,7 +9,13 @@ from .models import Semester
 
 
 class Action(object):
-    def __init__(self, link_text, path, args=None, kwargs=None, resolve_func=reverse):
+    def __init__(
+            self,
+            link_text,
+            path,
+            args=None,
+            kwargs=None,
+            resolve_func=reverse):
         self.text = link_text
         self.active = False
         if resolve_func is None:
@@ -23,19 +29,15 @@ def categories_and_actions(request):
 
     current_site = Site.objects.get_current()
     domain = current_site.domain
-    if domain.find(':') != -1:
-        domain = domain.split(':')[0]
+    if domain.find(":") != -1:
+        domain = domain.split(":")[0]
 
     # FIXME: Upcoming semesters should be fetched lazily.
     upcoming_sems = Semester.objects.upcoming()
     upcoming_sem_actions = []
     for upc in upcoming_sems:
         name = upc.name
-        action = Action(
-            ('Jobbsläpp %s') % name,
-            'job_opening',
-            args=(name,)
-        )
+        action = Action(("Jobbsläpp %s") % name, "job_opening", args=(name,))
         upcoming_sem_actions.append(action)
 
     regulars_upcoming_sem_actions = []
@@ -44,53 +46,71 @@ def categories_and_actions(request):
         if upc.signup_possible:
             name = upc.name
             action = Action(
-                ('Jobbpass %s') % name,
-                'semester_shifts',
-                args=(name,)
-            )
+                ("Jobbpass %s") %
+                name, "semester_shifts", args=(
+                    name,))
             regulars_upcoming_sem_actions.append(action)
 
     levels = (
-        ('superusers', 'Superanvändare', (
-            Action('Djangos adminsida', 'admin:index'),
-            Action('Administrera termin', 'admin_semester'),
-        )),
-        (settings.BOARD_GROUP, 'Styrelsen', (
-            Action('Veckoplanering', 'call_duty_week'),
-        ) + tuple(upcoming_sem_actions) + (
-            Action('Skapa nya kaffekort', 'admin:baljan_refillseries_add'),
-        )
+        (
+            "superusers",
+            "Superanvändare",
+            (
+                Action("Djangos adminsida", "admin:index"),
+                Action("Administrera termin", "admin_semester"),
+            ),
         ),
-        (settings.WORKER_GROUP, 'Jobbare', (
-            Action('Jobbplanering', 'current_semester'),
-            Action('Jobbarguide', settings.STATIC_URL +
-                   'guide.pdf', resolve_func=None),
-            Action('Jobbkontrakt', settings.STATIC_URL +
-                   'contract.pdf', resolve_func=None),
-            Action('Lägga in pass i kalenderprogram',
-                   settings.STATIC_URL + 'ical-calendar.pdf', resolve_func=None),
-        )),
-        ('regulars', 'Ditt konto', (
-            Action('Profil', 'profile'),
-            Action('Dina köp', 'orders', args=(1,)),
-            Action('Personer och grupper', 'search_person'),
-        ) + tuple(regulars_upcoming_sem_actions)),
-        ('anyone', 'Användare', (
-
-        )),
+        (
+            settings.BOARD_GROUP,
+            "Styrelsen",
+            (Action("Veckoplanering", "call_duty_week"),)
+            + tuple(upcoming_sem_actions)
+            + (Action("Skapa nya kaffekort", "admin:baljan_refillseries_add"),),
+        ),
+        (
+            settings.WORKER_GROUP,
+            "Jobbare",
+            (
+                Action("Jobbplanering", "current_semester"),
+                Action(
+                    "Jobbarguide", settings.STATIC_URL + "guide.pdf", resolve_func=None
+                ),
+                Action(
+                    "Jobbkontrakt",
+                    settings.STATIC_URL + "contract.pdf",
+                    resolve_func=None,
+                ),
+                Action(
+                    "Lägga in pass i kalenderprogram",
+                    settings.STATIC_URL + "ical-calendar.pdf",
+                    resolve_func=None,
+                ),
+            ),
+        ),
+        (
+            "regulars",
+            "Ditt konto",
+            (
+                Action("Profil", "profile"),
+                Action("Dina köp", "orders", args=(1,)),
+                Action("Personer och grupper", "search_person"),
+            )
+            + tuple(regulars_upcoming_sem_actions),
+        ),
+        ("anyone", "Användare", ()),
     )
 
     if user.is_authenticated:
         if user.is_superuser:
-            group = 'superusers'
+            group = "superusers"
         elif user.groups.filter(name__exact=settings.BOARD_GROUP).exists():
             group = settings.BOARD_GROUP
         elif user.groups.filter(name__exact=settings.WORKER_GROUP).exists():
             group = settings.WORKER_GROUP
         else:
-            group = 'regulars'
+            group = "regulars"
     else:
-        group = 'anyone'
+        group = "anyone"
 
     avail_levels = []
     for i, action_category in enumerate(levels):
@@ -102,7 +122,7 @@ def categories_and_actions(request):
     # unfound, a reserve might be. If a reserve is unfound, the last section
     # will be unfolded.
     got_link = False
-    active_cls = ' active'
+    active_cls = " active"
     reserve = None
     for i, action_category in enumerate(avail_levels):
         id, title, acts = action_category

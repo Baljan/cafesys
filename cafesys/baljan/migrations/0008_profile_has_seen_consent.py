@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('baljan', '0007_legalconsent'),
+        ("baljan", "0007_legalconsent"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='has_seen_consent',
+            model_name="profile",
+            name="has_seen_consent",
             field=models.BooleanField(default=False),
         ),
     ]

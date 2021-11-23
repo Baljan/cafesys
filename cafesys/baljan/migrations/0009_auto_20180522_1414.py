@@ -11,31 +11,51 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('baljan', '0008_profile_has_seen_consent'),
+        ("baljan", "0008_profile_has_seen_consent"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='MutedConsent',
+            name="MutedConsent",
             fields=[
-                ('id', models.AutoField(auto_created=True,
-                 primary_key=True, serialize=False, verbose_name='ID')),
-                ('action', models.CharField(max_length=64)),
-                ('time_of_consent', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE,
-                 to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("action", models.CharField(max_length=64)),
+                ("time_of_consent", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="user",
+                    ),
+                ),
             ],
         ),
         migrations.AlterField(
-            model_name='profile',
-            name='card_id',
-            field=models.BigIntegerField(blank=True, help_text='card ids can be manually set',
-                                         null=True, unique=True, verbose_name='LiU-kortnummer'),
+            model_name="profile",
+            name="card_id",
+            field=models.BigIntegerField(
+                blank=True,
+                help_text="card ids can be manually set",
+                null=True,
+                unique=True,
+                verbose_name="LiU-kortnummer",
+            ),
         ),
         migrations.AlterField(
-            model_name='profile',
-            name='show_profile',
+            model_name="profile",
+            name="show_profile",
             field=models.BooleanField(
-                default=True, verbose_name='Visa mitt namn i topplistan'),
+                default=True, verbose_name="Visa mitt namn i topplistan"
+            ),
         ),
     ]

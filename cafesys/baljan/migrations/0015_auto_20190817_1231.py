@@ -8,14 +8,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('baljan', '0014_auto_20190810_1844'),
+        ("baljan", "0014_auto_20190810_1844"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='blippconfiguration',
-            name='card_reader_long_endianess',
-            field=models.CharField(choices=[('little', 'little endian'), ('big', 'big endian')], default='little',
-                                   help_text='"Byte order" för långa RFID-nummer (längre än fyra bytes). Vissa läsare byter ordning för nummer längre än fyra bytes.', max_length=6, verbose_name='lång byte order'),
+            model_name="blippconfiguration",
+            name="card_reader_long_endianess",
+            field=models.CharField(
+                choices=[("little", "little endian"), ("big", "big endian")],
+                default="little",
+                help_text='"Byte order" för långa RFID-nummer (längre än fyra bytes). Vissa läsare byter ordning för nummer längre än fyra bytes.',
+                max_length=6,
+                verbose_name="lång byte order",
+            ),
         ),
     ]

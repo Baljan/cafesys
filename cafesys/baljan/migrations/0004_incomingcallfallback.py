@@ -11,23 +11,43 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('baljan', '0003_auto_20170522_2200'),
+        ("baljan", "0003_auto_20170522_2200"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='IncomingCallFallback',
+            name="IncomingCallFallback",
             fields=[
-                ('id', models.AutoField(auto_created=True,
-                 primary_key=True, serialize=False, verbose_name='ID')),
-                ('priority', models.IntegerField(
-                    help_text='Högst prioritet kommer ringas upp först', verbose_name='Prioritet')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                 to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "priority",
+                    models.IntegerField(
+                        help_text="Högst prioritet kommer ringas upp först",
+                        verbose_name="Prioritet",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="user",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Uppringningslista jourtelefon',
-                'ordering': ('-priority', 'user__username'),
+                "verbose_name": "Uppringningslista jourtelefon",
+                "ordering": ("-priority", "user__username"),
             },
         ),
     ]

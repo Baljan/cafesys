@@ -21,7 +21,8 @@ with warnings.catch_warnings():
 DEBUG = env.bool("DJANGO_DEBUG")
 SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 
-# Disabled until further notice as we haven't been using this functionality lately
+# Disabled until further notice as we haven't been using this
+# functionality lately
 ANALYTICS_KEY = None
 
 CACHE_BACKEND = env.str("DJANGO_REDIS_URL")
@@ -158,15 +159,18 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIAL_AUTH_PIPELINE = (
-    # Get the social uid from LiU. The uid is the unique identifier of the given user in the provider.
+    # Get the social uid from LiU. The uid is the unique identifier of the
+    # given user in the provider.
     "social_core.pipeline.social_auth.social_uid",
     # Checks if the current social-account is already associated in the site.
     "social_core.pipeline.social_auth.social_user",
     # Censors some fields based on GDPR status
     "cafesys.baljan.gdpr.legal_social_details",
-    # Make up a username for this person, appends a random string at the end if there's any collision.
+    # Make up a username for this person, appends a random string at the end
+    # if there's any collision.
     "social_core.pipeline.user.get_username",
-    # Associates the current social details with another user account with a similar email address.
+    # Associates the current social details with another user account with a
+    # similar email address.
     "social_core.pipeline.social_auth.associate_by_email",
     # Remove email if GDPR status says so.
     "cafesys.baljan.gdpr.clean_social_details",

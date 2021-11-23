@@ -11,22 +11,42 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('baljan', '0009_auto_20180522_1414'),
+        ("baljan", "0009_auto_20180522_1414"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='WorkableShift',
+            name="WorkableShift",
             fields=[
-                ('id', models.AutoField(auto_created=True,
-                 primary_key=True, serialize=False, verbose_name='ID')),
-                ('priority', models.IntegerField(verbose_name='priority')),
-                ('combination', models.CharField(
-                    max_length=10, verbose_name='label')),
-                ('semester', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
-                 to='baljan.Semester', verbose_name='semester')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
-                 to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                ("id",
+                 models.AutoField(
+                     auto_created=True,
+                     primary_key=True,
+                     serialize=False,
+                     verbose_name="ID",
+                 ),
+                 ),
+                ("priority",
+                 models.IntegerField(
+                     verbose_name="priority")),
+                ("combination",
+                 models.CharField(
+                     max_length=10,
+                     verbose_name="label")),
+                ("semester",
+                 models.ForeignKey(
+                     on_delete=django.db.models.deletion.CASCADE,
+                     to="baljan.Semester",
+                     verbose_name="semester",
+                 ),
+                 ),
+                ("user",
+                 models.ForeignKey(
+                     on_delete=django.db.models.deletion.CASCADE,
+                     to=settings.AUTH_USER_MODEL,
+                     verbose_name="user",
+                 ),
+                 ),
             ],
         ),
     ]
