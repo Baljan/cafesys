@@ -411,7 +411,6 @@ def credits(request):
     tpl['refill_form'] = refill_form
     tpl['currently_available'] = profile.balcur()
     tpl['used_cards'] = used_cards = creditsmodule.used_by(user)
-    tpl['used_old_cards'] = used_old_cards = creditsmodule.used_by(user, old_card=True)
 
     return render(request, 'baljan/credits.html', tpl)
 
