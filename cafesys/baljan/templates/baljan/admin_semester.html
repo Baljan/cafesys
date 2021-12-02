@@ -98,33 +98,43 @@
                                         <th>em</th>
                                     </tr>
                                 </thead>
-                                {% regroup month.list by when as days %}
+                                {% regroup month.list by when.isocalendar.1 as weeks %}
+
                                 <tbody>
-                                    {% for day in days %}
-                                    <tr>
-                                        <td class="day">{{day.grouper|date:"j"}}</td>
-                                        {% regroup day.list by span as spans %}
-                                        {% for span in spans %}
-                                            {% with sh0=span.list.0 %}
-                                            <td class="shift
-                                                span-{{ span.grouper }}
-                                                {% if sh0.enabled %}
-                                                    {% if sh0.exam_period %}bg-primary{%endif%}
-                                                {% else %}
-                                                bg-dark
-                                                {%endif%}
-                                                {% if sh0.comb.is_taken %}taken{%endif%}
-                                                ">
-                                                {% for sh in span.list %}
-                                                    {% if forloop.counter > 1 and sh.comb %}/{% endif %}
-                                                    <span id="shift-{{sh.id}}" class="shift span-{{sh.span}}">
-                                                        {{sh.comb.label|default:"&nbsp;"}}
-                                                    </span>
-                                                {% endfor %}
-                                            </td>
-                                            {% endwith %}
-                                        {% endfor %}
-                                    </tr>
+                                    {% for week in weeks %}
+                                        <tr>
+                                            <th class="admin-semester-week" colspan="4">
+                                                Vecka {{week.grouper}}
+                                            </th>
+                                        </tr>
+                                        {% regroup week.list by when as days %}
+                                        {% for day in days %}
+                                        <tr>
+                                            <td class="day">{{day.grouper|date:"j"}}</td>
+                                            {% regroup day.list by span as spans %}
+                                            {% for span in spans %}
+                                                {% with sh0=span.list.0 %}
+                                                <td class="shift
+                                                    span-{{ span.grouper }}
+                                                    {% if sh0.enabled %}
+                                                        {% if sh0.exam_period %}bg-primary{%endif%}
+                                                    {% else %}
+                                                    bg-dark
+                                                    {%endif%}
+                                                    {% if sh0.comb.is_taken %}taken{%endif%}
+                                                    ">
+                                                    {% for sh in span.list %}
+                                                        {% if forloop.counter > 1 and sh.comb %}/{% endif %}
+                                                        <span id="shift-{{sh.id}}" class="shift span-{{sh.span}}">
+                                                            {{sh.comb.label|default:"&nbsp;"}}
+                                                        </span>
+                                                    {% endfor %}
+                                                </td>
+                                                {% endwith %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+
                                     {% endfor %}
                                 </tbody>
                             </table>
