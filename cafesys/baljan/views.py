@@ -274,16 +274,18 @@ def _semester(request, sem, loc=0):
     tpl = {}
     tpl['semesters'] = models.Semester.objects.order_by('-start').all()
     tpl['selected_semester'] = sem
-    tpl['worker_group_name'] = settings.WORKER_GROUP
-    tpl['board_group_name'] = settings.BOARD_GROUP
     tpl['locations'] = models.Located.LOCATION_CHOICES
     tpl['selected_location'] = loc
     if sem:
-        tpl['shifts'] = shifts = sem.shift_set.order_by('when', 'span').filter(enabled=True, location=loc).iterator()
-        # Do not use iterator() on workers and oncall because the template is
-        # unable to count() them. Last tested in Django 1.2.3.
-        tpl['workers'] = workers = User.objects.filter(shiftsignup__shift__semester=sem).order_by('first_name').distinct()
-        tpl['oncall'] = oncall = User.objects.filter(oncallduty__shift__semester=sem).order_by('first_name').distinct()
+        tpl['shifts'] = shifts = models.Shift.objects\
+            .order_by('when', 'span')\
+            .filter(semester_id=sem.id,
+                    enabled=True, 
+                    location=loc
+            )\
+            .prefetch_related("oncallduty_set__user")\
+            .prefetch_related("shiftsignup_set__user")
+
     return render(request, 'baljan/work_planning.html', tpl)
 
 
@@ -316,7 +318,7 @@ def day_shifts(request, day):
     tpl['available_for_call_duty'] = avail_call_duty = available_for_call_duty()
 
     if request.method == 'POST':
-        assert request.user.is_authenticated
+        assert request.user.is_authenticated and request.user.has_perm("baljan.add_oncallduty")
         span = int(request.POST['span'])
         assert span in (0, 1, 2)
         location = int(request.POST['location'])
@@ -327,18 +329,9 @@ def day_shifts(request, day):
         uid = int(request.POST['user'])
         signup_user = User.objects.get(pk__exact=uid)
 
-        signup_for = request.POST['signup-for']
-        if signup_for == 'call-duty':
-            assert signup_user not in shift.on_callduty()
-            assert signup_user in avail_call_duty
-            signup = models.OnCallDuty(user=signup_user, shift=shift)
-        elif signup_for == 'work':
-            assert shift.semester.signup_possible
-            assert shift.shiftsignup_set.all().count() < 2
-            assert signup_user not in shift.signed_up()
-            signup = models.ShiftSignup(user=signup_user, shift=shift)
-        else:
-            assert False
+        assert signup_user not in [callduty.user for callduty in shift.oncallduty_set.all()]
+        assert signup_user in avail_call_duty
+        signup = models.OnCallDuty(user=signup_user, shift=shift)
         signup.save()
 
     if len(shifts) == 0:

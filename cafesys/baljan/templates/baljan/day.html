@@ -49,7 +49,7 @@
             {% endif %}
         </div>
         <div class="row">
-            {% for signup in sh.signups %}
+            {% for signup in sh.signup_set.all %}
                 <div class="col">
                     <strong>
                         {% if signup.can_trade %}
@@ -103,7 +103,7 @@
                 </div>
             {% endfor %}
             <div class="col">
-                {% for oncall in sh.callduties %}
+                {% for oncall in sh.oncallduty_set.all %}
                     <strong>Jour</strong><br/>
                     <a href="{{oncall.user.get_absolute_url}}">{{oncall.user | display_name}}</a>
                     {% if perms.baljan.delete_oncallduty %}
@@ -118,16 +118,16 @@
                 {% if sh.accepts_callduty and perms.baljan.add_oncallduty and perms.baljan.change_oncallduty %}
                     <form method="post" class="form-inline">
                         {% csrf_token %}
-                        <input type="hidden" name="signup-for" value="call-duty"/>
                         <input type="hidden" name="span" value="{{sh.span}}"/>
                         <input type="hidden" name="location" value="{{sh.location}}"/>
                         <select name="user" class="form-control">
                             {% for avail in available_for_call_duty %}
-                                {% if not avail in sh.on_callduty %}
+                                {% comment %} TODO: Filter those who are already signed up this shift, {% endcomment %}
+                                {% comment %} {% if not avail in sh.????? %} {% endcomment %}
                                 <option value="{{avail.pk}}" {% if avail == user %}selected="selected"{% endif %}>
                                     {{ avail | display_name }}
                                 </option>
-                                {% endif %}
+                                {% comment %} {% endif %} {% endcomment %}
                             {% endfor %}
                         </select>
                         <input class="btn btn-primary" type="submit" value="Anmäl"/>

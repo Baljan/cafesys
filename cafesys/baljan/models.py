@@ -393,7 +393,7 @@ class ShiftCombination(Made):
 
     def is_free(self):
         """True if all shifts are totally free, not a single sign-up."""
-        return len([sh for sh in self.shifts.all() if sh.signups().count() != 0]) == 0
+        return len([sh for sh in self.shifts.all() if sh.shiftsignup_set.count() != 0]) == 0
 
     def is_taken(self):
         return not self.is_free()
@@ -519,23 +519,8 @@ class Shift(Located):
             args=year_and_week(self.when)
         )
 
-    def accepts_signups(self):
-        return self.upcoming() and self.semester.signup_possible and self.signups().count() < 2 and self.span != 1
-
     def accepts_callduty(self):
         return self.upcoming()
-
-    def signed_up(self):
-        return [su.user for su in self.signups()]
-
-    def signups(self):
-        return ShiftSignup.objects.filter(shift=self)
-
-    def on_callduty(self):
-        return [oc.user for oc in self.callduties()]
-
-    def callduties(self):
-        return OnCallDuty.objects.filter(shift=self)
 
     class Meta:
         verbose_name = _("shift")
