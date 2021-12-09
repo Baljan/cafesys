@@ -1044,6 +1044,7 @@ def with_cors_headers(f):
 
 @csrf_exempt
 @with_cors_headers
+@transaction.atomic
 def do_blipp(request):
     if request.method == 'OPTIONS':
         return HttpResponse(status=200)
@@ -1062,23 +1063,14 @@ def do_blipp(request):
         return _json_error(400, 'Felaktigt användar-id')
     user = None
 
-    # Try to fetch user from cached card id
     try:
-        user = User.objects.get(profile__card_cache=rfid_int)
+        user = User.objects.select_related("profile").get(profile__card_id=rfid_int)
     except User.DoesNotExist:
         pass
-
-    # Try to fetch user from stored card number
-    if user is None:
-        try:
-            user = User.objects.get(profile__card_id=rfid_int)
-        except User.DoesNotExist:
-            pass
 
     if user is None:
         # FIXME: We should try to find the card id in an external database here, but this requires
         #        that there is such a database, which there isn't. Check again after midsummer 2018.
-
         return _json_error(404, 'Du måste fylla i kortnumret i din profil\n(' + str(rfid_int) + ')')
 
     # We will always have a user at this point
@@ -1122,7 +1114,7 @@ def do_blipp(request):
         user_balance = user.profile.balance
         message = 'Du har <b>%s kr</b> kvar att blippa för' % user_balance
 
-    return JsonResponse({'message': message, 'balance': user_balance})
+    return JsonResponse({'message': message, 'balance': user_balance, "paid": price  })
 
 
 def integrity(request):
@@ -1140,7 +1132,7 @@ def _get_blipp_configuration(request):
                 token = authorization[1]
 
                 try:
-                    return BlippConfiguration.objects.get(token=token)
+                    return BlippConfiguration.objects.select_related("good").get(token=token)
                 except BlippConfiguration.DoesNotExist:
                     return None
 
