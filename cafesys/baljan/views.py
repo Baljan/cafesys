@@ -32,7 +32,7 @@ from cafesys.baljan.templatetags.baljan_extras import display_name
 from cafesys.baljan.models import Order, Good, OrderGood
 from cafesys.baljan.workdist.workdist_adapter import WorkdistAdapter
 from . import credits as creditsmodule
-from . import (forms, ical, models, pdf, planning, pseudogroups, search,
+from . import (forms, ical, models, pdf, pseudogroups, search,
                stats, trades, workdist)
 from .forms import OrderForm
 from .util import (adjacent_weeks, all_initials, available_for_call_duty,
@@ -722,48 +722,70 @@ def job_opening(request, semester_name):
 def call_duty_week(request, year=None, week=None):
     if year is None or week is None:
         year, week = year_and_week()
-        plan = planning.BoardWeek.current_week()
     else:
         year = int(year)
         week = int(week)
-        plan = planning.BoardWeek(year, week)
 
-    oncall_ids = [[str(oc.id) for oc in sh] for sh in plan.oncall()]
-    dom_ids = plan.dom_ids()
-    real_ids = dict(list(zip(dom_ids, plan.shift_ids())))
-    oncall = dict(list(zip(dom_ids, oncall_ids)))
+    # need to be ordered for regroup to work in view
+    shifts = models.Shift.objects.for_week(year, week).order_by("location", "when", "span")
+    
 
-    avails = plan.available()
-    uids = [str(u.id) for u in avails]
 
-    names = [display_name(u) for u in avails]
+    available_users = available_for_call_duty()
 
-    initials = all_initials(avails)
+    uids = [str(u.id) for u in available_users]
+
+    names = [display_name(u) for u in available_users]
+
+    initials = all_initials(available_users)
     id_initials = dict(list(zip(uids, initials)))
 
-    disp_names = ["%s (%s)" % (name, inits) for name, inits in zip(names, initials)]
-    disp_names = [htmlents(dn) for dn in disp_names]
-    disp_names = ["&nbsp;".join(dn.split()) for dn in disp_names]
+    # disp_names = ["%s (%s)" % (name, inits) for name, inits in zip(names, initials)]
+    # disp_names = [htmlents(dn) for dn in disp_names]
+    # disp_names = ["&nbsp;".join(dn.split()) for dn in disp_names]
 
-    drag_ids = ['drag-%s' % i for i in initials]
-    drags = []
-    for drag_id, disp_name in zip(drag_ids, disp_names):
-        drags.append('<span id="%s">%s</span>' % (drag_id, disp_name))
+    # drag_ids = ['drag-%s' % i for i in initials]
+    # drags = []
+    # for drag_id, disp_name in zip(drag_ids, disp_names):
+    #     drags.append('<span id="%s">%s</span>' % (drag_id, disp_name))
 
-    id_drags = dict(list(zip(uids, drags)))
+    # id_drags = dict(list(zip(uids, drags)))
 
-    if request.method == 'POST' and request.is_ajax():
-        initial_users = dict(list(zip(initials, avails)))
-        all_old_users = [User.objects.filter(oncallduty__shift=shift).distinct() \
-                    for shift in plan.shifts]
+    if request.method == 'POST':
 
-        all_new_users = []
-        for dom_id, shift in zip(dom_ids, plan.shifts):
-            if dom_id in request.POST:
-                all_new_users.append([initial_users[x] for x
-                        in request.POST[dom_id].split('|')])
-            else:
-                all_new_users.append([])
+        print(request.POST)
+
+        # initial_users = dict(list(zip(initials, avails)))
+        # all_old_users = [User.objects.filter(oncallduty__shift=shift).distinct() \
+        #             for shift in plan.shifts]
+
+        for shift_id in request.POST:
+            print(shift_id)
+            shift_user_ids = [int(i) for i in request.POST[shift_id]]
+            shift = models.Shift.objects.get(id=int(shift_id))
+            oncallduties = shift.oncallduty_set.all()
+            for oncallduty in oncallduties:
+                if oncallduty.user_id not in shift_user_ids:
+                    oncallduty.delete()
+            shift.oncallduty_set.filter(user_id__in=shift_user_ids).delete()
+            shift.oncallduty_set.filter(user_id__in=shift_user_ids) # TODO: ta inte bort användarn om han redan finns!
+            shift.oncall
+
+            for user_id in shift_user_ids:
+                if not new_user in old_users :
+                    if models.OnCallDuty.objects\
+                        .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
+                        messages.add_message(request, messages.ERROR,
+                            "Kunde inte lägga till %s %s på pass %s." %
+                            (new_user.first_name, new_user.last_name, shift.name_short()),
+                            extra_tags="danger")
+                    else:
+                        o, created = models.OnCallDuty.objects.get_or_create(
+                            shift=shift,
+                            user=new_user
+                        )
+                        assert created
+        
 
         # Remove old users
         for shift, old_users, new_users in zip(plan.shifts, all_old_users, all_new_users):
@@ -800,11 +822,9 @@ def call_duty_week(request, year=None, week=None):
     tpl['prev_w'] = adjacent[0][1]
     tpl['next_y'] = adjacent[1][0]
     tpl['next_w'] = adjacent[1][1]
-    tpl['real_ids'] = json.dumps(real_ids)
-    tpl['oncall'] = json.dumps(oncall)
-    tpl['drags'] = json.dumps(id_drags)
+    tpl['shifts'] = shifts
     tpl['initials'] = json.dumps(id_initials)
-    tpl['uids'] = json.dumps(uids)
+    tpl['available_users'] = available_users
     tpl['locations'] = models.Located.LOCATION_CHOICES
     tpl['weekdays'] = list(zip(range(1,6), ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag']))
     tpl['spans'] = list(range(3))

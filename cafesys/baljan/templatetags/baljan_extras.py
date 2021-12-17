@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+import calendar
 
 from django import template
 from django.forms import BooleanField
@@ -107,6 +108,15 @@ def monthname(num, autoescape=None):
     return _(date(2000, num, 1).strftime('%B'))
 monthname.needs_autoescape = True
 
+
+@register.filter
+def weekdayname(num, autoescape=None):
+    return _(calendar.day_name[num])
+weekdayname.needs_autoescape = True
+
+@register.filter
+def where_span(shifts, span):
+    return [shift for shift in shifts if shift.span == span]
 
 @register.inclusion_tag('baljan/_field.html')
 def field(data):

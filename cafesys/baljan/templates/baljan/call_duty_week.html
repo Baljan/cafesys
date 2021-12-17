@@ -9,6 +9,21 @@
 
 {% block body_class %}board-week{% endblock %}
 {% block body %}
+
+<form method="POST">
+    {% csrf_token %}
+<div class="row">
+    <div class="col-6">
+        <h1>Jourplanering</h1>
+    </div>
+
+    <div class="col-6">
+         <div class="submit wrapper">
+            <button class="btn btn-primary save" href="#" role="button">Spara</button>
+            <a id="regret-changes" class="btn btn-secondary" role="button" href="{{request.path}}">Ångra osparade ändringar</a>
+        </div>
+    </div>
+</div>
 <div class="chalkboard row">
     <div class="col-lg-6">
     <table class="table table-baljan">
@@ -31,18 +46,45 @@
         </tr>
         </thead>
         <tbody>
-        {% for location in locations %}
-        <tr>
-            <td colspan="4"><strong>{{location.1}}</strong></td>
-        </tr>
-        {% for weekday in weekdays %}
-        <tr>
-            <td class="day">{{weekday.1}}</td>
-            {% for span in spans %}
-            <td class="shift-droppable" id="shift-{{weekday.0}}-{{span}}-{{location.0}}"></td>
+
+            {% comment %} TODO: if no shifts {% endcomment %}
+        
+        {% regroup shifts by location_name as location_group %}
+        {% for location_shifts in location_group %}
+            <tr>
+                <td colspan="4"><strong>{{location_shifts.grouper}}</strong></td>
+            </tr>
+
+            {% regroup location_shifts.list by when.weekday as day_group %}
+            {% for day_shifts in day_group %}
+                <tr>
+                    <td class="day">{{day_shifts.grouper|weekdayname}}</td>
+
+                    {% for span in spans %}
+                        {% with span_shifts=day_shifts.list|where_span:span%}
+                        {% if span_shifts|length and span_shifts.0.enabled %}
+                            {% with shift=span_shifts.0 %}
+                            <td>
+                                <select name="{{shift.id}}">
+                                    <option value=""></option>
+                                    {% for user in available_users %}
+                                    <option 
+                                        value="{{ user.id }}"
+                                        {% ifequal user.id shift.oncallduty_set.all.0.user_id %}selected{%endifequal%}
+                                        >
+                                        {{user|display_name}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            {% endwith %}
+                        {% else %}
+                            <td>Stängt</td>
+                        {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                </tr>
             {% endfor %}
-        </tr>
-        {% endfor %}
         {% endfor %}
         </tbody>
     </table>
@@ -59,7 +101,25 @@
                             <td>Ta bort</td>
                         </tr>
                     </thead>
-                    <tbody id="shuffle-table-body"></tbody>
+                    <tbody id="shuffle-table-body">
+
+                        <tr>
+                            <td>
+                                <select>
+                                    <option></option>
+                                    {% for user in available_users %}
+                                    <option>
+                                        {{user|display_name}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td></td>
+                            <td>
+                                <button class="btn btn-primary" id="random-shifts">Lägg till</button>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
                 <div class="row mb-2 ml-1">
                     <div class="form-check col-auto">
@@ -72,34 +132,18 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-9">
-                        <div class="card my-1">
-                                <div class="shuffle-drop card-body py-3">
-                                    Släpp här
-                                </div>
-                        </div>
-                    </div>
-                    <div class="col-3 my-auto">
-                        <button class="btn btn-primary my-auto" id="random-shifts">Slumpa</button>
+                    <div class="col-12 my-auto">
+                        <button class="btn btn-primary" id="random-shifts">Slumpa</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div>
-            <h2>{% trans "Available Users" %} ({%trans "drag and drop"%})</h2>
-            <div class="available-users"></div>
-            <div class="submit wrapper">
-                <a class="btn btn-primary save" href="#" role="button">Spara</a>
-                <a id="regret-changes" class="btn btn-secondary" role="button" href="{{request.path}}">Ångra osparade ändringar</a>
-            </div>
-        </div>
     </div>
 </div>
+</form>
 {% endblock %}
-
+{% comment %} 
 {% block extra_body %}
-<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
-<script type="text/javascript" src="{% static 'js/jquery.ui.touch-punch.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/shuffle.js' %}"></script>
 <script type="text/javascript">
     {% autoescape off %}
@@ -426,4 +470,4 @@
         applyShifts(shifts);
     });
 </script>
-{% endblock %}
+{% endblock %} {% endcomment %}

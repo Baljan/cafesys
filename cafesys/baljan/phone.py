@@ -15,7 +15,6 @@ from collections import Counter
 from django.conf import settings
 from django.utils.http import urlquote
 
-from cafesys.baljan import planning
 from cafesys.baljan.models import Shift, IncomingCallFallback, Located, OnCallDuty, User
 from .util import week_dates, year_and_week
 import requests
