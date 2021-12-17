@@ -9,6 +9,14 @@
   th, td{
     border: 0px;
     border-bottom: 1px solid $dark-blue;
+    & > select {
+      border: none;
+      margin: -0.75rem;
+      padding: 0.75rem;
+      background-color: transparent;
+      width: 100%;
+      box-sizing: content-box;
+    }
   }
   tbody tr:nth-of-type(even){
     background-color: rgba($dark-blue, 0.03);
