@@ -113,7 +113,7 @@ body main.bd-masthead.wrapper--md {
 
 body.about {
     #header-image {
-      background: #f4f3f1 url('/static/img/splash.jpeg');
+      background: darken(#352723, 4) url('/static/img/splash.jpeg'); // #352723 is average color of splash image.
       background-size: cover;
       height: 30vw;
       min-height: 400px;
