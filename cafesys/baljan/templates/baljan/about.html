@@ -20,13 +20,17 @@
         Kaffe åt folket! — helt enkelt. Vi säljer kaffe, te, varm choklad, läsk, mackor och klägg till studentanpassade priser. Vi
         är helt ideella. Allt överskott återinvesteras i utrustning, möbler och vår fantastiska personal.
       </p>
-      <div class="d-flex flex-column flex-md-row lead mb-3">
-          <a href="{% url 'order_from_us' %}" class="btn btn-lg btn-primary mr-md-3 mb-3 mb-md-0">
-              <i class="fa fa-shopping-cart"></i> Beställa
+      <div class="row">
+        <div class="col-12 col-sm-6">
+          <a href="{% url 'order_from_us' %}" class="btn btn-lg btn-primary btn-block">
+            <i class="fa fa-shopping-cart"></i> Beställa
           </a>
-          <a href="{% url 'credits' %}" class="btn btn-lg btn-primary btn-outline-info mr-md-3 mb-3 mb-md-0">
+        </div>
+        <div class="col-12 col-sm-6">
+          <a href="{% url 'credits' %}" class="btn btn-lg btn-primary btn-block">
             <i class="fa fa-coffee"></i> Fylla på kaffekort
           </a>
+        </div>
       </div>
     </div>
   </section>
@@ -39,51 +43,33 @@
   Våra caféer
 </h2>
 
-<section class="Baljan__timeline wrapper" style="padding-bottom: 40px">
+<section class="wrapper">
   <div class="container">
-    <div class="row align-items-center">
-
-      <div class="col-md-6 order-md-1 text-center text-md-left pr-md-5">
-        <h1 class="mb-3 bd-text-purple-bright">Baljan <3 Byttan</h1>
-        <p class="lead">
-         Baljan har expanderat! Augusti 2019 slog Sektionscafé Byttan i Studenthus Valla upp sina portar för första gången. Byttan, i enlighet med Studenthuset, ämnar att verka så klimatvänligt som möjligt. Därför skiljer sig sortimentet i Byttan lite ifrån det i Baljan. Det är även därför vi använder systemet Loop-It där kunder kan köpa en återbrukbar kopp enbart en gång, sedan lämna in den igen och få en kopp på ett saldo kopplat till ens LiU-ID. Sedan är det bara att hämta ut sin kopp igen vid valfritt tillfälle! Vi ses i Baljan eller Byttan!
-        </p>
-      </div>
-      <div class="col-12 mx-auto col-md-6">
-        <img src="{% static 'img/baljanbyttan.jpg' %}" alt="" class="img-fluid mb-3 mb-md-0" style="width: 90%">
-      </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="block box">
-    <div class="container">
-      <div class="row">
-        <div class="col-12 col-lg-6 mb-3">
-          <div class="fb-page" data-href="https://www.facebook.com/sektionscafe.baljan/" data-tabs="timeline" data-width="500" data-height="580"
-            data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true">
-            <blockquote cite="https://www.facebook.com/sektionscafe.baljan/" class="fb-xfbml-parse-ignore">
-              <a href="https://www.facebook.com/sektionscafe.baljan/">Sektionscafé Baljan</a>
-            </blockquote>
-          </div>
-
-          <!-- <div class="fb-page" data-href="https://www.facebook.com/sektionscafe.baljan" data-height="500" data-width="400" data-small-header="true"
-            data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true" data-show-posts="true">
-            <div class="fb-xfbml-parse-ignore">
-              <blockquote cite="https://www.facebook.com/sektionscafe.baljan">
-                <a href="https://www.facebook.com/sektionscafe.baljan">Sektionscafé Baljan</a>
-              </blockquote>
-            </div>
-          </div> -->
+    <div class="row">
+        <div class="col-12 col-lg-6">
+          <h3 class="text-center">Baljan</h3>
+          <p class="lead">
+          Baljan har expanderat! Augusti 2019 slog Sektionscafé Byttan i Studenthus Valla upp sina portar för första gången. Byttan, i enlighet med Studenthuset, ämnar att verka så klimatvänligt som möjligt. Därför skiljer sig sortimentet i Byttan lite ifrån det i Baljan. Det är även därför vi använder systemet Loop-It där kunder kan köpa en återbrukbar kopp enbart en gång, sedan lämna in den igen och få en kopp på ett saldo kopplat till ens LiU-ID. Sedan är det bara att hämta ut sin kopp igen vid valfritt tillfälle! Vi ses i Baljan eller Byttan!
+          </p>
         </div>
-        <div class="col-12 col-lg-6 info-panel">
-          <div class="row">
-            <div class="col-4 col-sm-3 info-icon">
+        <div class="col-12 col-lg-6">
+          <h3 class="text-center">Byttan</h3>
+          <p class="lead">
+          Baljan har expanderat! Augusti 2019 slog Sektionscafé Byttan i Studenthus Valla upp sina portar för första gången. Byttan, i enlighet med Studenthuset, ämnar att verka så klimatvänligt som möjligt. Därför skiljer sig sortimentet i Byttan lite ifrån det i Baljan. Det är även därför vi använder systemet Loop-It där kunder kan köpa en återbrukbar kopp enbart en gång, sedan lämna in den igen och få en kopp på ett saldo kopplat till ens LiU-ID. Sedan är det bara att hämta ut sin kopp igen vid valfritt tillfälle! Vi ses i Baljan eller Byttan!
+          </p>
+        </div>
+        {% comment %} <div class="col-12 mx-auto col-md-6">
+          <img src="{% static 'img/baljanbyttan.jpg' %}" alt="" class="img-fluid mb-3 mb-md-0" style="width: 90%">
+      </div> {% endcomment %}
+    </div>
+    <hr>
+    <h3 class="text-center">Öppettider</h3>
+    <div class="row">
+            <div class="col-4 col-lg-2 info-icon">
               <i class="fa fa-clock"></i>
             </div>
-            <div class="col-8 col-sm-9 info-text">
-              <h2>Öppettider</h2>
+            <div class="col-8 col-lg-4 info-text">
+              <h3>Öppettider</h3>
               <table class="table">
                 <tr>
                   <td>
@@ -97,18 +83,19 @@
                   </td>
                   <td>stängt</td>
                 </tr>
-
+                
               </table>
               <p>Öppet vanliga tider under tenta-p, stängt under omtenta-p.</p>
+              <p>Under dessa tider finns en styrelsemedlem i vårt kontor, Nollberga.</p>
 
             </div>
-
-            <div class="col-4 col-sm-3 info-icon">
+            
+            <div class="col-4 col-lg-2 info-icon">
               <i class="fa fa-users"></i>
             </div>
-            <div class="col-8 col-sm-9 info-text">
-
-              <h2>Jourtider</h2>
+            <div class="col-8 col-lg-4 info-text">
+              
+              <h3>Jourtider</h3>
               <table class="table">
                 <tr>
                   <td>
@@ -134,6 +121,35 @@
 
             </div>
           </div>
+  </div>
+</div>
+</section>
+
+
+<h2 class="section-header">
+  Följ oss!
+</h2>
+
+<section>
+  <div class="block box">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-lg-6 mb-3">
+          <div class="fb-page" data-href="https://www.facebook.com/sektionscafe.baljan/" data-tabs="timeline" data-width="500" data-height="580"
+            data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true">
+            <blockquote cite="https://www.facebook.com/sektionscafe.baljan/" class="fb-xfbml-parse-ignore">
+              <a href="https://www.facebook.com/sektionscafe.baljan/">Sektionscafé Baljan</a>
+            </blockquote>
+          </div>
+
+          <!-- <div class="fb-page" data-href="https://www.facebook.com/sektionscafe.baljan" data-height="500" data-width="400" data-small-header="true"
+            data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true" data-show-posts="true">
+            <div class="fb-xfbml-parse-ignore">
+              <blockquote cite="https://www.facebook.com/sektionscafe.baljan">
+                <a href="https://www.facebook.com/sektionscafe.baljan">Sektionscafé Baljan</a>
+              </blockquote>
+            </div>
+          </div> -->
         </div>
       </div>
     </div>

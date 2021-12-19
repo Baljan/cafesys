@@ -115,10 +115,9 @@ body main.bd-masthead.wrapper--md {
 body.about {
   #header-image {
     background: darken(#352723, 4) url('/static/img/splash.jpeg'); // #352723 is average color of splash image.
-    background-size: 100% auto;
+    background-size: cover;
     background-position: center 0;
     background-repeat: no-repeat;
-    // height: 50vw;
     min-height: 400px;
     display: flex;
     flex-direction: column;
@@ -136,8 +135,14 @@ body.about {
       margin-bottom: 25vh;
       margin-top: 3rem;
 
-      @media screen and (max-width: 600px) {
-        font-size: 50px;
+      @media screen and (max-width: 800px) {
+        font-size: 42px;
+        margin-top: 2rem;
+      }
+
+      @media screen and (max-width: 400px) {
+        font-size: 32px;
+        margin-top: 2rem;
       }
     }
 
@@ -146,7 +151,7 @@ body.about {
     }
 
     section {
-      background: rgba(#000, 0.8);
+      background: rgba(#000, 0.9);
       backdrop-filter: blur(10px);
       padding: 2rem 0;
 
@@ -164,6 +169,10 @@ body.about {
     padding: 4rem 2rem;
     text-align: center;
     font-family: Lobster;
+
+     @media screen and (max-width: 600px) {
+        font-size: 3rem;
+      }
   }
 }
 
