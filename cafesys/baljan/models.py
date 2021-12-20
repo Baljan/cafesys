@@ -286,10 +286,6 @@ class SemesterManager(models.Manager):
     def current(self):
         return self.for_date(date.today())
 
-    def by_name(self, name):
-        return self.get(name__exact=name)
-
-
 class Semester(Made):
     objects = SemesterManager()
 

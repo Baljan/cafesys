@@ -93,7 +93,7 @@ def task_list(from_groups, to_groups, opts):
         print(id_header[opts['identifier']])
     ctx = dict(opts=opts)
     if opts["semester"] is not None:
-        ctx["semester"] = sem = Semester.objects.by_name(opts["semester"])
+        ctx["semester"] = sem = Semester.objects.get(name__exact=opts["semester"])
         ctx["combinations"] = ShiftCombination.objects.filter(semester=sem).distinct()
     print("\n".join(id(m, ctx) for m in users))
 

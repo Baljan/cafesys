@@ -19,7 +19,7 @@ from django.core.serializers import serialize
 from django.urls import reverse
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.html import escape
@@ -59,17 +59,6 @@ def redirect_prepend_root(where):
         return HttpResponseRedirect(where)
     return HttpResponseRedirect('/%s' % where)
 
-
-@login_required
-def current_semester(request):
-    sem = models.Semester.objects.current()
-    if sem is None:
-        try:
-            upcoming_sems = models.Semester.objects.upcoming()
-            sem = upcoming_sems[0]
-        except:
-            pass
-    return _semester(request, sem)
 
 def orderFromUs(request):
     if request.method == 'POST':
@@ -264,8 +253,20 @@ END:VCALENDAR'''
 
 
 @login_required
+def current_semester(request):
+    sem = models.Semester.objects.current()
+    if sem is None:
+        try:
+            upcoming_sems = models.Semester.objects.upcoming()
+            sem = upcoming_sems[0]
+        except:
+            pass
+    return _semester(request, sem)
+
+@login_required
 def semester(request, name, loc=0):
-    return _semester(request, models.Semester.objects.by_name(name), loc)
+    sem = get_object_or_404(models.Semester, name__exact=name)
+    return _semester(request, sem, loc)
 
 
 def _semester(request, sem, loc=0):
@@ -312,8 +313,14 @@ def toggle_tradable(request, pk, redir):
 
 @login_required
 def day_shifts(request, day):
+    try:
+        day = from_iso8601(day)
+    except ValueError:
+        raise Http404("Datumet existerar inte")
+
+
     tpl = {}
-    tpl['day'] = day = from_iso8601(day)
+    tpl['day'] = day
     tpl['shifts'] = shifts = models.Shift.objects.filter(when=day, enabled=True).order_by('location', 'span')
     tpl['available_for_call_duty'] = avail_call_duty = available_for_call_duty()
 
@@ -377,33 +384,26 @@ def profile(request):
 @login_required
 def credits(request, code=None):
     user = request.user
-    profile = user.profile
     tpl = {}
 
     refill_form = forms.RefillForm(code=code)
 
     if request.method == 'POST':
-        try:
-            foo = request.POST['task']
-        except:
-            logger.error('no task in form!')
-        else:
-            if request.POST['task'] == 'refill':
-                refill_form = forms.RefillForm(request.POST)
-                if refill_form.is_valid():
-                    entered_code = refill_form.cleaned_data['code']
-                    creditsmodule.is_used(entered_code, user) # for logging
-                    try:
-                        creditsmodule.manual_refill(entered_code, user)
-                        tpl['used_card'] = True
-                    except creditsmodule.BadCode:
-                        tpl['invalid_card'] = True
-            else:
-                logger.error('illegal task %r' % request.POST['task'])
+        refill_form = forms.RefillForm(request.POST)
+        if refill_form.is_valid():
+            entered_code = refill_form.cleaned_data['code']
+            try:
+                creditsmodule.manual_refill(entered_code, user)
+                tpl['used_card'] = True
+            except:
+                tpl['invalid_card'] = True
+
 
     tpl['refill_form'] = refill_form
-    tpl['currently_available'] = profile.balcur()
-    tpl['used_cards'] = used_cards = creditsmodule.used_by(user)
+    tpl['currently_available'] = user.profile.balcur()
+    tpl['used_cards'] = models.BalanceCode.objects.filter(
+        used_by=user,
+    ).order_by('-used_at', '-id')
 
     return render(request, 'baljan/credits.html', tpl)
 
@@ -414,10 +414,14 @@ def orders(request, page_no):
     page_no = int(page_no)
     tpl = {}
     tpl['orders'] = orders = models.Order.objects \
-        .filter(user=user).order_by('-put_at')
+        .filter(user_id=user.id).order_by('-put_at')
     page_size = 50
     pages = Paginator(orders, page_size)
-    page = pages.page(page_no)
+    try:
+        page = pages.page(page_no)
+    except:
+        raise Http404("Felaktigt sidnummer, inga köp finns på denna sida.")
+    
     tpl['order_page'] = page
     return render(request, 'baljan/orders.html', tpl)
 
@@ -427,7 +431,7 @@ def see_user(request, who):
     u = request.user
     tpl = {}
 
-    watched = User.objects.get(id=who)
+    watched = get_object_or_404(User, id=who)
     watching_self = u == watched
     if u.is_authenticated:
         profile_form_cls_inst = (
@@ -493,12 +497,11 @@ def see_user(request, who):
 
 @login_required
 def see_group(request, group_name):
-    user = request.user
     tpl = {}
-    tpl['group'] = group = Group.objects.get(name__exact=group_name)
+    tpl['group'] = group = get_object_or_404(Group, name__exact=group_name)
     tpl['other_groups'] = pseudogroups.real_only().exclude(name__exact=group_name).order_by('name')
-    tpl['members'] = members = group.user_set.all().order_by('first_name', 'last_name')
-    tpl['pseudo_groups'] = pseudo_groups = pseudogroups.for_group(group)
+    tpl['members'] = group.user_set.all().order_by('first_name', 'last_name')
+    tpl['pseudo_groups'] = pseudogroups.for_group(group)
     return render(request, 'baljan/group.html', tpl)
 
 
@@ -594,8 +597,7 @@ def _pair_matrix(pairs):
 @permission_required('baljan.manage_job_openings')
 def job_opening_projector(request, semester_name):
     tpl = {}
-    tpl['semester'] = sem = models.Semester.objects.get(name__exact=semester_name)
-    user = request.user
+    tpl['semester'] = sem = get_object_or_404(models.Semester, name__exact=semester_name)
 
     pairs = sem.shiftcombination_set.order_by('label')
     slots = _pair_matrix(pairs)
@@ -620,8 +622,7 @@ def job_opening_projector(request, semester_name):
 @transaction.atomic
 def job_opening(request, semester_name):
     tpl = {}
-    tpl['semester'] = sem = models.Semester.objects.get(name__exact=semester_name)
-    user = request.user
+    tpl['semester'] = sem = get_object_or_404(models.Semester, name__exact=semester_name)
 
     found_user = None
     if request.method == 'POST':
@@ -824,9 +825,7 @@ def admin_semester(request, name=None):
             except:
                 pass
     else:
-        sem = models.Semester.objects.by_name(name)
-
-    user = request.user
+        sem = get_object_or_404(models.Semester, name__exact=name)
 
     if request.method == 'POST':
         if request.POST['task']  == 'edit_shifts':
@@ -879,8 +878,8 @@ def shift_combination_form_pdf(request, sem_name):
     return _shift_combinations_pdf(request, sem_name, form=True)
 
 def _shift_combinations_pdf(request, sem_name, form):
+    sem = get_object_or_404(models.Semester, name__exact=sem_name)
     buf = BytesIO()
-    sem = models.Semester.objects.by_name(sem_name)
     if form:
         pdf.shift_combination_form(buf, sem)
     else:
@@ -897,7 +896,7 @@ def _shift_combinations_pdf(request, sem_name, form):
     return response
 
 def user_calendar(request, private_key):
-    user = User.objects.get(profile__private_key__exact=private_key)
+    user = get_object_or_404(User, profile__private_key__exact=private_key)
     cal = ical.for_user(user)
     return HttpResponse(str(cal), content_type="text/calendar")
 
@@ -1146,11 +1145,9 @@ def _json_error(status_code, message):
 @login_required
 def semester_shifts(request, sem_name):
     # Get all shifts for the semester
-    try:
-        sem = models.Semester.objects.by_name(sem_name)
-        pairs = sem.shiftcombination_set.order_by('label')
-    except models.Semester.DoesNotExist:
-        raise Http404("%s är inte en giltig termin." % (sem_name, ))
+    sem = get_object_or_404(models.Semester, name__exact=sem_name)
+    
+    pairs = sem.shiftcombination_set.order_by('label')
 
     if not pairs:
         raise Http404("Inga passkombinationer kunde hittas för termin %s." % (sem_name, ))
