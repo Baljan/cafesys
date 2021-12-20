@@ -32,16 +32,18 @@ pad = 3 * mm
 DATE_FORMAT = '%Y-%m-%d'
 DATETIME_FORMAT = '%Y-%m-%d %H:%M'
 
-font = ('Helvetica', 12)
-group_font = ('Helvetica-Bold', 14)
-footer_font = ('Helvetica', 8)
+assets_folder = os.path.join("cafesys", "baljan", "assets")
+
+title_font = ("Lobster", 16)
+font = ('Helvetica', 16)
+small_font = ('Helvetica', 7)
+code_font = ('Courier-Bold', 16)
 
 try:
-    pdfmetrics.registerFont(TTFont('CourierNew-Bold', os.path.join(settings.PROJECT_ROOT, 'courbd.ttf')))
-    code_font = ('CourierNew-Bold', 23)
+    pdfmetrics.registerFont(TTFont('Lobster', os.path.join(assets_folder,'Lobster-Regular.ttf')))
+    title_font = ("Lobster", 20)
 except:
-    code_font = ('Courier-Bold', 23)
-
+    title_font = ("Helvetica", 16)
 class RefillCard(object):
     def __init__(self, balance_code):
         self.balance_code = balance_code
@@ -49,34 +51,37 @@ class RefillCard(object):
     def save(self, file_object):
         c = canvas.Canvas(file_object, pagesize=A8)
         w, h = paper_size
+        column_width = (w-3*pad)/2
+        center_col1 = pad+(column_width/2)
+        center_col2 = w-center_col1
+
         code = self.balance_code
         series = code.refill_series
 
-        font_height = 9.8 # FIXME: how fetch programmatically?
-        topmost_off = h-(pad+font_height)
-
-        c.setFont(*font)
-        c.drawString(pad, topmost_off, 'Baljan (baljan.org)')
-        c.drawRightString(w-pad, topmost_off, '%d %s' % (code.value, code.currency))
-
-        add_to_group = series.add_to_group
-        if add_to_group:
-            c.setFont(*group_font)
-            c.drawCentredString(w/2, h * 0.7, add_to_group.name.lstrip("_"))
-
-        c.setFont(*code_font)
-        c.drawRightString(w-pad, h * 0.46, code.code)
-
         current_site = Site.objects.get_current()
         code_path = reverse('credits', kwargs={'code': code.code})
-        code_url_qr = qr.QrCode(f'https://{current_site}{code_path}')
-        code_url_qr.drawOn(c, 0, (h-code_url_qr.height)/2)
+        code_url_qr = qr.QrCode(f'https://{current_site}{code_path}', height=column_width, width=column_width, qrBorder=0)
+        code_url_qr.drawOn(c, w-column_width-pad, h-column_width-pad)
 
-        c.setFont(*footer_font)
-        c.drawString(pad, pad,
+        logo_width = column_width * 0.6
+        logo_height = logo_width * 0.782 # hard coded aspect ratio
+        c.drawImage(os.path.join(assets_folder,"logo_black.png"), pad, pad, width=logo_width, height=logo_height)
+
+        c.setFont(*code_font)
+        c.drawCentredString(center_col2, 3*pad, code.code)
+  
+        c.setFont(*title_font)
+        c.drawCentredString(center_col1, h*0.75, "Kaffekort")
+        c.setFont(*font)
+        c.drawCentredString(center_col1, h*0.6, f"{code.value} {code.currency}")
+
+        c.setFont(*small_font)
+        c.drawCentredString(center_col1, h*0.5,
                 _('expires no sooner than %s') \
                     % series.least_valid_until.strftime(DATE_FORMAT))
-        c.drawRightString(w-pad, pad, '%d.%d' % (series.pk, code.pk))
+        c.drawCentredString(center_col1, h*0.43, "baljan.org")
+        c.drawCentredString(center_col2, pad, f"{series.pk}.{code.pk}")
+        
         c.showPage()
         c.save()
         return c
