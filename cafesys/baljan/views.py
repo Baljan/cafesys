@@ -50,10 +50,6 @@ def logout(request):
     return HttpResponseRedirect('/')
 
 
-def index(request):
-    return render(request, 'baljan/baljan.html', {})
-
-
 def redirect_prepend_root(where):
     if where.startswith("/"):
         return HttpResponseRedirect(where)

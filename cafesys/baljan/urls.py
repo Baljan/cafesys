@@ -4,7 +4,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = (
-    path("", views.index),
     path("signup/delete/<int:pk>/<path:redir>", views.delete_signup, name='delete_signup'),
     path("callduty/delete/<int:pk>/<path:redir>", views.delete_callduty, name='delete_callduty'),
     path("tradable/toggle/<int:pk>/<path:redir>", views.toggle_tradable, name='toggle_tradable'),
