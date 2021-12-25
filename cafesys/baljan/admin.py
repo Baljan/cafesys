@@ -60,7 +60,7 @@ class FreeCoffeeListFilter(admin.SimpleListFilter):
                     "free_coffee_unlimited",
                     "free_coffee_with_cooldown",
                 ]
-            )
+            ).distinct()
 
 
 class GroupAdminCustom(GroupAdmin):
