@@ -3,6 +3,7 @@ from io import BytesIO
 from datetime import date
 
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
@@ -13,11 +14,69 @@ admin.site.site_header = "Baljans balla adminsida"
 admin.site.site_title = "Baljans balla adminsida"
 
 
-class ProfileAdmin(admin.ModelAdmin):
-    exclude = ("card_cache",)
+class BoardPostInline(admin.TabularInline):
+    model = models.BoardPost
+    extra = 1
 
 
-admin.site.register(models.Profile, ProfileAdmin)
+class IncomingCallFallbackInline(admin.TabularInline):
+    model = models.IncomingCallFallback
+    max_num = 1
+
+
+class ProfileInline(admin.StackedInline):
+    model = models.Profile
+    can_delete = False
+    readonly_fields = (
+        "has_seen_consent",
+        "balance",
+        "balance_currency",
+        "private_key",
+        "card_cache",
+    )
+
+
+class UserAdminCustom(UserAdmin):
+    list_filter = UserAdmin.list_filter + ("boardpost__post",)
+    readonly_fields = ("user_permissions", "last_login", "date_joined")
+    inlines = (ProfileInline, BoardPostInline, IncomingCallFallbackInline)
+
+
+admin.site.unregister(models.User)
+admin.site.register(models.User, UserAdminCustom)
+
+
+class FreeCoffeeListFilter(admin.SimpleListFilter):
+    title = "gratis kaffe"
+    parameter_name = "free_coffee"
+
+    def lookups(self, request, model_admin):
+        return (("1", "Ja"),)
+
+    def queryset(self, request, queryset):
+        if self.value() == "1":
+            return queryset.filter(
+                permissions__codename__in=[
+                    "free_coffee_unlimited",
+                    "free_coffee_with_cooldown",
+                ]
+            )
+
+
+class GroupAdminCustom(GroupAdmin):
+    def user_count(self, obj):
+      return obj.user_set.count()
+
+    def permission_count(self, obj):
+      return obj.permissions.count()
+
+    list_display = ("name", "permission_count", "user_count")
+    list_filter = (FreeCoffeeListFilter,)
+
+
+
+admin.site.unregister(models.Group)
+admin.site.register(models.Group, GroupAdminCustom)
 
 
 class ShiftInline(admin.TabularInline):
@@ -45,7 +104,7 @@ class SemesterAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     list_display = ("name", "start", "end", "signup_possible")
     list_filter = ("signup_possible",)
-    # inlines = (ShiftInline,)
+    inlines = (BoardPostInline,)
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
@@ -378,7 +437,7 @@ class BoardPostAdmin(admin.ModelAdmin):
         "post",
     )
     list_display = ("semester", "user", "post")
-    list_filter = ("post",)
+    list_filter = ("semester","post",)
 
 
 admin.site.register(models.BoardPost, BoardPostAdmin)
@@ -386,6 +445,7 @@ admin.site.register(models.BoardPost, BoardPostAdmin)
 
 class IncomingCallFallback(admin.ModelAdmin):
     list_display = ("user", "priority")
+    list_editable = ("priority",)
 
 
 admin.site.register(models.IncomingCallFallback, IncomingCallFallback)
