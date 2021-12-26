@@ -16,6 +16,7 @@ from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.core.serializers import serialize
+from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
@@ -44,6 +45,7 @@ from cafesys.baljan.gdpr import get_policies
 
 logger = getLogger(__name__)
 
+rfidSigner = TimestampSigner(salt="rfid") # TODO: separate key? Maybe not neccecary, but why not.
 
 def logout(request):
     auth.logout(request)
@@ -489,6 +491,45 @@ def see_user(request, who):
             (_("call duties"), ['call-duty'], callduties_for(watched)),
             )
     return render(request, 'baljan/user.html', tpl)
+
+
+@login_required
+def card_id(request, signed_rfid=None):
+    # Signed rfid right now is to make sure only "the blipp" can 
+    # create GET urls for setting a specific rfid.
+    # If we in the future want to restrict users from freely setting
+    # card_ids we should verify signature in POST as well.
+
+    user = request.user
+    tpl = {}
+
+    rfid = None
+    if request.method == "GET" and signed_rfid is not None:
+        try:
+            # If not done within 3 mins, user should try again.
+            rfid = int(rfidSigner.unsign(signed_rfid, max_age=180))
+        except SignatureExpired:
+            tpl["signature_error"] = "Registreringslänken du använder har gått ut, påbörja registreringen på nytt."
+        except (BadSignature, ValueError):
+            tpl["signature_error"] = "Registreringslänken du använder är felaktig, påbörja registreringen på nytt."
+    
+    if request.method == "POST":
+        form = forms.ProfileCardIdForm(
+            request.POST,
+            instance=user.profile
+        )
+        if form.is_valid():
+            form.save() 
+            MutedConsent.log(user, ACTION_PROFILE_SAVED)
+
+    elif request.method == "GET":
+        form = forms.ProfileCardIdForm(initial={"card_id":rfid})
+
+    tpl['form'] = form
+    tpl['url_rfid'] = rfid
+    tpl['prev_card_id'] = user.profile.pretty_card_id()
+
+    return render(request, 'baljan/card_id.html', tpl)
 
 
 @login_required
@@ -1066,7 +1107,9 @@ def do_blipp(request):
     if user is None:
         # FIXME: We should try to find the card id in an external database here, but this requires
         #        that there is such a database, which there isn't. Check again after midsummer 2018.
-        return _json_error(404, 'Du måste fylla i kortnumret i din profil\n(' + str(rfid_int) + ')')
+
+        signed_rfid = rfidSigner.sign(str(rfid_int))
+        return _json_error(404, f'Du måste fylla i kortnumret i din profil\n({str(rfid_int)})', signed_rfid=signed_rfid)
 
     # We will always have a user at this point
 
@@ -1134,8 +1177,8 @@ def _get_blipp_configuration(request):
     return None
 
 
-def _json_error(status_code, message):
-    return JsonResponse({'message': message}, status=status_code)
+def _json_error(status_code, message, **kwargs):
+    return JsonResponse({ **kwargs, 'message': message }, status=status_code)
 
 
 @login_required

@@ -1,0 +1,69 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+{% load baljan_extras %}
+
+{% block head_title %}Registrera blippkort{% endblock %}
+
+{% block body %}
+    <h1>Registrera blippkort</h1>
+
+    <p class="lead">
+        För att använda Baljans Balla Blipp™ måste du registrera ett blippkort.
+    </p>
+        
+    {% if signature_error %}
+        <div class="alert alert-danger">
+            {{signature_error}}
+        </div>
+
+    {% elif request.method == "POST" %}
+        {% if form.is_valid %}
+            <div class="alert alert-success">
+                Ditt blippkort är registrerat, nu kan du blippa!
+            </div> 
+        {% else %}
+            <div class="alert alert-danger">
+                {% if form.errors.card_id %}
+                    {{form.errors.card_id}}
+                {% else %}
+                    Registreringen av kortet misslyckades.
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        {% if prev_card_id %}
+            <div class="alert alert-primary">
+                Din profil innehåller redan kortnumret <strong>{{prev_card_id}}</strong>,
+                vilket kommer att skrivas över om du fortsätter.
+            </div>
+        {% endif %}
+        
+        <form autocomplete="off" method="POST" action="">
+            {% csrf_token %}
+            <div class="form-group">
+                {{form}}   
+                {% if url_rfid %}
+                    <div class="form-text">
+                        Blippkortet som skannades ({{url_rfid}}) kommer att sparas i din profil.
+                    </div>
+                {% endif %}
+            </div>
+            <input type="submit" class="btn btn-lg btn-primary" value="Registrera kort"/>
+        </form>
+    {% endif %}
+    
+    <hr>
+
+    <p>
+        <small>
+        Om du har frågor eller stöter på problem, <a href="mailto:{{CONTACT_EMAIL}}">kontakta&nbsp;oss</a>.   
+        </small>
+    </p>
+
+{% endblock %}
+
+{% block extra_body %}
+{% endblock %}

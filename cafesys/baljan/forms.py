@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django import forms
+from django.forms.widgets import HiddenInput
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
@@ -27,6 +28,19 @@ class ProfileForm(forms.ModelForm):
                 'motto',
                 'show_profile',
                 )
+
+class ProfileCardIdForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ProfileCardIdForm, self).__init__(*args, **kwargs)
+        if "initial" in kwargs and kwargs["initial"]["card_id"]:
+            self.fields['card_id'].widget = HiddenInput()
+        else:
+            self.fields["card_id"].widget.attrs["class"] = "form-control"
+            self.fields["card_id"].help_text = None
+    class Meta:
+        model = models.Profile
+        fields = ("card_id",)
+
 
 class OrderForm(forms.Form):
 

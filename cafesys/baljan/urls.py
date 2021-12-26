@@ -15,6 +15,8 @@ urlpatterns = (
     path("admin-semester/<slug:name>", views.admin_semester, name='admin_semester'),
 
     path("profile", views.profile, name='profile'),
+    path("card-id", views.card_id, name="card_id"),
+    path("card-id/<str:signed_rfid>", views.card_id, name="card_id"),
     path("credits", views.credits, name='credits'),
     path("credits/<slug:code>", views.credits, name='credits'),
     path("orders/<int:page_no>", views.orders, name='orders'),
