@@ -1,4 +1,4 @@
-{% if user.is_authenticated and user.profile.card_id == None %}
+{% if user.is_authenticated and user.profile.card_id == None and request.resolver_match.view_name != "card_id" %}
     {% if user.profile.balance > 0 or user.profile.has_free_blipp %}
         <div class="alert alert-warning fade show call-to-action" role="alert">
             <div class="container">
