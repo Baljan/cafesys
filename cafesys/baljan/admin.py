@@ -65,14 +65,13 @@ class FreeCoffeeListFilter(admin.SimpleListFilter):
 
 class GroupAdminCustom(GroupAdmin):
     def user_count(self, obj):
-      return obj.user_set.count()
+        return obj.user_set.count()
 
     def permission_count(self, obj):
-      return obj.permissions.count()
+        return obj.permissions.count()
 
     list_display = ("name", "permission_count", "user_count")
     list_filter = (FreeCoffeeListFilter,)
-
 
 
 admin.site.unregister(models.Group)
@@ -397,15 +396,15 @@ class RefillSeriesAdmin(admin.ModelAdmin):
             )
             return
 
-        buf = BytesIO()
-        pdf.refill_series(buf, queryset)
-        buf.seek(0)
         datestr = date.today().strftime("%Y-%m-%d")
-        response = HttpResponse(buf.read(), content_type="application/pdf")
         name = "refill_series_%s_generated_at_%s.pdf" % (
             "-".join([str(s.pk) for s in queryset]),
             datestr,
         )
+        buf = BytesIO()
+        pdf.refill_series(buf, queryset, name)
+        buf.seek(0)
+        response = HttpResponse(buf.read(), content_type="application/pdf")
         response["Content-Disposition"] = "attachment; filename=%s" % name
 
         for series in queryset:
@@ -437,7 +436,10 @@ class BoardPostAdmin(admin.ModelAdmin):
         "post",
     )
     list_display = ("semester", "user", "post")
-    list_filter = ("semester","post",)
+    list_filter = (
+        "semester",
+        "post",
+    )
 
 
 admin.site.register(models.BoardPost, BoardPostAdmin)

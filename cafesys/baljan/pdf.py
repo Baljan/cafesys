@@ -8,7 +8,6 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.urls import reverse
-from PyPDF2 import PdfFileWriter, PdfFileReader
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -44,62 +43,54 @@ try:
     title_font = ("Lobster", 20)
 except:
     title_font = ("Helvetica", 16)
-class RefillCard(object):
-    def __init__(self, balance_code):
-        self.balance_code = balance_code
-
-    def save(self, file_object):
-        c = canvas.Canvas(file_object, pagesize=A8)
-        w, h = paper_size
-        column_width = (w-3*pad)/2
-        center_col1 = pad+(column_width/2)
-        center_col2 = w-center_col1
-
-        code = self.balance_code
-        series = code.refill_series
-
-        current_site = Site.objects.get_current()
-        code_path = reverse('credits', kwargs={'code': code.code})
-        code_url_qr = qr.QrCode(f'https://{current_site}{code_path}', height=column_width, width=column_width, qrBorder=0)
-        code_url_qr.drawOn(c, w-column_width-pad, h-column_width-pad)
-
-        logo_width = column_width * 0.6
-        logo_height = logo_width * 0.782 # hard coded aspect ratio
-        c.drawImage(os.path.join(assets_folder,"logo_black.png"), pad, pad, width=logo_width, height=logo_height)
-
-        c.setFont(*code_font)
-        c.drawCentredString(center_col2, 3*pad, code.code)
-  
-        c.setFont(*title_font)
-        c.drawCentredString(center_col1, h*0.75, "Kaffekort")
-        c.setFont(*font)
-        c.drawCentredString(center_col1, h*0.6, f"{code.value} {code.currency}")
-
-        c.setFont(*small_font)
-        c.drawCentredString(center_col1, h*0.5,
-                _('expires no sooner than %s') \
-                    % series.least_valid_until.strftime(DATE_FORMAT))
-        c.drawCentredString(center_col1, h*0.43, "baljan.org")
-        c.drawCentredString(center_col2, pad, f"{series.pk}.{code.pk}")
-        
-        c.showPage()
-        c.save()
-        return c
 
 
-def refill_series(file_object, list_of_series):
-    out_pdf = PdfFileWriter()
+def draw_balance_code_card(c: canvas.Canvas, balance_code):
+    w, h = paper_size
+    column_width = (w-3*pad)/2
+    center_col1 = pad+(column_width/2)
+    center_col2 = w-center_col1
+
+    code = balance_code
+    series = code.refill_series
+
+    current_site = Site.objects.get_current()
+    code_path = reverse('credits', kwargs={'code': code.code})
+    code_url_qr = qr.QrCode(f'https://{current_site}{code_path}', height=column_width, width=column_width, qrBorder=0)
+    code_url_qr.drawOn(c, w-column_width-pad, h-column_width-pad)
+
+    logo_width = column_width * 0.6
+    logo_height = logo_width * 0.782 # hard coded aspect ratio
+    c.drawImage(os.path.join(assets_folder,"logo_black.png"), pad, pad, width=logo_width, height=logo_height)
+
+    c.setFont(*code_font)
+    c.drawCentredString(center_col2, 3*pad, code.code)
+
+    c.setFont(*title_font)
+    c.drawCentredString(center_col1, h*0.75, "Kaffekort")
+    c.setFont(*font)
+    c.drawCentredString(center_col1, h*0.6, f"{code.value} {code.currency}")
+
+    c.setFont(*small_font)
+    c.drawCentredString(center_col1, h*0.5,
+            _('expires no sooner than %s') \
+                % series.least_valid_until.strftime(DATE_FORMAT))
+    c.drawCentredString(center_col1, h*0.43, "baljan.org")
+    c.drawCentredString(center_col2, pad, f"{series.pk}.{code.pk}")
+    
+    c.showPage()
+
+
+def refill_series(file_object, list_of_series, name: str):
+    c = canvas.Canvas(file_object, pagesize=A8)
     for series in list_of_series:
         balance_codes = series.balancecode_set.all().order_by('pk')
         for balance_code in balance_codes:
-            card = RefillCard(balance_code)
-            buf = BytesIO()
-            card.save(buf)
-            buf.seek(0)
-            pdfbuf = PdfFileReader(buf)
-            out_pdf.addPage(pdfbuf.getPage(0))
-    out_pdf.write(file_object)
-    return out_pdf
+            draw_balance_code_card(c, balance_code)
+
+    c.setTitle(name)
+    c.save()
+    return c
 
 
 def join_shifts(shifts):
