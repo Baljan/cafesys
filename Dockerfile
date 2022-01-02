@@ -21,7 +21,7 @@ RUN apk add --no-cache $(grep -vE "^\s*#" ${APP_ROOT}/requirements.alpine.txt | 
     pip3 install -U pip setuptools
 
 COPY ./requirements.txt ${APP_ROOT}/requirements.txt
-RUN pip3 install -r ${APP_ROOT}/requirements.txt
+RUN pip3 install --ignore-installed -r ${APP_ROOT}/requirements.txt
 
 COPY . ${APP_ROOT}
 
