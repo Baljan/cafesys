@@ -8,7 +8,7 @@ gunicorn==20.1.0
 whitenoise==5.3.0
 
 # Celery for async and periodic tasks
-celery==4.1.1
+celery==5.2.3
 
 # Social (i.e. LiU ID) login
 social-auth-core==4.1.0
@@ -17,27 +17,26 @@ git+git://github.com/Baljan/python-social-auth-liu@6647be8#egg=social-auth-liu
 
 # PDFs
 reportlab==3.6.2
-PyPDF2==1.26.0
 
 # iCal export
-icalendar==3.11.3
+icalendar==4.0.9
 
 # HTTP client (used to communicate with external APIs)
-requests==2.20.1
+requests==2.26.0
 
 # Make the shell great again
 ipython==7.30.1
 
 # Sass processor
 libsass==0.21.0
-django-compressor==2.4.1
+django-compressor==3.1
 django-sass-processor==1.1
 
 # Livereload
-django-livereload-server==0.2.3
+django-livereload-server==0.4
 
 # Handle time better
-pytz==2017.2
+pytz==2021.3
 
 # Error handling
-rollbar==0.14.*
+rollbar==0.16.2
