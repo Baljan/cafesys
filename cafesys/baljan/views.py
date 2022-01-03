@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from email.mime.text import MIMEText
 from io import BytesIO, StringIO
 from logging import getLogger
+from icalendar import Calendar, Event
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -100,71 +101,32 @@ def orderFromUs(request):
             # String for calendar summary
             itemsDes = ""
 
-            jochen_table = ""
-            mini_jochen_table = ""
-            pasta_salad_table = ""
+            tables = ""
 
-            if numberOfCoffee:
-                items = items +"Antal kaffe: "+str(numberOfCoffee)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfCoffee)+" Kaffe"
+            orderFields = (
+                ("kaffe", numberOfCoffee, None),
+                ("te", numberOfTea, None),
+                ("läsk/vatten", numberOfSoda, None),
+                ("klägg", numberOfKlagg, None),
+                ("Jochen", numberOfJochen, form.JOCHEN_TYPES),
+                ("Mini Jochen", numberOfMinijochen, form.MINI_JOCHEN_TYPES),
+                ("pastasallad", numberOfPastasalad, form.PASTA_SALAD_TYPES),
+            )
 
-            if numberOfTea:
-                items = items +"Antal te: "+str(numberOfTea)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfTea)+" Te"
+            for name, count, tableData in orderFields:
+                if count:
+                    items = items + f"Antal {escape(name)}: {count}<br>"
+                    itemsDes = itemsDes + f" {count} {name.title()}"
 
-            if numberOfSoda:
-                items = items +"Antal l&auml;sk/vatten: "+str(numberOfSoda)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfSoda)+" Lask/vatten"
-
-            if numberOfKlagg:
-                items = items +"Antal kl&auml;gg: "+str(numberOfKlagg) +"<br>"
-                itemsDes = itemsDes+" "+str(numberOfKlagg)+ " Klagg"
-
-            if numberOfJochen:
-                items = items + "Antal Jochen: "+str(numberOfJochen)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfJochen)+" Jochen"
-
-                jochen_table = "<b>Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
-
-                for i, (field_name, label) in enumerate(form.JOCHEN_TYPES):
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
-                    if not field_val:
-                        field_val = ''
-
-                    jochen_table = jochen_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
-
-                jochen_table = jochen_table + "</table>"
-
-            if numberOfMinijochen:
-                items = items+"Antal Mini Jochen: "+str(numberOfMinijochen)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfMinijochen)+" Mini Jochen"
-
-                mini_jochen_table = "<b>Mini Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
-
-                for field_name, label in form.MINI_JOCHEN_TYPES:
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
-                    if not field_val:
-                        field_val = ''
-
-                    mini_jochen_table = mini_jochen_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
-
-                mini_jochen_table = mini_jochen_table + "</table>"
-
-            if numberOfPastasalad:
-                items = items+"Antal Pastasallad: "+str(numberOfPastasalad)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfPastasalad)+" Pastasallad"
-
-                pasta_salad_table = "<b>Pastasallad: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
-
-                for field_name, label in form.PASTA_SALAD_TYPES:
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
-                    if not field_val:
-                        field_val = ''
-
-                    pasta_salad_table = pasta_salad_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
-
-                pasta_salad_table = pasta_salad_table + "</table>"
-
+                    if tableData:
+                        tables = tables + f'<b>{name.title()}:</b><br><table style="border: 1px solid black; border-collapse: collapse;">'
+                        for field_name, label in tableData:
+                            field_val = form.cleaned_data[f'numberOf{field_name.title()}']
+                            if not field_val:
+                                field_val = ''
+                            tables = tables + f'<tr><td style="border: 1px solid black; padding: 5px;">{escape(label)}</td><td style="border: 1px solid black; padding: 5px;">{field_val}</td></tr>'
+                        tables = tables + "</table><br>"
+                        
             if orderSum:
                 orderSum += " SEK"
             else:
@@ -199,57 +161,48 @@ def orderFromUs(request):
                            '<b>&Ouml;vrigt:</b><br>' +other+\
                            '<br> <br><b>Datum och tid: </b><br>'+\
                            'Datum: '+date+'<br>Tid: '+pickuptext+'<br><br>'+\
-                           jochen_table+'<br>'+\
-                           mini_jochen_table+'<br>'+\
-                           pasta_salad_table+'<br>'+\
-                           ' </div>'
+                           tables+\
+                           '</div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
-
-            items = items.replace("&auml;","a")
-            items = items.replace("<br>","\\n")
-            calendarDescription = f"Namn: {orderer}\\nTelefon: {phoneNumber}\\nEmail: {ordererEmail}\\n \\n {items}"
 
             msg = EmailMultiAlternatives(subject, "", from_email, [to], headers={'Reply-To': ordererEmail})
 
             msg.attach(htmlpart)
+            
+            items = items.replace("&auml;","a")
+            items = items.replace("<br>","\n")
+            calendarDescription = f"Namn: {orderer}\nTelefon: {phoneNumber}\nEmail: {ordererEmail}\n\n{items}"
 
-            dtStart=""
+            start_h, start_m, end_h, end_m = 0,0,0,0
             if pickup == '0':  # Morgon
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T073000Z"
-                dtEnd=dPickUp+"T080000Z"
+                start_h, start_m, end_h, end_m = 7,30, 8,0
             if pickup == '1':  # Lunch
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T121500Z"
-                dtEnd=dPickUp+"T130000Z"
+                start_h, start_m, end_h, end_m = 12,15, 13,0
             if pickup == '2':  # Eftermiddag
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T161500Z"
-                dtEnd=dPickUp+"T170000Z"
-            ics_data = f'''BEGIN:VCALENDAR
-PRODID:-//Google Inc//Google Calendar 70.9054//EN
-VERSION:2.0
-CALSCALE:GREGORIAN
-METHOD:REQUEST
-BEGIN:VEVENT
-DTSTART;TZID=Europe/Stockholm:{dtStart}
-DTEND;TZID=Europe/Stockholm:{dtEnd}
-DTSTAMP:20130225T144356Z
-UID:42k@google.com
-ORGANIZER;CN=Baljan Beställning:MAILTO:cafesys@baljan.org
+                start_h, start_m, end_h, end_m = 16,15, 17,0
 
-CREATED:20130225T144356Z
-DESCRIPTION:{calendarDescription}
+            tz = pytz.timezone(settings.TIME_ZONE)
+            year, month, day = [int(x) for x in date.split("-")]
 
-LAST-MODIFIED:20130225T144356Z
-LOCATION:Baljan
-SEQUENCE:0
-STATUS:CONFIRMED
-SUMMARY:{association} - {itemsDes}
-TRANSP:OPAQUE
-END:VEVENT
-END:VCALENDAR'''
-            msg.attach('event.ics',ics_data,'text/calendar')
+            cal = Calendar()
+            cal.add('prodid', '-//Baljan Cafesys//baljan.org//')
+            cal.add('version', '2.0')
+            cal.add('calscale', "GREGORIAN")
+            cal.add('method', 'REQUEST')
+
+            event = Event()
+            event.add("summary", f"{association} - {itemsDes}")
+            event.add('dtstart', datetime(year,month,day,start_h,start_m,0,tzinfo=tz))
+            event.add('dtend', datetime(year,month,day,end_h,end_m,0,tzinfo=tz))
+            event.add('dtstamp', datetime.now(tz))
+            event.add("uid", f"TODO@baljan.org") # TODO
+            event.add("description", calendarDescription)
+            event.add("location", "Baljan")
+            event.add("status", "CONFIRMED")
+
+            cal.add_component(event)
+            
+            msg.attach('event.ics',cal.to_ical(),'text/calendar')
             msg.send()
             messages.add_message(request, messages.SUCCESS, _("Thank you!"))
             return HttpResponseRedirect("bestallning")
