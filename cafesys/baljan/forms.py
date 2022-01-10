@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from django import forms
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.models import User
@@ -84,12 +86,12 @@ class OrderForm(forms.Form):
         super(OrderForm, self).__init__(*args, **kwargs)
 
         # Iteratively add subforms
-        for subFormData in [
+        for sub_form_data in [
             self.JOCHEN_TYPES,
             self.MINI_JOCHEN_TYPES,
             self.PASTA_SALAD_TYPES
         ]:
-            for field_name, label in subFormData:
+            for field_name, label in sub_form_data:
                 self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
 
     orderer = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
@@ -108,8 +110,12 @@ class OrderForm(forms.Form):
     numberOfPastasalad = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal pastasallad:")
     other = forms.CharField(widget=forms.Textarea(attrs={'cols':33,'rows':5}), required=False, label='Övrig information:')
 
-    pickup = forms.ChoiceField(choices=PICKUP_CHOICES, label='Tid för uthämtning')
-    date = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}),required=True, label="Datum:")
+    pickup = forms.ChoiceField(choices=PICKUP_CHOICES, label='Tid för uthämtning:')
+    date = forms.DateField(widget=forms.DateInput(attrs={ 
+                "min": datetime.now().strftime("%Y-%m-%d"), # TODO: timezone
+                "max": (datetime.now() + relativedelta(months=2)).strftime("%Y-%m-%d"), # TODO: timezone
+                'type': 'date'
+              }),required=True, label="Datum:")
     sameAsOrderer = forms.BooleanField(initial=True, required=False, label="Samma som beställare")
     orderSum = forms.CharField(required=False)
 

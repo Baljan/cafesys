@@ -1,0 +1,98 @@
+{% spaceless %}
+<html>
+<head>
+  <style>
+    body {
+      border: 1px dotted black;
+      padding: 1.5rem;
+      font-family: sans-serif;
+    }
+  
+    h2 {
+      margin: 1.5rem 0 0.5rem;
+      font-size: 1.2rem;
+    }
+  
+    p {
+      margin: 0.5rem 0 0.5rem;
+    }
+
+    table {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+
+    td {
+      border: 1px solid black;
+      padding: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <h2>Kontaktuppgifter:</h2>
+  <p>
+  Namn: {{data.orderer}}<br>
+  Email: {{data.ordererEmail}}<br>
+  Telefon: {{data.phoneNumber}}<br>
+  Förening/Sektion: {{data.association}}
+  </p>
+
+  <h2>Uthämtare:</h2>
+  <p>
+    {% if data.sameAsOrderer %}
+      Samma som beställare
+    {% else %} 
+      Namn: {{data.pickupName}}<br>
+      Email: {{data.pickupEmail}}<br>
+      Telefon: {{data.pickupNumber}}
+    {% endif %}
+  </p>
+
+  <h2>Datum och tid:</h2>
+  <p>
+    Datum: {{data.date|date:"l d F Y"}}<br>
+    Tid: 
+    {% if data.pickup == '0' %}
+      Morgon 07:30-08:00
+    {% elif data.pickup == '1' %}
+      Lunch 12:15-13:00
+    {% else %}
+      Eftermiddag 16:15-17:00
+    {% endif %}
+  </p>
+
+  <h2>Beställning:</h2>
+  <p>
+    {% for name, count, _ in order_fields %}
+      {% if count %}
+        Antal {{name}}: {{count}}<br>
+      {% endif %}
+    {% endfor %}
+    Summa: <u>
+    {% if data.orderSum %}
+      {{data.orderSum}} SEK
+    {% else %}
+      0
+    {% endif%}  
+    </u>
+  </p>
+
+  <h2>Övrigt:</h2>
+  {{ data.other|default:"Ingen övrig information lämnades"|linebreaks }}
+
+  {% for name, count, tableData in order_fields %}
+    {% if count and tableData %}
+      <h2>{{name|title}}:</h2>
+      <table>
+      {% for field_name, label, count in tableData %}
+        <tr>
+          <td>{{label}}</td>
+          <td>{{count|default:""}}</td>
+        </tr>
+      {% endfor %}
+      </table>
+    {% endif %}
+  {% endfor %}
+</body>
+</html>
+{% endspaceless %}
