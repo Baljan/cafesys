@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import base64
 import json
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from django.contrib.auth import get_user_model
 from email.mime.text import MIMEText
 from io import BytesIO, StringIO
@@ -25,6 +25,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.html import escape
+from django.template.loader import render_to_string
 
 from cafesys.baljan import phone, slack
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
@@ -68,10 +69,6 @@ def orderFromUs(request):
             ordererEmail = form.cleaned_data['ordererEmail']
             phoneNumber = form.cleaned_data['phoneNumber']
             association = form.cleaned_data['association']
-            sameAsOrderer = form.cleaned_data['sameAsOrderer']
-            pickupName = form.cleaned_data['pickupName']
-            pickupEmail = form.cleaned_data['pickupEmail']
-            pickupNumber = form.cleaned_data['pickupNumber']
             numberOfCoffee = form.cleaned_data['numberOfCoffee']
             numberOfTea = form.cleaned_data['numberOfTea']
             numberOfSoda = form.cleaned_data['numberOfSoda']
@@ -79,101 +76,63 @@ def orderFromUs(request):
             numberOfJochen = form.cleaned_data['numberOfJochen']
             numberOfMinijochen = form.cleaned_data['numberOfMinijochen']
             numberOfPastasalad = form.cleaned_data['numberOfPastasalad']
-            other = form.cleaned_data['other']
             pickup = form.cleaned_data['pickup']
             date = form.cleaned_data['date']
-            orderSum = form.cleaned_data['orderSum']
-            ordererIsSame = ""
-            if sameAsOrderer:
-                ordererIsSame = "Samma som best&auml;llare"
-            else:
-                ordererIsSame = "Namn: "+pickupName+"<br>Email: "+pickupEmail+"<br>Telefon: "+pickupNumber+"<br>"
-            items = ""
-            # String for calendar summary
-            itemsDes = ""
+       
+            def extend_sub_types(sub_types):
+                return [
+                    (field_name, label, form.cleaned_data[f"numberOf{field_name.title()}"])
+                    for field_name,label in sub_types
+                ]
 
-            tables = ""
-
-            orderFields = (
+            order_fields = (
                 ("kaffe", numberOfCoffee, None),
                 ("te", numberOfTea, None),
                 ("läsk/vatten", numberOfSoda, None),
                 ("klägg", numberOfKlagg, None),
-                ("Jochen", numberOfJochen, form.JOCHEN_TYPES),
-                ("Mini Jochen", numberOfMinijochen, form.MINI_JOCHEN_TYPES),
-                ("pastasallad", numberOfPastasalad, form.PASTA_SALAD_TYPES),
+                ("Jochen", numberOfJochen, extend_sub_types(form.JOCHEN_TYPES)),
+                ("Mini Jochen", numberOfMinijochen, extend_sub_types(form.MINI_JOCHEN_TYPES)),
+                ("pastasallad", numberOfPastasalad, extend_sub_types(form.PASTA_SALAD_TYPES)),
             )
 
-            for name, count, tableData in orderFields:
-                if count:
-                    items = items + f"Antal {escape(name)}: {count}<br>"
-                    itemsDes = itemsDes + f" {count} {name.title()}"
-
-                    if tableData:
-                        tables = tables + f'<b>{name.title()}:</b><br><table style="border: 1px solid black; border-collapse: collapse;">'
-                        for field_name, label in tableData:
-                            field_val = form.cleaned_data[f'numberOf{field_name.title()}']
-                            if not field_val:
-                                field_val = ''
-                            tables = tables + f'<tr><td style="border: 1px solid black; padding: 5px;">{escape(label)}</td><td style="border: 1px solid black; padding: 5px;">{field_val}</td></tr>'
-                        tables = tables + "</table><br>"
-                        
-            if orderSum:
-                orderSum += " SEK"
-            else:
-                orderSum = "0"
-
-            if other:
-                other = other.replace("\n", "<br/>")
-            else:
-                other = "Ingen &ouml;vrig information l&auml;mnades."
-
-            subject = f'[Beställning {date} | {orderer} - {association}]'
+            subject = f'[Beställning {date.strftime("%Y-%m-%d")} | {orderer} - {association}]'
             from_email = 'cafesys@baljan.org'
             to = 'bestallning@baljan.org'
 
-            if pickup == '0':
-                pickuptext = 'Morgon 07:30-08:00'
-            elif pickup == '1':
-                pickuptext = 'Lunch 12:15-13:00'
-            else:
-                pickuptext = 'Eftermiddag 16:15-17:00'
+            html_content = render_to_string("baljan/email/order.html", {
+                "data": form.cleaned_data,
+                "order_fields": order_fields,
+            })
 
-            html_content = '<div style="border:1px dotted black;padding:2em;">'+\
-                           '<b> Kontaktuppgifter: </b><br>'+\
-                           'Namn: '+orderer+'<br>'+\
-                           'Email: '+ordererEmail+'<br>'+\
-                           'Telefon: '+phoneNumber +' <br>'+\
-                           'F&ouml;rening/Sektion: '+association+'<br><br>'+\
-                           '<b>Uth&auml;mtare:</b><br> '+\
-                           ordererIsSame+'<br><br>'+\
-                           '<b>Best&auml;llning: </b> <br>'+items+\
-                           'Summa: <u>'+orderSum+'</u><br><br>' + \
-                           '<b>&Ouml;vrigt:</b><br>' +other+\
-                           '<br> <br><b>Datum och tid: </b><br>'+\
-                           'Datum: '+date+'<br>Tid: '+pickuptext+'<br><br>'+\
-                           tables+\
-                           '</div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
 
             msg = EmailMultiAlternatives(subject, "", from_email, [to], headers={'Reply-To': ordererEmail})
 
             msg.attach(htmlpart)
-            
-            items = items.replace("&auml;","a")
-            items = items.replace("<br>","\n")
-            calendarDescription = f"Namn: {orderer}\nTelefon: {phoneNumber}\nEmail: {ordererEmail}\n\n{items}"
 
-            start_h, start_m, end_h, end_m = 0,0,0,0
+
+            description_lines = [
+                f"Namn: {orderer}",
+                f"Telefon: {phoneNumber}",
+                f"Email: {ordererEmail}",
+                "",
+            ] + [
+                f"Antal {name}: {count}" for name, count, _ in order_fields if count
+            ] + [
+                "",
+                "Mer detaljerad information hittas i mailet."
+            ]
+            calendar_description = "\n".join(description_lines)
+
+            start, end = time(0,0), time(0,0)
             if pickup == '0':  # Morgon
-                start_h, start_m, end_h, end_m = 7,30, 8,0
+                start, end = time(7,30), time(8,00)
             if pickup == '1':  # Lunch
-                start_h, start_m, end_h, end_m = 12,15, 13,0
+                start, end = time(12,15), time(13,0)
             if pickup == '2':  # Eftermiddag
-                start_h, start_m, end_h, end_m = 16,15, 17,0
+                start, end = time(16,15), time(17,0)
 
             tz = pytz.timezone(settings.TIME_ZONE)
-            year, month, day = [int(x) for x in date.split("-")]
 
             cal = Calendar()
             cal.add('prodid', '-//Baljan Cafesys//baljan.org//')
@@ -182,12 +141,12 @@ def orderFromUs(request):
             cal.add('method', 'REQUEST')
 
             event = Event()
-            event.add("summary", f"{association} - {itemsDes}")
-            event.add('dtstart', datetime(year,month,day,start_h,start_m,0,tzinfo=tz))
-            event.add('dtend', datetime(year,month,day,end_h,end_m,0,tzinfo=tz))
+            event.add("summary", subject)
+            event.add('dtstart', datetime.combine(date,start,tz))
+            event.add('dtend', datetime.combine(date,end,tz))
             event.add('dtstamp', datetime.now(tz))
             event.add("uid", f"TODO@baljan.org") # TODO
-            event.add("description", calendarDescription)
+            event.add("description", calendar_description)
             event.add("location", "Baljan")
             event.add("status", "CONFIRMED")
 
