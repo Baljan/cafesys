@@ -11,6 +11,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group, User
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
@@ -22,6 +23,7 @@ from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext as _
+from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.html import escape
 
@@ -406,22 +408,16 @@ def credits(request, code=None):
     return render(request, 'baljan/credits.html', tpl)
 
 
-@login_required
-def orders(request, page_no):
-    user = request.user
-    page_no = int(page_no)
-    tpl = {}
-    tpl['orders'] = orders = models.Order.objects \
-        .filter(user_id=user.id).order_by('-put_at')
-    page_size = 50
-    pages = Paginator(orders, page_size)
-    try:
-        page = pages.page(page_no)
-    except:
-        raise Http404("Felaktigt sidnummer, inga köp finns på denna sida.")
-    
-    tpl['order_page'] = page
-    return render(request, 'baljan/orders.html', tpl)
+class OrderListView(LoginRequiredMixin, ListView):
+    model = models.Order
+    context_object_name = 'orders'
+    template_name = 'baljan/orders.html'
+    paginate_by = 50
+    paginate_orphans = 10
+
+    def get_queryset(self):
+        user = self.request.user
+        return super().get_queryset().filter(user_id=user.id).order_by('-put_at')
 
 
 @login_required

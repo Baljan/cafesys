@@ -195,3 +195,12 @@ def shifts_table(pairs, form, workable_shift_fields, shift_numbers, body_id, hid
         'body_id': body_id,
         'hide_handle': hide_handle,
     }
+
+@register.inclusion_tag('baljan/_pagination.html')
+def pagination(page):
+    return {
+        "is_paginated": page.paginator.num_pages > 1,
+        "page": page,
+        "paginator": page.paginator,
+        "page_range": page.paginator.get_elided_page_range(page.number, on_each_side=1, on_ends=2)
+    }

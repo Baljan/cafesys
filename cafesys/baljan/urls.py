@@ -19,7 +19,7 @@ urlpatterns = (
     path("card-id/<str:signed_rfid>", views.card_id, name="card_id"),
     path("credits", views.credits, name='credits'),
     path("credits/<slug:code>", views.credits, name='credits'),
-    path("orders/<int:page_no>", views.orders, name='orders'),
+    path("orders", views.OrderListView.as_view(), name='orders'),
 
     path("user/<int:who>", views.see_user),
     path("group/<str:group_name>", views.see_group, name='group'),

@@ -69,7 +69,7 @@ def categories_and_actions(request):
             )),
         ('regulars', 'Ditt konto', (
             Action('Profil', 'profile'),
-            Action('Dina köp', 'orders', args=(1,)),
+            Action('Dina köp', 'orders'),
             Action('Personer och grupper', 'search_person'),
             ) + tuple(regulars_upcoming_sem_actions)),
         ('anyone', 'Användare', (
