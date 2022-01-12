@@ -21,7 +21,7 @@ urlpatterns = (
     path("credits/<slug:code>", views.credits, name='credits'),
     path("orders", views.OrderListView.as_view(), name='orders'),
 
-    path("user/<int:who>", views.see_user),
+    path("user/<int:who>", views.see_user, name="user"),
     path("group/<str:group_name>", views.see_group, name='group'),
     path('search-person', views.search_person, name='search_person'),
 
@@ -43,6 +43,8 @@ urlpatterns = (
     path('trade/take/<int:signup_pk>/<path:redir>', views.trade_take, name='take_signup'),
     path('trade/accept/<int:request_pk>/<path:redir>', views.trade_accept, name='accept_trade'),
     path('trade/deny/<int:request_pk>/<path:redir>', views.trade_deny, name='deny_trade'),
+
+    path('worker-switch/<int:user>', views.WorkerSwitchView.as_view(), name="worker-switch"),
 
     path('incoming-ivr-call', views.incoming_ivr_call),
     path('incoming-call', views.incoming_call),

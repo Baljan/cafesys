@@ -13,6 +13,7 @@ from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group, User
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
@@ -23,9 +24,10 @@ from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext as _
-from django.views.generic import ListView
+from django.views.generic import ListView, FormView
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.html import escape
+from django.views.generic.detail import SingleObjectMixin
 
 from cafesys.baljan import phone, slack
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
@@ -1252,3 +1254,57 @@ def semester_shifts(request, sem_name):
     }
 
     return render(request, 'baljan/semester_shifts.html', tpl)
+
+
+
+class WorkerSwitchView(SuccessMessageMixin, SingleObjectMixin, FormView):
+    # TODO: permissions
+    model = models.User
+    pk_url_kwarg = "user"
+    context_object_name = "from_user"
+    template_name = 'baljan/worker_switch.html'
+    form_class = forms.WorkerSwitchForm
+
+    def get_success_message(self, cleaned_data) -> str:
+        count = len(cleaned_data["shift_signups"])
+
+        return f"{count} pass har flyttats från {self.object} till {cleaned_data['to_user']}."
+
+    def get_success_url(self) -> str:
+        return reverse("user", args=[self.kwargs["user"]])
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["from_user"] = self.kwargs["user"]
+        return kwargs
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
+
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form) -> HttpResponse:
+        shift_signups = form.cleaned_data["shift_signups"]
+        to_user = form.cleaned_data["to_user"]
+
+        for signup in shift_signups:
+            shift = signup.shift
+            models.ShiftSignup.objects.create(
+                        user=to_user,
+                        shift=shift
+                    )
+            signup.delete()
+
+        # TODO: set roles
+        # Do in celery worker
+        # remove all uses of the roles, besides coffee permission, base other stuff on shift signups.
+        # add WORKER if you reach 4 shifts current semester,
+        # remove WORKER if you fall to 0 shifts current semester,
+        # add SUBSTITUTE if you reach 1 PAST shift current semester,
+        # remove SUBSTITUTE if you fall to 0 shifts current semester AND first shift of previous semester is not in the past 75 opened days. 
+        
+        return super().form_valid(form)

@@ -1,0 +1,16 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+{% load baljan_extras %}
+
+{% block head_title %}Flytta jobbpass från {{object|display_name}}{% endblock %}
+
+{% block body %}
+
+<h1>Flytta jobbpass från {{object|display_name}}</h1>
+
+{% crispy form %}
+
+{% endblock %}

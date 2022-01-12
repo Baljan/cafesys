@@ -5,6 +5,9 @@ from django.forms.widgets import HiddenInput
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+
 from . import models
 
 class UserForm(forms.ModelForm):
@@ -177,3 +180,36 @@ class WorkableShiftsForm(forms.Form):
             for sh in workable_shifts:
                 self.fields['workable-'+sh.combination].initial = True
                 self.fields['priority-'+sh.combination].initial = sh.priority
+
+class WorkerSwitchForm(forms.Form):
+    shift_signups = forms.ModelMultipleChoiceField(models.ShiftSignup.objects.all())
+    to_user = forms.ModelChoiceField(models.User.objects.all())
+
+
+
+    def __init__(self, *args, **kwargs):
+        self.from_user = kwargs.pop("from_user")
+        super(WorkerSwitchForm, self).__init__(*args, **kwargs)
+        self.fields["shift_signups"].queryset = models.ShiftSignup.objects.filter(user=self.from_user).order_by("shift__when")
+        self.fields["to_user"].queryset = models.User.objects.exclude(id=self.from_user).order_by("username")
+
+        # crispy
+        self.helper = FormHelper()
+        self.helper.add_input(Submit('submit', 'Byt ut jobbare på valda pass'))
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+        to_user = cleaned_data.get("to_user")
+        shift_signups = cleaned_data.get("shift_signups")
+
+        for signup in shift_signups:
+            if models.ShiftSignup.objects.filter( # prevent double bookings
+                shift__when=signup.shift.when,
+                shift__span=signup.shift.span,
+                user=to_user
+            ):
+                self.add_error(
+                    'shift_signups',
+                    f"Passet {signup.shift} krockar med ett annat pass {to_user} som har."
+                )
