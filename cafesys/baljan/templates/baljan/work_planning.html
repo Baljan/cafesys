@@ -115,16 +115,18 @@
                             {{ sh.ampm }}
                         </td>
                         <td>
+                            {% spaceless %}
                             {% for su in sh.shiftsignup_set.all %}
                                 {% if su.can_trade %}
                                     <s><span class="tradable">{{su.user|name_link}}</span></s>
                                 {% else %}
                                     {{su.user|name_link}}
-                                {% endif %}{% if not forloop.last %}, {% endif %}
+                                {% endif %}{% if not forloop.last %}<span>, </span>{% endif %}
                             {% endfor %}
                             {% if sh.span == 1 %}
                                 ↕ Överlapp ↕
                             {% endif %}
+                            {% endspaceless %}
                         </td>
                         <td class="on-call">
                             {% for u in sh.oncallduty_set.all %}
