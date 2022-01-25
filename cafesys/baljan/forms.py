@@ -5,6 +5,8 @@ from django.forms.widgets import HiddenInput
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
+from cafesys.baljan.util import available_for_call_duty
+
 from . import models
 
 class UserForm(forms.ModelForm):
@@ -177,3 +179,15 @@ class WorkableShiftsForm(forms.Form):
             for sh in workable_shifts:
                 self.fields['workable-'+sh.combination].initial = True
                 self.fields['priority-'+sh.combination].initial = sh.priority
+
+
+class OnCallDutyForm(forms.ModelForm):
+    user = forms.ModelChoiceField(available_for_call_duty(), required=False)
+    class Meta:
+        model = models.OnCallDuty
+        fields = ( "shift", )
+        widgets = {'shift': forms.HiddenInput()}
+        
+
+
+OnCallDutyFormSet = forms.formset_factory(OnCallDutyForm, extra=0)

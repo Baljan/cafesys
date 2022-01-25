@@ -764,6 +764,17 @@ def call_duty_week(request, year=None, week=None):
     shifts = models.Shift.objects.for_week(year, week).order_by("location", "when", "span")
     
 
+    initial_form_data = []
+    for shift in shifts:
+        onduty = shift.oncallduty_set.first()
+        if onduty:
+            initial_form_data.append({"shift": shift, "user": onduty.user, "id": onduty.id })
+        else:
+            initial_form_data.append({"shift": shift})
+            
+    print(initial_form_data)
+
+    formset = forms.OnCallDutyFormSet(initial=initial_form_data)
 
     available_users = available_for_call_duty()
 
@@ -788,61 +799,77 @@ def call_duty_week(request, year=None, week=None):
     if request.method == 'POST':
 
         print(request.POST)
+        formset = forms.OnCallDutyFormSet(request.POST)
 
         # initial_users = dict(list(zip(initials, avails)))
         # all_old_users = [User.objects.filter(oncallduty__shift=shift).distinct() \
         #             for shift in plan.shifts]
 
-        for shift_id in request.POST:
-            print(shift_id)
-            shift_user_ids = [int(i) for i in request.POST[shift_id]]
-            shift = models.Shift.objects.get(id=int(shift_id))
-            oncallduties = shift.oncallduty_set.all()
-            for oncallduty in oncallduties:
-                if oncallduty.user_id not in shift_user_ids:
-                    oncallduty.delete()
-            shift.oncallduty_set.filter(user_id__in=shift_user_ids).delete()
-            shift.oncallduty_set.filter(user_id__in=shift_user_ids) # TODO: ta inte bort användarn om han redan finns!
-            shift.oncall
+        # for shift_id in request.POST:
+        #     print(shift_id)
+        #     # shift_user_ids = [int(i) for i in request.POST[shift_id]]
+        #     shift = models.Shift.objects.get(id=int(shift_id))
+        #     oncallduties = shift.oncallduty_set.all()
+        #     for oncallduty in oncallduties:
+        #         if oncallduty.user_id not in shift_user_ids:
+        #             oncallduty.delete()
+        #     shift.oncallduty_set.filter(user_id__in=shift_user_ids).delete()
+        #     shift.oncallduty_set.filter(user_id__in=shift_user_ids) # TODO: ta inte bort användarn om han redan finns!
+        #     shift.oncall
 
-            for user_id in shift_user_ids:
-                if not new_user in old_users :
-                    if models.OnCallDuty.objects\
-                        .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
-                        messages.add_message(request, messages.ERROR,
-                            "Kunde inte lägga till %s %s på pass %s." %
-                            (new_user.first_name, new_user.last_name, shift.name_short()),
-                            extra_tags="danger")
-                    else:
-                        o, created = models.OnCallDuty.objects.get_or_create(
-                            shift=shift,
-                            user=new_user
-                        )
-                        assert created
+        #     for user_id in shift_user_ids:
+        #         if not new_user in old_users :
+        #             if models.OnCallDuty.objects\
+        #                 .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
+        #                 messages.add_message(request, messages.ERROR,
+        #                     "Kunde inte lägga till %s %s på pass %s." %
+        #                     (new_user.first_name, new_user.last_name, shift.name_short()),
+        #                     extra_tags="danger")
+        #             else:
+        #                 o, created = models.OnCallDuty.objects.get_or_create(
+        #                     shift=shift,
+        #                     user=new_user
+        #                 )
+        #                 assert created
         
 
-        # Remove old users
-        for shift, old_users, new_users in zip(plan.shifts, all_old_users, all_new_users):
-            for old_user in old_users:
-                if not old_user in new_users:
-                    shift.oncallduty_set.filter(user=old_user).delete()
+        # # Remove old users
+        # for shift, old_users, new_users in zip(plan.shifts, all_old_users, all_new_users):
+        #     for old_user in old_users:
+        #         if not old_user in new_users:
+        #             shift.oncallduty_set.filter(user=old_user).delete()
 
-        # add new users
-        for shift, old_users, new_users in zip(plan.shifts, all_old_users, all_new_users):
-            for new_user in new_users:
-                if not new_user in old_users :
-                    if models.OnCallDuty.objects\
-                        .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
-                        messages.add_message(request, messages.ERROR,
-                            "Kunde inte lägga till %s %s på pass %s." %
-                            (new_user.first_name, new_user.last_name, shift.name_short()),
-                            extra_tags="danger")
-                    else:
-                        o, created = models.OnCallDuty.objects.get_or_create(
-                            shift=shift,
-                            user=new_user
-                        )
-                        assert created
+        # # add new users
+        # for shift, old_users, new_users in zip(plan.shifts, all_old_users, all_new_users):
+        #     for new_user in new_users:
+        #         if not new_user in old_users :
+        #             if models.OnCallDuty.objects\
+        #                 .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
+        #                 messages.add_message(request, messages.ERROR,
+        #                     "Kunde inte lägga till %s %s på pass %s." %
+        #                     (new_user.first_name, new_user.last_name, shift.name_short()),
+        #                     extra_tags="danger")
+        #             else:
+        #                 o, created = models.OnCallDuty.objects.get_or_create(
+        #                     shift=shift,
+        #                     user=new_user
+        #                 )
+        #                 assert created
+
+        print(formset.non_form_errors())
+        print(formset.errors, formset.total_error_count())
+        if formset.is_valid():
+            # pass
+            for form in formset:
+                print(form.cleaned_data)
+                if not form.cleaned_data["user"]:
+                    print("if")
+                    if form.instance.pk:
+                        form.instance.delete()
+                else:
+                    print("else", form.cleaned_data["user"])
+                    form.save()
+            print(formset.deleted_objects, formset.new_objects, formset.changed_objects)
 
         messages.add_message(request, messages.SUCCESS,
                 _("Your changes were saved."))
@@ -857,6 +884,7 @@ def call_duty_week(request, year=None, week=None):
     tpl['next_y'] = adjacent[1][0]
     tpl['next_w'] = adjacent[1][1]
     tpl['shifts'] = shifts
+    tpl['formset'] = formset
     tpl['initials'] = json.dumps(id_initials)
     tpl['available_users'] = available_users
     tpl['locations'] = models.Located.LOCATION_CHOICES
