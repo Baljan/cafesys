@@ -381,7 +381,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
 
         # Add to group requires edit user permission
         if not request.user.has_perm('auth.change_user'):
-            prev = prev + ("add_to_group")
+            prev = prev + ("add_to_group",)
         
         # Disable changing some fields on existing objects
         if obj is not None:
