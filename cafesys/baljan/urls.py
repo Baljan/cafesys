@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 from django.urls import path
+from django.views.generic import TemplateView
 
 from . import views
 
 urlpatterns = (
+    path(
+        "", TemplateView.as_view(template_name="baljan/about.html"), name="home"
+    ),  # name needed for login redirect
+    
     path("signup/delete/<int:pk>/<path:redir>", views.delete_signup, name='delete_signup'),
     path("callduty/delete/<int:pk>/<path:redir>", views.delete_callduty, name='delete_callduty'),
     path("tradable/toggle/<int:pk>/<path:redir>", views.toggle_tradable, name='toggle_tradable'),
