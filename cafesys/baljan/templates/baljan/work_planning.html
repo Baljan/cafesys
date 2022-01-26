@@ -45,7 +45,7 @@
                 <input class="shiftsfilter"  {% if selected_semester.upcoming %} checked="checked" {% else %} disabled="disabled" {% endif %}type="checkbox" id="upcoming-only" name="upcoming-only"/>
                 <label for="upcoming-only">Endast kommande dagar</label>
         </div>
-        {% if selected_semester.upcoming and perms.baljan.self_and_friend_signup %}
+        {% if selected_semester.upcoming %}
             <div class="col-4">
                 <input class="shiftsfilter" type="checkbox" id="only-tradable" name="only-tradable"/>
                 <label for="only-tradable">Endast bytbara pass.</label>

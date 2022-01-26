@@ -313,10 +313,10 @@ def day_shifts(request, day):
     except ValueError:
         raise Http404("Datumet existerar inte")
 
-
     tpl = {}
+    tpl['semester'] = models.Semester.objects.visible_to_user(request.user).for_date(day)
     tpl['day'] = day
-    tpl['shifts'] = shifts = models.Shift.objects.filter(when=day, enabled=True).order_by('location', 'span')
+    tpl['shifts'] = models.Shift.objects.filter(when=day, enabled=True).order_by('location', 'span')
     tpl['available_for_call_duty'] = avail_call_duty = available_for_call_duty()
 
     if request.method == 'POST':
@@ -336,9 +336,6 @@ def day_shifts(request, day):
         signup = models.OnCallDuty(user=signup_user, shift=shift)
         signup.save()
 
-    if len(shifts) == 0:
-        messages.add_message(request, messages.ERROR, _("Nothing scheduled for this shift (yet)."))
-    tpl['semester'] = semester = models.Semester.objects.for_date(day)
     return render(request, 'baljan/day.html', tpl)
 
 
