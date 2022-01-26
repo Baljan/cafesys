@@ -274,7 +274,7 @@ class SemesterQuerySet(models.QuerySet):
     def visible_to_user(self, user):
         if user.has_perm('baljan.view_shiftsignup'):
             return self.all()
-        return self.filter(shift__shiftsignup__user=user)
+        return self.filter(shift__shiftsignup__user=user).distinct()
 
     def for_date(self, the_date):
         try:
