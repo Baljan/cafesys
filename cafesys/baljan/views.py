@@ -253,36 +253,31 @@ END:VCALENDAR'''
 
 
 @login_required
-def current_semester(request):
-    sem = models.Semester.objects.current()
-    if sem is None:
-        try:
-            upcoming_sems = models.Semester.objects.upcoming()
-            sem = upcoming_sems[0]
-        except:
-            pass
-    return _semester(request, sem)
+def semester(request, name=None, loc=0):
+    selectable_semesters = models.Semester.objects.visible_to_user(request.user).order_by('-start')
 
-@login_required
-def semester(request, name, loc=0):
-    sem = get_object_or_404(models.Semester, name__exact=name)
-    return _semester(request, sem, loc)
-
-
-def _semester(request, sem, loc=0):
-    loc = int(loc)
+    if (name is None):
+        sem = models.Semester.objects.visible_to_user(request.user).current()
+        if sem is None:
+            sem = selectable_semesters[0] if len(selectable_semesters) else None
+    else:
+        sem = get_object_or_404(
+            models.Semester.objects.visible_to_user(request.user),
+            name__exact=name
+        )
 
     tpl = {}
-    tpl['semesters'] = models.Semester.objects.order_by('-start').all()
+    tpl['semesters'] = selectable_semesters
     tpl['selected_semester'] = sem
     tpl['locations'] = models.Located.LOCATION_CHOICES
     tpl['selected_location'] = loc
     if sem:
-        tpl['shifts'] = shifts = models.Shift.objects\
+        tpl['shifts'] = models.Shift.objects\
             .order_by('when', 'span')\
-            .filter(semester_id=sem.id,
-                    enabled=True, 
-                    location=loc
+            .filter(
+                semester_id=sem.id,
+                enabled=True, 
+                location=loc
             )\
             .prefetch_related("oncallduty_set__user")\
             .prefetch_related("shiftsignup_set__user")
