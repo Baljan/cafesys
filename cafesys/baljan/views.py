@@ -894,32 +894,6 @@ def admin_semester(request, name=None):
     return render(request, 'baljan/admin_semester.html', tpl)
 
 
-@permission_required('baljan.change_semester')
-def shift_combinations_pdf(request, sem_name):
-    return _shift_combinations_pdf(request, sem_name, form=False)
-
-@permission_required('baljan.change_semester')
-def shift_combination_form_pdf(request, sem_name):
-    return _shift_combinations_pdf(request, sem_name, form=True)
-
-def _shift_combinations_pdf(request, sem_name, form):
-    sem = get_object_or_404(models.Semester, name__exact=sem_name)
-    buf = BytesIO()
-    if form:
-        pdf.shift_combination_form(buf, sem)
-    else:
-        pdf.shift_combinations(buf, sem)
-    buf.seek(0)
-    response = HttpResponse(buf.read(), content_type="application/pdf")
-
-    if form:
-        name = 'semester_form_%s.pdf' % sem.name
-    else:
-        name = 'semester_shifts_%s.pdf' % sem.name
-
-    response['Content-Disposition'] = 'attachment; filename=%s' % name
-    return response
-
 def user_calendar(request, private_key):
     user = get_object_or_404(User, profile__private_key__exact=private_key)
     cal = ical.for_user(user)
