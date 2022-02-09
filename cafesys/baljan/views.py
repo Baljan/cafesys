@@ -20,11 +20,13 @@ from django.core.serializers import serialize
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
+from django.db.models import Sum
+from django.http import HttpResponse, FileResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET
 from django.utils.html import escape
 
 from cafesys.baljan import phone, slack
@@ -43,6 +45,9 @@ from .util import (adjacent_weeks, all_initials, available_for_call_duty,
                    year_and_week)
 import pytz
 import requests
+import seaborn as sns
+from pandas import DataFrame
+
 from cafesys.baljan.gdpr import get_policies
 
 logger = getLogger(__name__)
@@ -416,7 +421,7 @@ class OrderListView(LoginRequiredMixin, ListView):
 def see_user(request, who):
     u = request.user
     tpl = {}
-
+    
     watched = get_object_or_404(User, id=who)
     watching_self = u == watched
     if u.is_authenticated:
@@ -1218,3 +1223,43 @@ def semester_shifts(request, sem_name):
     }
 
     return render(request, 'baljan/semester_shifts.html', tpl)
+
+
+@require_GET
+@permission_required("baljan.view_order")
+def order_heatmap(request):
+    try:
+        from_year = int(request.GET.get('from_year', 2022)) # TODO: improve filtering
+    except ValueError:
+        raise Http404("Året finns inte")
+
+    balance_codes = models.BalanceCode.objects.filter(used_at__isnull=False, used_at__year__gte=from_year).values('used_at').annotate(count=Sum('value')).order_by("used_at")
+    orders = models.Order.objects.filter(accepted=True, paid__gt=0, put_at__year__gte=from_year).extra({'day': "date(put_at)"}).values("day").annotate(count=Sum("paid")).order_by("day")
+
+    bc_cumsum = 0
+    bc_cumsums = []
+    bc_dates = []
+    for data in balance_codes:
+        bc_dates.append(data["used_at"])
+        bc_cumsum = bc_cumsum + data["count"]
+        bc_cumsums.append(bc_cumsum)
+
+    order_cumsum = 0
+    order_cumsums = []
+    order_dates = []
+    for data in orders:
+        order_dates.append(data["day"])
+        order_cumsum = order_cumsum + data["count"]
+        order_cumsums.append(order_cumsum)
+
+    bc_data = DataFrame(index=bc_dates, data={"count":bc_cumsums})
+    order_data = DataFrame(index=order_dates, data={"count":order_cumsums})
+
+    sns.set_theme()
+    plot = sns.relplot(data={"Kaffekort använda":bc_data.loc[:, "count"],"Blippat för": order_data.loc[:, "count"]}, kind="line")
+    plot.figure.autofmt_xdate()
+
+    buffer = BytesIO() 
+    plot.savefig(buffer, format='png')
+    buffer.seek(0)
+    return FileResponse(buffer, filename='heatmap.png')
