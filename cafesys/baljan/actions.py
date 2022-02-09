@@ -63,7 +63,8 @@ def categories_and_actions(request):
         ),
         (settings.WORKER_GROUP, 'Jobbare', (
             Action('Jobbplanering', 'current_semester'),
-            Action('Jobbarguide', settings.STATIC_URL + 'guide.pdf', resolve_func=None),
+            Action('Jobbarguide Baljan', settings.STATIC_URL + 'guideBaljan.pdf', resolve_func=None),
+            Action('Jobbarguide Byttan', settings.STATIC_URL + 'guideByttan.pdf', resolve_func=None),
             Action('Jobbkontrakt', settings.STATIC_URL + 'contract.pdf', resolve_func=None),
             Action('Lägga in pass i kalenderprogram', settings.STATIC_URL + 'ical-calendar.pdf', resolve_func=None),
             )),
