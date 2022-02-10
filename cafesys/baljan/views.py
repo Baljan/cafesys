@@ -48,6 +48,7 @@ import pytz
 import requests
 import seaborn as sns
 from pandas import DataFrame
+import matplotlib.pyplot as plt
 
 from cafesys.baljan.gdpr import get_policies
 
@@ -1255,12 +1256,14 @@ def stats_order_heatmap(request):
             hour__lte=16
         ).values("weekday", "hour", "quarter").annotate(count=Count("id")).order_by("weekday", "hour", "quarter")
 
-    data = DataFrame(dtype="int")
+    data = DataFrame()
+    weekdays = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"]
     for timepoint in orders:
-        data.at[timepoint["weekday"]-1, time(timepoint["hour"], timepoint["quarter"])] = int(timepoint["count"])
+        data.at[weekdays[timepoint["weekday"]-1], time(timepoint["hour"], timepoint["quarter"])] = int(timepoint["count"])
 
     sns.set_theme()
-    plot = sns.heatmap(data, annot=True, cbar=False, cmap="YlGnBu")
+    plt.figure(figsize = (16,9))
+    plot = sns.heatmap(data, cbar=False, cmap="YlGnBu")
     plot.figure.autofmt_xdate()
 
     buffer = BytesIO() 
@@ -1299,6 +1302,7 @@ def stats_blipp(request):
     order_data = DataFrame(index=order_dates, data={"count":order_cumsums})
 
     sns.set_theme()
+    plt.figure(figsize = (16,9))
     plot = sns.relplot(data={"Kaffekort använda":bc_data.loc[:, "count"],"Blippat för": order_data.loc[:, "count"]}, kind="line")
     plot.figure.autofmt_xdate()
 
