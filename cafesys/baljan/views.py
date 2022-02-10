@@ -20,8 +20,8 @@ from django.core.serializers import serialize
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.db import transaction
-from django.db.models import Sum, Count
-from django.db.models.functions import ExtractHour, ExtractIsoWeekDay
+from django.db.models import Sum, Count,IntegerField, Case, When, Value
+from django.db.models.functions import ExtractHour, ExtractMinute, ExtractIsoWeekDay
 from django.http import HttpResponse, FileResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext as _
@@ -422,7 +422,7 @@ class OrderListView(LoginRequiredMixin, ListView):
 def see_user(request, who):
     u = request.user
     tpl = {}
-    
+
     watched = get_object_or_404(User, id=who)
     watching_self = u == watched
     if u.is_authenticated:
@@ -1239,19 +1239,29 @@ def stats_order_heatmap(request):
             put_at__year__gte=from_year
         ).annotate(
             weekday=ExtractIsoWeekDay('put_at'),
-            hour=ExtractHour("put_at")
+            hour=ExtractHour("put_at"),
+            minute=ExtractMinute("put_at"),
+        ).annotate(
+            quarter=Case(
+                When(minute__gte=0, minute__lt=15, then=Value(0)),
+                When(minute__gte=15, minute__lt=30, then=Value(15)),
+                When(minute__gte=30, minute__lt=45, then=Value(30)),
+                When(minute__gte=45, then=Value(45)),
+                output_field=IntegerField(),
+            )
         ).filter(
             weekday__lt=6,
             hour__gte=8,
             hour__lte=16
-        ).values("weekday", "hour").annotate(count=Count("id")).order_by("weekday", "hour")
+        ).values("weekday", "hour", "quarter").annotate(count=Count("id")).order_by("weekday", "hour", "quarter")
 
-    data = DataFrame()
+    data = DataFrame(dtype="int")
     for timepoint in orders:
-        data.at[timepoint["weekday"]-1, time(timepoint["hour"])] = timepoint["count"]
+        data.at[timepoint["weekday"]-1, time(timepoint["hour"], timepoint["quarter"])] = int(timepoint["count"])
 
     sns.set_theme()
     plot = sns.heatmap(data, annot=True, cbar=False, cmap="YlGnBu")
+    plot.figure.autofmt_xdate()
 
     buffer = BytesIO() 
     plot.get_figure().savefig(buffer, format='png')
