@@ -57,5 +57,6 @@ urlpatterns = (
     path('semester-shifts/<slug:sem_name>', views.semester_shifts, name='semester_shifts'),
     path('styrelsen', views.styrelsen, name='styrelsen'),
 
-    path("stats/heatmap", views.order_heatmap, name="order_heatmap")
+    path("stats/heatmap", views.stats_order_heatmap, name="stats_order_heatmap"),
+    path("stats/blipp", views.stats_blipp, name="stats_blipp")
 )

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import base64
 import json
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from django.contrib.auth import get_user_model
 from email.mime.text import MIMEText
 from io import BytesIO, StringIO
@@ -20,7 +20,8 @@ from django.core.serializers import serialize
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Sum, Count
+from django.db.models.functions import ExtractHour, ExtractIsoWeekDay
 from django.http import HttpResponse, FileResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext as _
@@ -1227,7 +1228,39 @@ def semester_shifts(request, sem_name):
 
 @require_GET
 @permission_required("baljan.view_order")
-def order_heatmap(request):
+def stats_order_heatmap(request):
+    try:
+        from_year = int(request.GET.get('from_year', 2022)) # TODO: improve filtering
+    except ValueError:
+        raise Http404("Året finns inte")
+    
+    orders = models.Order.objects.filter(
+            accepted=True,
+            put_at__year__gte=from_year
+        ).annotate(
+            weekday=ExtractIsoWeekDay('put_at'),
+            hour=ExtractHour("put_at")
+        ).filter(
+            weekday__lt=6,
+            hour__gte=8,
+            hour__lte=16
+        ).values("weekday", "hour").annotate(count=Count("id")).order_by("weekday", "hour")
+
+    data = DataFrame()
+    for timepoint in orders:
+        data.at[timepoint["weekday"]-1, time(timepoint["hour"])] = timepoint["count"]
+
+    sns.set_theme()
+    plot = sns.heatmap(data, annot=True, cbar=False, cmap="YlGnBu")
+
+    buffer = BytesIO() 
+    plot.get_figure().savefig(buffer, format='png')
+    buffer.seek(0)
+    return FileResponse(buffer, filename='heatmap.png')
+
+@require_GET
+@permission_required("baljan.view_order")
+def stats_blipp(request):
     try:
         from_year = int(request.GET.get('from_year', 2022)) # TODO: improve filtering
     except ValueError:
@@ -1262,4 +1295,4 @@ def order_heatmap(request):
     buffer = BytesIO() 
     plot.savefig(buffer, format='png')
     buffer.seek(0)
-    return FileResponse(buffer, filename='heatmap.png')
+    return FileResponse(buffer, filename='blippstats.png')
