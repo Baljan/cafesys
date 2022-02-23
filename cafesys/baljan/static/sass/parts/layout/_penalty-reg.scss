@@ -1,217 +1,103 @@
-@media only screen and (max-width: 600px) {
-  .styrelse-profile {
-    width: auto !important;
-    right: 0 !important;
-    left: 0 !important;
-    top: 60vw !important;
-  }
-}
+$ht21-orange: #ffc300;
 
 .container-styrelsen {
   position: relative;
   margin: 0 auto;
-}
 
-.image-styrelsen {
-  opacity: 1;
-  display: block;
-  height: auto;
-  transition: 0.5s ease;
-  backface-visibility: hidden;
-  border-radius: 25px;
-  max-width: 1192px;
-  width: 100%;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
 
-.info-styrelsen {
-  transition: 0.5s ease;
-  opacity: 0;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  text-align: center;
-}
+  & > .hover-area {
+    width: 10%;
+    height: 20%;
+    z-index: 2;
+    position: absolute;
 
-.text-styrelsen {
-  background-color: #4caf50;
-  color: white;
-  font-size: 16px;
-  padding: 16px 32px;
-}
+    &:hover + .card {
+      transform: scale(1);
+      opacity: 1;
+    }
 
-.styrelse-member {
-  transition: 0.5s ease;
-  opacity: 0;
-  width: 10%;
-  height: 20%;
-  z-index: 100;
-  position: absolute;
-}
-
-.styrelse-profile {
-  transition: 0.65s ease;
-  width: 40vw;
-  max-width: 40rem;
-  height: auto;
-  position: absolute;
-  top: 10vh;
-  right: 5vw;
-  opacity: 0;
-  border: none;
-  background-color: transparent;
-  backdrop-filter: blur(10px);
-
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-
-.styrelse-profile > .card-body {
-  border-style: solid;
-  border-width: 7px;
-  border-color: rgb(230, 0, 139);
-  border-top: none;
-  background-color: #fff;
-}
-
-.p {
-  margin-bottom: 5px;
-}
-
-.h5 {
-  font-family: "Lobster", cursive;
-  color: rgb(230, 0, 139);
-}
-
-.prof-text {
-  font-family: "Lobster", cursive;
-  color: rgb(0, 164, 224);
-  margin-bottom: 5px;
-}
-
-.image-prof {
-  max-height: 250px;
-  padding: 10px 20px 0;
-  border-radius: 0;
-  object-fit: contain;
-  object-position: center 4px;
-  background: #ffc300;
-
-  background: linear-gradient(180deg, rgba(#ffc300, 0.6) 0%, #e6008b 100%);
-  @supports not (backdrop-filter: blur(10px)) {
-    /* CSS to provide fallback alternative for Firefox and similar browsers */
-    & {
-      background: linear-gradient(180deg, #ffc300 0%, #e6008b 100%);
+    &:hover ~ .main-image {
+      opacity: 0.6;
     }
   }
-}
 
-.styrelse-member:hover ~ .image-styrelsen {
-  opacity: 0.6;
-}
+  .card {
+    transition: all 0.3s ease;
+    width: 40vw;
+    max-width: 40rem;
+    height: auto;
+    position: absolute;
+    z-index: 1;
+    top: 10vh;
+    right: 5vw;
+    transform: scale(0.8);
+    opacity: 0;
+    border: none;
+    background-color: transparent;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 
-#ordf:hover ~ #ordf-prof {
-  opacity: 1;
-  z-index: 200;
-}
+    @media only screen and (max-width: 600px) {
+      width: auto !important;
+      right: 0 !important;
+      left: 0 !important;
+      top: 60vw !important;
+    }
 
-#vice:hover ~ #vice-prof {
-  opacity: 1;
-  z-index: 200;
-}
+    & > img {
+      max-height: 250px;
+      padding: 10px 20px 0;
+      border-radius: 0;
+      object-fit: contain;
+      object-position: center 4px;
+      background: $ht21-orange;
 
-#kass:hover ~ #kass-prof {
-  opacity: 1;
-  z-index: 200;
-}
+      background: linear-gradient(180deg, rgba($ht21-orange, 0.6) 0%, $pink 100%);
+      @supports not (backdrop-filter: blur(10px)) {
+        /* CSS to provide fallback alternative for Firefox and similar browsers */
+        & {
+          background: linear-gradient(180deg, $ht21-orange 0%, $pink 100%);
+        }
+      }
+    }
+  }
 
-#pers:hover ~ #pers-prof {
-  opacity: 1;
-  z-index: 200;
-}
+  .card-body {
+    border-style: solid;
+    border-width: 7px;
+    border-color: $pink;
+    border-top: none;
+    background-color: $white;
 
-#ink:hover ~ #ink-prof {
-  opacity: 1;
-  z-index: 200;
-}
+    h2 {
+      font-size: 1.4rem;
+      font-family: "Lobster", cursive;
+      color: $pink;
+      margin-bottom: 0.75rem;
+    }
 
-#p1:hover ~ #p1-prof {
-  opacity: 1;
-  z-index: 200;
-}
+    h3 {
+      font-size: 1.2rem;
+      font-family: "Lobster", cursive;
+      color: $blue;
+      margin: 0.25rem 0;
+    }
+    p {
+      font-size: 1.1rem;
+      margin: 0;
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+    }
+  }
 
-#p2:hover ~ #p2-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#sek:hover ~ #sek-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#syss:hover ~ #syss-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#pyss:hover ~ #pyss-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#info:hover ~ #info-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#piff:hover ~ #piff-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#paff:hover ~ #paff-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#puff:hover ~ #puff-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#lev:hover ~ #lev-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#event:hover ~ #event-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#bytt:hover ~ #bytt-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#kul:hover ~ #kul-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#nerd00:hover ~ #nerd00-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#nerd01:hover ~ #nerd01-prof {
-  opacity: 1;
-  z-index: 200;
-}
-
-#nerd10:hover ~ #nerd10-prof {
-  opacity: 1;
-  z-index: 200;
+  .main-image {
+    opacity: 1;
+    display: block;
+    transition: opacity 0.3s ease;
+    border-radius: 25px;
+    max-width: 1192px;
+    width: 100%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
 }
