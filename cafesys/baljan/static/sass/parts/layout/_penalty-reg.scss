@@ -1,4 +1,5 @@
 $ht21-orange: #ffc300;
+$vt22-orange: #ffb380;
 
 .container-styrelsen {
   position: relative;
@@ -51,13 +52,13 @@ $ht21-orange: #ffc300;
       object-fit: contain;
       object-position: center 4px;
       background: $ht21-orange;
-      background: url("/static/img/mountains.svg"), linear-gradient(180deg, rgba($ht21-orange, 0.6) 0%, $pink 100%);
+      background: url("/static/img/mountains.svg"), linear-gradient(0deg, rgba($vt22-orange, 0.6) 0%, $blue 200%);
       background-repeat: no-repeat;
       background-position: bottom;
       @supports not (backdrop-filter: blur(10px)) {
         /* CSS to provide fallback alternative for Firefox and similar browsers */
         & {
-          background: url("/static/img/mountains.svg"), linear-gradient(180deg, $ht21-orange 0%, $pink 100%);
+          background: url("/static/img/mountains.svg"), linear-gradient(0deg, $vt22-orange 0%, $blue 200%);
         }
       }
     }
