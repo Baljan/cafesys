@@ -53,12 +53,12 @@ $vt22-orange: #ffb380;
       object-position: center 4px;
       background: $ht21-orange;
       background: url("/static/img/mountains.svg"), linear-gradient(0deg, rgba($vt22-orange, 0.6) 0%, $blue 200%);
-      background-repeat: no-repeat;
-      background-position: bottom;
+      background-repeat: no-repeat, no-repeat;
+      background-position: bottom, bottom;
       @supports not (backdrop-filter: blur(10px)) {
         /* CSS to provide fallback alternative for Firefox and similar browsers */
         & {
-          background: url("/static/img/mountains.svg"), linear-gradient(0deg, $vt22-orange 0%, $blue 200%);
+          background-image: url("/static/img/mountains.svg"), linear-gradient(0deg, $vt22-orange 0%, $blue 200%);
         }
       }
     }
