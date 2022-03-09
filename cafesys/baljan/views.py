@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import base64
+import uuid
 import json
 from datetime import date, datetime, time, timedelta
 from django.contrib.auth import get_user_model
@@ -135,7 +136,7 @@ def orderFromUs(request):
 
             start, end = time(0,0), time(0,0)
             if pickup == '0':  # Morgon
-                start, end = time(7,30), time(8,00)
+                start, end = time(7,30), time(8,0)
             if pickup == '1':  # Lunch
                 start, end = time(12,15), time(13,0)
             if pickup == '2':  # Eftermiddag
@@ -154,7 +155,7 @@ def orderFromUs(request):
             event.add('dtstart', datetime.combine(date,start,tz))
             event.add('dtend', datetime.combine(date,end,tz))
             event.add('dtstamp', datetime.now(tz))
-            event.add("uid", f"TODO@baljan.org") # TODO
+            event.add("uid", f"{uuid.uuid4()}@baljan.org")
             event.add("description", calendar_description)
             event.add("location", "Baljan")
             event.add("status", "CONFIRMED")
