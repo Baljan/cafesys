@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import base64
+import uuid
 import json
 from datetime import date, datetime, time, timedelta
 from django.contrib.auth import get_user_model
 from email.mime.text import MIMEText
 from io import BytesIO, StringIO
 from logging import getLogger
+from icalendar import Calendar, Event
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -29,6 +31,7 @@ from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET
 from django.utils.html import escape
+from django.template.loader import render_to_string
 
 from cafesys.baljan import phone, slack
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
@@ -76,10 +79,6 @@ def orderFromUs(request):
             ordererEmail = form.cleaned_data['ordererEmail']
             phoneNumber = form.cleaned_data['phoneNumber']
             association = form.cleaned_data['association']
-            sameAsOrderer = form.cleaned_data['sameAsOrderer']
-            pickupName = form.cleaned_data['pickupName']
-            pickupEmail = form.cleaned_data['pickupEmail']
-            pickupNumber = form.cleaned_data['pickupNumber']
             numberOfCoffee = form.cleaned_data['numberOfCoffee']
             numberOfTea = form.cleaned_data['numberOfTea']
             numberOfSoda = form.cleaned_data['numberOfSoda']
@@ -87,169 +86,83 @@ def orderFromUs(request):
             numberOfJochen = form.cleaned_data['numberOfJochen']
             numberOfMinijochen = form.cleaned_data['numberOfMinijochen']
             numberOfPastasalad = form.cleaned_data['numberOfPastasalad']
-            other = form.cleaned_data['other']
             pickup = form.cleaned_data['pickup']
             date = form.cleaned_data['date']
-            orderSum = form.cleaned_data['orderSum']
-            ordererIsSame = ""
-            if sameAsOrderer:
-                ordererIsSame = "Samma som best&auml;llare"
-            else:
-                ordererIsSame = "Namn: "+pickupName+"<br>Email: "+pickupEmail+"<br>Telefon: "+pickupNumber+"<br>"
-            items = ""
-            # String for calendar summary
-            itemsDes = ""
+       
+            def extend_sub_types(sub_types):
+                return [
+                    (field_name, label, form.cleaned_data[f"numberOf{field_name.title()}"])
+                    for field_name,label in sub_types
+                ]
 
-            jochen_table = ""
-            mini_jochen_table = ""
-            pasta_salad_table = ""
+            order_fields = (
+                ("kaffe", numberOfCoffee, None),
+                ("te", numberOfTea, None),
+                ("läsk/vatten", numberOfSoda, None),
+                ("klägg", numberOfKlagg, None),
+                ("Jochen", numberOfJochen, extend_sub_types(form.JOCHEN_TYPES)),
+                ("Mini Jochen", numberOfMinijochen, extend_sub_types(form.MINI_JOCHEN_TYPES)),
+                ("pastasallad", numberOfPastasalad, extend_sub_types(form.PASTA_SALAD_TYPES)),
+            )
 
-            if numberOfCoffee:
-                items = items +"Antal kaffe: "+str(numberOfCoffee)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfCoffee)+" Kaffe"
-
-            if numberOfTea:
-                items = items +"Antal te: "+str(numberOfTea)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfTea)+" Te"
-
-            if numberOfSoda:
-                items = items +"Antal l&auml;sk/vatten: "+str(numberOfSoda)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfSoda)+" Lask/vatten"
-
-            if numberOfKlagg:
-                items = items +"Antal kl&auml;gg: "+str(numberOfKlagg) +"<br>"
-                itemsDes = itemsDes+" "+str(numberOfKlagg)+ " Klagg"
-
-            if numberOfJochen:
-                items = items + "Antal Jochen: "+str(numberOfJochen)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfJochen)+" Jochen"
-
-                jochen_table = "<b>Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
-
-                for i, (field_name, label) in enumerate(form.JOCHEN_TYPES):
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
-                    if not field_val:
-                        field_val = ''
-
-                    jochen_table = jochen_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
-
-                jochen_table = jochen_table + "</table>"
-
-            if numberOfMinijochen:
-                items = items+"Antal Mini Jochen: "+str(numberOfMinijochen)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfMinijochen)+" Mini Jochen"
-
-                mini_jochen_table = "<b>Mini Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
-
-                for field_name, label in form.MINI_JOCHEN_TYPES:
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
-                    if not field_val:
-                        field_val = ''
-
-                    mini_jochen_table = mini_jochen_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
-
-                mini_jochen_table = mini_jochen_table + "</table>"
-
-            if numberOfPastasalad:
-                items = items+"Antal Pastasallad: "+str(numberOfPastasalad)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfPastasalad)+" Pastasallad"
-
-                pasta_salad_table = "<b>Pastasallad: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
-
-                for field_name, label in form.PASTA_SALAD_TYPES:
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
-                    if not field_val:
-                        field_val = ''
-
-                    pasta_salad_table = pasta_salad_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
-
-                pasta_salad_table = pasta_salad_table + "</table>"
-
-            if orderSum:
-                orderSum += " SEK"
-            else:
-                orderSum = "0"
-
-            if other:
-                other = other.replace("\n", "<br/>")
-            else:
-                other = "Ingen &ouml;vrig information l&auml;mnades."
-
-            subject = f'[Beställning {date} | {orderer} - {association}]'
+            subject = f'[Beställning {date.strftime("%Y-%m-%d")} | {orderer} - {association}]'
             from_email = 'cafesys@baljan.org'
             to = 'bestallning@baljan.org'
 
-            if pickup == '0':
-                pickuptext = 'Morgon 07:30-08:00'
-            elif pickup == '1':
-                pickuptext = 'Lunch 12:15-13:00'
-            else:
-                pickuptext = 'Eftermiddag 16:15-17:00'
+            html_content = render_to_string("baljan/email/order.html", {
+                "data": form.cleaned_data,
+                "order_fields": order_fields,
+            })
 
-            html_content = '<div style="border:1px dotted black;padding:2em;">'+\
-                           '<b> Kontaktuppgifter: </b><br>'+\
-                           'Namn: '+orderer+'<br>'+\
-                           'Email: '+ordererEmail+'<br>'+\
-                           'Telefon: '+phoneNumber +' <br>'+\
-                           'F&ouml;rening/Sektion: '+association+'<br><br>'+\
-                           '<b>Uth&auml;mtare:</b><br> '+\
-                           ordererIsSame+'<br><br>'+\
-                           '<b>Best&auml;llning: </b> <br>'+items+\
-                           'Summa: <u>'+orderSum+'</u><br><br>' + \
-                           '<b>&Ouml;vrigt:</b><br>' +other+\
-                           '<br> <br><b>Datum och tid: </b><br>'+\
-                           'Datum: '+date+'<br>Tid: '+pickuptext+'<br><br>'+\
-                           jochen_table+'<br>'+\
-                           mini_jochen_table+'<br>'+\
-                           pasta_salad_table+'<br>'+\
-                           ' </div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
-
-            items = items.replace("&auml;","a")
-            items = items.replace("<br>","\\n")
-            calendarDescription = f"Namn: {orderer}\\nTelefon: {phoneNumber}\\nEmail: {ordererEmail}\\n \\n {items}"
 
             msg = EmailMultiAlternatives(subject, "", from_email, [to], headers={'Reply-To': ordererEmail})
 
             msg.attach(htmlpart)
 
-            dtStart=""
+
+            description_lines = [
+                f"Namn: {orderer}",
+                f"Telefon: {phoneNumber}",
+                f"Email: {ordererEmail}",
+                "",
+            ] + [
+                f"Antal {name}: {count}" for name, count, _ in order_fields if count
+            ] + [
+                "",
+                "Mer detaljerad information hittas i mailet."
+            ]
+            calendar_description = "\n".join(description_lines)
+
+            start, end = time(0,0), time(0,0)
             if pickup == '0':  # Morgon
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T073000Z"
-                dtEnd=dPickUp+"T080000Z"
+                start, end = time(7,30), time(8,0)
             if pickup == '1':  # Lunch
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T121500Z"
-                dtEnd=dPickUp+"T130000Z"
+                start, end = time(12,15), time(13,0)
             if pickup == '2':  # Eftermiddag
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T161500Z"
-                dtEnd=dPickUp+"T170000Z"
-            ics_data = f'''BEGIN:VCALENDAR
-PRODID:-//Google Inc//Google Calendar 70.9054//EN
-VERSION:2.0
-CALSCALE:GREGORIAN
-METHOD:REQUEST
-BEGIN:VEVENT
-DTSTART;TZID=Europe/Stockholm:{dtStart}
-DTEND;TZID=Europe/Stockholm:{dtEnd}
-DTSTAMP:20130225T144356Z
-UID:42k@google.com
-ORGANIZER;CN=Baljan Beställning:MAILTO:cafesys@baljan.org
+                start, end = time(16,15), time(17,0)
 
-CREATED:20130225T144356Z
-DESCRIPTION:{calendarDescription}
+            tz = pytz.timezone(settings.TIME_ZONE)
 
-LAST-MODIFIED:20130225T144356Z
-LOCATION:Baljan
-SEQUENCE:0
-STATUS:CONFIRMED
-SUMMARY:{association} - {itemsDes}
-TRANSP:OPAQUE
-END:VEVENT
-END:VCALENDAR'''
-            msg.attach('event.ics',ics_data,'text/calendar')
+            cal = Calendar()
+            cal.add('prodid', '-//Baljan Cafesys//baljan.org//')
+            cal.add('version', '2.0')
+            cal.add('calscale', "GREGORIAN")
+            cal.add('method', 'REQUEST')
+
+            event = Event()
+            event.add("summary", subject)
+            event.add('dtstart', datetime.combine(date,start,tz))
+            event.add('dtend', datetime.combine(date,end,tz))
+            event.add('dtstamp', datetime.now(tz))
+            event.add("uid", f"{uuid.uuid4()}@baljan.org")
+            event.add("description", calendar_description)
+            event.add("location", "Baljan")
+            event.add("status", "CONFIRMED")
+
+            cal.add_component(event)
+            
+            msg.attach('event.ics',cal.to_ical(),'text/calendar')
             msg.send()
             messages.add_message(request, messages.SUCCESS, _("Thank you!"))
             return HttpResponseRedirect("bestallning")

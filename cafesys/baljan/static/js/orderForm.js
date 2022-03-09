@@ -128,12 +128,5 @@ $(function () {
         window.onbeforeunload = null;
     });
 
-    var datepicker=$("#id_date");
-    datepicker.datepicker({
-        language: "sv",
-        startDate: '0d',
-        daysOfWeekDisabled: '06'
-    });
-
     calcSum();
 });
