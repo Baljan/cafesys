@@ -3,6 +3,7 @@ from io import BytesIO
 from datetime import date
 
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
@@ -13,11 +14,68 @@ admin.site.site_header = "Baljans balla adminsida"
 admin.site.site_title = "Baljans balla adminsida"
 
 
-class ProfileAdmin(admin.ModelAdmin):
-    exclude = ("card_cache",)
+class BoardPostInline(admin.TabularInline):
+    model = models.BoardPost
+    extra = 1
 
 
-admin.site.register(models.Profile, ProfileAdmin)
+class IncomingCallFallbackInline(admin.TabularInline):
+    model = models.IncomingCallFallback
+    max_num = 1
+
+
+class ProfileInline(admin.StackedInline):
+    model = models.Profile
+    can_delete = False
+    readonly_fields = (
+        "has_seen_consent",
+        "balance",
+        "balance_currency",
+        "private_key",
+        "card_cache",
+    )
+
+
+class UserAdminCustom(UserAdmin):
+    list_filter = UserAdmin.list_filter + ("boardpost__post",)
+    readonly_fields = ("user_permissions", "last_login", "date_joined")
+    inlines = (ProfileInline, BoardPostInline, IncomingCallFallbackInline)
+
+
+admin.site.unregister(models.User)
+admin.site.register(models.User, UserAdminCustom)
+
+
+class FreeCoffeeListFilter(admin.SimpleListFilter):
+    title = "gratis kaffe"
+    parameter_name = "free_coffee"
+
+    def lookups(self, request, model_admin):
+        return (("1", "Ja"),)
+
+    def queryset(self, request, queryset):
+        if self.value() == "1":
+            return queryset.filter(
+                permissions__codename__in=[
+                    "free_coffee_unlimited",
+                    "free_coffee_with_cooldown",
+                ]
+            ).distinct()
+
+
+class GroupAdminCustom(GroupAdmin):
+    def user_count(self, obj):
+        return obj.user_set.count()
+
+    def permission_count(self, obj):
+        return obj.permissions.count()
+
+    list_display = ("name", "permission_count", "user_count")
+    list_filter = (FreeCoffeeListFilter,)
+
+
+admin.site.unregister(models.Group)
+admin.site.register(models.Group, GroupAdminCustom)
 
 
 class ShiftInline(admin.TabularInline):
@@ -45,7 +103,7 @@ class SemesterAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     list_display = ("name", "start", "end", "signup_possible")
     list_filter = ("signup_possible",)
-    # inlines = (ShiftInline,)
+    inlines = (BoardPostInline,)
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
@@ -312,14 +370,32 @@ class RefillSeriesAdmin(admin.ModelAdmin):
     )
     list_filter = ("issued",)
 
+    readonly_fields = (
+        "made_by",
+        "issued",
+        "least_valid_until",
+    )
+
+    def get_readonly_fields(self, request, obj):
+        prev = super().get_readonly_fields(request, obj)
+
+        # Add to group requires edit user permission
+        if not request.user.has_perm('auth.change_user'):
+            prev = prev + ("add_to_group",)
+        
+        # Disable changing some fields on existing objects
+        if obj is not None:
+            prev = prev + ("code_count", "code_value", "code_currency")
+
+        return prev
+
     def save_model(self, request, obj, form, change):
-        if change:
-            self.message_user(
-                request, _("No changes saved. Create a new series instead.")
-            )
-        else:
+        if not change:
             obj.made_by = request.user
-            obj.save()
+
+        super().save_model(request, obj, form, change)
+        
+        if not change:
             for i in range(obj.code_count):
                 code = models.BalanceCode(
                     refill_series=obj, currency=obj.code_currency, value=obj.code_value
@@ -338,15 +414,15 @@ class RefillSeriesAdmin(admin.ModelAdmin):
             )
             return
 
-        buf = BytesIO()
-        pdf.refill_series(buf, queryset)
-        buf.seek(0)
         datestr = date.today().strftime("%Y-%m-%d")
-        response = HttpResponse(buf.read(), content_type="application/pdf")
         name = "refill_series_%s_generated_at_%s.pdf" % (
             "-".join([str(s.pk) for s in queryset]),
             datestr,
         )
+        buf = BytesIO()
+        pdf.refill_series(buf, queryset, name)
+        buf.seek(0)
+        response = HttpResponse(buf.read(), content_type="application/pdf")
         response["Content-Disposition"] = "attachment; filename=%s" % name
 
         for series in queryset:
@@ -359,11 +435,6 @@ class RefillSeriesAdmin(admin.ModelAdmin):
 
     make_pdf.short_description = _("make PDF")
 
-    readonly_fields = (
-        "made_by",
-        "issued",
-        "least_valid_until",
-    )
 
 
 admin.site.register(models.RefillSeries, RefillSeriesAdmin)
@@ -378,7 +449,10 @@ class BoardPostAdmin(admin.ModelAdmin):
         "post",
     )
     list_display = ("semester", "user", "post")
-    list_filter = ("post",)
+    list_filter = (
+        "semester",
+        "post",
+    )
 
 
 admin.site.register(models.BoardPost, BoardPostAdmin)
@@ -386,6 +460,7 @@ admin.site.register(models.BoardPost, BoardPostAdmin)
 
 class IncomingCallFallback(admin.ModelAdmin):
     list_display = ("user", "priority")
+    list_editable = ("priority",)
 
 
 admin.site.register(models.IncomingCallFallback, IncomingCallFallback)

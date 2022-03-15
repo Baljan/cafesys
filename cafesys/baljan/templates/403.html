@@ -1,0 +1,22 @@
+{% extends "baljan/baljan.html" %}
+{% load baljan_extras %}
+
+{% block head_title %}Här får man inte vara{% endblock %}
+
+{% block body %}
+
+<div class="error-page">
+  <div class="emoji">👮</div>
+  <h1>
+    Här får man inte vara!
+  </h1>
+  <p>
+    {% if user.is_authenticated %}
+      I alla fall inte du, {{ user | display_name }}!
+    {% else %}
+      I alla fall inte du!
+    {% endif %}
+  </p>
+</div>
+
+{% endblock %}

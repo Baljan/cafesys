@@ -15,7 +15,6 @@
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-secondary" disabled><i class="fa fa-lock" aria-hidden="true"></i></button>
                 <a href="{% url 'admin:auth_user_change' watched.id %}" role="button" class="btn btn-secondary">Visa användare</a>
-                <a href="{% url 'admin:baljan_profile_change' watched.profile.id %}" role="button" class="btn btn-secondary">Visa profil</a>
             </div>
         {% endif %}
     </h1>

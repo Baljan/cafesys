@@ -29,8 +29,8 @@
                     Ogiltig eller använd kod.
                 </div>
             {% endif %}
-            <form autocomplete="off" method="POST" action="">{% csrf_token %}
-                <input type="hidden" name="task" value="refill" />
+            <form autocomplete="off" method="POST" action="">
+                {% csrf_token %}
                 <div class="form-group">
                     {{refill_form}}
                     <small class="form-text text-muted">Koden står på ditt värdekort.</small>

@@ -1,28 +1,37 @@
 # -*- coding: utf-8 -*-
 import base64
+import uuid
 import json
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from django.contrib.auth import get_user_model
 from email.mime.text import MIMEText
 from io import BytesIO, StringIO
 from logging import getLogger
+from icalendar import Calendar, Event
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group, User
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.core.serializers import serialize
+from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
-from django.shortcuts import render, redirect
+from django.db.models import Sum, Count,IntegerField, Case, When, Value
+from django.db.models.functions import ExtractHour, ExtractMinute, ExtractIsoWeekDay
+from django.http import HttpResponse, FileResponse, HttpResponseRedirect, JsonResponse, Http404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext as _
+from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET
 from django.utils.html import escape
+from django.template.loader import render_to_string
 
 from cafesys.baljan import phone, slack
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
@@ -40,18 +49,19 @@ from .util import (adjacent_weeks, all_initials, available_for_call_duty,
                    year_and_week)
 import pytz
 import requests
+import seaborn as sns
+from pandas import DataFrame
+import matplotlib.pyplot as plt
+
 from cafesys.baljan.gdpr import get_policies
 
 logger = getLogger(__name__)
 
+rfidSigner = TimestampSigner(salt="rfid") # TODO: separate key? Maybe not neccecary, but why not.
 
 def logout(request):
     auth.logout(request)
     return HttpResponseRedirect('/')
-
-
-def index(request):
-    return render(request, 'baljan/baljan.html', {})
 
 
 def redirect_prepend_root(where):
@@ -59,17 +69,6 @@ def redirect_prepend_root(where):
         return HttpResponseRedirect(where)
     return HttpResponseRedirect('/%s' % where)
 
-
-@login_required
-def current_semester(request):
-    sem = models.Semester.objects.current()
-    if sem is None:
-        try:
-            upcoming_sems = models.Semester.objects.upcoming()
-            sem = upcoming_sems[0]
-        except:
-            pass
-    return _semester(request, sem)
 
 def orderFromUs(request):
     if request.method == 'POST':
@@ -80,10 +79,6 @@ def orderFromUs(request):
             ordererEmail = form.cleaned_data['ordererEmail']
             phoneNumber = form.cleaned_data['phoneNumber']
             association = form.cleaned_data['association']
-            sameAsOrderer = form.cleaned_data['sameAsOrderer']
-            pickupName = form.cleaned_data['pickupName']
-            pickupEmail = form.cleaned_data['pickupEmail']
-            pickupNumber = form.cleaned_data['pickupNumber']
             numberOfCoffee = form.cleaned_data['numberOfCoffee']
             numberOfTea = form.cleaned_data['numberOfTea']
             numberOfSoda = form.cleaned_data['numberOfSoda']
@@ -91,169 +86,83 @@ def orderFromUs(request):
             numberOfJochen = form.cleaned_data['numberOfJochen']
             numberOfMinijochen = form.cleaned_data['numberOfMinijochen']
             numberOfPastasalad = form.cleaned_data['numberOfPastasalad']
-            other = form.cleaned_data['other']
             pickup = form.cleaned_data['pickup']
             date = form.cleaned_data['date']
-            orderSum = form.cleaned_data['orderSum']
-            ordererIsSame = ""
-            if sameAsOrderer:
-                ordererIsSame = "Samma som best&auml;llare"
-            else:
-                ordererIsSame = "Namn: "+pickupName+"<br>Email: "+pickupEmail+"<br>Telefon: "+pickupNumber+"<br>"
-            items = ""
-            # String for calendar summary
-            itemsDes = ""
+       
+            def extend_sub_types(sub_types):
+                return [
+                    (field_name, label, form.cleaned_data[f"numberOf{field_name.title()}"])
+                    for field_name,label in sub_types
+                ]
 
-            jochen_table = ""
-            mini_jochen_table = ""
-            pasta_salad_table = ""
+            order_fields = (
+                ("kaffe", numberOfCoffee, None),
+                ("te", numberOfTea, None),
+                ("läsk/vatten", numberOfSoda, None),
+                ("klägg", numberOfKlagg, None),
+                ("Jochen", numberOfJochen, extend_sub_types(form.JOCHEN_TYPES)),
+                ("Mini Jochen", numberOfMinijochen, extend_sub_types(form.MINI_JOCHEN_TYPES)),
+                ("pastasallad", numberOfPastasalad, extend_sub_types(form.PASTA_SALAD_TYPES)),
+            )
 
-            if numberOfCoffee:
-                items = items +"Antal kaffe: "+str(numberOfCoffee)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfCoffee)+" Kaffe"
-
-            if numberOfTea:
-                items = items +"Antal te: "+str(numberOfTea)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfTea)+" Te"
-
-            if numberOfSoda:
-                items = items +"Antal l&auml;sk/vatten: "+str(numberOfSoda)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfSoda)+" Lask/vatten"
-
-            if numberOfKlagg:
-                items = items +"Antal kl&auml;gg: "+str(numberOfKlagg) +"<br>"
-                itemsDes = itemsDes+" "+str(numberOfKlagg)+ " Klagg"
-
-            if numberOfJochen:
-                items = items + "Antal Jochen: "+str(numberOfJochen)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfJochen)+" Jochen"
-
-                jochen_table = "<b>Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
-
-                for i, (field_name, label) in enumerate(form.JOCHEN_TYPES):
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
-                    if not field_val:
-                        field_val = ''
-
-                    jochen_table = jochen_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
-
-                jochen_table = jochen_table + "</table>"
-
-            if numberOfMinijochen:
-                items = items+"Antal Mini Jochen: "+str(numberOfMinijochen)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfMinijochen)+" Mini Jochen"
-
-                mini_jochen_table = "<b>Mini Jochens: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
-
-                for field_name, label in form.MINI_JOCHEN_TYPES:
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
-                    if not field_val:
-                        field_val = ''
-
-                    mini_jochen_table = mini_jochen_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
-
-                mini_jochen_table = mini_jochen_table + "</table>"
-
-            if numberOfPastasalad:
-                items = items+"Antal Pastasallad: "+str(numberOfPastasalad)+"<br>"
-                itemsDes = itemsDes+" "+str(numberOfPastasalad)+" Pastasallad"
-
-                pasta_salad_table = "<b>Pastasallad: </b><br><table style=\"border: 1px solid black; border-collapse: collapse;\">"
-
-                for field_name, label in form.PASTA_SALAD_TYPES:
-                    field_val = form.cleaned_data['numberOf%s' % field_name.title()]
-                    if not field_val:
-                        field_val = ''
-
-                    pasta_salad_table = pasta_salad_table + "<tr><td style=\"border: 1px solid black; padding: 5px;\">%s</td><td style=\"border: 1px solid black; padding: 5px;\">%s</td></tr>" % (escape(label), field_val)
-
-                pasta_salad_table = pasta_salad_table + "</table>"
-
-            if orderSum:
-                orderSum += " SEK"
-            else:
-                orderSum = "0"
-
-            if other:
-                other = other.replace("\n", "<br/>")
-            else:
-                other = "Ingen &ouml;vrig information l&auml;mnades."
-
-            subject = f'[Beställning {date} | {orderer} - {association}]'
+            subject = f'[Beställning {date.strftime("%Y-%m-%d")} | {orderer} - {association}]'
             from_email = 'cafesys@baljan.org'
             to = 'bestallning@baljan.org'
 
-            if pickup == '0':
-                pickuptext = 'Morgon 07:30-08:00'
-            elif pickup == '1':
-                pickuptext = 'Lunch 12:15-13:00'
-            else:
-                pickuptext = 'Eftermiddag 16:15-17:00'
+            html_content = render_to_string("baljan/email/order.html", {
+                "data": form.cleaned_data,
+                "order_fields": order_fields,
+            })
 
-            html_content = '<div style="border:1px dotted black;padding:2em;">'+\
-                           '<b> Kontaktuppgifter: </b><br>'+\
-                           'Namn: '+orderer+'<br>'+\
-                           'Email: '+ordererEmail+'<br>'+\
-                           'Telefon: '+phoneNumber +' <br>'+\
-                           'F&ouml;rening/Sektion: '+association+'<br><br>'+\
-                           '<b>Uth&auml;mtare:</b><br> '+\
-                           ordererIsSame+'<br><br>'+\
-                           '<b>Best&auml;llning: </b> <br>'+items+\
-                           'Summa: <u>'+orderSum+'</u><br><br>' + \
-                           '<b>&Ouml;vrigt:</b><br>' +other+\
-                           '<br> <br><b>Datum och tid: </b><br>'+\
-                           'Datum: '+date+'<br>Tid: '+pickuptext+'<br><br>'+\
-                           jochen_table+'<br>'+\
-                           mini_jochen_table+'<br>'+\
-                           pasta_salad_table+'<br>'+\
-                           ' </div>'
             htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
-
-            items = items.replace("&auml;","a")
-            items = items.replace("<br>","\\n")
-            calendarDescription = f"Namn: {orderer}\\nTelefon: {phoneNumber}\\nEmail: {ordererEmail}\\n \\n {items}"
 
             msg = EmailMultiAlternatives(subject, "", from_email, [to], headers={'Reply-To': ordererEmail})
 
             msg.attach(htmlpart)
 
-            dtStart=""
+
+            description_lines = [
+                f"Namn: {orderer}",
+                f"Telefon: {phoneNumber}",
+                f"Email: {ordererEmail}",
+                "",
+            ] + [
+                f"Antal {name}: {count}" for name, count, _ in order_fields if count
+            ] + [
+                "",
+                "Mer detaljerad information hittas i mailet."
+            ]
+            calendar_description = "\n".join(description_lines)
+
+            start, end = time(0,0), time(0,0)
             if pickup == '0':  # Morgon
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T073000Z"
-                dtEnd=dPickUp+"T080000Z"
+                start, end = time(7,30), time(8,0)
             if pickup == '1':  # Lunch
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T121500Z"
-                dtEnd=dPickUp+"T130000Z"
+                start, end = time(12,15), time(13,0)
             if pickup == '2':  # Eftermiddag
-                dPickUp=date.replace("-","")
-                dtStart=dPickUp+"T161500Z"
-                dtEnd=dPickUp+"T170000Z"
-            ics_data = f'''BEGIN:VCALENDAR
-PRODID:-//Google Inc//Google Calendar 70.9054//EN
-VERSION:2.0
-CALSCALE:GREGORIAN
-METHOD:REQUEST
-BEGIN:VEVENT
-DTSTART;TZID=Europe/Stockholm:{dtStart}
-DTEND;TZID=Europe/Stockholm:{dtEnd}
-DTSTAMP:20130225T144356Z
-UID:42k@google.com
-ORGANIZER;CN=Baljan Beställning:MAILTO:cafesys@baljan.org
+                start, end = time(16,15), time(17,0)
 
-CREATED:20130225T144356Z
-DESCRIPTION:{calendarDescription}
+            tz = pytz.timezone(settings.TIME_ZONE)
 
-LAST-MODIFIED:20130225T144356Z
-LOCATION:Baljan
-SEQUENCE:0
-STATUS:CONFIRMED
-SUMMARY:{association} - {itemsDes}
-TRANSP:OPAQUE
-END:VEVENT
-END:VCALENDAR'''
-            msg.attach('event.ics',ics_data,'text/calendar')
+            cal = Calendar()
+            cal.add('prodid', '-//Baljan Cafesys//baljan.org//')
+            cal.add('version', '2.0')
+            cal.add('calscale', "GREGORIAN")
+            cal.add('method', 'REQUEST')
+
+            event = Event()
+            event.add("summary", subject)
+            event.add('dtstart', datetime.combine(date,start,tz))
+            event.add('dtend', datetime.combine(date,end,tz))
+            event.add('dtstamp', datetime.now(tz))
+            event.add("uid", f"{uuid.uuid4()}@baljan.org")
+            event.add("description", calendar_description)
+            event.add("location", "Baljan")
+            event.add("status", "CONFIRMED")
+
+            cal.add_component(event)
+            
+            msg.attach('event.ics',cal.to_ical(),'text/calendar')
             msg.send()
             messages.add_message(request, messages.SUCCESS, _("Thank you!"))
             return HttpResponseRedirect("bestallning")
@@ -264,24 +173,31 @@ END:VCALENDAR'''
 
 
 @login_required
-def semester(request, name, loc=0):
-    return _semester(request, models.Semester.objects.by_name(name), loc)
+def semester(request, name=None, loc=0):
+    selectable_semesters = models.Semester.objects.visible_to_user(request.user).order_by('-start')
 
-
-def _semester(request, sem, loc=0):
-    loc = int(loc)
+    if (name is None):
+        sem = models.Semester.objects.visible_to_user(request.user).current()
+        if sem is None:
+            sem = selectable_semesters[0] if len(selectable_semesters) else None
+    else:
+        sem = get_object_or_404(
+            models.Semester.objects.visible_to_user(request.user),
+            name__exact=name
+        )
 
     tpl = {}
-    tpl['semesters'] = models.Semester.objects.order_by('-start').all()
+    tpl['semesters'] = selectable_semesters
     tpl['selected_semester'] = sem
     tpl['locations'] = models.Located.LOCATION_CHOICES
     tpl['selected_location'] = loc
     if sem:
-        tpl['shifts'] = shifts = models.Shift.objects\
+        tpl['shifts'] = models.Shift.objects\
             .order_by('when', 'span')\
-            .filter(semester_id=sem.id,
-                    enabled=True, 
-                    location=loc
+            .filter(
+                semester_id=sem.id,
+                enabled=True, 
+                location=loc
             )\
             .prefetch_related("oncallduty_set__user")\
             .prefetch_related("shiftsignup_set__user")
@@ -312,9 +228,15 @@ def toggle_tradable(request, pk, redir):
 
 @login_required
 def day_shifts(request, day):
+    try:
+        day = from_iso8601(day)
+    except ValueError:
+        raise Http404("Datumet existerar inte")
+
     tpl = {}
-    tpl['day'] = day = from_iso8601(day)
-    tpl['shifts'] = shifts = models.Shift.objects.filter(when=day, enabled=True).order_by('location', 'span')
+    tpl['semester'] = models.Semester.objects.visible_to_user(request.user).for_date(day)
+    tpl['day'] = day
+    tpl['shifts'] = models.Shift.objects.filter(when=day, enabled=True).order_by('location', 'span')
     tpl['available_for_call_duty'] = avail_call_duty = available_for_call_duty()
 
     if request.method == 'POST':
@@ -334,9 +256,6 @@ def day_shifts(request, day):
         signup = models.OnCallDuty(user=signup_user, shift=shift)
         signup.save()
 
-    if len(shifts) == 0:
-        messages.add_message(request, messages.ERROR, _("Nothing scheduled for this shift (yet)."))
-    tpl['semester'] = semester = models.Semester.objects.for_date(day)
     return render(request, 'baljan/day.html', tpl)
 
 
@@ -375,51 +294,42 @@ def profile(request):
 
 
 @login_required
-def credits(request):
+def credits(request, code=None):
     user = request.user
-    profile = user.profile
     tpl = {}
 
-    refill_form = forms.RefillForm()
+    refill_form = forms.RefillForm(code=code)
 
     if request.method == 'POST':
-        try:
-            foo = request.POST['task']
-        except:
-            logger.error('no task in form!')
-        else:
-            if request.POST['task'] == 'refill':
-                refill_form = forms.RefillForm(request.POST)
-                if refill_form.is_valid():
-                    entered_code = refill_form.cleaned_data['code']
-                    creditsmodule.is_used(entered_code, user) # for logging
-                    try:
-                        creditsmodule.manual_refill(entered_code, user)
-                        tpl['used_card'] = True
-                    except creditsmodule.BadCode:
-                        tpl['invalid_card'] = True
-            else:
-                logger.error('illegal task %r' % request.POST['task'])
+        refill_form = forms.RefillForm(request.POST)
+        if refill_form.is_valid():
+            entered_code = refill_form.cleaned_data['code']
+            try:
+                creditsmodule.manual_refill(entered_code, user)
+                tpl['used_card'] = True
+            except:
+                tpl['invalid_card'] = True
+
 
     tpl['refill_form'] = refill_form
-    tpl['currently_available'] = profile.balcur()
-    tpl['used_cards'] = used_cards = creditsmodule.used_by(user)
+    tpl['currently_available'] = user.profile.balcur()
+    tpl['used_cards'] = models.BalanceCode.objects.filter(
+        used_by=user,
+    ).order_by('-used_at', '-id')
 
     return render(request, 'baljan/credits.html', tpl)
 
 
-@login_required
-def orders(request, page_no):
-    user = request.user
-    page_no = int(page_no)
-    tpl = {}
-    tpl['orders'] = orders = models.Order.objects \
-        .filter(user=user).order_by('-put_at')
-    page_size = 50
-    pages = Paginator(orders, page_size)
-    page = pages.page(page_no)
-    tpl['order_page'] = page
-    return render(request, 'baljan/orders.html', tpl)
+class OrderListView(LoginRequiredMixin, ListView):
+    model = models.Order
+    context_object_name = 'orders'
+    template_name = 'baljan/orders.html'
+    paginate_by = 50
+    paginate_orphans = 10
+
+    def get_queryset(self):
+        user = self.request.user
+        return super().get_queryset().filter(user_id=user.id).order_by('-put_at')
 
 
 @login_required
@@ -427,7 +337,7 @@ def see_user(request, who):
     u = request.user
     tpl = {}
 
-    watched = User.objects.get(id=who)
+    watched = get_object_or_404(User, id=who)
     watching_self = u == watched
     if u.is_authenticated:
         profile_form_cls_inst = (
@@ -492,13 +402,51 @@ def see_user(request, who):
 
 
 @login_required
-def see_group(request, group_name):
+def card_id(request, signed_rfid=None):
+    # Signed rfid right now is to make sure only "the blipp" can 
+    # create GET urls for setting a specific rfid.
+    # If we in the future want to restrict users from freely setting
+    # card_ids we should verify signature in POST as well.
+
     user = request.user
     tpl = {}
-    tpl['group'] = group = Group.objects.get(name__exact=group_name)
+
+    rfid = None
+    if request.method == "GET" and signed_rfid is not None:
+        try:
+            # If not done within 3 mins, user should try again.
+            rfid = int(rfidSigner.unsign(signed_rfid, max_age=180))
+        except SignatureExpired:
+            tpl["signature_error"] = "Registreringslänken du använder har gått ut, påbörja registreringen på nytt."
+        except (BadSignature, ValueError):
+            tpl["signature_error"] = "Registreringslänken du använder är felaktig, påbörja registreringen på nytt."
+    
+    if request.method == "POST":
+        form = forms.ProfileCardIdForm(
+            request.POST,
+            instance=user.profile
+        )
+        if form.is_valid():
+            form.save() 
+            MutedConsent.log(user, ACTION_PROFILE_SAVED)
+
+    elif request.method == "GET":
+        form = forms.ProfileCardIdForm(initial={"card_id":rfid})
+
+    tpl['form'] = form
+    tpl['url_rfid'] = rfid
+    tpl['prev_card_id'] = user.profile.pretty_card_id()
+
+    return render(request, 'baljan/card_id.html', tpl)
+
+
+@login_required
+def see_group(request, group_name):
+    tpl = {}
+    tpl['group'] = group = get_object_or_404(Group, name__exact=group_name)
     tpl['other_groups'] = pseudogroups.real_only().exclude(name__exact=group_name).order_by('name')
-    tpl['members'] = members = group.user_set.all().order_by('first_name', 'last_name')
-    tpl['pseudo_groups'] = pseudo_groups = pseudogroups.for_group(group)
+    tpl['members'] = group.user_set.all().order_by('first_name', 'last_name')
+    tpl['pseudo_groups'] = pseudogroups.for_group(group)
     return render(request, 'baljan/group.html', tpl)
 
 
@@ -594,8 +542,7 @@ def _pair_matrix(pairs):
 @permission_required('baljan.manage_job_openings')
 def job_opening_projector(request, semester_name):
     tpl = {}
-    tpl['semester'] = sem = models.Semester.objects.get(name__exact=semester_name)
-    user = request.user
+    tpl['semester'] = sem = get_object_or_404(models.Semester, name__exact=semester_name)
 
     pairs = sem.shiftcombination_set.order_by('label')
     slots = _pair_matrix(pairs)
@@ -620,8 +567,7 @@ def job_opening_projector(request, semester_name):
 @transaction.atomic
 def job_opening(request, semester_name):
     tpl = {}
-    tpl['semester'] = sem = models.Semester.objects.get(name__exact=semester_name)
-    user = request.user
+    tpl['semester'] = sem = get_object_or_404(models.Semester, name__exact=semester_name)
 
     found_user = None
     if request.method == 'POST':
@@ -824,9 +770,7 @@ def admin_semester(request, name=None):
             except:
                 pass
     else:
-        sem = models.Semester.objects.by_name(name)
-
-    user = request.user
+        sem = get_object_or_404(models.Semester, name__exact=name)
 
     if request.method == 'POST':
         if request.POST['task']  == 'edit_shifts':
@@ -870,34 +814,8 @@ def admin_semester(request, name=None):
     return render(request, 'baljan/admin_semester.html', tpl)
 
 
-@permission_required('baljan.change_semester')
-def shift_combinations_pdf(request, sem_name):
-    return _shift_combinations_pdf(request, sem_name, form=False)
-
-@permission_required('baljan.change_semester')
-def shift_combination_form_pdf(request, sem_name):
-    return _shift_combinations_pdf(request, sem_name, form=True)
-
-def _shift_combinations_pdf(request, sem_name, form):
-    buf = BytesIO()
-    sem = models.Semester.objects.by_name(sem_name)
-    if form:
-        pdf.shift_combination_form(buf, sem)
-    else:
-        pdf.shift_combinations(buf, sem)
-    buf.seek(0)
-    response = HttpResponse(buf.read(), content_type="application/pdf")
-
-    if form:
-        name = 'semester_form_%s.pdf' % sem.name
-    else:
-        name = 'semester_shifts_%s.pdf' % sem.name
-
-    response['Content-Disposition'] = 'attachment; filename=%s' % name
-    return response
-
 def user_calendar(request, private_key):
-    user = User.objects.get(profile__private_key__exact=private_key)
+    user = get_object_or_404(User, profile__private_key__exact=private_key)
     cal = ical.for_user(user)
     return HttpResponse(str(cal), content_type="text/calendar")
 
@@ -1035,7 +953,7 @@ def with_cors_headers(f):
     def add_cors_headers(*args, **kwargs):
         resp = f(*args, **kwargs)
         resp['Access-Control-Allow-Origin'] = '*'
-        resp['Access-Control-Allow-Headers'] = 'authorization'
+        resp['Access-Control-Allow-Headers'] = 'authorization, content-type'
 
         return resp
 
@@ -1071,7 +989,9 @@ def do_blipp(request):
     if user is None:
         # FIXME: We should try to find the card id in an external database here, but this requires
         #        that there is such a database, which there isn't. Check again after midsummer 2018.
-        return _json_error(404, 'Du måste fylla i kortnumret i din profil\n(' + str(rfid_int) + ')')
+
+        signed_rfid = rfidSigner.sign(str(rfid_int))
+        return _json_error(404, f'Du måste fylla i kortnumret i din profil\n({str(rfid_int)})', signed_rfid=signed_rfid)
 
     # We will always have a user at this point
 
@@ -1139,18 +1059,16 @@ def _get_blipp_configuration(request):
     return None
 
 
-def _json_error(status_code, message):
-    return JsonResponse({'message': message}, status=status_code)
+def _json_error(status_code, message, **kwargs):
+    return JsonResponse({ **kwargs, 'message': message }, status=status_code)
 
 
 @login_required
 def semester_shifts(request, sem_name):
     # Get all shifts for the semester
-    try:
-        sem = models.Semester.objects.by_name(sem_name)
-        pairs = sem.shiftcombination_set.order_by('label')
-    except models.Semester.DoesNotExist:
-        raise Http404("%s är inte en giltig termin." % (sem_name, ))
+    sem = get_object_or_404(models.Semester, name__exact=sem_name)
+    
+    pairs = sem.shiftcombination_set.order_by('label')
 
     if not pairs:
         raise Http404("Inga passkombinationer kunde hittas för termin %s." % (sem_name, ))
@@ -1220,3 +1138,88 @@ def semester_shifts(request, sem_name):
     }
 
     return render(request, 'baljan/semester_shifts.html', tpl)
+
+
+@require_GET
+@permission_required("baljan.view_order")
+def stats_order_heatmap(request):
+    try:
+        from_year = int(request.GET.get('from_year', 2022)) # TODO: improve filtering
+    except ValueError:
+        raise Http404("Året finns inte")
+    
+    orders = models.Order.objects.filter(
+            accepted=True,
+            put_at__year__gte=from_year
+        ).annotate(
+            weekday=ExtractIsoWeekDay('put_at'),
+            hour=ExtractHour("put_at"),
+            minute=ExtractMinute("put_at"),
+        ).annotate(
+            quarter=Case(
+                When(minute__gte=0, minute__lt=15, then=Value(0)),
+                When(minute__gte=15, minute__lt=30, then=Value(15)),
+                When(minute__gte=30, minute__lt=45, then=Value(30)),
+                When(minute__gte=45, then=Value(45)),
+                output_field=IntegerField(),
+            )
+        ).filter(
+            weekday__lt=6,
+            hour__gte=8,
+            hour__lte=16
+        ).values("weekday", "hour", "quarter").annotate(count=Count("id")).order_by("weekday", "hour", "quarter")
+
+    data = DataFrame()
+    weekdays = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"]
+    for timepoint in orders:
+        data.at[weekdays[timepoint["weekday"]-1], time(timepoint["hour"], timepoint["quarter"])] = int(timepoint["count"])
+
+    sns.set_theme()
+    plt.figure(figsize = (16,9))
+    plot = sns.heatmap(data, cbar=False, cmap="YlGnBu")
+    plot.figure.autofmt_xdate()
+
+    buffer = BytesIO() 
+    plot.get_figure().savefig(buffer, format='png')
+    buffer.seek(0)
+    return FileResponse(buffer, filename='heatmap.png')
+
+@require_GET
+@permission_required("baljan.view_order")
+def stats_blipp(request):
+    try:
+        from_year = int(request.GET.get('from_year', 2022)) # TODO: improve filtering
+    except ValueError:
+        raise Http404("Året finns inte")
+
+    balance_codes = models.BalanceCode.objects.filter(used_at__isnull=False, used_at__year__gte=from_year).values('used_at').annotate(count=Sum('value')).order_by("used_at")
+    orders = models.Order.objects.filter(accepted=True, paid__gt=0, put_at__year__gte=from_year).extra({'day': "date(put_at)"}).values("day").annotate(count=Sum("paid")).order_by("day")
+
+    bc_cumsum = 0
+    bc_cumsums = []
+    bc_dates = []
+    for data in balance_codes:
+        bc_dates.append(data["used_at"])
+        bc_cumsum = bc_cumsum + data["count"]
+        bc_cumsums.append(bc_cumsum)
+
+    order_cumsum = 0
+    order_cumsums = []
+    order_dates = []
+    for data in orders:
+        order_dates.append(data["day"])
+        order_cumsum = order_cumsum + data["count"]
+        order_cumsums.append(order_cumsum)
+
+    bc_data = DataFrame(index=bc_dates, data={"count":bc_cumsums})
+    order_data = DataFrame(index=order_dates, data={"count":order_cumsums})
+
+    sns.set_theme()
+    plt.figure(figsize = (16,9))
+    plot = sns.relplot(data={"Kaffekort använda":bc_data.loc[:, "count"],"Blippat för": order_data.loc[:, "count"]}, kind="line")
+    plot.figure.autofmt_xdate()
+
+    buffer = BytesIO() 
+    plot.savefig(buffer, format='png')
+    buffer.seek(0)
+    return FileResponse(buffer, filename='blippstats.png')

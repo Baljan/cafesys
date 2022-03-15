@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM python:3.9
 
 # Kept separate to be substituted in next step
 ENV APP_ROOT=/app
@@ -17,11 +17,11 @@ RUN mkdir ${APP_ROOT}
 WORKDIR ${APP_ROOT}
 
 COPY ./requirements.alpine.txt ${APP_ROOT}/requirements.alpine.txt
-RUN apk add --no-cache $(grep -vE "^\s*#" ${APP_ROOT}/requirements.alpine.txt | tr "\n" " ") && \
-    pip3 install -U pip setuptools
+# RUN apk add --no-cache $(grep -vE "^\s*#" ${APP_ROOT}/requirements.alpine.txt | tr "\n" " ") && \
+RUN pip3 install -U pip setuptools
 
 COPY ./requirements.txt ${APP_ROOT}/requirements.txt
-RUN pip3 install -r ${APP_ROOT}/requirements.txt
+RUN pip3 install --ignore-installed -r ${APP_ROOT}/requirements.txt
 
 COPY . ${APP_ROOT}
 

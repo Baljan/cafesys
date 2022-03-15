@@ -86,7 +86,7 @@ class Profile(Made):
         return "%s %s" % (self.balance, self.balance_currency)
 
     def pretty_card_id(self):
-        return str(self.card_id).zfill(10)
+        return str(self.card_id).zfill(10) if self.card_id is not None else None
 
     def has_free_blipp(self):
         return self.user.has_perm('baljan.free_coffee_unlimited') or self.user.has_perm('baljan.free_coffee_with_cooldown')
@@ -270,7 +270,12 @@ def traderequest_post_save(sender, instance=None, **kwargs):
 signals.post_save.connect(traderequest_post_save, sender=TradeRequest)
 
 
-class SemesterManager(models.Manager):
+class SemesterQuerySet(models.QuerySet):
+    def visible_to_user(self, user):
+        if user.has_perm('baljan.view_shiftsignup'):
+            return self.all()
+        return self.filter(shift__shiftsignup__user=user).distinct()
+
     def for_date(self, the_date):
         try:
             return self.get(start__lte=the_date, end__gte=the_date)
@@ -286,12 +291,9 @@ class SemesterManager(models.Manager):
     def current(self):
         return self.for_date(date.today())
 
-    def by_name(self, name):
-        return self.get(name__exact=name)
-
 
 class Semester(Made):
-    objects = SemesterManager()
+    objects = SemesterQuerySet.as_manager()
 
     name_validator = RegexValidator(r'^(V|H)T\d{4}$',
     _('Invalid semester name. Must be something like HT2010 or VT2010.'))

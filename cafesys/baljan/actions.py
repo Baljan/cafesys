@@ -63,13 +63,14 @@ def categories_and_actions(request):
         ),
         (settings.WORKER_GROUP, 'Jobbare', (
             Action('Jobbplanering', 'current_semester'),
-            Action('Jobbarguide', settings.STATIC_URL + 'guide.pdf', resolve_func=None),
+            Action('Jobbarguide Baljan', settings.STATIC_URL + 'guideBaljan.pdf', resolve_func=None),
+            Action('Jobbarguide Byttan', settings.STATIC_URL + 'guideByttan.pdf', resolve_func=None),
             Action('Jobbkontrakt', settings.STATIC_URL + 'contract.pdf', resolve_func=None),
             Action('Lägga in pass i kalenderprogram', settings.STATIC_URL + 'ical-calendar.pdf', resolve_func=None),
             )),
         ('regulars', 'Ditt konto', (
             Action('Profil', 'profile'),
-            Action('Dina köp', 'orders', args=(1,)),
+            Action('Dina köp', 'orders'),
             Action('Personer och grupper', 'search_person'),
             ) + tuple(regulars_upcoming_sem_actions)),
         ('anyone', 'Användare', (

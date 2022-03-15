@@ -45,7 +45,7 @@
                 <input class="shiftsfilter"  {% if selected_semester.upcoming %} checked="checked" {% else %} disabled="disabled" {% endif %}type="checkbox" id="upcoming-only" name="upcoming-only"/>
                 <label for="upcoming-only">Endast kommande dagar</label>
         </div>
-        {% if selected_semester.upcoming and perms.baljan.self_and_friend_signup %}
+        {% if selected_semester.upcoming %}
             <div class="col-4">
                 <input class="shiftsfilter" type="checkbox" id="only-tradable" name="only-tradable"/>
                 <label for="only-tradable">Endast bytbara pass.</label>
@@ -115,16 +115,18 @@
                             {{ sh.ampm }}
                         </td>
                         <td>
+                            {% spaceless %}
                             {% for su in sh.shiftsignup_set.all %}
                                 {% if su.can_trade %}
                                     <s><span class="tradable">{{su.user|name_link}}</span></s>
                                 {% else %}
                                     {{su.user|name_link}}
-                                {% endif %}{% if not forloop.last %}, {% endif %}
+                                {% endif %}{% if not forloop.last %}<span>, </span>{% endif %}
                             {% endfor %}
                             {% if sh.span == 1 %}
                                 ↕ Överlapp ↕
                             {% endif %}
+                            {% endspaceless %}
                         </td>
                         <td class="on-call">
                             {% for u in sh.oncallduty_set.all %}

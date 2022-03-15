@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from django import forms
+from django.forms.widgets import HiddenInput
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
@@ -27,6 +30,19 @@ class ProfileForm(forms.ModelForm):
                 'motto',
                 'show_profile',
                 )
+
+class ProfileCardIdForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ProfileCardIdForm, self).__init__(*args, **kwargs)
+        if "initial" in kwargs and kwargs["initial"]["card_id"]:
+            self.fields['card_id'].widget = HiddenInput()
+        else:
+            self.fields["card_id"].widget.attrs["class"] = "form-control"
+            self.fields["card_id"].help_text = None
+    class Meta:
+        model = models.Profile
+        fields = ("card_id",)
+
 
 class OrderForm(forms.Form):
 
@@ -60,23 +76,23 @@ class OrderForm(forms.Form):
         ('ovrigSallad', 'övriga')
     ]
 
+    PICKUP_CHOICES = (
+        (0,'Morgon 07:30-08:00'),
+        (1,'Lunch 12:15-13:00'),
+        (2,'Eftermiddag 16:15-17:00'),
+    )
+
     def __init__(self, *args, **kwargs):
         super(OrderForm, self).__init__(*args, **kwargs)
 
-        # Iteratively add jochen fields
-        for field_name, label in self.JOCHEN_TYPES:
-            self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
-            self.fields['%sSelected' % field_name] = forms.BooleanField(required=False, label=label, label_suffix='')
-
-        # Iteratively add mini jochen fields
-        for field_name, label in self.MINI_JOCHEN_TYPES:
-            self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
-            self.fields['%sSelected' % field_name] = forms.BooleanField(required=False, label=label, label_suffix='')
-
-        # Iteratively add pasta salad fields
-        for field_name, label in self.PASTA_SALAD_TYPES:
-            self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
-            self.fields['%sSelected' % field_name] = forms.BooleanField(required=False, label=label, label_suffix='')
+        # Iteratively add subforms
+        for sub_form_data in [
+            self.JOCHEN_TYPES,
+            self.MINI_JOCHEN_TYPES,
+            self.PASTA_SALAD_TYPES
+        ]:
+            for field_name, label in sub_form_data:
+                self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
 
     orderer = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     ordererEmail = forms.EmailField(required=True, label="Email:")
@@ -94,25 +110,25 @@ class OrderForm(forms.Form):
     numberOfPastasalad = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal pastasallad:")
     other = forms.CharField(widget=forms.Textarea(attrs={'cols':33,'rows':5}), required=False, label='Övrig information:')
 
-    PICKUP_CHOICES = (
-        (0,'Morgon 07:30-08:00'),
-        (1,'Lunch 12:15-13:00'),
-        (2,'Eftermiddag 16:15-17:00'),
-    )
-
-    pickup = forms.ChoiceField(choices=PICKUP_CHOICES, label='Tid för uthämtning')
-    date = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}),required=True, label="Datum:")
+    pickup = forms.ChoiceField(choices=PICKUP_CHOICES, label='Tid för uthämtning:')
+    date = forms.DateField(widget=forms.DateInput(attrs={ 
+                "min": datetime.now().strftime("%Y-%m-%d"), # TODO: timezone
+                "max": (datetime.now() + relativedelta(months=2)).strftime("%Y-%m-%d"), # TODO: timezone
+                'type': 'date'
+              }),required=True, label="Datum:")
     sameAsOrderer = forms.BooleanField(initial=True, required=False, label="Samma som beställare")
     orderSum = forms.CharField(required=False)
-    coffeeSelected= forms.BooleanField(required=False, label='Kaffe', label_suffix='')
-    teaSelected = forms.BooleanField(required=False, label='Te', label_suffix='')
-    sodaSelected = forms.BooleanField(required=False, label='Läsk', label_suffix='')
-    klaggSelected = forms.BooleanField(required=False, label='Klägg', label_suffix='')
-    jochenSelected = forms.BooleanField(required=False, label='Jochen', label_suffix='')
-    minijochenSelected = forms.BooleanField(required=False, label='Mini jochen', label_suffix='')
-    pastasaladSelected = forms.BooleanField(required=False, label='Pastasallad', label_suffix='')
 
 class RefillForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        code = None
+        if 'code' in kwargs:
+            code = kwargs.pop('code')
+        super(RefillForm, self).__init__(*args, **kwargs)
+        if code:
+            self.initial['code'] = code
+            self.fields['code'].widget.attrs['readonly'] = True
+
     code = forms.CharField(
         max_length=models.BALANCE_CODE_LENGTH,
         label="Kod",

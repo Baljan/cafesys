@@ -6,338 +6,363 @@
 
 {% block head_title %}Styrelsen{% endblock %}
 
-{% block body_class %}Styrelsen{% endblock %}
 {% block body %}
 
-<div class="container-styrelsen"> <!-- d-flex justify-content-center -->
-
-    <div id="ordf" class="styrelse-member" style="top: 26%; left: 3%;"></div>
-    <div id="kass" class="styrelse-member" style="top: 26%; left: 17%;"></div>
-    <div id="vice" class="styrelse-member" style="top: 26%; left: 31%;"></div>
-    <div id="event" class="styrelse-member" style="top: 26%; left: 45%;"></div>
-    <div id="pers" class="styrelse-member" style="top: 26%; left: 59%;"></div>
-    <div id="bytt" class="styrelse-member" style="top: 26%; left: 73%;"></div>
-    <div id="ink" class="styrelse-member" style="top: 26%; left: 87%;"></div>
-
-    <div id="syss" class="styrelse-member" style="top: 52%; left: 3%;"></div>
-    <div id="pyss" class="styrelse-member" style="top: 52%; left: 17%;"></div>
-    <div id="p1" class="styrelse-member" style="top: 52%; left: 31%;"></div>
-    <div id="p2" class="styrelse-member" style="top: 52%; left: 45%;"></div>
-    <div id="piff" class="styrelse-member" style="top: 52%; left: 59%;"></div>
-    <div id="paff" class="styrelse-member" style="top: 52%; left: 73%;"></div>
-    <div id="puff" class="styrelse-member" style="top: 52%; left: 87%;"></div>
-
-    <div id="kul" class="styrelse-member" style="top: 76%; left: 3%;"></div>
-    <div id="sek" class="styrelse-member" style="top: 76%; left: 17%;"></div>
-    <div id="lev" class="styrelse-member" style="top: 76%; left: 31%;"></div>
-    <div id="info" class="styrelse-member" style="top: 76%; left: 45%;"></div>
-    <div id="nerd00" class="styrelse-member" style="top: 76%; left: 59%;"></div>
-    <div id="nerd01" class="styrelse-member" style="top: 76%; left: 73%;"></div>
-    <div id="nerd10" class="styrelse-member" style="top: 76%; left: 87%;"></div>
-
-    <img src="/static/img/Straffregister-HT2021.png" alt="Straffregister" class="image-styrelsen" />
-
-    <div id="ordf-prof" class="card mb-3 styrelse-profile " style="left: 30%;">
-        <img src="/static/img/styrelsen/Rosanna.png" class="card-img-top image-prof" alt="Ordförande" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Rosanna Lilliesköld, Ordförande</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Att vara ordförande i Baljan innebär att man har koll på att allt som ska göras blir gjort och ser till att verksamheten rör sig framåt. I posten sköter man kontakten utåt med diverse folk och föreningar som hör av sig i olika ärenden. Givetvis är det viktigaste att se till att alla i styrelsen och jobbarna mår bra och vetskapen om att allt löser sig med en kafferast.</p>
-            <p class="bold prof-text">Vilket är Baljans Ballaste klägg?</p>
-            <p class="p">Inte mazarin iaf</p>
-            <p class="bold prof-text">Vad känner du mest distans till?</p>
-            <p class="p">mazariner</p>
-        </div>
-    </div>
-
-    <div id="kass-prof" class="card mb-3 styrelse-profile " style="left: 35%;">
-        <img src="/static/img/styrelsen/Julia.png" class="card-img-top image-prof" alt="Kassör" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Julia Magnusson Björk, Kassör</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Räknar lite pengar då och då, ser till att Baljan överlever den hemska pandemin, och att det finns gott om pengar till personalfesten!</p>
-            <p class="bold prof-text">Vilken seriefigur skulle vara den bästa smittskyddsläkaren och varför?</p>
-            <p class="p">Bamse, hans dunderhonung löser väl allt?</p>
-            <p class="bold prof-text">Vad händer i Nollberga?</p>
-            <p class="p">Vad händer INTE i nollberga...?</p>
-            <p class="bold prof-text">Vad ljugs det om till jobbare?</p>
-            <p class="p">"Detta är er arbetsuppgift!"</p>
-        </div>
-    </div>
-
-    <div id="vice-prof" class="card mb-3 styrelse-profile" style="left: 45%;">
-        <img src="/static/img/styrelsen/LUKKEP.png" class="card-img-top image-prof" alt="Vice ordförande" >
+<div class="container-styrelsen">
+    {% comment %} 
+    First line 
+    {% endcomment %}
+    <div class="hover-area" style="top: 21%; left: 5%;"></div>
+    <div class="card" style="left: 30%;">
+        <img src="/static/img/styrelsen/KlaraK.png" alt="Ordförande" >
         <div class="card-body">
-            <h5 class="card-title h5">Lukas Peterson, Vice ordförande</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Fakturera, maila och va cool</p>
-            <p class="bold prof-text">Vilket är Baljans Ballaste klägg?</p>
-            <p class="p">Loka</p>
-            <p class="bold prof-text">Vad händer i Nollberga?</p>
-            <p class="p">Techno med Nördkanslern</p>
+            <h2>Klara Kastensson, Ordförande</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Att vara ordförande i Baljan innebär att man har koll på att allt som ska göras blir gjort och ser till att verksamheten rör sig framåt. I posten sköter man kontakten utåt med diverse folk och föreningar som hör av sig i olika ärenden. Givetvis är det viktigaste att se till att alla i styrelsen och jobbarna mår bra och vetskapen om att allt löser sig med en kafferast.</p>
+            <h3>Vilket nyårslöfte har du INTE lyckats hålla?</h3>
+            <p>Man kan inte bryta något man aldrig haft</p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Värdeordsworkshop</p>
+            <h3>Hur gör ni för att vinna VSR hela tiden?</h3>
+            <p>Redan framförhandlat</p>
         </div>
     </div>
-
-    <div id="event-prof" class="card mb-3 styrelse-profile" style="left:58%;">
-        <img src="/static/img/styrelsen/Lasse.png" class="card-img-top image-prof" alt="Kulturarv/Eventiz" >
+    
+    <div class="hover-area" style="top: 21%; left: 18%;"></div>
+    <div class="card" style="left: 35%;">
+        <img src="/static/img/styrelsen/LukkeP.png" alt="Vice ordförande" >
         <div class="card-body">
-            <h5 class="card-title h5">Viktor Larsson, Kulturarv/Eventiz</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Jag skapade Kafferepet</p>
-            <p class="bold prof-text">Berätta om din uppväxt</p>
-            <p class="p">Mycket show</p>
-            <p class="bold prof-text">Vilket är Baljans Ballaste klägg?</p>
-            <p class="p">Mazarin helt ärligt den som säger något annat är two faced</p>
-            <p class="bold prof-text">Vad händer i Nollberga?</p>
-            <p class="p">Palmerummet</p>
+            <h2>Lukas Peterson, Vice ordförande</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Fakturera, maila och va cool</p>
+            <h3>Vilket är Baljans Ballaste klägg?</h3>
+            <p>Loka</p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Techno med Nördkanslern</p>
         </div>
     </div>
 
-    <div id="pers-prof" class="card mb-3 styrelse-profile" style="left:0;">
-        <img src="/static/img/styrelsen/Nico.png" class="card-img-top image-prof" alt="Personaliz" >
+    <div class="hover-area" style="top: 21%; left: 31%;"></div>
+    <div class="card" style="left: 45%;">
+        <img src="/static/img/styrelsen/Hanna.png" alt="Kassör" >
         <div class="card-body">
-            <h5 class="card-title h5">Nicolas Bemba M'Foutiga, Personaliz</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Långa mail.</p>
-            <p class="bold prof-text">Vad är det bästa som hänt dig under COVID 19?</p>
-            <p class="p">Studiemedel för 50 steg/dag.</p>
-            <p class="bold prof-text">Vilken seriefigur skulle vara den bästa smittskyddsläkaren och varför?</p>
-            <p class="p">Pumbaa, samma livsfilosofi.</p>
+            <h2>Hanna Lindholm Jönsson, Kassör</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Räknar lite pengar då och då, ser till att Baljan överlever den hemska pandemin, och att det finns gott om pengar till personalfesten!</p>
+            <h3>Berätta om din uppväxt</h3>
+            <p>Mycket häng hos talpedagogen </p>
+            <h3>Vilket är Baljans Ballaste klägg?</h3>
+            <p>Hatar klägg älskar kexchoklad </p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Bubble Trouble-turnering</p>
         </div>
     </div>
 
-    <div id="bytt-prof" class="card mb-3 styrelse-profile" style="left: 8%;">
-        <img src="/static/img/styrelsen/Alma.png" class="card-img-top image-prof" alt="Bytt-Mamma" >
+    <div class="hover-area" style="top: 21%; left: 45%;"></div>
+    <div class="card" style="left: 58%;">
+        <img src="/static/img/styrelsen/Emil.png" alt="Nörd" >
         <div class="card-body">
-            <h5 class="card-title h5">Alma Hahn, Bytt-Mamma</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">I rollen som ByttMaMa har du ett extra öga för Byttan. Detta innebär bland annat att komma med idéer kring utbud och utformning i det (relativt) nya caféet, agera kontaktperson och därmed gå på möten med LiU och Akademiska hus samt att dricka stora mängder kaffe vid Byttans trevliga sittplatser.</p>
-            <p class="bold prof-text">Berätta om din uppväxt</p>
-            <p class="p">Min kärlek till klägg växte fram samt hade framtidsdrömmar om Baljan.</p>
-            <p class="bold prof-text">Vad händer i Nollberga?</p>
-            <p class="p">Vad är Nollberga?</p>
+            <h2>Emil Nilsson, Nördking</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Som Nörd är man ansvarig för att Baljans digitala system är de mest balla på campus Valla.</p>
+            <h3>Vilket är Baljans Ballaste klägg?</h3>
+            <p>Biggie Bemba's Bars</p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Vi lär oss om fördelarna med att skaffa Spotify premium.</p>
+            <h3>Om du vore ett köksredskap, vilket skulle du vara och varför?</h3>
+            <p>Diskmaskin, en tablett sen är jag redo</p>
         </div>
     </div>
 
-    <div id="ink-prof" class="card mb-3 styrelse-profile" style="left: 16%;">
-        <img src="/static/img/styrelsen/Oliver.png" class="card-img-top image-prof" alt="Inköpsansvarig" >
+    <div class="hover-area" style="top: 21%; left: 58%;"></div>
+    <div class="card" style="left: -3%;">
+        <img src="/static/img/styrelsen/Risanna.png" alt="Nörd" >
         <div class="card-body">
-            <h5 class="card-title h5">Oliver Wärnå, Inköpsansvarig</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Jag köper in klägg, kaffe och annat gött till Baljan och Byttan, och det är mitt fel när det är slut.</p>
-            <p class="bold prof-text">Vad är det bästa som hänt dig under COVID 19?</p>
-            <p class="p">Blev permitterad.</p>
-            <p class="bold prof-text">Vilket är Baljans Ballaste klägg?</p>
-            <p class="p">Dammsugaren, för jag är 67 år i själen.</p>
+            <h2>Rosanna Lilliesköld, Nördprinsessa</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Har hand om alla 1:or och 0:or i Baljan</p>
+            <h3>Vem var det egentligen som satte Klara Ms namn på papperskorgen?</h3>
+            <p>Golare har inga polare</p>
+            <h3>Om du vore ett köksredskap, vilket skulle du vara och varför?</h3>
+            <p>Lilla skeden</p>
+            <h3>Vad ljugs det om till jobbare?</h3>
+            <p>"Det här har aldrig hänt tidigare"</p>
+            <h3>Hur gör ni för att vinna VSR hela tiden?</h3>
+            <p>Deltar</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 21%; left: 72%;"></div>
+    <div class="card" style="left: 8%;">
+        <img src="/static/img/styrelsen/Unn.png" alt="Nörd" >
+        <div class="card-body">
+            <h2>Unn Zachrison, N00b</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Utan Nördarna blir det ingen baljan, för vad är baljan utan balla blippen?!</p>
+            <h3>Berätta om din uppväxt</h3>
+            <p>Fotboll och pannkakor!</p>
+            <h3>Vilket är Baljans Ballaste klägg?</h3>
+            <p>Allt utom damsugare helt klart</p>
+            <h3>Om du vore ett köksredskap, vilket skulle du vara och varför?</h3>
+            <p>Rivjärn, sån som man har till parmesan</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 21%; left: 85%;"></div>
+    <div class="card" style="left: 16%;">
+        <img src="/static/img/styrelsen/LukasB.png" alt="Bytt-Mamma" >
+        <div class="card-body">
+            <h2>Lukas Brunzell, Bytt-Mamma</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>I rollen som ByttMaMa har du ett extra öga för Byttan. Detta innebär bland annat att komma med idéer kring utbud och utformning i det (relativt) nya caféet, agera kontaktperson och därmed gå på möten med LiU och Akademiska hus samt att dricka stora mängder kaffe vid Byttans trevliga sittplatser.</p>
+            <h3>Berätta om din uppväxt</h3>
+            <p>O'boy efter skolan</p>
+            <h3>Vem var det egentligen som satte Klara Ms namn på papperskorgen?</h3>
+            <p>Det var jag!</p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Vad är Nollberga?</p>
+        </div>
+    </div>
+    
+    
+    {% comment %} 
+    Second line 
+    {% endcomment %}
+    <div class="hover-area" style="top: 46%; left: 5%;"></div>
+    <div class="card" style="left: 30%;">
+        <img src="/static/img/styrelsen/Astrid.png" alt="Infognurgla" >
+        <div class="card-body">
+            <h2>Astrid Rubenson, Infognurgla</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Är Baljans ansikte utåt. Beställer feta hoodies, sköter sociala medier samt fixar skyltar och PR.</p>
+            <h3>Berätta om din uppväxt</h3>
+            <p>Växte inte så mycket</p>
+            <h3>Vem var det egentligen som satte Klara Ms namn på papperskorgen?</h3>
+            <p>Om papperskorgar kunde tala...</p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Fråga "Klara"</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 46%; left: 18%;"></div>
+    <div class="card" style="left: 35%;">
+        <img src="/static/img/styrelsen/Jossan.png" alt="Sekreterare" >
+        <div class="card-body">
+            <h2>Josephine Arnberg, Sekreterare</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Jag antecknar allt som sägs på mötena. Hur kul?</p>
+            <h3>Vem var det egentligen som satte Klara Ms namn på papperskorgen??</h3>
+            <p>Rosanna såklart</p>
+            <h3>Vad ljugs det om till jobbare?</h3>
+            <p>"Bra städat"</p>
+            <h3>Hur gör ni för att vinna VSR hela tiden?</h3>
+            <p>Mazarindrinkar</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 46%; left: 32%;"></div>
+    <div class="card" style="left: 45%;">
+        <img src="/static/img/styrelsen/Lasse.png" alt="Project X" >
+        <div class="card-body">
+            <h2>Viktor Larsson, Project X</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Gör vad jag känner för B-)  </p>
+            <h3>Vem var det egentligen som satte Klara Ms namn på papperskorgen?</h3>
+            <p>Rosanna tror jag</p>
+            <h3>Om du vore ett köksredskap, vilket skulle du vara och varför??</h3>
+            <p>En ugn - jag är het och rengörs för sällan</p>
+            <h3>Vad ljugs det om till jobbare?</h3>
+            <p>"Det kommer nog mer mjölk i eftermiddag"</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 46%; left: 45%;"></div>
+    <div class="card" style="left: 58%;">
+        <img src="/static/img/styrelsen/KlaraM.png" alt="Project Y" >
+        <div class="card-body">
+            <h2>Klara Mellqvist, Project Y</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Fixar och trixar med baljans balla projekt, både externt och internt. Dvs jag vet inte riktigt</p>
+            <h3>Vilket är Baljans Ballaste klägg?</h3>
+            <p>Mazarinen är en tidlös vinnare</p>
+            <h3>Vem var det egentligen som satte Klara Ms namn på papperskorgen?</h3>
+            <p>Årets mysterium...</p>
+            <h3>Om du vore ett köksredskap, vilket skulle du vara och varför?</h3>
+            <p>sopkärl, LOOL</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 46%; left: 59%;"></div>
+    <div class="card" style="left: -3%;">
+        <img src="/static/img/styrelsen/Emma.png" alt="Leverantörsansvarig" >
+        <div class="card-body">
+            <h2>Emma Gustafsson, BakisBaronen</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Hålla koll på diverse lagernivåer och korrigerar beställningar av Jochen så att inga studenter går hungriga</p>
+            <h3>Berätta om din uppväxt</h3>
+            <p>Ginger</p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Pranks and destrauctions</p>
+            <h3>Hur gör ni för att vinna VSR hela tiden?</h3>
+            <p>Minttu med en skvätt oboy</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 46%; left: 72%;"></div>
+    <div class="card" style="left: 8%;">
+        <img src="/static/img/styrelsen/Oliver.png" alt="Inköpsansvarig" >
+        <div class="card-body">
+            <h2>Oliver Wärnå, Inköpsansvarig</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Jag köper in klägg, kaffe och annat gött till Baljan och Byttan, och det är mitt fel när det är slut.</p>
+            <h3>Vilket nyårslöfte har du INTE lyckats hålla?</h3>
+            <p>Sänka priset på klägg</p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Analyser av DiCaprios begynnande förfall</p>
+            <h3>Vad ljugs det om till jobbare?</h3>
+            <p>"Du kan alltid fråga någon i styret om hjälp"</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 46%; left: 86%;"></div>
+    <div class="card" style="left: 16%;">
+        <img src="/static/img/styrelsen/Matilda.png" alt="Personaliz" >
+        <div class="card-body">
+            <h2>Matilda Sunnert, Personaliz</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Som personalis har jag den främsta kontakten med jobbare och hjälper dem med jobbrelaterade frågor samt styr upp jobbinformation och jobbsläpp.</p>
+            <h3>Vilket är Baljans Ballaste klägg?</h3>
+            <p>Klassikern delicatoboll</p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Vi diskuterar jobbarnas insats </p>
+            <h3>Vad ljugs det om till jobbare?</h3>
+            <p>Som personalansvarig skulle jag aldrig ljuga om något!!</p>
+        </div>
+    </div>
+    
+
+    {% comment %} 
+    Third line 
+    {% endcomment %}
+    <div class="hover-area" style="top: 73%; left: 4%;"></div>
+    <div class="card" style="left: 30%;">
+        <img src="/static/img/styrelsen/Filippa.png" alt="Syssling" >
+        <div class="card-body">
+            <h2>Filippa Krän, Syssling</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Sysslar och pysslar med pyssling</p>
+            <h3>Berätta om din uppväxt</h3>
+            <p>Moppebil & pappas vinkällare ;)</p>
+            <h3>Vilket är Baljans Ballaste klägg?</h3>
+            <p>Lyxklägg i Byttan</p>
+            <h3>Om du vore ett köksredskap, vilket skulle du vara och varför?</h3>
+            <p>Butler: ha en, inte va en :D</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 73%; left: 18%;"></div>
+    <div class="card" style="left: 35%;">
+        <img src="/static/img/styrelsen/Frida.png" alt="Pyssling/Naturrutan" >
+        <div class="card-body">
+            <h2>Frida Lindvall, Pyssling/Naturrutan</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Ser till så att Baljan håller sig levande tillsammans med syssling</p>
+            <h3>Berätta om din uppväxt</h3>
+            <p>Drack mycket kaffe</p>
+            <h3>Vilket nyårslöfte har du INTE lyckats hålla?</h3>
+            <p>Dricka mindre kaffe</p>
+            <h3>Om du vore ett köksredskap, vilket skulle du vara och varför?</h3>
+            <p>En glasburk - hård på utsidan, tom på insidan, och alldeles genomskinlig</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 73%; left: 31%;"></div>
+    <div class="card" style="left: 45%;">
+        <img src="/static/img/styrelsen/Julia.png" alt="PartyPiff" >
+        <div class="card-body">
+            <h2>Julia Magnusson Björk, PartyPiff</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Anordnar baljans balla p-fest tillsamans med mina kompanjoner Paff&Puff!! Den vill man ej missa!!!</p>
+            <h3>Berätta om din uppväxt</h3>
+            <p>Mina närmaste grannar var kossor</p>
+            <h3>Vilket nyårslöfte har du INTE lyckats hålla?</h3>
+            <p>Inte komma försent till morgonjouren</p>
+            <h3>Om du vore ett köksredskap, vilket skulle du vara och varför?</h3>
+            <p>En slickepott</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 73%; left: 45%;"></div>
+    <div class="card" style="left: 58%;">
+        <img src="/static/img/styrelsen/Henke.png" alt="PartyPaff" >
+        <div class="card-body">
+            <h2>Henrik Zetterblom, PartyPaff</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Får hänga med Piff och Puff och och fixa grym P-fest för jobbarna!</p>
+            <h3>Berätta om din uppväxt</h3>
+            <p>Den var bra</p>
+            <h3>Vilket är Baljans Ballaste klägg?</h3>
+            <p>Lattebit</p>
+            <h3>Vad ljugs det om till jobbare?</h3>
+            <p>Det mesta </p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 73%; left: 58%;"></div>
+    <div class="card" style="left: -3%;">
+        <img src="/static/img/styrelsen/Nico.png" alt="PartyPuff" >
+        <div class="card-body">
+            <h2>Nicolas Bemba M'Foutiga, PartyPuff</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Jag tillsammans med Piff och Paff har den stora äran att anordna P-festen för alla våra fina jobbare!</p>
+            <h3>Berätta om din uppväxt</h3>
+            <p>Ortens favorit</p>
+            <h3>Vilket nyårslöfte har du INTE lyckats hålla?</h3>
+            <p>Inte joura bakis</p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Rap battles</p>
+            <h3>Om du vore ett köksredskap, vilket skulle du vara och varför?</h3>
+            <p>Stora skeden</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 73%; left: 71%;"></div>
+    <div class="card" style="left: 8%">
+        <img src="/static/img/styrelsen/Gartz.png" alt="Kulhjul" >
+        <div class="card-body">
+            <h2>Johan Gartz, Kulhjul</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Gör tråkiga interna event för styrelsen</p>
+            <h3>Vem var det egentligen som satte Klara Ms namn på papperskorgen?</h3>
+            <p>Snitches get stitches</p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Pengatvätt och scam-mail</p>
+            <h3>Hur gör ni för att vinna VSR hela tiden?</h3>
+            <p>Snortar kaffebönort</p>
+        </div>
+    </div>
+    
+    <div class="hover-area" style="top: 73%; left: 85%;"></div>
+    <div class="card" style="left: 16%;">
+        <img src="/static/img/styrelsen/Jesper.png" alt="Kulturarv/Eventiz" >
+        <div class="card-body">
+            <h2>Jesper Vines, Eventiz</h2>
+            <h3>Vad innebär din post?</h3>
+            <p>Agera Baljans estradör, kulturstrateg och filantrop. </p>
+            <h3>Berätta om din uppväxt</h3>
+            <p>Blev kallad Oscar ofta</p>
+            <h3>Vilket nyårslöfte har du INTE lyckats hålla?</h3>
+            <p>Bädda sängen :/</p>
+            <h3>Vad händer i Nollberga?</h3>
+            <p>Urkukning och avkalkning</p>
         </div>
     </div>
 
-
-    <div id="syss-prof" class="card mb-3 styrelse-profile " style="left: 30%;">
-        <img src="/static/img/styrelsen/Lukas.png" class="card-img-top image-prof" alt="Syssling" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Lukas Brunzell, Syssling</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Sysslar och pysslar med pyssling</p>
-      
-            <p class="bold prof-text">Berätta om din uppväxt</p>
-            <p class="p">O'boy efter skolan</p>
-            <p class="bold prof-text">Vilken seriefigur skulle vara den bästa smittskyddsläkaren och varför?</p>
-            <p class="p">Razor. Bryna Nuppa Fjässa Sponken</p>
-            <p class="bold prof-text">Om du vore en växt, vilken skulle du vara och varför?</p>
-            <p class="p">Missväxt</p>
-        </div>
-    </div>
-
-    <div id="pyss-prof" class="card mb-3 styrelse-profile " style="left: 35%;">
-        <img src="/static/img/styrelsen/Josephine.png" class="card-img-top image-prof" alt="Pyssling/Naturrutan" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Josephine Arnberg, Pyssling/Naturrutan</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Ser till så att Baljan håller sig levande tillsammans med syssling</p>
-            <p class="bold prof-text">Vilket är Baljans Ballaste klägg?</p>
-            <p class="p">Chokladmockaruta!!!!</p>
-            <p class="bold prof-text">Vad händer i Nollberga?</p>
-            <p class="p">Disco och prokrastinering</p>
-        </div>
-    </div>
-
-    <div id="p1-prof" class="card mb-3 styrelse-profile " style="left: 45%;">
-        <img src="/static/img/styrelsen/Frida.png" class="card-img-top image-prof" alt="Project X" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Frida Lindvall, Project X</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Great responsibility and great power</p>
-        
-            <p class="bold prof-text">Berätta om din uppväxt</p>
-            <p class="p">Drömde om att bli projektansvarig på Baljan.</p>
-
-            <p class="bold prof-text">Vilken seriefigur skulle vara den bästa smittskyddsläkaren och varför?</p>
-            <p class="p">Pippi, för hon är bäst på allt</p>
-            <p class="bold prof-text">Vad händer i Nollberga?</p>
-            <p class="p">Det vill du inte veta</p>
-        </div>
-    </div>
-
-    <div id="p2-prof" class="card mb-3 styrelse-profile " style="left: 58%;">
-        <img src="/static/img/styrelsen/Jesper.png" class="card-img-top image-prof" alt="Project Y" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Jesper Vines, Project Y</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Gör vad jag känner för B-)</p>
-            
-            <p class="bold prof-text">Vad är det bästa som hänt dig under COVID 19?</p>
-            <p class="p">7-dagars helgerna</p>
-            <p class="bold prof-text">Vad händer i Nollberga?</p>
-            <p class="p">Disco varje tisdag 15:00</p>
-            <p class="bold prof-text">Hur gör ni för att vinna VSR hela tiden?</p>
-            <p class="p">Fixar eget puder</p>
-        </div>
-    </div>
-
-    <div id="piff-prof" class="card mb-3 styrelse-profile " style="left: 0;">
-        <img src="/static/img/styrelsen/Filippa.png" class="card-img-top image-prof" alt="PartyPiff" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Filippa Krän, PartyPiff</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Anordnar baljans balla p-fest tillsamans med mina kompanjoner Paff&Puff!! Den vill man ej missa!!!</p>
-            
-            <p class="bold prof-text">Vad är det bästa som hänt dig under COVID 19?</p>
-            <p class="p">Titta på föreläsningar i sängen</p>
-            <p class="bold prof-text">Vilken seriefigur skulle vara den bästa smittskyddsläkaren och varför?</p>
-            <p class="p">Lilla My, henne hade ingen vågat säga emot</p>
-        </div>
-    </div>
-
-    <div id="paff-prof" class="card mb-3 styrelse-profile " style="left: 8%;">
-        <img src="/static/img/styrelsen/Astapasta.png" class="card-img-top image-prof" alt="PartyPaff" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Astrid Rubenson, PartyPaff</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Får hänga med Piff och Puff och och fixa grym P-fest för jobbarna!</p>
-           
-            <p class="bold prof-text">Berätta om din uppväxt</p>
-            <p class="p">Var ett av barnen på gatan</p>
-            <p class="bold prof-text">Vilket är Baljans Ballaste klägg?</p>
-            <p class="p">Kan vara vad som helst, så länge det är i bollform med kokos och heter delicatoboll.</p>
-        </div>
-    </div>
-
-    <div id="puff-prof" class="card mb-3 styrelse-profile " style="left: 16%;">
-        <img src="/static/img/styrelsen/Klara.png" class="card-img-top image-prof" alt="PartyPuff" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Klara Mellqvist, PartyPuff</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Jag tillsammans med Piff och Paff har den stora äran att anordna P-festen för alla våra fina jobbare!</p>
-            
-            <p class="bold prof-text">Om du vore en växt, vilken skulle du vara och varför?</p>
-            <p class="p">Sockerdricksträd.</p>
-            <p class="bold prof-text">Varför hjälper ni inte till och städar?</p>
-            <p class="p">Någon måste ju stöka ner?</p>
-        </div>
-    </div>
-
-    <div id="kul-prof" class="card mb-3 styrelse-profile " style="left: 30%;">
-        <img src="/static/img/styrelsen/Henke.png" class="card-img-top image-prof" alt="Kulhjul" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Henrik Zetterblom, Kulhjul</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Gör tråkiga interna event för styrelsen</p>
-            <p class="bold prof-text">Berätta om din uppväxt</p>
-            <p class="p">Låg i en mage 9 månader</p>
-            <p class="bold prof-text">Vad händer i Nollberga?</p>
-            <p class="p">Pennkastning i liten glasflaska</p>
-            <p class="bold prof-text">Vad ljugs det om till jobbare?</p>
-            <p class="p">Att mazarin är det godaste klägget</p>
-        </div>
-    </div>
-
-    <div id="sek-prof" class="card mb-3 styrelse-profile " style="left: 35%;">
-        <img src="/static/img/styrelsen/Emma.png" class="card-img-top image-prof" alt="Sekreterare" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Emma Gustafsson, Sekreterare</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Jag antecknar allt som sägs på mötena. Hur kul?</p>
-            
-            <p class="bold prof-text">Vad händer i Nollberga?</p>
-            <p class="p">Lättöl & en bakfull Astrid</p>
-            <p class="bold prof-text">Om du vore en växt, vilken skulle du vara och varför?</p>
-            <p class="p">Gräs</p>
-        </div>
-    </div>
-
-    <div id="lev-prof" class="card mb-3 styrelse-profile " style="left: 45%;">
-        <img src="/static/img/styrelsen/Albin.png" class="card-img-top image-prof" alt="Leverantörsansvarig" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Albin Kylbrink, Leverantörsansvarig</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Hålla koll på diverse lagernivåer och korrigerar beställningar av Jochen så att inga studenter går hungriga</p>
-           
-            <p class="bold prof-text">Vilket är Baljans Ballaste klägg?</p>
-            <p class="p">dElIcAtObOlL</p>
-            <p class="bold prof-text">Om du vore en växt, vilken skulle du vara och varför?</p>
-            <p class="p">Balj(an)växt, hört att dem är balla</p>
-        </div>
-    </div>
-
-    <div id="info-prof" class="card mb-3 styrelse-profile " style="left: 58%;">
-        <img src="/static/img/styrelsen/Janne.png" class="card-img-top image-prof" alt="Infognurgla" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Johan Gartz, Infognurgla</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Är Baljans ansikte utåt. Beställer kycklinggula hoodies, sköter sociala medier samt fixar skyltar och PR.</p>
-            
-            <p class="bold prof-text">Berätta om din uppväxt</p>
-            <p class="p">Kort pojke blev lång pojke</p>
-            <p class="bold prof-text">Om du vore en växt, vilken skulle du vara och varför?</p>
-            <p class="p">Palm. Lång, smal och jävligt frissig topp</p>
-        </div>
-    </div>
-
-    <div id="nerd00-prof" class="card mb-3 styrelse-profile " style="left: 0;">
-        <img src="/static/img/styrelsen/Uno.png" class="card-img-top image-prof" alt="Nörd" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Uno Österman, Nörd 00</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Har hand om alla 1:or och 0:or i Baljan</p>
-            
-            <p class="bold prof-text">Vilket är Baljans Ballaste klägg?</p>
-            <p class="p">Mazarinen är en tidlös vinnare</p>
-            <p class="bold prof-text">Hur gör ni för att vinna VSR hela tiden?</p>
-            <p class="p">Vårt trick är att valla rätt, se denna film för att få receptet till vinnarkonceptet: <a href=https://www.facebook.com/watch/?v=1845839045458675&extid=vwyxceFutrnP6Iqt>Baljans balla valla</a></p>
-        </div>
-    </div>
-
-    <div id="nerd01-prof" class="card mb-3 styrelse-profile " style="left: 8%">
-        <img src="/static/img/styrelsen/Emil.png" class="card-img-top image-prof" alt="Nörd" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Emil Nilsson, Nörd 01</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Som Nörd är man ansvarig för att Baljans digitala system är de mest balla på campus Valla.</p>
-           
-            <p class="bold prof-text">Vilket är Baljans Ballaste klägg?</p>
-            <p class="p">Det jag har blivit tillsagd att inte prata om.</p>
-            <p class="bold prof-text">Vad ljugs det om till jobbare?</p>
-            <p class="p">Det får jag inte berätta.</p>
-        </div>
-    </div>
-
-    <div id="nerd10-prof" class="card mb-3 styrelse-profile" style="left: 16%;">
-        <img src="/static/img/styrelsen/Axel.png" class="card-img-top image-prof" alt="Nörd" >
-        <div class="card-body d-flex flex-column">
-            <h5 class="card-title h5">Axel Nilsson, Nörd 10</h5>
-            <p class="bold prof-text">Vad innebär din post?</p>
-            <p class="p">Utan Nördarna blir det ingen baljan, för vad är baljan utan balla blippen?!</p>
-            
-            <p class="bold prof-text">Vad är det bästa som hänt dig under COVID 19?</p>
-            <p class="p">COVID för mig är något mycket komplext, det är distansföreläsningar, det är zoomsittningar, det är inställda klubbkvällar och mot slutet blev det Baljans Styrelse. Vad tror du själv var bäst?</p>
-            <p class="bold prof-text">Vilket är Baljans Ballaste klägg?</p>
-            <p class="p">Chocolate Chip Cookie är ett starkt undervärderat klägg, och råkar också vara Baljans Ballaste Klägg</p>
-            <p class="bold prof-text">Hur gör ni för att vinna VSR hela tiden?</p>
-            <p class="p">Det får ni veta om ni blir insläppta i styrelsen.</p>
-        </div>
-    </div>
-
+    
+    {% comment %} 
+    The main image
+    {% endcomment %}
+    <img src="/static/img/Straffregister-VT2022.png" alt="Straffregister" class="main-image" />
 </div>
 
 {% endblock %}

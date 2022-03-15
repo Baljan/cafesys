@@ -34,7 +34,7 @@ class Command(BaseCommand):
             raise CommandError('invalid config')
 
         try:
-            semester = Semester.objects.by_name(options['semester'])
+            semester = Semester.objects.get(name__exact=options['semester'])
         except Semester.DoesNotExist:
             raise CommandError('bad semester: %s' % options['semester'])
 

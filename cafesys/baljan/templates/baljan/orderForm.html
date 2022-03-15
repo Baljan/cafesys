@@ -9,11 +9,6 @@
 
 {% block extra_head_base %}
 <script type="text/javascript" src="{% static 'js/orderForm.js' %}"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/locales/bootstrap-datepicker.sv.min.js"></script>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.standalone.min.css">
-
 {% block extra_head %}{% endblock %}
 {% endblock %}
 
@@ -62,7 +57,7 @@
                     {% order_item form 'coffee' 6 %}
                     {% order_item form 'tea' 6 %}
                     {% order_item form 'soda' 5 %}
-                    {% order_item form 'klagg' 6 %}
+                    {% order_item form 'klagg' 7 %}
 
                     {% order_group form 'jochen' 'Antal jochen' form.JOCHEN_TYPES 30 %}
                     {% order_group form 'minijochen' 'Antal mini jochen' form.MINI_JOCHEN_TYPES 15 %}
@@ -166,7 +161,7 @@
             <ul>
                 <li>Beställning av Jochen/pastasallad måste vara inne <b>senast 16:15 på onsdagen veckan innan er beställning</b>.</li>
                 <li>
-                    För information angående allergener och näringsinnehåll se följande <a href="{% static 'jochen-contents.pdf' %}" target="_blank">innehållsförteckning för Jochen</a> samt följande <a href="{% static 'salad-contents.pdf' %}" target="_blank">innehållsförteckning för pastasallad</a>.
+                    För information angående allergener och näringsinnehåll se följande <a href="{% static 'food-content.pdf' %}" target="_blank">innehållsförteckning för Jochen och sallad</a>.
                 </li>
                 <li>Önskar ni beställa Jochen/pastasallad fria från vissa allergener, fyll i dessa under ”Antal övriga” och ange allergierna under ”Övrig information”. Vid allergi kan samtliga pastasallader beställas utan pasta.</li>
             </ul>

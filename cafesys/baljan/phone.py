@@ -210,7 +210,8 @@ def _build_46elks_response(phone_numbers):
 
 
 def compile_ivr_response(request):
-    next_url = request.build_absolute_uri("/baljan/incoming-call")
+    # TODO: reverse url
+    next_url = request.build_absolute_uri("/incoming-call")
     audio_url = request.build_absolute_uri("/static/audio/phone/ivr.mp3")
     if settings.SOCIAL_AUTH_REDIRECT_IS_HTTPS:
         next_url = next_url.replace("http://", "https://")
@@ -257,7 +258,8 @@ def compile_incoming_call_response(request):
 
     if response:
         # Attach 'whenhangup' to top of call chain
-        hangup_url = request.build_absolute_uri("/baljan/post-call/{}".format(location))
+         # TODO: reverse url
+        hangup_url = request.build_absolute_uri("/post-call/{}".format(location))
         if settings.SOCIAL_AUTH_REDIRECT_IS_HTTPS:
             hangup_url = hangup_url.replace("http://", "https://")
 

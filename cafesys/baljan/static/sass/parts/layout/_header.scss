@@ -35,7 +35,7 @@ body main.bd-masthead.wrapper--md {
   position: fixed;
 
   .container {
-    @include media-breakpoint-down(xl) {
+    @include media-breakpoint-down(lg) {
       padding-left: 0;
       padding-right: 0;
     }

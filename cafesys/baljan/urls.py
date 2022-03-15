@@ -1,26 +1,30 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls import url
 from django.urls import path
 from django.views.generic import TemplateView
 
 from . import views
 
-
 urlpatterns = (
-    path("", views.index),
+    path(
+        "", TemplateView.as_view(template_name="baljan/about.html"), name="home"
+    ),  # name needed for login redirect
+    
     path("signup/delete/<int:pk>/<path:redir>", views.delete_signup, name='delete_signup'),
     path("callduty/delete/<int:pk>/<path:redir>", views.delete_callduty, name='delete_callduty'),
     path("tradable/toggle/<int:pk>/<path:redir>", views.toggle_tradable, name='toggle_tradable'),
     path("day/<slug:day>", views.day_shifts, name='day_shifts'),
-    path("semester", views.current_semester, name='current_semester'),
+    path("semester", views.semester, name='current_semester'),
     path("semester/<slug:name>", views.semester, name='semester'),
     path("semester/<slug:name>/<int:loc>", views.semester, name='located_semester'),
     path("admin-semester", views.admin_semester, name='admin_semester'),
     path("admin-semester/<slug:name>", views.admin_semester, name='admin_semester'),
 
     path("profile", views.profile, name='profile'),
+    path("card-id", views.card_id, name="card_id"),
+    path("card-id/<str:signed_rfid>", views.card_id, name="card_id"),
     path("credits", views.credits, name='credits'),
-    path("orders/<int:page_no>", views.orders, name='orders'),
+    path("credits/<slug:code>", views.credits, name='credits'),
+    path("orders", views.OrderListView.as_view(), name='orders'),
 
     path("user/<int:who>", views.see_user),
     path("group/<str:group_name>", views.see_group, name='group'),
@@ -31,9 +35,6 @@ urlpatterns = (
 
     path('call-duty/<int:year>/<int:week>', views.call_duty_week, name='call_duty_week'),
     path('call-duty', views.call_duty_week, name='call_duty_week'),
-
-    path('pdf/shift-combinations/<slug:sem_name>', views.shift_combinations_pdf, name='shift_combinations_pdf'),
-    path('pdf/shift-combinations-form/<slug:sem_name>', views.shift_combination_form_pdf, name='shift_combination_form_pdf'),
 
     path('ical/user/<slug:private_key>/baljan.ics', views.user_calendar, name='user_calendar'),
 
@@ -55,4 +56,7 @@ urlpatterns = (
     path('integrity', views.integrity, name='integrity'),
     path('semester-shifts/<slug:sem_name>', views.semester_shifts, name='semester_shifts'),
     path('styrelsen', views.styrelsen, name='styrelsen'),
+
+    path("stats/heatmap", views.stats_order_heatmap, name="stats_order_heatmap"),
+    path("stats/blipp", views.stats_blipp, name="stats_blipp")
 )

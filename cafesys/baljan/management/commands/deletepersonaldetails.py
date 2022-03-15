@@ -33,7 +33,7 @@ class Command(BaseCommand):
             return
 
         try:
-            semester = Semester.objects.by_name(options['exclude_semester'])
+            semester = Semester.objects.get(name__exact=options['exclude_semester'])
         except Semester.DoesNotExist:
             raise CommandError('bad semester: %s' % options['exclude_semester'])
 

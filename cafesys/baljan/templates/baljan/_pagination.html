@@ -1,0 +1,27 @@
+{% if is_paginated %}
+  <nav aria-label="Pagination">
+    <ul class="pagination justify-content-center">
+      <li class="page-item {% if not page.has_previous %}disabled{% endif %}">
+        <a class="page-link" {% if page.has_previous %}href="?page={{page.previous_page_number}}"{% endif %} aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">Föregående</span>
+        </a>
+      </li>
+      {% for n in page_range%}
+        <li class="page-item {% if n == page.number %}active{% endif %} {% if n == paginator.ELLIPSIS %}disabled{% endif %}">
+            {% if n == paginator.ELLIPSIS %}
+                <span class="page-link">{{n}}</span>
+            {% else %}
+                <a class="page-link" href="?page={{n}}">{{n}}</a>
+            {% endif %}
+        </li>
+      {% endfor %}
+      <li class="page-item {% if not page.has_next %}disabled{% endif %}">
+          <a class="page-link" {% if page.has_next %}href="?page={{page.next_page_number}}"{% endif %} aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+              <span class="sr-only">Nästa</span>
+          </a>
+      </li>
+    </ul>
+  </nav>
+{% endif %}

@@ -120,17 +120,10 @@ def labeled_field(data):
 
 @register.inclusion_tag('baljan/_order_item.html')
 def order_item(form, field_name, cost, classes=''):
-    limit_field = form[field_name + 'Selected']
     input_field = form['numberOf' + field_name.title()]
-
-    if limit_field.value is True:
-        display = 'block'
-    else:
-        display = 'none'
 
     return {
         'field_name': field_name,
-        'display': display,
         'field': input_field,
         'cost': cost,
         'classes': classes,
@@ -194,4 +187,13 @@ def shifts_table(pairs, form, workable_shift_fields, shift_numbers, body_id, hid
         'workable_shift_fields': workable_shift_fields,
         'body_id': body_id,
         'hide_handle': hide_handle,
+    }
+
+@register.inclusion_tag('baljan/_pagination.html')
+def pagination(page):
+    return {
+        "is_paginated": page.paginator.num_pages > 1,
+        "page": page,
+        "paginator": page.paginator,
+        "page_range": page.paginator.get_elided_page_range(page.number, on_each_side=1, on_ends=2)
     }
