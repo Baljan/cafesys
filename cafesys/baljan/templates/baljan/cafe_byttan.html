@@ -1,0 +1,20 @@
+{% extends "baljan/cafe.html" %}
+
+{% block page_title %}Byttan{% endblock %}
+{% block cafe_name %}Byttan{% endblock %}
+
+{% block cafe_info%}
+<div>hehe byttan :)</div>
+{% endblock %}
+
+{% block cafe_sidebar %}
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title text-center">Jourtider</h5>
+    <p class="mb-0">
+      Jourärenden hänvisas till <a class="" href="{% url 'cafe_baljan' %}">Baljan</a>.
+    </p>
+  </div>
+</div>
+{% endblock %}
+

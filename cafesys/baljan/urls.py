@@ -6,8 +6,13 @@ from . import views
 
 urlpatterns = (
     path(
-        "", TemplateView.as_view(template_name="baljan/about.html"), name="home"
+        "", views.home, name="home"
     ),  # name needed for login redirect
+    
+    path("baljan", views.cafe_baljan, name="cafe_baljan"),
+    path("byttan", views.cafe_byttan, name="cafe_byttan"),
+    path("baljan/<int:year>/<int:week>", views.cafe_baljan, name="cafe_baljan"),
+    path("byttan/<int:year>/<int:week>", views.cafe_byttan, name="cafe_byttan"),
     
     path("signup/delete/<int:pk>/<path:redir>", views.delete_signup, name='delete_signup'),
     path("callduty/delete/<int:pk>/<path:redir>", views.delete_callduty, name='delete_callduty'),

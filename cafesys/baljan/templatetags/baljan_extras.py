@@ -107,6 +107,18 @@ def monthname(num, autoescape=None):
     return _(date(2000, num, 1).strftime('%B'))
 monthname.needs_autoescape = True
 
+@register.filter
+def opening_hours(shifts):
+    """
+    Input all shifts for a specific location and day,
+    Outputs the opening hours of that day.
+    """
+    valid_shifts = [s for s in shifts if s.enabled]
+    if len(valid_shifts) == 0:
+        return mark_safe("Stängt")
+    opens_at = "8:00" if any(s.span == 0 for s in valid_shifts) else "12:15"
+    closes_at = "16:15" if any(s.span == 2 for s in valid_shifts) else "12:15"
+    return mark_safe(f"{opens_at} - {closes_at}")
 
 @register.inclusion_tag('baljan/_field.html')
 def field(data):

@@ -112,7 +112,7 @@ body main.bd-masthead.wrapper--md {
   align-items: center;
 }
 
-body.about {
+body.about #content {
   #header-image {
     background: darken(#352723, 4) url('/static/img/splash.jpeg'); // #352723 is average color of splash image.
     background-size: cover;
@@ -162,17 +162,18 @@ body.about {
     }
   }
 
-  .section-header {
-    background: linear-gradient(70deg, $blue, $pink);
-    color: white;
-    font-size: 4rem;
-    padding: 4rem 2rem;
+  h3 {
+    font-size: 2rem;
     text-align: center;
     font-family: Lobster;
+  }
 
-     @media screen and (max-width: 600px) {
-        font-size: 3rem;
-      }
+  h2 {
+    font-size: 3rem;
+    margin-top: 4rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-family: Lobster;
   }
 }
 
