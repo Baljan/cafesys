@@ -13,7 +13,7 @@ celery==5.2.3
 # Social (i.e. LiU ID) login
 social-auth-core==4.1.0
 social-auth-app-django==5.0.0
-git+git://github.com/Baljan/python-social-auth-liu@6647be8#egg=social-auth-liu
+git+https://github.com/Baljan/python-social-auth-liu@6647be8#egg=social-auth-liu
 
 # PDFs
 reportlab==3.6.2

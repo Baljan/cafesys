@@ -3,7 +3,7 @@
 //==============================================
 
 .br {
-	margin-bottom: $margin;
+	// margin-bottom: $margin;
 }
 
 .bold {
@@ -25,26 +25,11 @@
   padding: 80px 0;
 }
 
-.jumbotron {
-  // background-color: transparent;
-}
 
 //==============================================
 // Typography
 //==============================================
 
-h1 {
-  color: $dark-blue;
-  font-size: 3.2rem;
-}
-h2 {
-  color: $dark-blue;
-}
-
-.jumbotron h3 {
-  color: $pink;
-  font-size: 2rem;
-}
 
 // Baljan
 
@@ -57,20 +42,4 @@ h2 {
   height: 30px;
   position: relative;
 
-}
-
-.info-icon {
-  text-align: center;
-}
-
-.info-icon .fa {
-  margin-top: 20px;
-  font-size: 5em;
-}
-
-.info-panel .info-icon, .info-panel .info-text {
-  float: none;
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: -4px;
 }

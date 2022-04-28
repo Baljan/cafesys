@@ -9,9 +9,6 @@
 
 {% block body %}
 
-
-{% include 'baljan/_card_missing_notice.html' %}
-
 <main>
   <h1>{% block cafe_name %}{% endblock %}</h1>
   <div class="row">
@@ -25,20 +22,22 @@
           <h6 class="card-subtitle text-muted"> 
             <a href="{% url request.resolver_match.view_name previous_week|date:"o" previous_week|date:"W" %}">&laquo;</a> Vecka {{week|date:'W, o'}} <a href="{% url request.resolver_match.view_name next_week|date:"o" next_week|date:"W" %}">&raquo;</a></h6>
         </div>
-        <table class="table mb-0">
-          {% regroup object_list by when as day_shifts %}
-          {% for shifts in day_shifts %}
+        <table class="table table-borderless mb-0">
+          <tbody>
+            {% regroup object_list by when as day_shifts %}
+            {% for shifts in day_shifts %}
+              <tr>
+                <td>{{shifts.grouper|date:"D j b"}}</td>
+                <td>
+                  <strong>{{ shifts.list|opening_hours }}</strong>
+                </td>
+              </tr>
+            {% empty %}
             <tr>
-              <td>{{shifts.grouper|date:"D j b"}}</td>
-              <td>
-                <strong>{{ shifts.list|opening_hours }}</strong>
-              </td>
+              <td class="text-center">Stängt</td>
             </tr>
-          {% empty %}
-          <tr>
-            <td class="text-center">Stängt</td>
-          </tr>
-          {% endfor %}
+            {% endfor %}
+          </tbody>
         </table>
       </div>
       {% block cafe_sidebar %}

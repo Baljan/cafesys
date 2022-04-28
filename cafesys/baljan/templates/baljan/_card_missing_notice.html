@@ -1,18 +1,16 @@
 {% if user.is_authenticated and user.profile.card_id == None and request.resolver_match.view_name != "card_id" %}
     {% if user.profile.balance > 0 or user.profile.has_free_blipp %}
-        <div class="alert alert-warning fade show call-to-action" role="alert">
+        <div class="alert-warning py-3 shadow-sm" role="alert">
             <div class="container">
-                <div class="row">
-                    <div class="col">
-                        <span>
-                            {% if user.profile.has_free_blipp %}
-                                <strong>Ojdå!</strong> Du har inte fyllt i ditt LiU-kortnummer än och kommer därför inte kunna blippa.
-                            {% else %}
-                                <strong>Ojdå!</strong> Du har inte fyllt i ditt LiU-kortnummer än och kommer därför inte kunna använda ditt saldo på {{ user.profile.balcur }}.
-                            {% endif %}
-                        </span>
-                        <a href="{% url 'profile' %}?edit=true" class="btn btn-outline-primary float-right">Fyll i kortnummer</a>
-                    </div>
+                <div class="d-grid d-md-flex justify-content-between align-items-center gap-2">
+                    <span>
+                        {% if user.profile.has_free_blipp %}
+                            <strong>Ojdå!</strong> Du har inte fyllt i ditt LiU-kortnummer än och kommer därför inte kunna blippa.
+                        {% else %}
+                            <strong>Ojdå!</strong> Du har inte fyllt i ditt LiU-kortnummer än och kommer därför inte kunna använda ditt saldo på {{ user.profile.balcur }}.
+                        {% endif %}
+                    </span>
+                    <a href="{% url 'profile' %}?edit=true" class="btn btn-outline-primary">Fyll i kortnummer</a>
                 </div>
             </div>
         </div>

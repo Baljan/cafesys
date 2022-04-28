@@ -24,7 +24,7 @@
             <h2>Profil
                 {% if profile_forms %}
                     <small style="vertical-align: middle;">
-                        <button type="button" class="btn badge badge-primary" data-toggle="modal" data-target="#edit-profile-modal">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#edit-profile-modal">
                             <i class="fa fa-pencil-alt" aria-hidden="true"></i>
                             Ändra profil / Fyll i LiU-kortnummer
                         </button>
@@ -307,9 +307,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Ändra profil</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form enctype="multipart/form-data" method="POST" action="">{% csrf_token %}
                         <div class="modal-body">
@@ -349,7 +347,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Spara ändringar</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Avbryt</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Avbryt</button>
                         </div>
                     </form>
                 </div>

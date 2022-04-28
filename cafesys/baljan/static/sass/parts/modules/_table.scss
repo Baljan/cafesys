@@ -1,16 +1,16 @@
-.table-baljan{
-  overflow: hidden;
-  border-radius: 0.25rem;
-  thead tr{
-    background-color: $dark-blue;
-    color: $white;
+// .table-baljan{
+//   overflow: hidden;
+//   border-radius: 0.25rem;
+//   thead tr{
+//     background-color: $baljan-dark-blue;
+//     color: $baljan-white;
 
-  }
-  th, td{
-    border: 0px;
-    border-bottom: 1px solid $dark-blue;
-  }
-  tbody tr:nth-of-type(even){
-    background-color: rgba($dark-blue, 0.03);
-  }
-}
+//   }
+//   th, td{
+//     border: 0px;
+//     border-bottom: 1px solid $baljan-dark-blue;
+//   }
+//   tbody tr:nth-of-type(even){
+//     background-color: rgba($baljan-dark-blue, 0.03);
+//   }
+// }

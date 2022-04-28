@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import posixpath
 import warnings
 
 import environ
@@ -246,6 +245,11 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_SSL", "on")
 SLACK_PHONE_WEBHOOK_URL = env.str("SLACK_PHONE_WEBHOOK_URL", default="")
 
 VERIFY_46ELKS_IP = True
+
+SASS_PRECISION = 8
+SASS_PROCESSOR_INCLUDE_DIRS = [
+    os.path.join(ROOT_DIR, 'node_modules'),
+]
 
 ROLLBAR = {
     "access_token": env.str("ROLLBAR_ACCESS_TOKEN", default=""),
