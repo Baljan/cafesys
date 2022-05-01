@@ -1,4 +1,4 @@
-{% extends "baljan/baljan.html" %}
+{% extends "baljan/staff.html" %}
 {% load i18n %}
 {% load humanize %}
 {% load crispy_forms_tags %}
@@ -35,7 +35,7 @@
     {% block extra_head %}{% endblock %}
 {% endblock %}
 
-{% block body %}
+{% block staff_info %}
 <h1>{{'Jobbpass '|add:semester}}</h1>
 <p id="last-updated" class="text-right">Uppdaterad {{ now }}</p>
 

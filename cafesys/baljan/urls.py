@@ -14,6 +14,8 @@ urlpatterns = (
     path("baljan/<int:year>/<int:week>", views.cafe_baljan, name="cafe_baljan"),
     path("byttan/<int:year>/<int:week>", views.cafe_byttan, name="cafe_byttan"),
     
+    path("staff", views.staff_homepage, name="staff_homepage"),
+
     path("signup/delete/<int:pk>/<path:redir>", views.delete_signup, name='delete_signup'),
     path("callduty/delete/<int:pk>/<path:redir>", views.delete_callduty, name='delete_callduty'),
     path("tradable/toggle/<int:pk>/<path:redir>", views.toggle_tradable, name='toggle_tradable'),

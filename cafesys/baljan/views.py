@@ -222,6 +222,10 @@ def orderFromUs(request):
 
 
 @login_required
+def staff_homepage(request):
+    return render(request, 'baljan/staff_homepage.html')
+
+@login_required
 def semester(request, name=None, loc=0):
     selectable_semesters = models.Semester.objects.visible_to_user(request.user).order_by('-start')
 

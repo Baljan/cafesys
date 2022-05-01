@@ -9,8 +9,11 @@
     <a class="navbar-brand" href="/">
       <img src="{% static 'img/svg/logo.svg' %}" alt="" width="62">
     </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
+      <ul class="navbar-nav me-auto">
         <li class="nav-item">
           <a class="nav-link" href="{% url 'home' %}">
             <i class="fa fa-home text-primary"></i> Hem
@@ -30,42 +33,40 @@
         </li>
         {% comment %} TODO: check if worker {% endcomment %}
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'credits' %}">
-            <i class="fa fa-user-tie text-primary" ></i> Jobbare</a>
+          <a class="nav-link" href="{% url 'staff_homepage' %}">
+            <i class="fa fa-user-tie text-primary" ></i> Personal</a>
         </li>
       </ul>
+      {% block login %}
+      {% if user.is_authenticated %}
+        <div class="navbar-nav">
+          <a href="{{user.get_absolute_url}}" class="nav-link">
+            <i class="fa fa-user" aria-hidden="true"></i>
+            {{user | display_name }}
+          </a>
+          <a href="{% url 'logout' %}" class="nav-link">
+            <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
+            Logga ut
+          </a>
+        </div>
+      {% else %}
+      <div class="navbar-nav">
+          <a href="#footer" class="btn btn-outline-dark d-none d-sm-block">Kontakta oss</a>
+          <a href="{% url 'social:begin' 'liu' %}" class="nav-link">
+            <i class="fa fa-sign-in-alt"></i> Logga in
+          </a>
+        </div>
+      {% endif %}
+      {% endblock %}
     </div>
 
 
-    {% block login %}
-    {% if user.is_authenticated %}
-      <div class="navbar-nav ml-auto">
-        <a href="{{user.get_absolute_url}}" class="nav-link">
-          <i class="fa fa-user" aria-hidden="true"></i>
-          {{user | display_name }}
-        </a>
-        <a href="{% url 'logout' %}" class="nav-link">
-          <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
-          Logga ut
-        </a>
-      </div>
-    {% else %}
-    <div class="navbar-nav ml-auto">
-        <a href="#footer" class="btn btn-outline-dark d-none d-sm-block">Kontakta oss</a>
-        <a href="{% url 'social:begin' 'liu' %}" class="nav-link">
-          <i class="fa fa-sign-in-alt"></i> Logga in
-        </a>
-      </div>
-    {% endif %}
-    {% endblock %}
             
     {% comment %} <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
       <span class="navbar-toggler-icon"></span>
     </button> {% endcomment %}
     
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    
 
     {% comment %} <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar">
       <div class="offcanvas-header justify-content-end">
