@@ -196,10 +196,10 @@
                                         </td>
                                     {% endwith %}
                                     <td>
-                                        <a class="deny"
+                                        <a class="deny btn btn-sm btn-outline-dark"
                                            href="{% url 'deny_trade' recd.pk request.path %}"
                                         >Neka</a>
-                                        <a class="accept"
+                                        <a class="accept btn btn-sm btn-primary"
                                            href="{% url 'accept_trade' recd.pk request.path %}"
                                         >Acceptera</a>
                                     </td>
@@ -368,7 +368,8 @@
         $(function () {
             // Open edit modal if requested by url parameter
             if (window.location.search.indexOf("edit=") >= 0) {
-                $('#edit-profile-modal').modal();
+                const myModal = new bootstrap.Modal(document.getElementById('edit-profile-modal'))
+                myModal.show();
             }
         });
     </script>
