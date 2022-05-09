@@ -16,8 +16,6 @@ ARG DJANGO_SECRET_KEY=build
 RUN mkdir ${APP_ROOT}
 WORKDIR ${APP_ROOT}
 
-COPY ./requirements.alpine.txt ${APP_ROOT}/requirements.alpine.txt
-# RUN apk add --no-cache $(grep -vE "^\s*#" ${APP_ROOT}/requirements.alpine.txt | tr "\n" " ") && \
 RUN pip3 install -U pip setuptools
 
 COPY ./requirements.txt ${APP_ROOT}/requirements.txt
