@@ -1,10 +1,19 @@
 {% extends "baljan/cafe.html" %}
 
+{% load static %}
+
 {% block page_title %}Baljan{% endblock %}
 {% block cafe_name %}Baljan{% endblock %}
 
 {% block cafe_info%}
-<p>skriv om nollis :)</p>
+{% comment %} TODO: take new photo {% endcomment %}
+<div class="ratio ratio-21x9 mb-4">
+  <img src="{% static 'img/jobbare.jpg' %}" alt="Sektionscafé Baljan" class="rounded-3" style="object-fit:cover;"/>
+</div>
+<p class="lead">Caféet på nedre plan i Kårallen</p>
+<p>Sedan 1987 har kaffet flödat i Baljan. Hit vallfärdar studenterna under kvartsrasterna för att fylla på energin. Många finner också ro i caféets soffor för att studera i sitt eget tempo.</p>
+<h2>Nollberga</h2>
+<p>Baljans kontor Nollberga finns precis till höger om kassadisken. Här hanteras alla jourärenden, det vill säga ärenden som berör styrelsen. Exempel på detta är <a href={% url "order_from_us" %}>beställningar för föreningar</a> men även övrig kontakt med styrelsen.</p>
 {% endblock %}
 
 {% block cafe_sidebar %}
@@ -12,7 +21,7 @@
   <div class="card-body">
     <h5 class="card-title text-center">Jourtider</h5>
     <p class="mb-0">
-      Dagar vi har öppet finns en styrelsemedlem i Nollberga
+      I samband med att vi har öppet finns en styrelsemedlem i Nollberga:
     </p>
     <ul class="mb-0">
       <li>07:30 - 08:00</li>

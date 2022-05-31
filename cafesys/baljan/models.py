@@ -465,16 +465,6 @@ class Shift(Located):
             return combs[0]
         return None
 
-    def oncall_timedesc(self):
-        """Description of the working hours."""
-        if self.span == 0:
-            return _("7:30 am to ca 8:00 am")
-        if self.span == 1:
-            return _("12:00 pm to ca 12:30 pm")
-        if self.span == 2:
-            return _("ca 4:00 pm to ca 4:45 pm")
-        assert False
-
     def worker_times(self):
         rd = relativedelta
         for span, start, end in [

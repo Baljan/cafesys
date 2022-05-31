@@ -11,7 +11,7 @@
         <div>
             <h1>Administrera termin</h1>
             <div class="row">
-                <div class="col-md-3 order-md-2">
+                <div class="col-12 col-md-4 col-lg-3 order-md-2">
                     <div class="choose-semester">
                         {% if semesters|length %}
                         <select class="form-control">
@@ -51,9 +51,9 @@
                             {% endif %}
 
                             <br/><br/>
-                            <span class="badge badge-light">Öppet</span><br/>
-                            <span class="badge badge-dark">Stängt</span><br/>
-                            <span class="badge badge-primary">Tenta-P</span><br/>
+                            <span class="badge bg-light text-black">Öppet</span><br/>
+                            <span class="badge bg-dark">Stängt</span><br/>
+                            <span class="badge bg-primary">Tenta-P</span><br/>
                         </p>
 
                         <div class="selection">
@@ -72,13 +72,13 @@
                         </div>
                     {% endif %}
                 </div>
-                <div class="col-md-9 order-md-1">
+                <div class="col order-md-1">
                     <div class="row">
                         {% regroup shifts by when.month as month_shifts %}
                         {% for month in month_shifts %}
-                        <div class="col-md-4 months">
+                        <div class="col months">
                             <h2>{{month.grouper|monthname}}</h2>
-                            <table class="table table-baljan">
+                            <table class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th></th>
@@ -104,6 +104,7 @@
                                             {% for span in spans %}
                                                 {% with sh0=span.list.0 %}
                                                 <td class="shift
+                                                    text-nowrap
                                                     span-{{ span.grouper }}
                                                     {% if sh0.enabled %}
                                                         {% if sh0.exam_period %}bg-primary{%endif%}

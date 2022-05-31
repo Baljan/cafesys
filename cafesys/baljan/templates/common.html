@@ -31,21 +31,22 @@
           <a class="nav-link" href="{% url 'credits' %}">
             <i class="fa fa-coffee text-primary" ></i> Kaffekort</a>
         </li>
-        {% comment %} TODO: check if worker {% endcomment %}
+        {% if perms.baljan.self_and_friend_signup %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'staff_homepage' %}">
             <i class="fa fa-user-tie text-primary" ></i> Personal</a>
         </li>
+        {% endif %}
       </ul>
       {% block login %}
       {% if user.is_authenticated %}
         <div class="navbar-nav">
           <a href="{{user.get_absolute_url}}" class="nav-link">
-            <i class="fa fa-user" aria-hidden="true"></i>
+            <i class="fa fa-user text-primary" aria-hidden="true"></i>
             {{user | display_name }}
           </a>
           <a href="{% url 'logout' %}" class="nav-link">
-            <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
+            <i class="fa fa-sign-out-alt text-primary" aria-hidden="true"></i>
             Logga ut
           </a>
         </div>
@@ -53,52 +54,12 @@
       <div class="navbar-nav">
           <a href="#footer" class="btn btn-outline-dark d-none d-sm-block">Kontakta oss</a>
           <a href="{% url 'social:begin' 'liu' %}" class="nav-link">
-            <i class="fa fa-sign-in-alt"></i> Logga in
+            <i class="fa fa-sign-in-alt text-primary"></i> Logga in
           </a>
         </div>
       {% endif %}
       {% endblock %}
     </div>
-
-
-            
-    {% comment %} <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
-      <span class="navbar-toggler-icon"></span>
-    </button> {% endcomment %}
-    
-    
-
-    {% comment %} <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar">
-      <div class="offcanvas-header justify-content-end">
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        {% if user.is_authenticated %} {% block nav %}
-          <nav>
-            {% for id, action_title, actions in action_categories %}
-            <p class="h2 text-primary">
-              {{ action_title }}
-            </p>
-            <div>
-              <ul class="list-unstyled">
-                {% for action in actions %}
-                <li>
-                  <a href="{{ action.link }}" class="link-dark text"><strong>{{ action.text }}</strong></a>
-                </li>
-                {% endfor %}
-              </ul>
-            </div>
-            {% endfor %}
-            <div class="d-grid">
-              <a href="{% url 'logout' %}" class="btn btn-outline-primary my-2 my-sm-0 d-sm-none">
-                  <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
-                    Logga ut
-                </a>
-            </div>
-          </nav>
-        {% endblock %} {% endif %}
-      </div>
-    </div> {% endcomment %}
   </div>
 </nav>
  

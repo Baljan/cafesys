@@ -223,7 +223,15 @@ def orderFromUs(request):
 
 @login_required
 def staff_homepage(request):
-    return render(request, 'baljan/staff_homepage.html')
+    today = date.today()
+    upcoming_shifts = models.ShiftSignup.objects.filter(user=request.user, shift__when__gte=today).order_by('shift__when', 'shift__span')
+    upcoming_callduty = models.OnCallDuty.objects.filter(user=request.user, shift__when__gte=today).order_by('shift__when', 'shift__span')
+
+    tpl = {}
+    tpl["upcoming_shifts"] = upcoming_shifts
+    tpl["upcoming_callduty"] = upcoming_callduty
+
+    return render(request, 'baljan/staff_homepage.html', tpl)
 
 @login_required
 def semester(request, name=None, loc=0):

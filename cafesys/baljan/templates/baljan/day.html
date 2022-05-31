@@ -34,116 +34,126 @@
 {% else %}
 
 {% regroup shifts by get_location_display as located_shifts_group %}
-
-{% for located_shifts in located_shifts_group %}
 <div class="row">
-        <div class="col-auto mr-auto">
-            <h2>{{ located_shifts.grouper }}</h2>
-        </div>
-    </div>
-    <hr/>
-    
-    {% for sh in located_shifts.list %}
-    <div class="row">
-        <div class="col-auto mr-auto">
-                <h3>{{ sh.timeofday|title }}</h3>
+{% for located_shifts in located_shifts_group %}
+    <div class="col col-12 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                {{ located_shifts.grouper }}
             </div>
-            {% if perms.baljan.change_shift %}
-            <div class="col-auto">
-                    <a href="{% url 'admin:baljan_shift_change' sh.id %}">{% trans "admin" %}</a>
-                </div>
-            {% endif %}
-        </div>
-        <div class="row">
-            {% for signup in sh.shiftsignup_set.all %}
-            <div class="col">
-                <strong>
-                    {% if signup.can_trade %}
-                    Jobbare vill byta
-                    {% else %}
-                    Jobbare
-                        {% endif %}
-                    </strong><br/>
-                    
-                    {% if signup.can_trade %}
-                    <s>
-                        <a href="{{signup.user.get_absolute_url}}">{{signup.user | detailed_name}}</a>
-                        </s>
-                        {% else %}
-                        <a href="{{signup.user.get_absolute_url}}">{{signup.user | display_name}}</a>
-                    {% endif %}
-                    {% if perms.baljan.delete_shiftsignup %}
-                    <a class="delete" title="Ta bort från det här passet."
-                            href="{% url 'delete_signup' signup.id request.path %}">&#x2715;</a>
+        
+        {% for sh in located_shifts.list %}
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start card-title lead">
+                {{ sh.timeofday|title }}
+
+                {% if perms.baljan.change_shift %}
+                
+                <a href="{% url 'admin:baljan_shift_change' sh.id %}" class="btn btn-outline-dark btn-sm"><i class="fa fa-lock"></i> {% trans "admin" %}</a>
+                
+                {% endif %}
+            </div>
+            {% comment %} TODO: maybe show time somehow {% endcomment %}
+            {% comment %} {% if sh.span != 1 %}
+                <p>{{ sh.worker_timedesc }}</p>
+            {% endif %} {% endcomment %}
+            <div class="row">
+                <div class="col col-12 col-sm-6">
+                    <strong>Jobbare</strong><br/>
+                    {% for signup in sh.shiftsignup_set.all %}
+                        <div>
+                            {% comment %} <strong>
+                                {% if signup.can_trade %}
+                                Jobbare vill byta
+                                {% else %}
+                                Jobbare
+                                {% endif %}
+                            </strong>
+                            <br/> {% endcomment %}
+                                
+                            {% if signup.can_trade %}
+                                <s>
+                                    <a href="{{signup.user.get_absolute_url}}">{{signup.user | detailed_name}}</a>
+                                </s>
+                            {% else %}
+                                <a href="{{signup.user.get_absolute_url}}">{{signup.user | display_name}}</a>
+                            {% endif %}
+    
+                            {% if perms.baljan.delete_shiftsignup %}
+                                <a class="delete" title="Ta bort från det här passet." href="{% url 'delete_signup' signup.id request.path %}">&#x2715;</a>
                             {% endif %}
                             <br/>
                             {% if signup.can_trade %}
-                            {% if user.shiftsignup_set.all.count == 0 %}
-                                <span>
-                                    Du kan inte erbjuda dig att ta passet eftersom att du inte har några pass att byta med.
-                                </span>
+                                {% if user.shiftsignup_set.all.count == 0 %}
+                                    <span>
+                                        Du kan inte erbjuda dig att ta passet eftersom att du inte har några pass att byta med.
+                                    </span>
                                 {% else %}
-                                {% if signup.user == user %}
-                                <a class="btn btn-primary btn-sm" href="{% url 'toggle_tradable' signup.id request.path %}">Ångra bytbar</a>
-                                {% else %}
-                                    <a class="btn btn-primary btn-sm" href="{% url 'take_signup' signup.pk request.path%}">Erbjud dig att ta passet</a>
+                                    {% if signup.user == user %}
+                                        <a class="btn btn-primary btn-sm" href="{% url 'toggle_tradable' signup.id request.path %}">Ångra bytbar</a>
+                                    {% else %}
+                                        <a class="btn btn-primary btn-sm" href="{% url 'take_signup' signup.pk request.path%}"><i class="fa fa-random"></i> Erbjud dig att ta passet</a>
+                                    {% endif %}
                                 {% endif %}
-                                {% endif %}
-                                {% else %}{# the sh.upcoming check is needed for this case #}
+                            {% else %}{# the sh.upcoming check is needed for this case #}
                                 {% if sh.upcoming and signup.user == user %}
-                                <a class="btn btn-primary btn-sm" href="{% url 'toggle_tradable' signup.id request.path %}">Gör bytbar</a>
+                                    <a class="btn btn-primary btn-sm" href="{% url 'toggle_tradable' signup.id request.path %}">Gör bytbar</a>
+                                {% endif %}
                             {% endif %}
-                            {% endif %}
-                            <p>{{ sh.worker_timedesc }}</p>
                         </div>
-                        {% empty %}
-                        <div class="col">
-                    {% if sh.span == 1 %}
-                    För- och eftermiddagspassen för jobbare överlappar varandra här.
-                    {% else %}
-                        Inga jobbare har anmält sig.
-                        Arbetstiden är {{ sh.worker_timedesc }}.
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    <div class="col">
-                        {% for oncall in sh.oncallduty_set.all %}
-                    <strong>Jour</strong><br/>
-                    <a href="{{oncall.user.get_absolute_url}}">{{oncall.user | display_name}}</a>
-                    {% if perms.baljan.delete_oncallduty %}
-                    <a class="delete" title="{% trans "remove from this shift" %}"
-                            href="{% url 'delete_callduty' oncall.id request.path %}">&#x2715;</a>
-                            {% endif %}
-                    <p>{{ sh.oncall_timedesc }}</p>
                     {% empty %}
-                    <p>Ingen har anmält sig till att joura.
-                        Arbetstiden är {{ sh.oncall_timedesc }}.</p>
+                    <p>
+                        {% if sh.span == 1 %}
+                            För- och eftermiddagspassen för jobbare överlappar varandra här.
+                        {% else %}
+                            Inga jobbare
+                        {% endif %}
+                    </p>
+                    {% endfor %}
+                </div>
+                <div class="col col-12 col-sm-6">
+                    <strong>Jour</strong>
+                    <p>
+                        {% for oncall in sh.oncallduty_set.all %}
+                            <a href="{{oncall.user.get_absolute_url}}">{{oncall.user | display_name}}</a>
+                            {% if perms.baljan.delete_oncallduty %}
+                                <a class="delete" title="{% trans "remove from this shift" %}" href="{% url 'delete_callduty' oncall.id request.path %}">&#x2715;</a>
+                            {% endif %}
+                        {% empty %}
+                            Ingen har anmält sig till att joura
                         {% endfor %}
-                {% if sh.accepts_callduty and perms.baljan.add_oncallduty and perms.baljan.change_oncallduty %}
-                <form method="post" class="form-inline">
-                    {% csrf_token %}
-                        <input type="hidden" name="span" value="{{sh.span}}"/>
-                        <input type="hidden" name="location" value="{{sh.location}}"/>
-                        <select name="user" class="form-control">
-                            {% for avail in available_for_call_duty %}
-                            {% comment %} TODO: Filter those who are already signed up this shift, {% endcomment %}
-                            {% comment %} {% if not avail in sh.????? %} {% endcomment %}
-                                <option value="{{avail.pk}}" {% if avail == user %}selected="selected"{% endif %}>
-                                    {{ avail | display_name }}
-                                </option>
-                                {% comment %} {% endif %} {% endcomment %}
-                                {% endfor %}
-                            </select>
-                        <input class="btn btn-primary" type="submit" value="Anmäl"/>
-                    </form>
+                    </p>
+                    {% if sh.accepts_callduty and perms.baljan.add_oncallduty and perms.baljan.change_oncallduty %}
+                        <form method="post" class="form-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="span" value="{{sh.span}}"/>
+                            <input type="hidden" name="location" value="{{sh.location}}"/>
+                            <div class="input-group">
+                                <select name="user" class="form-control">
+                                    {% for avail in available_for_call_duty %}
+                                    {% comment %} TODO: Filter those who are already signed up this shift, {% endcomment %}
+                                    {% comment %} {% if not avail in sh.????? %} {% endcomment %}
+                                    <option value="{{avail.pk}}" {% if avail == user %}selected="selected"{% endif %}>
+                                        {{ avail | display_name }}
+                                    </option>
+                                    {% comment %} {% endif %} {% endcomment %}
+                                    {% endfor %}
+                                </select>
+                                <input class="btn btn-outline-primary" type="submit" value="Anmäl"/>
+                            </div>
+                        </form>
                     {% endif %}
+                </div>
             </div>
         </div>
-        {% if not forloop.last %}<hr>{% endif %}
-    {% endfor %}
+        {% if not forloop.last %}<hr class="m-0">{% endif %}
+        {% endfor %}
+    </div>
+</div>
 {% empty %}
     <p>Det finns inga jobbpass denna dag.<p>
 {% endfor %}
+    </div>
 {% endif %}
 {% endblock %}
 

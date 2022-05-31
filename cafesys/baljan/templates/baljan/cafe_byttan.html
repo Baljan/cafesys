@@ -1,10 +1,15 @@
 {% extends "baljan/cafe.html" %}
 
+{% load static %}
 {% block page_title %}Byttan{% endblock %}
 {% block cafe_name %}Byttan{% endblock %}
 
-{% block cafe_info%}
-<div>hehe byttan :)</div>
+{% block cafe_info %}
+<div class="ratio ratio-21x9 mb-4">
+  <img src="{% static 'img/byttan.jpg' %}" alt="Sektionscafé Byttan" class="rounded-3" style="object-fit:cover;"/>
+</div>
+<p class="lead">Caféet vid entrén i Studenthuset</p>
+<p>I augusti 2019 slog Sektionscafé Byttan i Studenthus Valla upp sina portar för första gången. Byttan, i enlighet med Studenthuset, ämnar att verka så klimatvänligt som möjligt. Därför skiljer sig sortimentet i Byttan lite ifrån det i Baljan.</p>
 {% endblock %}
 
 {% block cafe_sidebar %}

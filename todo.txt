@@ -1,5 +1,0 @@
-Kolla samtliga modals funktioner
-Kanske fixa autoprefixern
-Se över dockern
-Hitta oanvända klasser och oanvänd css
-Error pages

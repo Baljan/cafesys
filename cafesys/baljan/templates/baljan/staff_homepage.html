@@ -5,30 +5,45 @@
 {% block staff_info %}
 <div class="row">
     <div class="col-12 col-lg-8 col-xl-9">
-        <p class="lead">Tjo kingen! På denna sida hittar du all relevant info för din roll som personal.</p>
+        <p class="lead">På denna sida hittar du information för din roll som personal.</p>
         
-        <p>Dina kommande jobb-/jourpass :)</p>
-        <p>Bytesförslag :)</p>
-        <p>Inkomna byten :)</p>
+        {% comment %} TODO: byten, inkomna samt förslag {% endcomment %}
+        
+        {%if upcoming_shifts %}
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-baseline">
-              <strong>Dina kommande pass</strong>
+              <strong>Dina kommande jobbpass</strong>
               <small><a href="{% url 'profile' %}">Se alla pass</a></small>
             </div>
             <div class="list-group list-group-flush">
-                <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                A list item
-                <span class="badge bg-secondary rounded-pill">öppet för byte</span>
-                </a>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                A second list item
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                A third list item
-                </li>
+                {% for signup in upcoming_shifts %}
+                    <a href="{{signup.shift.get_absolute_url}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    {{ signup.shift.name }}
+                    {% if signup.tradable %}
+                        <span class="badge bg-secondary rounded-pill">öppet för byte</span>
+                    {% endif %}
+                    </a>
+                {% endfor %}
             </div>
         </div>
-        
+        {% endif %}
+        {%if upcoming_callduty %}
+
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-baseline">
+                    <strong>Dina kommande jourpass</strong>
+                    <small><a href="{% url 'profile' %}">Se alla pass</a></small>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for signup in upcoming_callduty %}
+                    <a href="{{signup.shift.get_absolute_url}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        {{ signup.shift.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+            
 
         <div class="alert alert-info" role="alert">
                 <h2 class="alert-heading">Se jobbpass i din kalender</h2>
@@ -42,7 +57,7 @@
             <div class="collapse" id="calendarCollapse">
                 <hr></hr>
                 <p>
-                    En go' liten guide om hur man går tillväga :)
+                    Prenumerara på länken i ditt kalenderprogram så kommer dina jobbpass automatiskt hållas uppdaterade i kalendern. Det kan dock ta några timmar för kalendern att uppdateras vid ett passbyte. För mer information om hur man prenumererar, se guiden i sidomenyn.
                 </p>
               </div>
         </div>

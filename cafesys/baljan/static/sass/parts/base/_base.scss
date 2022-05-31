@@ -3,14 +3,3 @@ body {
   text-rendering: optimizeLegibility; //The browser emphasizes legibility over rendering speed and geometric precision. This enables kerning and optional ligatures. https://developer.mozilla.org/en-US/docs/Web/CSS/text-rendering
   -webkit-font-smoothing: antialiased; //Make text look good on mac(Tim Van Damme test)
 }
-
-img {
-  height: auto;
-  max-width: 100%;
-}
-
-// .alert {
-//   h1, h2, h3, h4, h5, h6 {
-//     color: currentColor;
-//   }
-// }
