@@ -1,0 +1,82 @@
+{% extends "baljan/staff.html" %}
+
+{% block page_title %}Personal{% endblock %}
+
+{% block staff_info %}
+<div class="row">
+    <div class="col-12 col-lg-8 col-xl-9">
+        <p class="lead">På denna sida hittar du information för din roll som personal.</p>
+        
+        {% comment %} TODO: byten, inkomna samt förslag {% endcomment %}
+        
+        {%if upcoming_shifts %}
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-baseline">
+              <strong>Dina kommande jobbpass</strong>
+              <small><a href="{% url 'profile' %}">Se alla pass</a></small>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for signup in upcoming_shifts %}
+                    <a href="{{signup.shift.get_absolute_url}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    {{ signup.shift.name }}
+                    {% if signup.tradable %}
+                        <span class="badge bg-secondary rounded-pill">öppet för byte</span>
+                    {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {%if upcoming_callduty %}
+
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-baseline">
+                    <strong>Dina kommande jourpass</strong>
+                    <small><a href="{% url 'profile' %}">Se alla pass</a></small>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for signup in upcoming_callduty %}
+                    <a href="{{signup.shift.get_absolute_url}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        {{ signup.shift.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+            
+
+        <div class="alert alert-info" role="alert">
+                <h2 class="alert-heading">Se jobbpass i din kalender</h2>
+            <p>
+                Prenumerera på kalendern genom denna kalenderlänk.
+            </p>              
+            
+            <input class="form-control mb-3 bg-transparent" type="text" value="{{ request.scheme }}://{{current_site}}{% url 'user_calendar' user.profile.private_key %}" aria-label="calendar link" readonly>
+                
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#calendarCollapse" aria-expanded="false" aria-controls="calendarCollapse">Mer info</button>
+            <div class="collapse" id="calendarCollapse">
+                <hr></hr>
+                <p>
+                    Prenumerara på länken i ditt kalenderprogram så kommer dina jobbpass automatiskt hållas uppdaterade i kalendern. Det kan dock ta några timmar för kalendern att uppdateras vid ett passbyte. För mer information om hur man prenumererar, se guiden i sidomenyn.
+                </p>
+              </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-4 col-xl-3"> 
+        <div class="card">
+            <div class="card-header">
+              <strong>Länkar</strong>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for action in links %}
+                <a href="{{ action.link }}"  class="list-group-item list-group-item-action" target="_blank">
+                    <i class="fa {% if action.link.lower|slice:"-4:" == ".pdf" %}fa-file-pdf{% else %}fa-external-link-alt{% endif %}"></i> {{ action.text }}
+                </a>
+                {% endfor %}
+            </div>
+          </div>
+    </div>
+</div>
+{% endblock %}
+
+

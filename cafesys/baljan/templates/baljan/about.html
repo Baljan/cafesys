@@ -1,188 +1,111 @@
 {% extends "baljan/baljan.html" %} {% load i18n %} {% load humanize %} {% load static %} {% load crispy_forms_tags %}
+{% load baljan_extras %}
 
-{% block head_title %}Sektionscafé Baljan{% endblock %}
+{% block page_full_title %}Sektionscafé Baljan{% endblock %}
 {% block body_class %}about{% endblock %}
 
 {% block full_body %}
-{% include 'baljan/_card_missing_notice.html' %}
-{% for message in messages %}
-    <!-- Needed to avoid delayed messages bug caused by logging out -->
-{% endfor %}
 
-<main class="bd-masthead" id="content" role="main">
+<div id="header-image">
+  <h1 class="bd-text-purple-bright lobster">Mer kaffe åt folket!</h1>
+  <section>
+    <div class="container">
+      <h3>Mål och mening</h3>
+      <p class="lead my-3">
+        Kaffe åt folket! — helt enkelt. Vi säljer kaffe, te, varm choklad, läsk, mackor och klägg till studentanpassade priser. Vi
+        är helt ideella. Allt överskott återinvesteras i utrustning, möbler och vår fantastiska personal.
+      </p>
 
-<div id="header-image" class="row align-items-center">
-<h1 class="bd-text-purple-bright lobster">Mer kaffe åt folket!</h1>
+      <div class="row row-cols-1 row-cols-md-2 g-3">
+        <div class="col col-md-6 col-12">
+          <a href="{% url 'order_from_us' %}" class="btn btn-lg btn-outline-secondary d-block">
+            <i class="fa fa-shopping-cart"></i> Beställa
+          </a>
+        </div>
+        <div class="col col-md-6 col-12">
+          <a href="{% url 'credits' %}" class="btn btn-lg btn-outline-secondary d-block">
+            <i class="fa fa-coffee"></i> Fylla på kaffekort
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <!-- container -->
 <!-- main#content -->
 
-<section class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h3>Mål och mening</h3>
-    <p class="lead mb-4">
-      Kaffe åt folket! — helt enkelt. Vi säljer kaffe, te, varm choklad, läsk, mackor och klägg till studentanpassade priser. Vi
-      är helt ideella. Allt överskott återinvesteras i utrustning, möbler och vår fantastiska personal.
-    </p>
-
-    <div class="d-flex flex-column flex-md-row lead mb-3">
-        <a href="{% url 'order_from_us' %}" class="btn btn-lg btn-primary mr-md-3 mb-3 mb-md-0">
-            <i class="fa fa-shopping-cart"></i> Beställa
-        </a>
-        <a href="{% url 'credits' %}" class="btn btn-lg btn-primary btn-outline-info mr-md-3 mb-3 mb-md-0">
-          <i class="fa fa-coffee"></i> Fylla på kaffekort
-        </a>
+<div class="container">
+  <h2>
+    Våra caféer
+  </h2>
+  <div class="row g-4">
+    <div class="col-12 col-lg-6">
+      <h3 class="text-center">Baljan</h3>
+      {% if next_day_baljan is not None %}
+      <p class="lead text-center mb-3">
+        Öppet {{next_day_baljan|naturalday:"l	d F"}} {{ next_day_shifts_baljan|opening_hours }}
+      </p>
+      {% endif %}
+      <p>
+      Sedan 1987 har kaffet flödat i Baljan. Hit vallfärdar studenterna under kvartsrasterna för att fylla på energin. Många finner också ro i caféets soffor för att studera i sitt eget tempo.
+      Alla beställningar gjorda på hemsidan hanteras i Baljan.
+      </p>
+      <a class="btn btn-outline-dark d-block w-50 mx-auto" href="{% url 'cafe_baljan' %}">Mer om Baljan</a>
+    </div>
+    <div class="col-12 col-lg-6">
+      <h3 class="text-center">Byttan</h3>
+      {% if next_day_byttan is not None %}
+      <p class="lead text-center mb-3">
+        Öppet {{next_day_byttan|naturalday:"l	d F"}} {{ next_day_shifts_byttan|opening_hours }}
+      </p>
+      {% endif %}
+      <p>
+      I augusti 2019 slog Sektionscafé Byttan i Studenthus Valla upp sina portar för första gången. Byttan, i enlighet med Studenthuset, ämnar att verka så klimatvänligt som möjligt. Därför skiljer sig sortimentet i Byttan lite ifrån det i Baljan.
+      </p>
+      <a class="btn btn-outline-dark d-block w-50 mx-auto" href="{% url 'cafe_byttan' %}">Mer om Byttan</a>
     </div>
   </div>
-</section>
 
-<section class="Baljan__timeline wrapper" style="padding-bottom: 40px">
-  <div class="container">
-    <div class="row align-items-center">
-
-      <div class="col-md-6 order-md-1 text-center text-md-left pr-md-5">
-        <h1 class="mb-3 bd-text-purple-bright">Baljan <3 Byttan</h1>
-        <p class="lead">
-         Baljan har expanderat! Augusti 2019 slog Sektionscafé Byttan i Studenthus Valla upp sina portar för första gången. Byttan, i enlighet med Studenthuset, ämnar att verka så klimatvänligt som möjligt. Därför skiljer sig sortimentet i Byttan lite ifrån det i Baljan. Det är även därför vi använder systemet Loop-It där kunder kan köpa en återbrukbar kopp enbart en gång, sedan lämna in den igen och få en kopp på ett saldo kopplat till ens LiU-ID. Sedan är det bara att hämta ut sin kopp igen vid valfritt tillfälle! Vi ses i Baljan eller Byttan!
-        </p>
+  
+  <h2>
+    Vi i Baljan
+  </h2>
+  <section class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <h3>Jobbare</h3>
+      <div>
+        <img src="{% static 'img/jobbare.jpg' %}" alt="Glada jobbare" class="rounded-3 img-fluid" />
+        <br>
+        <p class="text-center text-primary lobster mt-2">Glada jobbare!</p>
       </div>
-      <div class="col-12 mx-auto col-md-6">
-        <img src="{% static 'img/baljanbyttan.jpg' %}" alt="" class="img-fluid mb-3 mb-md-0" style="width: 90%">
-      </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="block box">
-    <div class="container">
-      <div class="row">
-        <div class="col-12 col-lg-6 mb-3">
-          <div class="fb-page" data-href="https://www.facebook.com/sektionscafe.baljan/" data-tabs="timeline" data-width="500" data-height="580"
-            data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true">
-            <blockquote cite="https://www.facebook.com/sektionscafe.baljan/" class="fb-xfbml-parse-ignore">
-              <a href="https://www.facebook.com/sektionscafe.baljan/">Sektionscafé Baljan</a>
-            </blockquote>
-          </div>
-
-          <!-- <div class="fb-page" data-href="https://www.facebook.com/sektionscafe.baljan" data-height="500" data-width="400" data-small-header="true"
-            data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true" data-show-posts="true">
-            <div class="fb-xfbml-parse-ignore">
-              <blockquote cite="https://www.facebook.com/sektionscafe.baljan">
-                <a href="https://www.facebook.com/sektionscafe.baljan">Sektionscafé Baljan</a>
-              </blockquote>
-            </div>
-          </div> -->
-        </div>
-        <div class="col-12 col-lg-6 info-panel">
-          <div class="row">
-            <div class="col-4 col-sm-3 info-icon">
-              <i class="fa fa-clock"></i>
-            </div>
-            <div class="col-8 col-sm-9 info-text">
-              <h2>Öppettider</h2>
-              <table class="table">
-                <tr>
-                  <td>
-                    <strong>Vardagar</strong>
-                  </td>
-                  <td>8:00 till 16:15</td>
-                </tr>
-                <tr>
-                  <td>
-                    <strong>helger, högtider</strong>
-                  </td>
-                  <td>stängt</td>
-                </tr>
-
-              </table>
-              <p>Öppet vanliga tider under tenta-p, stängt under omtenta-p.</p>
-
-            </div>
-
-            <div class="col-4 col-sm-3 info-icon">
-              <i class="fa fa-users"></i>
-            </div>
-            <div class="col-8 col-sm-9 info-text">
-
-              <h2>Jourtider</h2>
-              <table class="table">
-                <tr>
-                  <td>
-                    <strong>7:30 - 8:00</strong>
-                  </td>
-                  <td>måndag - fredag</td>
-                </tr>
-                <tr>
-                  <td>
-                    <strong>12:15 - 13:00</strong>
-                  </td>
-                  <td>måndag - fredag
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <strong>16:15 - 17:00</strong>
-                  </td>
-                  <td>måndag - fredag</td>
-                </tr>
-              </table>
-              <p>Under dessa tider finns en styrelsemedlem i vårt kontor, Nollberga.</p>
-
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="jumbotron jumbotron-fluid mb-3">
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-6">
-        <h2>Jobba i Baljan</h2>
+      <div>
         <p>Det är personalen som håller igång vårt fik! Det är dem du träffar när du handlar hos oss. Som personal jobbar man fyra halvdagar under en termin, två i Baljan i Kårallen och två i Byttan i Studenthuset. Som tack för detta får man gratis kaffe/te hela terminen, en duktigt subventionerad P-fest, en subventionerad cykelfest och den beryktade P-presenten™.</p>
-        <p>För höstterminens jobbpass har vi ett jobbsläpp, i slutet av vårterminen. För vårens jobbpass är släppet strax före jul-tenta-p. Jobbsläppen släpps digitalt och det gäller att vara het på gröten, håll utkik på våra sociala medier!</p>
+        <p>För höstterminens jobbpass har vi ett jobbsläpp, i slutet av vårterminen. För vårens jobbpass är släppet strax före jul-tenta-p. Jobbsläppen släpps digitalt och det gäller att vara het på gröten, håll utkik på våra sociala medier!</p>     
       </div>
-      <div class="col-sm-6">
-        <div class="happy-workers">
-          <img src="{% static 'img/jobbare.jpg' %}" alt="Glada jobbare" style="border-radius: 25px;" />
-          <br>
-          <p class="text-center pink baljan-font mt-2">Glada jobbare!</p>
-        </div>
+    </div>  
+    <div class="col-lg-6">
+      <h3>Styrelsen</h3>
+      <div>
+        <img src="{% static 'img/Straffregister-VT2022.png' %}" alt="Straffregister" class="rounded-3 img-fluid" />
+        <br>
+        <p class="text-center text-primary lobster mt-2">Glad styrelse!</p>
       </div>
-    </div>
-  </div>
-</section>
-
-  <section class="jumbotron jumbotron-fluid">
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="happy-workers">
-            <img src="{% static 'img//Straffregister-VT2022.png' %}" alt="Straffregister" style="border-radius: 25px;" />
-            <br>
-
-            <p class="text-center pink baljan-font mt-2">Glad styrelse!</p>
-
-          </div>
-        </div>
-        <div class="col-sm-6">
-          <h2>Styrelsen</h2>
-          <p>Baljans styrelse består av 21 studenter från allehanda sektioner. Vårt uppdrag är att aktivt jobba för att driva föreningen framåt och göra det så bra som möjligt för våra älskade kunder och jobbare. Vi är en salig blandning individer med allt från ett gäng nördar som ser till att ni kan blippa er förbi den vanliga kaffekön till tre partypeeps som varje termin anordnar norra Europas billigaste och ballaste bal. Mer om varje styrelsepost kan du hitta genom att klicka på "Läs mer" nedan.</p>
-          <a href="{% url 'styrelsen' %}" class="btn btn-outline-primary btn-attention">Läs mer</a>
-        </div>
+      <div>
+        <p>Baljans styrelse består av 21 studenter från allehanda sektioner. Vårt uppdrag är att aktivt jobba för att driva föreningen framåt och göra det så bra som möjligt för våra älskade kunder och jobbare. Vi är en salig blandning individer med allt från ett gäng nördar som ser till att ni kan blippa er förbi den vanliga kaffekön till tre partypeeps som varje termin anordnar norra Europas billigaste och ballaste bal.</p>
+        <a class="btn btn-outline-dark d-block w-50 mx-auto" href="{% url 'styrelsen' %}">Mer om styrelsen</a>
       </div>
     </div>
   </section>
+  <h2>
+    Följ oss
+  </h2>
+  <div class="d-flex justify-content-center gap-4">
+    <a href="https://www.instagram.com/sektionscafe_baljan/" target="_blank" class="btn btn-lg btn-outline-dark"><i class="fab fa-instagram"></i> Instagram</a>
+    <a href="https://www.facebook.com/sektionscafe.baljan" target="_blank" class="btn btn-lg btn-outline-dark"><i class="fab fa-facebook"></i> Facebook</a>
+  </div>
+</div>
 
-<div id="map-container"></div>
-
-<div>
-    <!-- hpfix -->
-</main>
 {% endblock %}
 
 {% block extra_body %} {% endblock %}

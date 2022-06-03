@@ -1,227 +1,178 @@
-{% extends "base.html" %} {% load i18n %} {% load static %} {% load baljan_extras %} {% block body_base %} {% block body_outer %}
-<header class="navbar navbar-expand-lg flex-column flex-md-row">
-  <div class="container d-flex">
-    <a class="navbar-brand" href="/">
-      <img src="{% static 'img/svg/logo.svg' %}" width="62" />
-    </a>
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load baljan_extras %}
+{% block body_base %}
 
-    <div class="collapse navbar-collapse order-2 {% if user.is_authenticated %} authenticated{% endif %}" id="navbarCollapse">
-      <ul class="navbar-nav flex-row d-flex justify-content-around">
-        <li class="nav-item active">
+<nav class="navbar navbar-expand-lg navbar-light sticky-top bg-white shadow-sm">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <img src="{% static 'img/svg/logo.svg' %}" alt="" width="62">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
           <a class="nav-link" href="{% url 'home' %}">
-            <i class="fa fa-home"></i> Hem
-            <span class="sr-only">(current)</span>
+            <i class="fa fa-home text-primary"></i> Hem
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'high_score' %}">
-            <i class="fa fa-trophy"></i> Topplistan</a>
-        </li>
+            <i class="fa fa-trophy text-primary"></i> Topplistan</a>
+          </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'order_from_us' %}">
-            <i class="fa fa-shopping-cart"></i> Beställa</a>
+            <i class="fa fa-shopping-cart text-primary"></i> Beställa</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'credits' %}">
-            <i class="fa fa-coffee"></i> Kaffekort</a>
+            <i class="fa fa-coffee text-primary" ></i> Kaffekort</a>
         </li>
+        {% if perms.baljan.self_and_friend_signup %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'staff_homepage' %}">
+            <i class="fa fa-user-tie text-primary" ></i> Personal</a>
+        </li>
+        {% endif %}
       </ul>
-
-         {% if user.is_authenticated %} {% block nav %}
-        <nav class="sidenav links-for">
-          {% for id, action_title, actions in action_categories %}
-          <h3>
-            {{ action_title }}
-          </h3>
-          <div>
-            <ul>
-              {% for action in actions %}
-              <li class="sidebar-link{% if action.active %} active{% endif %}">
-                <a href="{{ action.link }}">{{ action.text }}</a>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-          {% endfor %}
-
-            <a href="{% url 'logout' %}" class="btn btn-outline-primary my-2 my-sm-0 d-sm-none d-inline-block btn-block">
-                <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
-                  Logga ut
-              </a>
-        </nav>
-        {% endblock %} {% endif %}
-
-    </div>
-    <!-- collapse -->
-
-
-    <div class="ml-auto button-container order-lg-3">
       {% block login %}
-          {% if user.is_authenticated %}
-              <a href="{{user.get_absolute_url}}" class="btn my-2 my-sm-0 d-none d-sm-inline-block">
-                <i class="fa fa-user" aria-hidden="true"></i>
-                {{user | display_name }}
-              </a>
-              <a href="{% url 'logout' %}" class="btn my-2 my-sm-0 d-none d-sm-inline-block">
-                <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
-                  Logga ut
-              </a>
-          {% else %}
-              <a href="#footer" class="contact-btn mr-2 d-none d-xl-inline">Kontakta oss</a>
-              <a href="{% url 'social:begin' 'liu' %}" class="btn btn-outline-primary btn-attention my-2 my-sm-0">
-                <i class="fa fa-sign-in-alt"></i> Logga in</a>
-          {% endif %}
+      {% if user.is_authenticated %}
+        <div class="navbar-nav">
+          <a href="{{user.get_absolute_url}}" class="nav-link">
+            <i class="fa fa-user text-primary" aria-hidden="true"></i>
+            {{user | display_name }}
+          </a>
+          <a href="{% url 'logout' %}" class="nav-link">
+            <i class="fa fa-sign-out-alt text-primary" aria-hidden="true"></i>
+            Logga ut
+          </a>
+        </div>
+      {% else %}
+      <div class="navbar-nav">
+          <a href="#footer" class="btn btn-outline-dark d-none d-sm-block">Kontakta oss</a>
+          <a href="{% url 'social:begin' 'liu' %}" class="nav-link">
+            <i class="fa fa-sign-in-alt text-primary"></i> Logga in
+          </a>
+        </div>
+      {% endif %}
       {% endblock %}
-      <button class="navbar-toggler hamburger hamburger--collapse {% if user.is_authenticated %}is-authenticated{% endif %}" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" id="hamburger">
-        <!-- <span class="navbar-toggler-icon"></span> -->
-        <span class="hamburger-box">
-          <span class="hamburger-inner"></span>
-        </span>
-      </button>
     </div>
-
   </div>
-  
-
-</header>
+</nav>
  
-{% block full_body %}
-{% include 'baljan/_card_missing_notice.html' %}
-<main class="bd-masthead wrapper--md" id="content" role="main">
+<main id="content" role="main">
+  {% include 'baljan/_card_missing_notice.html' %}
   <div class="container">
-    <!-- {#<div id="logo" class="9" dir="ltr">{% block logo_link_image %}{% endblock %}</div>#} -->
       {% for message in messages %}
-          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          <div class="alert alert-{{ message.tags }} mt-3">{{ message }}</div>
       {% endfor %}
-      {% block body %} {% endblock %}
-
   </div>
+  {% block full_body %}
+    <div class="container mt-4">
+      {% block body %} {% endblock %}
+    </div>
+  {% endblock %}
 </main>
-{% endblock %}
-
-<!--[if IE]>
-            <div class="clear"></div>
-            <p class="ie-support">
-                {% blocktrans %}
-                Basic functionality is tested in IE 8. You are encouraged to
-                switch to a browser with support for transparency.
-                {% endblocktrans %}
-            </p>
-        <![endif]-->
-{% endblock %}
 
 
 
-<footer class="Baljan__footer" id="footer">
-  <div class="pattern"></div>
+<footer class="mb-5" id="footer">
+  <div class="pattern my-5"></div>
 
-  <div class="block gray-box">
-    <div class="container">
-      <div class="row">
-        <div class="col-12">
-          <h2 id="contact">Kontakta oss</h2>
-        </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h2 id="contact">Kontakta oss</h2>
       </div>
-      <div class="row">
-        <div class="col-sm-6">
-          <p>Baljan finns på bottenplan i
-            <a href="http://karallen.se/" rel="nofollow">Kårallen</a>, campus Valla, Linköping.</p>
-          <address>
-            <strong>Sektionscafé Baljan</strong>
-            <br> Kårallen, universitetet
-            <br> 581 83 Linköping
-            <br>
-          </address>
-          <address>
-            <strong>Telefon</strong>
-            <br>
-            <a href="tel:+46766860043">076-686 00 43</a>
-          </address>
-            <strong>Integritetspolicy</strong>
-            <br>Baljans integritetspolicy finner du <a href="{% url "integrity" %}">här</a>.
-            <br>
-            <br>
-            <strong>Styrelsen</strong>
-            <br>Läs mer om Baljans styrelse <a href="{% url "styrelsen" %}">här</a>.
-        </div>
-        <div class="col-sm-6">
-          <div class="row">
-            <div class="col-sm-6">
-              <address>
-                <strong>Styrelsen
-                  <small>(Generella frågor)</small>
-                </strong>
-                <br>
-                <a href="mailto:styrelsen@baljan.org">styrelsen@baljan.org</a>
-              </address>
-            </div>
-            <div class="col-sm-6">
-              <address>
-                <strong>Jour
-                  <small>(Frågor angående beställningar)</small>
-                </strong>
-                <br>
-                <a href="mailto:bestallning@baljan.org">bestallning@baljan.org</a>
-              </address>
-            </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-12 col-md-6">
+        <p>Baljan finns på bottenplan i
+          <a href="http://karallen.se/" rel="nofollow">Kårallen</a>, campus Valla, Linköping.</p>
+        <address>
+          <strong>Sektionscafé Baljan</strong>
+          <br> Kårallen, universitetet
+          <br> 581 83 Linköping
+          <br>
+        </address>
+        <address>
+          <strong>Telefon</strong>
+          <br>
+          <a href="tel:+46766860043">076-686 00 43</a>
+        </address>
+          <strong>Integritetspolicy</strong>
+          <br>Baljans integritetspolicy finner du <a href="{% url "integrity" %}">här</a>.
+          
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="row">
+          <div class="col-6">
+            <address>
+              <strong>Styrelsen</strong>
+              <small>(Generella frågor)</small>
+              <br>
+              <a href="mailto:styrelsen@baljan.org">styrelsen@baljan.org</a>
+            </address>
           </div>
-          <div class="row">
-            <div class="col-sm-6">
-              <address>
-                <strong>Ordförande</strong>
-                <br>
-                <a href="mailto:ordf@baljan.org">ordf@baljan.org</a>
-              </address>
-            </div>
-            <div class="col-sm-6">
-              <address>
-                <strong>Vice Ordförande</strong>
-                <br>
-                <a href="mailto:vice.ordf@baljan.org">vice.ordf@baljan.org</a>
-              </address>
-            </div>
+          <div class="col-6">
+            <address>
+              <strong>Jour</strong>
+              <small>(Frågor angående beställningar)</small>
+              <br>
+              <a href="mailto:bestallning@baljan.org">bestallning@baljan.org</a>
+            </address>
           </div>
-          <div class="row">
-            <div class="col-sm-6">
-              <address>
-                <strong>Kassör</strong>
-                <br>
-                <a href="mailto:kassor@baljan.org">kassor@baljan.org</a>
-              </address>
-            </div>
-            <div class="col-sm-6">
-              <address>
-                <strong>Personalis</strong>
-                <br>
-                <a href="mailto:personalis@baljan.org">personalis@baljan.org</a>
-              </address>
-            </div>
+          <div class="col-6">
+            <address>
+              <strong>Ordförande</strong>
+              <br>
+              <a href="mailto:ordf@baljan.org">ordf@baljan.org</a>
+            </address>
           </div>
-          <div class="row">
-            <div class="col-sm-6">
-              <address>
-                <strong>Party</strong>
-                <br>
-                <a href="mailto:party@baljan.org">party@baljan.org</a>
-              </address>
-            </div>
-            <div class="col-sm-6">
-              <address>
-                <strong>Nördar</strong>
-                <br>
-                <a href="mailto:1337@baljan.org">1337@baljan.org</a>
-              </address>
-            </div>
+          <div class="col-6">
+            <address>
+              <strong>Vice Ordförande</strong>
+              <br>
+              <a href="mailto:vice.ordf@baljan.org">vice.ordf@baljan.org</a>
+            </address>
           </div>
-          <div class="row">
-            <div class="col-sm-6">
-              <address>
-                <strong>Valberedning</strong>
-                <br>
-                <a href="mailto:val@baljan.org">val@baljan.org</a>
-              </address>
-            </div>
+          <div class="col-6">
+            <address>
+              <strong>Kassör</strong>
+              <br>
+              <a href="mailto:kassor@baljan.org">kassor@baljan.org</a>
+            </address>
+          </div>
+          <div class="col-6">
+            <address>
+              <strong>Personalis</strong>
+              <br>
+              <a href="mailto:personalis@baljan.org">personalis@baljan.org</a>
+            </address>
+          </div>
+          <div class="col-6">
+            <address>
+              <strong>Party</strong>
+              <br>
+              <a href="mailto:party@baljan.org">party@baljan.org</a>
+            </address>
+          </div>
+          <div class="col-6">
+            <address>
+              <strong>Nördar</strong>
+              <br>
+              <a href="mailto:1337@baljan.org">1337@baljan.org</a>
+            </address>
+          </div>
+          <div class="col-6">
+            <address>
+              <strong>Valberedning</strong>
+              <br>
+              <a href="mailto:val@baljan.org">val@baljan.org</a>
+            </address>
           </div>
         </div>
       </div>
@@ -229,4 +180,8 @@
 </footer>
 
 
-{% block extra_body_base %} {% block extra_body %}{% endblock %} {% endblock %} {% endblock body_base %}
+{% block extra_body_base %}
+{% block extra_body %}
+{% endblock %}
+{% endblock %}
+{% endblock body_base %}

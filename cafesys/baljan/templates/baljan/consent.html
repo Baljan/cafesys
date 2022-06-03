@@ -4,7 +4,7 @@
 {% load baljan_extras %}
 {% load static %}
 
-{% block head_title %}Samtycke till datalagring{% endblock %}
+{% block page_title %}Samtycke till datalagring{% endblock %}
 {% block body_class %}consent-page{% endblock %}
 
 {% block body_base %}
@@ -51,9 +51,11 @@
                         <form method="post">
                             {% csrf_token %}
                             <input type="hidden" name="consent" value="yes">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" name="automatic_fullname" class="custom-control-input" id="automatic-fullname">
-                                <label class="custom-control-label" for="automatic-fullname">Spara mitt för- och efternamn</label>
+                            <div class="form-check">
+                                <input type="checkbox" name="automatic_fullname" class="form-check-input" id="automatic-fullname">
+                                <label class="form-check-label" for="automatic-fullname">
+                                    Spara mitt för- och efternamn
+                                </label>
                             </div>
                             <br/>
                             <button type="submit" class="btn btn-primary">Samtyck till datalagring</button>

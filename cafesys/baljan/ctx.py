@@ -6,7 +6,9 @@ from .actions import categories_and_actions
 
 
 def actions(request):
-    return {"action_categories": categories_and_actions(request)}
+    # TODO: move
+    links, pages = categories_and_actions(request)
+    return {"pages": pages, "links": links}
 
 
 def common(request):

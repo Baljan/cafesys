@@ -52,13 +52,13 @@ $vt22-orange: #ffb380;
       object-fit: contain;
       object-position: center 4px;
       background: $ht21-orange;
-      background: url("/static/img/mountains.svg"), linear-gradient(0deg, rgba($vt22-orange, 0.6) 0%, $blue 200%);
+      background: url("/static/img/mountains.svg"), linear-gradient(0deg, rgba($vt22-orange, 0.6) 0%, $baljan-blue 200%);
       background-repeat: no-repeat, no-repeat;
       background-position: bottom, bottom;
       @supports not (backdrop-filter: blur(10px)) {
         /* CSS to provide fallback alternative for Firefox and similar browsers */
         & {
-          background-image: url("/static/img/mountains.svg"), linear-gradient(0deg, $vt22-orange 0%, $blue 200%);
+          background-image: url("/static/img/mountains.svg"), linear-gradient(0deg, $vt22-orange 0%, $baljan-blue 200%);
         }
       }
     }
@@ -67,21 +67,19 @@ $vt22-orange: #ffb380;
   .card-body {
     border-style: solid;
     border-width: 7px;
-    border-color: $dark-blue;
+    border-color: $baljan-dark-blue;
     border-top: none;
-    background-color: $white;
+    background-color: $baljan-white;
 
     h2 {
       font-size: 1.4rem;
-      font-family: "Lobster", cursive;
-      color: $pink;
+      color: $baljan-pink;
       margin-bottom: 0.75rem;
     }
 
     h3 {
       font-size: 1.2rem;
-      font-family: "Lobster", cursive;
-      color: $blue;
+      color: $baljan-blue;
       margin: 0.25rem 0;
     }
     p {

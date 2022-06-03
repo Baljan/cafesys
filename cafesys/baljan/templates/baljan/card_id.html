@@ -5,7 +5,7 @@
 {% load crispy_forms_tags %}
 {% load baljan_extras %}
 
-{% block head_title %}Registrera blippkort{% endblock %}
+{% block page_title %}Registrera blippkort{% endblock %}
 
 {% block body %}
     <h1>Registrera blippkort</h1>
@@ -35,7 +35,7 @@
         {% endif %}
     {% else %}
         {% if prev_card_id %}
-            <div class="alert alert-primary">
+            <div class="alert alert-warning">
                 Din profil innehåller redan kortnumret <strong>{{prev_card_id}}</strong>,
                 vilket kommer att skrivas över om du fortsätter.
             </div>
@@ -43,7 +43,7 @@
         
         <form autocomplete="off" method="POST" action="">
             {% csrf_token %}
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{form}}   
                 {% if url_rfid %}
                     <div class="form-text">

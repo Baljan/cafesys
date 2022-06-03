@@ -22,12 +22,13 @@ from django.core.serializers import serialize
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.db import transaction
-from django.db.models import Sum, Count,IntegerField, Case, When, Value
+from django.db.models import Sum, Count,IntegerField, Case, When, Value, Subquery
 from django.db.models.functions import ExtractHour, ExtractMinute, ExtractIsoWeekDay
 from django.http import HttpResponse, FileResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.generic import ListView
+from django.views.generic.dates import WeekArchiveView
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET
 from django.utils.html import escape
@@ -69,6 +70,54 @@ def redirect_prepend_root(where):
         return HttpResponseRedirect(where)
     return HttpResponseRedirect('/%s' % where)
 
+
+def home(request):
+    today = date.today()
+    # Get info about next open day for each café
+    next_shifts_baljan = models.Shift.objects.filter(when__gte=today, location=0, enabled=True).order_by('when', 'span')
+    next_shifts_byttan = models.Shift.objects.filter(when__gte=today, location=1, enabled=True).order_by('when', 'span')
+    next_day_shifts_baljan = models.Shift.objects.filter(when=Subquery(next_shifts_baljan.values('when')[:1]))
+    next_day_shifts_byttan = models.Shift.objects.filter(when=Subquery(next_shifts_byttan.values('when')[:1]))
+    next_day_baljan = next_day_shifts_baljan[0].when if len(next_day_shifts_baljan) else None
+    next_day_byttan = next_day_shifts_byttan[0].when if len(next_day_shifts_byttan) else None
+
+    return render(request, 'baljan/about.html', {
+        "next_day_baljan": next_day_baljan,
+        "next_day_shifts_baljan": next_day_shifts_baljan,
+        "next_day_byttan": next_day_byttan,
+        "next_day_shifts_byttan": next_day_shifts_byttan
+    })
+
+
+class CafeWeekView(WeekArchiveView):
+    queryset = models.Shift.objects.all()
+    date_field = "when"
+    year_format = "%G"
+    week_format = "%V"
+    allow_empty = True
+    allow_future = True
+    location = 0
+
+    def get_year(self):
+        try:
+            return self.kwargs["year"]
+        except KeyError:
+            return date.today().isocalendar()[0]
+        
+
+    def get_week(self):
+        try:
+            return self.kwargs["week"]
+        except KeyError:
+            return date.today().isocalendar()[1]
+        
+
+    def get_queryset(self):
+        return models.Shift.objects.filter(location=self.location, enabled=True).order_by("when")
+    
+
+cafe_baljan = CafeWeekView.as_view(template_name="baljan/cafe_baljan.html", location=0)
+cafe_byttan = CafeWeekView.as_view(template_name="baljan/cafe_byttan.html", location=1)
 
 def orderFromUs(request):
     if request.method == 'POST':
@@ -171,6 +220,18 @@ def orderFromUs(request):
 
     return render(request, 'baljan/orderForm.html', {'form': form,})
 
+
+@login_required
+def staff_homepage(request):
+    today = date.today()
+    upcoming_shifts = models.ShiftSignup.objects.filter(user=request.user, shift__when__gte=today).order_by('shift__when', 'shift__span')
+    upcoming_callduty = models.OnCallDuty.objects.filter(user=request.user, shift__when__gte=today).order_by('shift__when', 'shift__span')
+
+    tpl = {}
+    tpl["upcoming_shifts"] = upcoming_shifts
+    tpl["upcoming_callduty"] = upcoming_callduty
+
+    return render(request, 'baljan/staff_homepage.html', tpl)
 
 @login_required
 def semester(request, name=None, loc=0):

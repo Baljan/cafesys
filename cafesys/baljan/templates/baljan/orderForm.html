@@ -5,7 +5,7 @@
 {% load baljan_extras %}
 {% load static %}
 {% block body_class %}orderForm{% endblock %}
-{% block head_title %} Beställa från Baljan {% endblock %}
+{% block page_title %} Beställa från Baljan {% endblock %}
 
 {% block extra_head_base %}
 <script type="text/javascript" src="{% static 'js/orderForm.js' %}"></script>
@@ -99,14 +99,14 @@
                         Ni kommer få en bekräftelse att er beställning är tillagd när styrelsen har tagit emot den.
                     </div>
 
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="form-confirmation">
-                        <label class="custom-control-label" for="form-confirmation">Jag godkänner härmed att Sektionscafé Baljan behandlar ovan ifyllda uppgifter enligt deras <a href="{% url 'integrity' %}">integritetspolicy</a>.</label>
+                    <div class="form-check">
+                        <label class="form-check-label" for="form-confirmation">
+                            <input type="checkbox" class="form-check-input" id="form-confirmation">
+                            <span>Jag godkänner härmed att Sektionscafé Baljan behandlar ovan ifyllda uppgifter enligt deras <a href="{% url 'integrity' %}">integritetspolicy</a>.</span>
+                        </label>
                     </div>
 
-                    <br/>
-
-                    <input id="submit-button" type="submit" class="btn btn-primary" value="Skicka beställning" disabled/>
+                    <input id="submit-button" type="submit" class="btn btn-primary mt-4" value="Skicka beställning" disabled/>
                 </div>
 
             </form>
@@ -116,7 +116,7 @@
     <div class="col-md order-1 order-md-2">
 
         <div class="alert alert-warning" role="alert">
-            <h2> Observera! </h2>
+            <h2 class="alert-heading"> Observera! </h2>
 
             Jobbare i Baljan har inte möjlighet att lämna ut beställningar, det är enbart Baljans styrelsemedlemmar som lämnar ut beställningar.
             <br><br>
@@ -151,7 +151,7 @@
             Följade gäller vid beställningar:
             <h3> Kaffe/te </h3>
             <ul>
-                <li>På grund av termosstorlekar kan vi eventuellt behöva justera antalet kaffe eller te i er beställning. <a href="#termos-size-modal" data-toggle="modal"> Klicka här för att se
+                <li>På grund av termosstorlekar kan vi eventuellt behöva justera antalet kaffe eller te i er beställning. <a href="#termos-size-modal" data-bs-toggle="modal"> Klicka här för att se
                     våra
                     termosstorlekar.</a></li>
                 <li>Koppar, skedar, socker och mjölk ingår vid beställning av kaffe och te. <br></li>
@@ -188,9 +188,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Termosstorlekar</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body container pt-1">
 
@@ -223,7 +221,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Stäng</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Stäng</button>
             </div>
         </div>
     </div>

@@ -4,7 +4,7 @@
 {% load crispy_forms_tags %}
 {% load baljan_extras %}
 
-{% block head_title %}Topplistan{% endblock %}
+{% block page_title %}Topplistan{% endblock %}
 
 {% block body_class %}high-score{% endblock %}
 {% block body %}
@@ -45,7 +45,7 @@
                     <div class="col">
                         <h3>{{group.title}}</h3>
                         <div class="table-responsive">
-                            <table class="table table-baljan">
+                            <table class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th scope="col">Placering</th>

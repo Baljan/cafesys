@@ -1,11 +1,11 @@
-{% extends "baljan/baljan.html" %}
+{% extends "baljan/staff.html" %}
 {% load i18n %}
 {% load humanize %}
 {% load crispy_forms_tags %}
 {% load baljan_extras %}
 {% load static %}
 {% block body_class %}semester-shifts{% endblock %}
-{% block head_title %} {{'Jobbpass '|add:semester}} {% endblock %}
+{% block page_title %} {{'Jobbpass '|add:semester}} {% endblock %}
 
 {% block extra_head_base %}
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -35,7 +35,7 @@
     {% block extra_head %}{% endblock %}
 {% endblock %}
 
-{% block body %}
+{% block staff_info %}
 <h1>{{'Jobbpass '|add:semester}}</h1>
 <p id="last-updated" class="text-right">Uppdaterad {{ now }}</p>
 
@@ -65,16 +65,12 @@
 
 <div id="save-alert-success" class="alert alert-success alert-dismissible collapse" role="alert" style="display:none">
     <span>Dina tänkbara pass har sparats.</span>
-    <button type="button" class="close" onclick="$('#save-alert-success').hide()" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 
 <div id="save-alert-error" class="alert alert-danger alert-dismissible collapse" role="alert" style="display:none">
     <span>Dina tänkbara pass kunde inte sparas.</span>
-    <button type="button" class="close" onclick="$('#save-alert-error').hide()" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 
 <form id="workable-form" method="POST">

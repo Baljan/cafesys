@@ -22,5 +22,5 @@ vagrant-*
 # Kubernetes
 /kubernetes/.env
 
-
+# Node
 node_modules

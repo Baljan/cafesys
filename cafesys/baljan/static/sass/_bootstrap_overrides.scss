@@ -1,0 +1,55 @@
+$blue: $baljan-blue;
+
+$primary: $baljan-pink;
+$secondary: $baljan-blue;
+$dark: $baljan-dark-blue;
+$success: $baljan-green;
+$danger: $baljan-red;
+$warning: $baljan-orange;
+$info: lighten($baljan-blue, 20);
+
+$white: $baljan-white;
+$light: rgb(238, 214, 196);
+$black: $baljan-black;
+
+$min-contrast-ratio: 2.5;
+
+$btn-font-weight: bold;
+
+$link-decoration: none;
+
+$border-radius: 0.5rem;
+$border-radius-sm: 3/4 * $border-radius;
+$border-radius-lg: 5/4 * $border-radius;
+$border-radius-xl: 2.5 * $border-radius;
+$border-radius-2xl: 5 * $border-radius;
+
+$font-size-base: 1.1rem;
+
+$h1-font-size: 3.2rem;
+$headings-font-family: Lobster;
+$headings-color: $dark;
+
+$navbar-brand-margin-end: 2rem;
+$navbar-light-color: $baljan-dark-blue;
+$navbar-light-hover-color:          rgba($baljan-blue, .8);
+$navbar-light-active-color:         rgba($baljan-dark-blue, .8);
+$navbar-light-disabled-color:       rgba($baljan-dark-blue, .3);
+$navbar-light-toggler-border-color: transparent;
+
+$body-color: darken(rgba($dark, 0.8), 20);
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1260px,
+);
+
+$container-max-widths: (
+  sm: 680px,
+  md: 720px,
+  lg: 960px,
+  xl: 1200px 
+);
