@@ -3,9 +3,10 @@ import logging
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy
+
+from cafesys.baljan.tasks import send_mail_task
 
 
 logger = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ See your shifts here: %(profile_url)s
 """),
 }
 
-def send(notification_type, to_user, **kwargs):
+def send(notification_type, to_user, wait=False, **kwargs):
     assert notification_type and TITLE_TEMPLATES
     assert notification_type in BODY_TEMPLATES
     assert to_user.email
@@ -62,5 +63,8 @@ def send(notification_type, to_user, **kwargs):
 
     title = TITLE_TEMPLATES[notification_type] % kwargs
     body = BODY_TEMPLATES[notification_type] % kwargs
-    send_mail(title, body, settings.CONTACT_EMAIL, [to_user.email])
+    if wait: 
+        send_mail_task(title, body, settings.CONTACT_EMAIL, [to_user.email])
+    else: 
+        send_mail_task.delay(title, body, settings.CONTACT_EMAIL, [to_user.email])
     logger.info('%s sent to %s with kwargs %r' % (notification_type, to_user, kwargs))

@@ -170,29 +170,6 @@ class TradeRequest(Made):
         self.save()
         self.delete()
 
-def traderequest_notice_delete(tr):
-    if tr.answered:
-        cancel = False
-        if tr.wanted_signup.shift.when < date.today():
-            cancel = True
-        if tr.offered_signup.shift.when < date.today():
-            cancel = True
-        if cancel:
-            logger.info('not sending message about trade request deletion because the offered or wanted shift was in the past')
-            return
-
-        if tr.accepted:
-            send_type = 'trade_request_accepted'
-        else:
-            send_type = 'trade_request_denied'
-        requestor = tr.offered_signup.user
-        notifications.send(send_type,
-            requestor,
-            wanted_shift=tr.wanted_signup.shift.name(),
-            offered_shift=tr.offered_signup.shift.name(),
-        )
-    else:
-        pass # FIXME: notifications should be sent here as well
 
 
 def traderequest_post_delete(sender, instance=None, **kwargs):
@@ -238,7 +215,6 @@ def traderequest_post_delete(sender, instance=None, **kwargs):
         requester_signup = ShiftSignup(**requester_kwargs)
         requester_signup.save()
 
-    #traderequest_notice_delete(tr)
 signals.post_delete.connect(traderequest_post_delete, sender=TradeRequest)
 
 
@@ -569,13 +545,6 @@ def signup_post(sender, instance=None, **kwargs):
             Q(wanted_signup=instance) | Q(offered_signup=instance))
     trs.delete()
 
-def _signup_notice_common(signup):
-    return {
-            'shift': signup.shift,
-            'shift_name': signup.shift.name(),
-            'shift_url': signup.shift.get_absolute_url(),
-            'signup': signup,
-            }
 
 def signup_notice_save(signup):
     if signup.shift.when < date.today():

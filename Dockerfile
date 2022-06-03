@@ -25,8 +25,6 @@ WORKDIR ${APP_ROOT}
 
 COPY --from=nodedeps /app/node_modules ${APP_ROOT}/node_modules
 
-COPY ./requirements.alpine.txt ${APP_ROOT}/requirements.alpine.txt
-# RUN apk add --no-cache $(grep -vE "^\s*#" ${APP_ROOT}/requirements.alpine.txt | tr "\n" " ") && \
 RUN pip3 install -U pip setuptools
 
 COPY ./requirements.txt ${APP_ROOT}/requirements.txt
