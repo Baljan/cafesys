@@ -46,12 +46,12 @@
             
 
         <div class="alert alert-info" role="alert">
-                <h2 class="alert-heading">Se jobbpass i din kalender</h2>
+            <h2 class="alert-heading">Se jobbpass i din kalender</h2>
             <p>
                 Prenumerera på kalendern genom denna kalenderlänk.
             </p>              
             
-            <input class="form-control mb-3 bg-transparent" type="text" value="{{ request.scheme }}://{{current_site}}{% url 'user_calendar' user.profile.private_key %}" aria-label="calendar link" readonly>
+            <input class="form-control mb-3 bg-transparent" type="text" value="https://{{current_site}}{% url 'user_calendar' user.profile.private_key %}" aria-label="calendar link" readonly>
                 
             <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#calendarCollapse" aria-expanded="false" aria-controls="calendarCollapse">Mer info</button>
             <div class="collapse" id="calendarCollapse">
