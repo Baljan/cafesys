@@ -97,7 +97,7 @@
       </div>
     </div>
   </div>
-  
+
   <h2>
     Följ oss
   </h2>
@@ -109,4 +109,54 @@
 
 {% endblock %}
 
-{% block extra_body %} {% endblock %}
+{% block extra_body %}
+{% comment %} 
+LD-JSON schema for describing the website content to Google and other search engines.
+{% endcomment %}
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Sektionscafé Baljan",
+    "url": "https://www.baljan.org",
+    "logo": "https://www.baljan.org{% static 'img/svg/logo.svg' %}",
+    "telephone": "+46766860043",
+    "priceRange": "$",
+    "sameAs": [
+      "https://www.instagram.com/sektionscafe_baljan/",
+      "https://www.facebook.com/sektionscafe.baljan"
+    ],
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Kårallen, universitetet",
+      "addressLocality": "Linköping",
+      "postalCode": "58183",
+      "addressCountry": "SE"
+    },
+    "department": [
+      {
+        "@type": "CafeOrCoffeeShop",
+        "url": "https://www.baljan.org/baljan",
+        "image": "https://baljan.org{% static 'img/baljan.jpg' %}",
+        "name": "Baljan",
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": "58.40096108932539",
+          "longitude": "15.578099205357805"
+        }
+      },
+      {
+        "@type": "CafeOrCoffeeShop",
+        "url": "https://www.baljan.org/byttan",
+        "image": "https://baljan.org{% static 'img/byttan.jpg' %}",
+        "name": "Byttan",
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": "58.39737863642535",
+          "longitude": "15.578030942764743"
+        }
+      }
+    ]
+  }
+</script> 
+{% endblock %}
