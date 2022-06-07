@@ -63,7 +63,7 @@
   </div>
 </nav>
  
-<main id="content" role="main">
+<main id="content">
   {% include 'baljan/_card_missing_notice.html' %}
   <div class="container">
       {% for message in messages %}
@@ -105,7 +105,6 @@
         </address>
           <strong>Integritetspolicy</strong>
           <br><a href="{% url "integrity" %}">Baljans integritetspolicy</a>
-          
       </div>
       <div class="col-12 col-md-6">
         <div class="row">
@@ -177,6 +176,7 @@
         </div>
       </div>
     </div>
+  </div>
 </footer>
 
 
