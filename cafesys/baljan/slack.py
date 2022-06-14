@@ -52,7 +52,7 @@ def compile_slack_phone_message(phone_from, calls, location):
 
     location_str = (
         Located.LOCATION_CHOICES[location][1]
-        if location < len(Located.LOCATION_COICES)
+        if location < len(Located.LOCATION_CHOICES)
         else "Okänt café"
     )
 
