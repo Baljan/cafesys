@@ -1,6 +1,6 @@
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.conf import settings
-from cafesys.baljan.models import User, Located
+from cafesys.baljan.models import User, Located, PhoneLabel
 from logging import getLogger
 from cafesys.baljan.phone import is_valid_phone_number
 import requests
@@ -32,10 +32,11 @@ def get_from_context(from_user):
             }
         )
 
-    if False:  # TODO: find phone number's labels
-        context.append(
-            {"type": "mrkdwn", "text": f"*Numret är märkt som:* Leverantör AB"}
-        )
+    pl = PhoneLabel.objects.filter(
+        phone_number=_remove_area_code(from_user["phone"])
+    ).first()
+    if pl:
+        context.append({"type": "mrkdwn", "text": f"*Numret är märkt som:* {pl.label}"})
 
     return context
 
@@ -76,6 +77,7 @@ def compile_slack_phone_message(phone_from, calls, location):
             "type": "section",
             "text": {"type": "mrkdwn", "text": f"*Mottagare*\n{call_recipients_str}"},
         },
+        {"type": "divider"},
         {"type": "context", "elements": get_from_context(call_from_user)},
     ]
 
@@ -87,8 +89,8 @@ def compile_slack_sms_message(_sms_from_number, message):
     received
     """
     sms_from_user = _query_user(_sms_from_number)
-    pretext = f"Nytt SMS från {sms_from_user['formatted']}"
-    notification_text = f'{pretext}\n"{message}"'
+    pretext = f"Nytt SMS från {sms_from_user['formatted']}."
+    notification_text = f'{pretext}\n"{message.strip()}"'
 
     blocks = [
         {"type": "section", "text": {"type": "mrkdwn", "text": pretext}},
@@ -99,6 +101,7 @@ def compile_slack_sms_message(_sms_from_number, message):
                 "text": "\n".join(f">{line}" for line in message.strip().split("\n")),
             },
         },
+        {"type": "divider"},
         {"type": "context", "elements": get_from_context(sms_from_user)},
     ]
 

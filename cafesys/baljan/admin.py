@@ -465,6 +465,12 @@ class IncomingCallFallback(admin.ModelAdmin):
 
 admin.site.register(models.IncomingCallFallback, IncomingCallFallback)
 
+class PhoneLabelAdmin(admin.ModelAdmin):
+    list_display = ("phone_number", "label", "made")
+    readonly_fields = ("made",)
+    search_fields = ("phone_number", "label",)
+
+admin.site.register(models.PhoneLabel, PhoneLabelAdmin)
 
 class LegalConsent(admin.ModelAdmin):
     list_display = (

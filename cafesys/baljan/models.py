@@ -920,8 +920,16 @@ class IncomingCallFallback(models.Model):
 
     class Meta:
         verbose_name = 'Styrelsemedlem att ringa'
-        verbose_name_plural = 'Uppringningslista jourtelefon'
+        verbose_name_plural = 'Jourtelefon reservlista'
         ordering = ('-priority', 'user__username')
+
+class PhoneLabel(Made):
+    phone_number = models.CharField("Telefonnummer", max_length=10, unique=True, blank=False, null=False, db_index=True, help_text="Skriv endast siffror och utan landskod. Exempelvis: 0701234567")
+    label = models.CharField('Markering', max_length=64, blank=False, null=False)
+
+    class Meta:
+        verbose_name = 'Jourtelefon markering'
+        verbose_name_plural = 'Jourtelefon markeringar'
 
 
 class LegalConsent(models.Model):
