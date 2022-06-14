@@ -11,9 +11,11 @@ from re import match
 from datetime import date, datetime, time
 from logging import getLogger
 from collections import Counter
+from functools import wraps
 
 from django.conf import settings
 from django.utils.http import urlquote
+from django.core.exceptions import PermissionDenied
 
 from cafesys.baljan import planning
 from cafesys.baljan.models import Shift, IncomingCallFallback, Located, OnCallDuty, User
@@ -33,12 +35,6 @@ DUTY_CALL_ROUTING = {
 
 # IP addresses used by 46Elks
 ELKS_IPS = ["176.10.154.199", "85.24.146.132", "185.39.146.243", "2001:9b0:2:902::199"]
-
-# Extension that is added to numbers calling Baljans 013-number
-PHONE_EXTENSION = "239927"
-
-# Maximum length of a phone number (+46 + 9 digits)
-MAX_PHONE_LENGTH = 12
 
 # Map the keystrokes from IVR to a location
 IVR_LOCATION_MAPPING = {1: Located.KARALLEN, 2: Located.STH_VALLA}
@@ -151,17 +147,13 @@ def request_from_46elks(request):
 
     return client_IP in ELKS_IPS
 
-
-def remove_extension(phone):
-    """
-    Removes the extension that is added to numbers
-    calling Baljans 013-number
-    """
-
-    if len(phone) > MAX_PHONE_LENGTH and phone.endswith(PHONE_EXTENSION):
-        return phone[: len(phone) - len(PHONE_EXTENSION)]
-    else:
-        return phone
+def validate_46elks(function=None):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+            if request_from_46elks(request):
+                return function(request, *args, **kwargs)
+            raise PermissionDenied()
+    return wrap
 
 
 def is_valid_phone_number(phone):
@@ -266,15 +258,3 @@ def compile_incoming_call_response(request):
         response["whenhangup"] = hangup_url
 
     return response
-
-
-def get_call(calls):
-    """Get the most relevant call from the given calls, either the one that
-    answered or the first one that did not.
-    """
-    if not calls:
-        return None
-    call = calls[-1]
-    if call.get("state") != "success":
-        call = calls[0]
-    return call

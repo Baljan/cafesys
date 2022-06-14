@@ -1,80 +1,83 @@
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from cafesys.baljan.models import Profile, Located
+from django.conf import settings
+from cafesys.baljan.models import User, Located
 from logging import getLogger
 from cafesys.baljan.phone import is_valid_phone_number
+import requests
 
 logger = getLogger(__name__)
 
-def compile_slack_phone_message(phone_from, phone_to, status, location):
+def send_message(data, type="unknown message type"):
+    if settings.SLACK_PHONE_WEBHOOK_URL:
+        slack_response = requests.post(
+            settings.SLACK_PHONE_WEBHOOK_URL,
+            json=data,
+            headers={'Content-Type': 'application/json'}
+        )
+
+        if slack_response.status_code != 200:
+            logger.warning(f'Unable to post {type} to Slack')
+
+def get_from_context(from_user):
+    context = []
+
+    if from_user is not None and from_user['groups']:
+        groups = from_user['groups']
+        context.append({
+            "type": "mrkdwn",
+            "text": f"*{from_user['display_name']} tillhör {'grupperna' if len(groups) > 1 else 'gruppen'}:* {', '.join(groups)}"
+        })
+
+    if False: # TODO: find phone number's labels
+        context.append({
+            "type": "mrkdwn",
+            "text": f"*Numret är märkt som:* Leverantör AB"
+        })
+
+    return context
+
+
+def compile_slack_phone_message(phone_from, calls, location):
     """Compiles a message that can be posted to Slack after a call has been made
     """
 
     call_from_user = _query_user(phone_from)
-    call_from = _format_caller(call_from_user, phone_from)
+    call_from_name = call_from_user["display_name"] if call_from_user else None
+    call_from = _format_caller(phone_from, call_from_name)
 
-    call_to_user = _query_user(phone_to)
-    call_to = _format_caller(call_to_user, phone_to)
+    recipients = [{"user": _query_user(call.get("to", "")), "status": call.get("state", "failed")} for call in calls]
 
-    location_str = list(filter(lambda x: x[0] == location, Located.LOCATION_CHOICES))
+    location_str = Located.LOCATION_CHOICES[location][1] if location < len(Located.LOCATION_COICES) else "Okänt café"
 
-    if not location_str:
-        logger.error('Unknown café choice: %d' % (location,))
-        location_str = 'Okänt café'
-    else:
-        location_str = location_str[0][1]
+    # outcome_str = 'blivit taget' if status == 'success' else 'missats'
+    notification_text = f'Ett samtal till {location_str} från {call_from} har inkommit.' # TODO: ta tillbaka: {outcome_str} av {call_to}.
+    
+    call_recipients_str = "\n".join(f"{'🟢' if r['status'] == 'success' else '🔴'} {r['user']['display_name']}" for r in recipients)
 
-    fallback = 'Ett samtal till %s från %s har %s.' % (
-        location_str,
-        call_from,
-        ('blivit taget av %s' if status == 'success' else 'missats av %s') % (call_to,),
-    )
-
-    fields = [
-        {
-            'title': 'Status',
-            'value': 'Taget' if status == 'success' else 'Missat',
-            'short': True
-        },
-        {
-            'title': 'Café',
-            'value': location_str,
-            'short': True
-        },
-        {
-            'title': 'Mottagare',
-            'value': call_to,
-            'short': False
-        }
-    ]
-
-    if call_from_user is not None and call_from_user['groups']:
-        groups = call_from_user['groups']
-
-        groups_str = '%s %s tillhör %s: %s.' % (
-            call_from_user['first_name'],
-            call_from_user['last_name'],
-            'grupperna' if len(groups) > 1 else 'gruppen',
-            ', '.join(groups)
-        )
-
-        fallback += '\n\n%s' % groups_str
-        fields += [
-            {
-                'title': 'Grupper',
-                'value': groups_str,
-                'short': False
-            }
-        ]
+    blocks = [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": f"Nytt samtal till {location_str} från {call_from}."
+			}
+		},
+		{
+			"type": "context",
+			"elements": get_from_context(call_from_user)
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": f"*Mottagare*\n{call_recipients_str}"
+			}
+		}
+	]
 
     return {
-        'attachments': [
-            {
-                'pretext': 'Nytt samtal från %s' % call_from,
-                'fallback': fallback,
-                'color': 'good' if status == 'success' else 'danger',
-                'fields': fields
-            }
-        ]
+        "text": notification_text,
+        "blocks": blocks
     }
 
 
@@ -83,19 +86,35 @@ def compile_slack_sms_message(_sms_from, message):
     received
     """
     sms_from_user = _query_user(_sms_from)
-    sms_from = _format_caller(sms_from_user, _sms_from)
-    pretext = "Nytt SMS från %s" % (sms_from, )
-    fallback =  "%s \n\"%s\"" % (pretext, message)
+    sms_from_name = sms_from_user["display_name"] if sms_from_user else None
+    sms_from = _format_caller(_sms_from, sms_from_name)
+    pretext = f"Nytt SMS från {sms_from}"
+    notification_text =  f'{pretext}\n"{message}"'
+
+    blocks = [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": pretext
+			}
+		},
+		{
+			"type": "context",
+			"elements": get_from_context(sms_from_user)
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "\n".join(f">{line}" for line in message.split("\n"))
+			}
+		}
+	]
 
     return {
-        'attachments': [
-            {
-                'pretext': pretext,
-                'fallback': fallback,
-                'color': 'warning',
-                'text': message
-            }
-        ]
+        "text": notification_text,
+        "blocks": blocks
     }
 
 
@@ -109,11 +128,12 @@ def _query_user(phone):
         return None
 
     try:
-        user = Profile.objects.get(mobile_phone=_remove_area_code(phone)).user
-
+        user = User.objects.get(profile__mobile_phone=_remove_area_code(phone))
+        display_name = user.get_full_name() if user.get_full_name() != '' else user.get_username()
+            
         return {
-            'first_name': user.first_name,
-            'last_name': user.last_name,
+            'display_name': display_name,
+            'phone': phone,
             'groups': [group.name if group.name[0] != '_' else
                        group.name[1:] for group in user.groups.all()]
         }
@@ -122,24 +142,17 @@ def _query_user(phone):
         return None
 
 
-def _format_caller(call_user, phone):
+def _format_caller(phone, name=None):
     """Formats caller information into a readable string"""
     # The phone number is private or not provided
     if not phone:
         return 'dolt nummer'
 
-    if is_valid_phone_number(phone):
-        # Set the phone number as a clickable link
-        caller = '<tel:%s|%s>' % (phone, phone)
-    else:
-        caller = phone
+    # Set the phone number as a clickable link
+    caller = f'<tel:{phone}|{phone}>' if is_valid_phone_number(phone) else phone
 
-    if call_user is not None:
-        caller = '%s %s (%s)' % (
-            call_user['first_name'],
-            call_user['last_name'],
-            caller
-        )
+    if name is not None:
+        caller = f'{name} ({caller})' 
 
     return caller
 
