@@ -30,7 +30,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic import ListView
 from django.views.generic.dates import WeekArchiveView
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 from django.utils.html import escape
 from django.template.loader import render_to_string
 
@@ -902,12 +902,16 @@ def high_score(request, location=None):
 
 
 @csrf_exempt
+@require_POST
+@phone.validate_46elks
 def incoming_ivr_call(request):
     response = phone.compile_ivr_response(request)
 
     return JsonResponse(response)
 
 @csrf_exempt
+@require_POST
+@phone.validate_46elks
 def incoming_call(request):
     response = phone.compile_incoming_call_response(request)
 
@@ -915,6 +919,7 @@ def incoming_call(request):
 
 
 @csrf_exempt
+@require_POST
 @phone.validate_46elks
 def incoming_sms(request):
     from_number = request.POST.get('from', '')
@@ -927,6 +932,7 @@ def incoming_sms(request):
 
 
 @csrf_exempt
+@require_POST
 @phone.validate_46elks
 def post_call(request, location):
     location = int(location)
