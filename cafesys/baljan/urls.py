@@ -20,9 +20,9 @@ urlpatterns = (
     path("callduty/delete/<int:pk>/<path:redir>", views.delete_callduty, name='delete_callduty'),
     path("tradable/toggle/<int:pk>/<path:redir>", views.toggle_tradable, name='toggle_tradable'),
     path("day/<slug:day>", views.day_shifts, name='day_shifts'),
-    path("semester", views.semester, name='current_semester'),
+    path("semester", views.semester, name='semester'),
     path("semester/<slug:name>", views.semester, name='semester'),
-    path("semester/<slug:name>/<int:loc>", views.semester, name='located_semester'),
+    path("semester/<slug:name>/<int:loc>", views.semester, name='semester'),
     path("admin-semester", views.admin_semester, name='admin_semester'),
     path("admin-semester/<slug:name>", views.admin_semester, name='admin_semester'),
 

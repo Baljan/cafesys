@@ -21,7 +21,7 @@
                     {% for loc in locations %}
                     <a 
                         class="nav-item nav-link {% if loc.0 == selected_location %}active{% endif %}"
-                        href="{% if loc.0 == None %}{% url 'located_semester' selected_semester.name 0 %}{% else %}{% url 'located_semester' selected_semester.name loc.0 %}{% endif %}"
+                        href="{% if loc.0 == None %}{% url 'semester' selected_semester.name 0 %}{% else %}{% url 'semester' selected_semester.name loc.0 %}{% endif %}"
                         role="tab" 
                         aria-selected="{% if loc.0 == selected_location %}true{% else %}false{% endif %}">
                         {{ loc.1 }}
