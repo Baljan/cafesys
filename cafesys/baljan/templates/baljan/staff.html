@@ -17,14 +17,7 @@
         <a href="{{ action.link }}" class="nav-link {% if action.active %}active{% endif%}">{{ action.text }}</a>
     </li>
     {% endfor %}
-    {% comment %} <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="#">Active</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-    </li> {% endcomment %}
-    </ul>
-    {% comment %} <hr class="mb-5"></hr> {% endcomment %}
+  </ul>
   {% block staff_info %}{% endblock %}
 </main>
 {% endblock %}
