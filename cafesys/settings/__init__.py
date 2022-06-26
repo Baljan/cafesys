@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import warnings
+from django.contrib.messages import constants as message_constants
 
 import environ
 
@@ -141,6 +142,8 @@ INSTALLED_APPS = [
 ]
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
+# Override the message tags who have names that don't match with bootstrap
+MESSAGE_TAGS = {message_constants.DEBUG: 'light', message_constants.ERROR: 'danger'}
 
 ABSOLUTE_URL_OVERRIDES = {
     "auth.user": lambda o: "/baljan/user/%s" % o.id,

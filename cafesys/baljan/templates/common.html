@@ -65,11 +65,14 @@
  
 <main id="content">
   {% include 'baljan/_card_missing_notice.html' %}
-  <div class="container">
-      {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} mt-3">{{ message }}</div>
-      {% endfor %}
-  </div>
+  {% for message in messages %}
+    <div class="alert-{{ message.tags }} py-3 shadow-sm" role="alert">
+      <div class="container">
+        {{ message }}
+      </div>
+    </div>
+  {% endfor %}
+  
   {% block full_body %}
     <div class="container mt-4">
       {% block body %} {% endblock %}
