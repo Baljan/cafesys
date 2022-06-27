@@ -11,9 +11,21 @@
         display: inline!important;
     }
 </style>
-{% if perms.baljan.change_semester and selected_semester %}
-    <p><a href="{% url 'admin:baljan_semester_change' selected_semester.id %}">Admin</a></p>
-{% endif %}
+<div class="d-flex justify-content-between align-items-center">
+    <h2>Jobbplanering</h2>
+    <div class="hstack gap-2">
+        {% if selected_semester %}
+            {% admin_button user 'baljan' 'semester' 'change' selected_semester.id %}
+        {% endif %}
+        <div class="form-group">
+            <select id="sem" class="form-control" >
+                {% for sem in semesters %}
+                <option {% if sem == selected_semester %}selected="selected" {% endif %}>{{ sem.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
     <div class="row">
         <div class="col" style="padding-bottom: 5px;">
             <nav>
@@ -33,17 +45,8 @@
     </div>
     <div class="row">
         <div class="col-4">
-            <div class="form-group">
-                <select id="sem" class="form-control" >
-                    {% for sem in semesters %}
-                    <option {% if sem == selected_semester %}selected="selected" {% endif %}>{{ sem.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        <div class="col-4">
-                <input class="shiftsfilter"  {% if selected_semester.upcoming %} checked="checked" {% else %} disabled="disabled" {% endif %}type="checkbox" id="upcoming-only" name="upcoming-only"/>
-                <label for="upcoming-only">Endast kommande dagar</label>
+            <input class="shiftsfilter"  {% if selected_semester.upcoming %} checked="checked" {% else %} disabled="disabled" {% endif %}type="checkbox" id="upcoming-only" name="upcoming-only"/>
+            <label for="upcoming-only">Endast kommande dagar</label>
         </div>
         {% if selected_semester.upcoming %}
             <div class="col-4">

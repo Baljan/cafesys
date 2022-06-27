@@ -8,11 +8,11 @@
 
 {% block body_class %}job-opening{% endblock %}
 {% block staff_info %}
-<h1>Jobbsläpp {{semester.name}}</h1>
+<h2>Jobbsläpp {{semester.name}}</h2>
 
 <div class="row">
     <div class="col">
-        <h2>Välj jobbare</h2>
+        <h3>Välj jobbare</h3>
         <input class="form-control" type="text" id="id_liu_id" name="liu_id" maxlength="8" placeholder="Skriv in LiuId"/>
 
         <ul class="work-pair">
@@ -31,7 +31,7 @@
     </div>
 
     <div class="col">
-        <h2>Välj kombination</h2>
+        <h3>Välj kombination</h3>
         <table class="slots table table-baljan">
         {% for row in slots %}
             <tr>
@@ -56,7 +56,7 @@
     </div>
 
     <div class="col">
-        <h2>Status</h2>
+        <h3>Status</h3>
         <div class="progress">
             <div class="progress-bar" role="progressbar" style="width:{{ pairs_taken_percent }}%;" aria-valuenow="{{ pairs_taken_percent }}" aria-valuemin="0" aria-valuemax="100">{{ pairs_taken_percent }}%</div>
         </div>
@@ -67,7 +67,7 @@
             <dd>{{pairs_taken}}</dd>
         </dl>
 
-        <h2>Projektor</h2>
+        <h3>Projektor</h3>
         <p>
             Projektorvyn passar att visa för personer som köar.
             <a href="{% url 'job_opening_projector' semester.name %}">

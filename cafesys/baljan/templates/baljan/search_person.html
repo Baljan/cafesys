@@ -10,7 +10,7 @@
 {% block staff_info %}
     <div class="row">
         <div class="col-md">
-            <h1>{% trans "Search Person" %}</h1>
+            <h2>{% trans "Search Person" %}</h2>
 
             <div>
                 <form class="search" method="POST" action="">
@@ -27,7 +27,7 @@
             </div>
 
             <div class="results">
-                <h2>{% trans "Hits" %} (<span class="count">{{ hits|length }}</span>)</h2>
+                <h3>{% trans "Hits" %} (<span class="count">{{ hits|length }}</span>)</h3>
                 <ul>
                     {% for hit in hits %}
                         <li>

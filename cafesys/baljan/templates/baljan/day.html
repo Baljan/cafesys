@@ -46,12 +46,7 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-start card-title lead">
                 {{ sh.timeofday|title }}
-
-                {% if perms.baljan.change_shift %}
-                
-                <a href="{% url 'admin:baljan_shift_change' sh.id %}" class="btn btn-outline-dark btn-sm"><i class="fa fa-lock"></i> {% trans "admin" %}</a>
-                
-                {% endif %}
+                {% admin_button user 'baljan' 'shift' 'change' sh.id %}
             </div>
             {% comment %} TODO: maybe show time somehow {% endcomment %}
             {% comment %} {% if sh.span != 1 %}

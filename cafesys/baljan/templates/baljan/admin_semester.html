@@ -9,25 +9,27 @@
 
 {% block staff_info %}
         <div>
-            <h1>Administrera termin</h1>
-            <div class="row">
-                <div class="col-12 col-md-4 col-lg-3 order-md-2">
-                    <div class="choose-semester">
-                        {% if semesters|length %}
-                        <select class="form-control">
-                            {% for sem in semesters %}
-                            <option {% if sem == semester %}selected="selected" {% endif %}>{{ sem.name }}</option>
-                            {% endfor %}
-                        </select>
-                        {% endif %}
-                        <a href="{% url 'admin:baljan_semester_add' %}">Skapa ny</a>
-                    </div>
 
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Administrera termin</h2>
+                <div class="choose-semester input-group w-auto">
+                    {% if semesters|length %}
+                    <select class="form-control">
+                        {% for sem in semesters %}
+                        <option {% if sem == semester %}selected="selected" {% endif %}>{{ sem.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    <a href="{% url 'admin:baljan_semester_add' %}" class="btn btn-outline-dark"><i class="fa fa-plus"></i></a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-4 col-lg-3">
                     {% if semester %}
-                        <h2>{{semester.name|default:"-"}}</h2>
-                        <a href="{% url 'admin:baljan_semester_change' semester.id %}">
-                            Hantera på adminsidan
-                        </a>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3>{{semester.name|default:"-"}}</h3>
+                            {% admin_button user 'baljan' 'semester' 'change' semester.id %}
+                        </div>
                         <dl>
                             <dt>Dagar</dt>
                             <dd>{{day_count}}</dd>
@@ -57,7 +59,7 @@
                         </p>
 
                         <div class="selection">
-                            <h2>Gör markering</h2>
+                            <h3>Gör markering</h3>
                             <form method="POST" name="edit-shifts" action="">{% csrf_token %}
                                 <input type="hidden" name="task" value="edit_shifts" />
                                 <input type="hidden" name="make" value="none" />
@@ -72,12 +74,12 @@
                         </div>
                     {% endif %}
                 </div>
-                <div class="col order-md-1">
+                <div class="col">
                     <div class="row">
                         {% regroup shifts by when.month as month_shifts %}
                         {% for month in month_shifts %}
                         <div class="col months">
-                            <h2>{{month.grouper|monthname}}</h2>
+                            <h3>{{month.grouper|monthname}}</h3>
                             <table class="table table-striped">
                                 <thead>
                                     <tr>

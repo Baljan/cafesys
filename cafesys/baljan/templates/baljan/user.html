@@ -10,14 +10,18 @@
 
 {% block body_class %}user{% endblock %}
 {% block body %}
-    <h1>{{ watched | detailed_name }}
-        {% if perms.auth.change_user %}
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-secondary" disabled><i class="fa fa-lock" aria-hidden="true"></i></button>
-                <a href="{% url 'admin:auth_user_change' watched.id %}" role="button" class="btn btn-secondary">Visa användare</a>
-            </div>
-        {% endif %}
-    </h1>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>{{ watched | detailed_name }}</h1>
+        {% admin_button user 'auth' 'user' 'change' watched.id %}
+    </div>
+
+    {% with watched_groups as groups %}
+        <div class="hstack gap-2 mb-2">
+            {% for group in groups %}
+                <a href="{% url 'group' group.name %}" class="badge rounded-pill bg-primary text-white">{{ group.name }}</a>
+            {% endfor %}
+        </div>
+    {% endwith %}
 
     <div class="row">
         <div class="col-md">
@@ -35,8 +39,6 @@
             {% with watched.profile as prof %}
 
                 <dl>
-                    <dt>Namn</dt>
-                    <dd>{{ watched.get_full_name }}</dd>
                     {% if watching_self or perms.baljan.self_and_friend_signup %}
                         <dt>Telefon</dt>
                         {% if prof.mobile_phone %}
@@ -54,13 +56,6 @@
                                 {% trans "Kort-id ej angett." %}
                             </dd>
                         {% endif %}
-                    {% endif %}
-                    <dt>Senast inloggad</dt>
-                    <dd>{{ watched.last_login|date }} {{ watched.last_login|time }}</dd>
-                    {% if watching_self %}
-                        <dt>Kalender</dt>
-                        <dd><a href="{% url 'user_calendar' watched.profile.private_key %}">
-                            {% trans "iCal format" %}</a></dd>
 
                         <dt>Motto</dt>
                         {% if prof.motto %}
@@ -70,25 +65,11 @@
                                 {% trans "None set. It is displayed in the high scores." %}
                             </dd>
                         {% endif %}
-
                     {% endif %}
 
-                    {% with watched_groups as groups %}
-                        <dt>{% trans "Groups" %}</dt>
-                        {% if groups|length %}
-                            <ul>
-                                {% for group in groups %}
-                                    <li>
-                                        <a href="{% url 'group' group.name %}">{{ group.name }}</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>
-                                Inga.
-                            </p>
-                        {% endif %}
-                    {% endwith %}
+                    <dt>Senast inloggad</dt>
+                    <dd>{{ watched.last_login|date }} {{ watched.last_login|time }}</dd>
+
 
                     {% if watching_self %}
                         <dt>Samtycken</dt>
