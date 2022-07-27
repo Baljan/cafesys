@@ -64,7 +64,7 @@ def compile_slack_phone_message(phone_from, calls, location):
         f"{'🟢' if r['status'] == 'success' else '🔴'} {r['user']['formatted']}"
         for r in recipients
     )
-
+    context_elements = get_from_context(call_from_user)
     blocks = [
         {
             "type": "section",
@@ -78,8 +78,11 @@ def compile_slack_phone_message(phone_from, calls, location):
             "text": {"type": "mrkdwn", "text": f"*Mottagare*\n{call_recipients_str}"},
         },
         {"type": "divider"},
-        {"type": "context", "elements": get_from_context(call_from_user)},
     ]
+    if len(context_elements):
+        blocks.append(
+            {"type": "context", "elements": context_elements}
+        )
 
     return {"text": notification_text, "blocks": blocks}
 
@@ -92,6 +95,7 @@ def compile_slack_sms_message(_sms_from_number, message):
     pretext = f"Nytt SMS från {sms_from_user['formatted']}."
     notification_text = f'{pretext}\n"{message.strip()}"'
 
+    context_elements = get_from_context(sms_from_user)
     blocks = [
         {"type": "section", "text": {"type": "mrkdwn", "text": pretext}},
         {
@@ -102,8 +106,11 @@ def compile_slack_sms_message(_sms_from_number, message):
             },
         },
         {"type": "divider"},
-        {"type": "context", "elements": get_from_context(sms_from_user)},
     ]
+    if len(context_elements):
+        blocks.append(
+            {"type": "context", "elements": context_elements}
+        )
 
     return {"text": notification_text, "blocks": blocks}
 
