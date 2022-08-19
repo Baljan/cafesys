@@ -55,8 +55,16 @@ def draw_balance_code_card(c: canvas.Canvas, balance_code):
 
     c.setFont(*title_font)
     c.drawCentredString(center_col1, h*0.75, "Kaffekort")
+
+    value_height = 0.6
+    add_to_group = series.add_to_group
+    if add_to_group:
+        c.setFont(*small_font)
+        c.drawCentredString(center_col1, h * 0.57, add_to_group.name.lstrip("_"))
+        value_height = 0.63
+    
     c.setFont(*font)
-    c.drawCentredString(center_col1, h*0.6, f"{code.value} {code.currency}")
+    c.drawCentredString(center_col1, h*value_height, f"{code.value} {code.currency}")
 
     c.setFont(*small_font)
     c.drawCentredString(center_col1, h*0.5,
