@@ -1006,9 +1006,12 @@ class BlippConfiguration(Located):
     ENDIANESS_CHOICES = ((LITTLE_ENDIAN, f'{LITTLE_ENDIAN} endian'),
                          (BIG_ENDIAN, f'{BIG_ENDIAN} endian'))
 
+    name = models.CharField('Name', max_length=32, blank=True)
     token = models.CharField('Token', max_length=255, unique=True, blank=False)
     good = models.ForeignKey(Good, verbose_name=_("good"), null=True,
             on_delete=models.SET_NULL)
+    theme_override = models.CharField('Tema', max_length=64, blank=True, help_text='Skriv namnet på ett tema du vill använda på just denna blipp. Används i undantagsfall, i regel konfigureras teman istället i blippens repo.')
+    
     card_reader_radix = models.IntegerField(
         'Talbas',
         choices=RADIX_CHOICES,

@@ -1072,7 +1072,7 @@ def do_blipp(request):
         user_balance = user.profile.balance
         message = 'Du har <b>%s kr</b> kvar att blippa för' % user_balance
 
-    return JsonResponse({'message': message, 'balance': user_balance, "paid": price  })
+    return JsonResponse({'message': message, 'balance': user_balance, "paid": price, "theme_override": config.theme_override })
 
 
 def integrity(request):

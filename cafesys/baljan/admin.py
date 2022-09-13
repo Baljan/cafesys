@@ -524,6 +524,7 @@ admin.site.register(models.WorkableShift, WorkableShift)
 class BlippConfiguration(admin.ModelAdmin):
     list_display = (
         "token",
+        "name",
         "location",
         "good",
         "card_reader_radix",
