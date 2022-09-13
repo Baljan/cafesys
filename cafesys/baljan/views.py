@@ -1029,7 +1029,7 @@ def do_blipp(request):
         #        that there is such a database, which there isn't. Check again after midsummer 2018.
 
         signed_rfid = rfidSigner.sign(str(rfid_int))
-        return _json_error(404, f'Du måste fylla i kortnumret i din profil\n({str(rfid_int)})', signed_rfid=signed_rfid)
+        return _json_error(404, f'Blippkortet är inte kopplat till någon användare', signed_rfid=signed_rfid)
 
     # We will always have a user at this point
 
