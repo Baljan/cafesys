@@ -519,7 +519,8 @@ def search_person(request):
     hits = []
     if request.method == 'POST':
         terms = request.POST['search-terms']
-        hits = search.for_person(terms)
+        is_admin = request.user.has_perm('baljan.view_profile') # Admins can search by card number.
+        hits = search.for_person(terms, is_admin=is_admin)
 
     if request.is_ajax():
         ser = serialize('json', hits, fields=(
