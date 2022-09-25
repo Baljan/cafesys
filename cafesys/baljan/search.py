@@ -21,7 +21,7 @@ def for_person(terms, use_cache=True, is_admin=False):
                     Q(username__icontains=term) |
                     Q(groups__name__icontains=term) |
                     Q(profile__card_id=term)
-                    ) if is_admin else User.objects.filter(
+                    ) if is_admin and term.isdigit() else User.objects.filter(
                     Q(first_name__icontains=term) |
                     Q(last_name__icontains=term) |
                     Q(username__icontains=term) |
