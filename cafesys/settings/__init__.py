@@ -219,6 +219,7 @@ DEFAULT_FROM_EMAIL = "cafesys@baljan.org"
 ANYMAIL = {
     "MAILGUN_API_KEY": env.str("MAILGUN_API_KEY", default=""),
     "MAILGUN_SENDER_DOMAIN": env.str("MAILGUN_SENDER_DOMAIN", default=""),
+    "MAILGUN_API_URL": "https://api.eu.mailgun.net/v3", # EU server, very important
 }
 SERVER_EMAIL = "cafesys@baljan.org"
 
