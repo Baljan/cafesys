@@ -8,4 +8,5 @@ SESSION_COOKIE_SECURE = True
 # Send correct redirect_uri to login provider
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 
+# Anymail email backend
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
