@@ -8,3 +8,5 @@ SASS_PROCESSOR_ENABLED = True
 
 VERIFY_46ELKS_IP = False
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+
+# TODO : developement email backend

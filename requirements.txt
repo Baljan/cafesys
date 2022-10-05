@@ -43,3 +43,6 @@ rollbar==0.16.2
 
 # create graphs
 seaborn==0.11.2
+
+# Email
+django-anymail==8.6

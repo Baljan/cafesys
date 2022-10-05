@@ -139,6 +139,7 @@ INSTALLED_APPS = [
     "social_django",
     "sass_processor",
     "livereload",
+    "anymail",
 ]
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
@@ -207,13 +208,19 @@ LOGOUT_URL = "/auth/logout/"
 LOGIN_REDIRECT_URL = "/"
 
 _EMAIL_CONFIG = env.email_url("DJANGO_EMAIL_URL")
-EMAIL_BACKEND = _EMAIL_CONFIG.get("EMAIL_BACKEND")
+# EMAIL_BACKEND = _EMAIL_CONFIG.get("EMAIL_BACKEND")
 EMAIL_HOST = _EMAIL_CONFIG.get("EMAIL_HOST")
 EMAIL_HOST_USER = _EMAIL_CONFIG.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = _EMAIL_CONFIG.get("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = _EMAIL_CONFIG.get("EMAIL_PORT")
 EMAIL_USE_TLS = _EMAIL_CONFIG.get("EMAIL_USE_TLS", True)
-DEFAULT_FROM_EMAIL = CONTACT_EMAIL
+DEFAULT_FROM_EMAIL = "cafesys@baljan.org"
+
+ANYMAIL = {
+    "MAILGUN_API_KEY": env.str("MAILGUN_API_KEY", default=""),
+    "MAILGUN_SENDER_DOMAIN": env.str("MAILGUN_SENDER_DOMAIN", default=""),
+}
+SERVER_EMAIL = "cafesys@baljan.org"
 
 WORKER_COOLDOWN_SECONDS = 5 * 60  # TODO: Not implemented
 
