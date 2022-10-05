@@ -51,17 +51,17 @@ def categories_and_actions(request):
             (
                 Action(
                     "Jobbarguide Baljan",
-                    settings.STATIC_URL + "guideBaljan.pdf",
+                    settings.STATIC_URL + "jobbguidebaljan.pdf",
                     resolve_func=None,
                 ),
                 Action(
                     "Jobbarguide Byttan",
-                    settings.STATIC_URL + "guideByttan.pdf",
+                    settings.STATIC_URL + "jobbguidebyttan.pdf",
                     resolve_func=None,
                 ),
                 Action(
                     "Jobbkontrakt",
-                    settings.STATIC_URL + "contract.pdf",
+                    settings.STATIC_URL + "Personalkontrakt.HT22.pdf",
                     resolve_func=None,
                 ),
                 Action(
