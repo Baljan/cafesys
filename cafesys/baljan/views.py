@@ -155,7 +155,7 @@ def orderFromUs(request):
             )
 
             subject = f'[Beställning {date.strftime("%Y-%m-%d")} | {orderer} - {association}]'
-            from_email = 'cafesys@baljan.org'
+            from_email = settings.DEFAULT_FROM_EMAIL
             to = 'bestallning@baljan.org'
 
             html_content = render_to_string("baljan/email/order.html", {

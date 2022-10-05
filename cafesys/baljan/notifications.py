@@ -64,7 +64,7 @@ def send(notification_type, to_user, wait=False, **kwargs):
     title = TITLE_TEMPLATES[notification_type] % kwargs
     body = BODY_TEMPLATES[notification_type] % kwargs
     if wait: 
-        send_mail_task(title, body, settings.CONTACT_EMAIL, [to_user.email])
+        send_mail_task(title, body, settings.DEFAULT_FROM_EMAIL, [to_user.email])
     else: 
-        send_mail_task.delay(title, body, settings.CONTACT_EMAIL, [to_user.email])
+        send_mail_task.delay(title, body, settings.DEFAULT_FROM_EMAIL, [to_user.email])
     logger.info('%s sent to %s with kwargs %r' % (notification_type, to_user, kwargs))
