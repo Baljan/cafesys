@@ -445,7 +445,7 @@ class Shift(Located):
         rd = relativedelta
         for span, start, end in [
                 (0, rd(hours=7, minutes=30), rd(hours=12, minutes=30)),
-                (2, rd(hours=12, minutes=0), rd(hours=16, minutes=45)),
+                (2, rd(hours=12, minutes=10), rd(hours=17, minutes=0)),
                 ]:
             if self.span == span:
                 return self.when + start, self.when + end
@@ -454,8 +454,8 @@ class Shift(Located):
         rd = relativedelta
         for span, start, end in [
                 (0, rd(hours=7, minutes=30), rd(hours=8, minutes=0)),
-                (1, rd(hours=12, minutes=0), rd(hours=12, minutes=30)),
-                (2, rd(hours=16, minutes=0), rd(hours=16, minutes=45)),
+                (1, rd(hours=12, minutes=5), rd(hours=13, minutes=0)),
+                (2, rd(hours=16, minutes=15), rd(hours=17, minutes=0)),
                 ]:
             if self.span == span:
                 return self.when + start, self.when + end
