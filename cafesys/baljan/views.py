@@ -163,12 +163,9 @@ def orderFromUs(request):
                 "order_fields": order_fields,
             })
 
-            htmlpart = MIMEText(html_content.encode('utf-8'), 'html', 'UTF-8')
-
             msg = EmailMultiAlternatives(subject, "", from_email, [to], headers={'Reply-To': ordererEmail})
 
-            msg.attach(htmlpart)
-
+            msg.attach_alternative(html_content.encode('utf-8'), "text/html")
 
             description_lines = [
                 f"Namn: {orderer}",
