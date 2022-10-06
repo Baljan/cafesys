@@ -913,6 +913,7 @@ def incoming_ivr_call(request):
 @csrf_exempt
 @require_POST
 @phone.validate_46elks
+@phone.get_from_user
 def incoming_call(request):
     response = phone.compile_incoming_call_response(request)
 

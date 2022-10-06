@@ -2,7 +2,7 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.conf import settings
 from cafesys.baljan.models import User, Located, PhoneLabel
 from logging import getLogger
-from cafesys.baljan.phone import is_valid_phone_number
+from cafesys.baljan.phone import is_valid_phone_number, get_user_by_number, remove_area_code
 import requests
 
 logger = getLogger(__name__)
@@ -33,7 +33,7 @@ def get_from_context(from_user):
         )
 
     pl = PhoneLabel.objects.filter(
-        phone_number=_remove_area_code(from_user["phone"])
+        phone_number=remove_area_code(from_user["phone"])
     ).first()
     if pl:
         context.append({"type": "mrkdwn", "text": f"*Numret är märkt som:* {pl.label}"})
@@ -125,33 +125,23 @@ def _query_user(phone):
         return {"formatted": "dolt nummer", "phone": phone}
 
     formatted = f"<tel:{phone}|{phone}>"
-    try:
-        user = User.objects.get(profile__mobile_phone=_remove_area_code(phone))
-        display_name = (
-            user.get_full_name() if user.get_full_name() != "" else user.get_username()
-        )
 
-        return {
-            "formatted": f"{display_name} ({formatted})",
-            "phone": phone,
-            "display_name": display_name,
-            "groups": [
-                group.name if group.name[0] != "_" else group.name[1:]
-                for group in user.groups.all()
-            ],
-        }
-    except (ObjectDoesNotExist, MultipleObjectsReturned):
-        # Expected output for a lot of calls. Not an error.
+    user = get_user_by_number(phone)
+    if not user:
         return {"formatted": formatted, "phone": phone}
 
+    display_name = (
+        user.get_full_name() if user.get_full_name() != "" else user.get_username()
+    )
 
-def _remove_area_code(phone):
-    """
-    Removes the area code (+46) from the given phone number
-    and replaces it with 0
-    """
+    return {
+        "formatted": f"{display_name} ({formatted})",
+        "phone": phone,
+        "display_name": display_name,
+        "groups": [
+            group.name if group.name[0] != "_" else group.name[1:]
+            for group in user.groups.all()
+        ],
+    }
+    
 
-    if not phone.startswith("+46"):
-        return phone
-    else:
-        return "0" + phone[3:]

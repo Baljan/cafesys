@@ -14,52 +14,90 @@ from collections import Counter
 from functools import wraps
 
 from django.conf import settings
-from django.utils.http import urlquote
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, MultipleObjectsReturned, ObjectDoesNotExist
 
-from cafesys.baljan import planning
-from cafesys.baljan.models import Shift, IncomingCallFallback, Located, OnCallDuty, User
+from cafesys.baljan.models import IncomingCallFallback, Located, OnCallDuty, ShiftSignup, User
 from .util import week_dates, year_and_week
-import requests
 
 logger = getLogger(__name__)
 
 tz = pytz.timezone(settings.TIME_ZONE)
 
-# Mapping from office hours to shift indexes
+# Mapping from working hours to shift indexes
 DUTY_CALL_ROUTING = {
     (time(7, 0, 0, tzinfo=tz), time(10, 0, 0, tzinfo=tz)): 0,
     (time(10, 0, 0, tzinfo=tz), time(13, 0, 0, tzinfo=tz)): 1,
     (time(13, 0, 0, tzinfo=tz), time(18, 0, 0, tzinfo=tz)): 2,
+}
+WORKER_CALL_ROUTING = {
+    (time(7, 0, 0, tzinfo=tz), time(12, 15, 0, tzinfo=tz)): 0,
+    (time(12, 15, 0, tzinfo=tz), time(17, 0, 0, tzinfo=tz)): 2,
 }
 
 # IP addresses used by 46Elks
 ELKS_IPS = ["176.10.154.199", "85.24.146.132", "185.39.146.243", "2001:9b0:2:902::199"]
 
 # Map the keystrokes from IVR to a location
-IVR_LOCATION_MAPPING = {1: Located.KARALLEN, 2: Located.STH_VALLA}
+IVR_KEY_MAPPING = {
+    # {ivr_key}: ({Location}, {call_workers}, {required_permission}) 
+    1: (Located.KARALLEN, False, None),
+    2: (Located.STH_VALLA, False, None),
+    3: (Located.KARALLEN, True, "baljan.view_profile"),
+    4: (Located.STH_VALLA, True, "baljan.view_profile")
+}
 
+
+# Utility functions
+def _time_in_range(start, end, x):
+    """Return true if x is in the range [start, end]"""
+
+    if start <= end:
+        return start <= x <= end
+    else:
+        return start <= x or x <= end
+
+def _get_current_shift_span(routing):
+    current_time = datetime.now(tz).time()
+    current_span = None
+    for time_range, shift_index in routing.items():
+        if _time_in_range(time_range[0], time_range[1], current_time):
+            current_span = shift_index
+
+    return current_span
+
+
+# Get lists of numbers
 
 def _get_fallback_numbers():
     """Retrieves the list of fallback phone numbers from the database"""
-
     return [
         x.user.profile.mobile_phone
         for x in IncomingCallFallback.objects.all().select_related("user__profile")
     ]
 
+def _get_week_duty_phone_numbers():
+    """Returns the phone number for every staff on duty this week"""
+    dates = week_dates(*year_and_week())
+    oncall = OnCallDuty.objects.filter(shift__when__in=dates)
+
+    user_ids = [x.user_id for x in oncall]
+    # count occurrences of every user_id in oncall
+    unique_user_ids_ordered = [x[0] for x in Counter(user_ids).most_common(3)]
+
+    users = User.objects.filter(id__in=unique_user_ids_ordered).select_related(
+        "profile"
+    )
+
+    users_sorted = sorted(users, key=lambda x: unique_user_ids_ordered.index(x.id))
+
+    return [x.profile.mobile_phone for x in users_sorted]
 
 def _get_current_duty_phone_numbers(location=Located.KARALLEN):
     """
     Returns the phone number for every staff on duty at the moment,
     prioritizing the given location, or None if outside office hours.
     """
-
-    current_time = datetime.now(tz).time()
-    current_span = None
-    for time_range, shift_index in DUTY_CALL_ROUTING.items():
-        if _time_in_range(time_range[0], time_range[1], current_time):
-            current_span = shift_index
+    current_span = _get_current_shift_span(DUTY_CALL_ROUTING)
 
     # If outside on-call hours
     if current_span is None:
@@ -81,32 +119,21 @@ def _get_current_duty_phone_numbers(location=Located.KARALLEN):
 
     return [x.user.profile.mobile_phone for x in oncall_sorted]
 
+def _get_current_worker_phone_numbers(location=Located.KARALLEN):
+    current_span = _get_current_shift_span(WORKER_CALL_ROUTING)
+    
+    if current_span is None:
+        return None
 
-def _get_week_duty_phone_numbers():
-    """Returns the phone number for every staff on duty this week"""
-    dates = week_dates(*year_and_week())
-    oncall = OnCallDuty.objects.filter(shift__when__in=dates)
+    workers = (
+        ShiftSignup.objects.filter(shift__span=current_span, shift__when=date.today(), shift__location=location)
+        .select_related("user__profile")
+        )
 
-    user_ids = [x.user_id for x in oncall]
-    # count occurrences of every user_id in oncall
-    unique_user_ids_ordered = [x[0] for x in Counter(user_ids).most_common(3)]
+    if len(workers) == 0:
+        return None
 
-    users = User.objects.filter(id__in=unique_user_ids_ordered).select_related(
-        "profile"
-    )
-
-    users_sorted = sorted(users, key=lambda x: unique_user_ids_ordered.index(x.id))
-
-    return [x.profile.mobile_phone for x in users_sorted]
-
-
-def _time_in_range(start, end, x):
-    """Return true if x is in the range [start, end]"""
-
-    if start <= end:
-        return start <= x <= end
-    else:
-        return start <= x or x <= end
+    return [signup.user.profile.mobile_phone for signup in workers]
 
 
 def _append(lst, element):
@@ -155,6 +182,22 @@ def validate_46elks(function=None):
             raise PermissionDenied()
     return wrap
 
+def get_from_user(function=None):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        from_number = request.POST.get('from', '')
+        request.from_user = get_user_by_number(from_number)
+        return function(request, *args, **kwargs)
+            
+    return wrap
+
+def get_user_by_number(phone):
+    if not is_valid_phone_number(phone):
+        return None
+    try:
+        return User.objects.get(profile__mobile_phone=remove_area_code(phone))
+    except (ObjectDoesNotExist, MultipleObjectsReturned):
+        return None
 
 def is_valid_phone_number(phone):
     """Checks whether the given phone number is valid. Works with both numbers
@@ -165,8 +208,18 @@ def is_valid_phone_number(phone):
 
     return match(r"^(\+[0-9]{1,3}|0)[0-9]{4,14}$", phone) is not None
 
+def remove_area_code(phone):
+    """
+    Removes the area code (+46) from the given phone number
+    and replaces it with 0
+    """
 
-def _compile_number_list(location=Located.KARALLEN):
+    if not phone.startswith("+46"):
+        return phone
+    else:
+        return "0" + phone[3:]
+
+def _compile_duty_number_list(location=Located.KARALLEN):
     phone_numbers = []
     current_duty_phone_numbers = _get_current_duty_phone_numbers(location=location)
 
@@ -180,6 +233,15 @@ def _compile_number_list(location=Located.KARALLEN):
 
     return phone_numbers[:4]  # Never try more than four numbers
 
+
+def _compile_worker_number_list(location=Located.KARALLEN):
+    phone_numbers = []
+    current_worker_numbers = _get_current_worker_phone_numbers(location=location)
+
+    if current_worker_numbers:
+        _append(phone_numbers, current_worker_numbers)
+        return [",".join(phone_numbers)]
+    return []
 
 def _build_46elks_response(phone_numbers):
     """Builds a response message compatible with 46elks.com"""
@@ -225,7 +287,7 @@ def compile_incoming_call_response(request):
     """
 
     ivr_key = request.POST.get("result", None)
-
+    call_workers = False
     if ivr_key is not None:
         if ivr_key == "failed":
             why = request.POST["why"]
@@ -236,16 +298,18 @@ def compile_incoming_call_response(request):
             location = Located.KARALLEN
         else:
             ivr_key = int(ivr_key[0])
-            location = IVR_LOCATION_MAPPING.get(ivr_key, None)
+                
+            location, call_workers, required_permission = IVR_KEY_MAPPING.get(ivr_key, (None, None, None))
 
-            if location is None:
-                # Replay IVR message if an invalid key is pressed
+            user_has_permission = not required_permission or (required_permission and request.from_user and request.from_user.has_perm(required_permission))
+            if location is None or not user_has_permission:
+                # Replay IVR message if an invalid key is pressed, or insufficient permissions of caller
                 return compile_ivr_response(request)
     else:
         # Route calls that did not go through the IVR to Kårallen
         location = Located.KARALLEN
 
-    phone_numbers = _compile_number_list(location=location)
+    phone_numbers = _compile_worker_number_list(location=location) if call_workers else _compile_duty_number_list(location=location)
     response = _build_46elks_response(phone_numbers)
 
     if response:
