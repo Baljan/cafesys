@@ -1255,7 +1255,7 @@ def stats_blipp(request):
     plt.figure(figsize = (16,9))
     plot = sns.relplot(data={"Kaffekort använda":bc_data.loc[:, "count"],"Blippat för": order_data.loc[:, "count"]}, kind="line")
     plot.figure.autofmt_xdate()
-
+    plot.set_axis_labels("", "SEK")
     buffer = BytesIO() 
     plot.savefig(buffer, format='png')
     buffer.seek(0)
