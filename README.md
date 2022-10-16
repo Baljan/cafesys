@@ -11,10 +11,10 @@ docker-compose up
 
 The first time, run in another shell session:
 ```sh
-docker-compose run --rm cafesys-django django-admin.py syncdb
-docker-compose run --rm cafesys-django django-admin.py migrate
-docker-compose run --rm cafesys-django django-admin.py collectstatic --noinput
-docker-compose run --rm cafesys-django django-admin.py shell
+docker-compose run --rm cafesys-django ./manage.py migrate
+docker-compose run --rm cafesys-django ./manage.py collectstatic --noinput
+docker-compose run --rm cafesys-django ./manage.py createsuperuser
+docker-compose run --rm cafesys-django ./manage.py shell
 ```
 
 In the Python shell, run
