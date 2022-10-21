@@ -921,11 +921,11 @@ msgstr "normal konsument"
 
 #: cafesys/baljan/stats.py:117 cafesys/baljan/views.py:868
 msgid "Today"
-msgstr "I dag"
+msgstr "Idag"
 
 #: cafesys/baljan/stats.py:124
 msgid "Yesterday"
-msgstr "I går"
+msgstr "Igår"
 
 #: cafesys/baljan/stats.py:132
 msgid "This Week"
