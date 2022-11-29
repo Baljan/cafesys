@@ -475,6 +475,9 @@ class Shift(Located):
     def name_short(self):
         return format_lazy('{} {} {}', self.ampm(), self.when.strftime('%Y-%m-%d'), self.get_location_display())
 
+    def time_description(self):
+        return format_lazy('{} {}', self.ampm(), self.when.strftime('%Y-%m-%d'))
+
     def past(self):
         return self.when < date.today()
 

@@ -21,7 +21,7 @@ class WorkdistAdapter:
         adapter.store_in_db()
 
     def load_from_db(self):
-        shifts = self.semester.shift_set.order_by('when', 'span', 'location')
+        shifts = self.semester.shift_set.order_by('-exam_period', 'when', 'span', 'location')
         for shift in shifts:
             self.add_shift_from_db(shift)
 

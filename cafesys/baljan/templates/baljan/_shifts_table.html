@@ -17,7 +17,18 @@
             <tr id="{{'shift-'|add:pair.label}}" class="shift-row" {% if pair.is_taken %} style="text-decoration: line-through" {% endif %}>
                 <td class="cell-label">{{pair.label}}</td>
                 {% for shift in pair.shifts.all|dictsort:"when" %}
-                <td>{{shift.name_short}}</td>
+                <td>
+                    <span
+                        class="
+                            badge
+                            {% if shift.location == 0 %}bg-secondary{% else %}bg-primary{% endif %}
+                            {% if pair.is_taken %}opacity-25{% endif %}
+                        "
+                    >
+                        {{shift.time_description}}
+                    </span>
+
+                </td>
                 {% endfor %}
                 <td style="text-align: center">{% workable_shift_fields form pair.label 'workable-check' %}</td>
                 <td class="handle"><i class="fa fa-sort" aria-hidden="true" {% if hide_handle %} style="display:none;" {% endif %}></i></td>

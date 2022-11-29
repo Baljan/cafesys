@@ -142,13 +142,13 @@
     refreshSave();
 
     var setActiveComb = function(cell) {
-        slots.removeClass('bg-primary');
+        slots.removeClass('table-primary');
         currentCombLabel = $.trim($(cell).text());
         var pair = PAIRS[currentCombLabel];
         var shifts = pair.shifts;
         if ($(cell).hasClass('free')) {
             currentCombShiftIds = pair.ids;
-            $(cell).toggleClass('bg-primary');
+            $(cell).toggleClass('table-primary');
         }
         else {
             currentCombShiftIds = [];

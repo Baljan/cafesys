@@ -832,31 +832,9 @@ def admin_semester(request, name=None):
         sem = get_object_or_404(models.Semester, name__exact=name)
 
     if request.method == 'POST':
-        if request.POST['task']  == 'edit_shifts':
+        if request.POST['task']  == 'update_shifts':
             assert sem is not None
-            raw_ids = request.POST['shift-ids'].strip()
-            edit_shift_ids = []
-            if len(raw_ids):
-                edit_shift_ids = [int(x) for x in raw_ids.split('|')]
-
-            make = request.POST['make']
-            shifts_to_edit = models.Shift.objects.filter(
-                id__in=edit_shift_ids).distinct()
-
-            if make == 'normal':
-                shifts_to_edit.update(exam_period=False, enabled=True)
-            elif make == 'disabled':
-                shifts_to_edit.update(exam_period=False, enabled=False)
-            elif make == 'exam-period':
-                shifts_to_edit.update(exam_period=True, enabled=True)
-            elif make == 'none':
-                pass
-            else:
-                logger.warning('unexpected task %r' % make)
-                assert False
-
-            if make != 'none':
-                WorkdistAdapter.recreate_shift_combinations(sem)
+            WorkdistAdapter.recreate_shift_combinations(sem)
 
     tpl = {}
     tpl['semester'] = sem

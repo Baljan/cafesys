@@ -10,7 +10,7 @@
 {% block staff_info %}
         <div>
 
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center mb-5">
                 <h2>Administrera termin</h2>
                 <div class="choose-semester input-group w-auto">
                     {% if semesters|length %}
@@ -33,100 +33,105 @@
                         <dl>
                             <dt>Dagar</dt>
                             <dd>{{day_count}}</dd>
-                            <dt>Jobbarpass (Tenta-P)</dt>
+                            <dt>Jobbarpass</dt>
                             <dd>
                                 {{worker_shift_count}}
-                                ({{exam_period_count}})
+                                (varav {{exam_period_count}} i tenta-p)
                             </dd>
                         </dl>
                         <p>
-                            Antalet jobbpass bör vara delbart med 4 för att ge snygga
-                            passkombinationer. Uppfyllt:
-
                             {% if worker_shift_count|divisibleby:4 %}
-                                <b class="text-success">Ja!</b>
+                                <div class="alert alert-success d-flex align-items-center gap-3" role="alert">
+                                    <i class="fas fa-check-circle"></i>
+                                    <div>
+                                        Antalet jobbpass är delbart med 4 och ger därmed snygga passkombinationer.
+                                    </div>
+                                </div>
                             {% else %}
-                                <b class="text-danger">Nej.</b>
-                                <br/><br/>
-                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                Lägg in en halvdag när styrelsen jobbar för att jämna ut antalet.
+                                <div class="alert alert-danger d-flex align-items-center gap-3" role="alert">
+                                    <i class="fas fa-times-circle"></i>
+                                    <div>
+                                        Antalet jobbpass är inte delbart med 4 och ger därmed ojämna passkombinationer.
+
+                                        Lägg in en halvdag när styrelsen jobbar för att jämna ut antalet.
+                                    </div>
+                                </div>
                             {% endif %}
-
-                            <br/><br/>
-                            <span class="badge bg-light text-black">Öppet</span><br/>
-                            <span class="badge bg-dark">Stängt</span><br/>
-                            <span class="badge bg-primary">Tenta-P</span><br/>
                         </p>
-
-                        <div class="selection">
-                            <h3>Gör markering</h3>
-                            <form method="POST" name="edit-shifts" action="">{% csrf_token %}
-                                <input type="hidden" name="task" value="edit_shifts" />
-                                <input type="hidden" name="make" value="none" />
-                                <input type="hidden" name="shift-ids" value="" />
-                                <input disabled="disabled" type="button" id="normal"
-                                    class="btn btn-light" value="&laquo; öppet" /><br/>
-                                <input disabled="disabled" type="button" id="disabled"
-                                    class="btn btn-dark" value="&laquo; stängt" /><br/>
-                                <input disabled="disabled" type="button" id="exam-period"
-                                    class="btn btn-primary" value="&laquo; tenta-P" /><br/>
-                            </form>
-                        </div>
                     {% endif %}
                 </div>
                 <div class="col">
                     <div class="row">
-                        {% regroup shifts by when.month as month_shifts %}
-                        {% for month in month_shifts %}
-                        <div class="col months">
-                            <h3>{{month.grouper|monthname}}</h3>
-                            <table class="table table-striped">
+                        <h3>Terminsöversikt</h3>
+                        <p>
+                            Redigera genom <a href="{% url 'admin:baljan_shift_changelist' %}?semester__id__exact={{semester.id}}" class="">adminsidan</a> och tryck sedan på knappen under för att återskapa nummer på passkombinationer.
+                        </p>
+                        <p>
+                            Se <a href="{% url 'semester_shifts' semester.name %}" class="">jobbarnas vy</a> för att verifiera passkombinationerna.
+                        </p>
+
+                        <form method="POST" name="edit-shifts" action="">{% csrf_token %}
+                            <input type="hidden" name="task" value="update_shifts" />
+                            <button type="submit" id="normal" class="btn btn-sm btn-primary">
+                                <i class="fas fa-sync"></i> Uppdatera passkombinationer
+                            </button>
+                        </form>
+
+                        <div class="d-flex gap-1 align-items-center my-4">
+                            <span class="badge bg-secondary">Baljan</span>
+                            <span class="badge bg-primary">Byttan</span>
+
+                            <span class="badge bg-secondary border border-3 border-dark">Tenta-P</span>
+
+                            <span class="badge bg-primary opacity-25">Taget pass</span>
+
+                            <span class="badge bg-secondary opacity-50">- (Stängt)</span>
+                        </div>
+                        {% regroup shifts by when.isocalendar.1 as week_shifts %}
+                        {% for week in week_shifts %}
+                        <div class="col">
+                            <h4>Vecka {{week.grouper}}</h4>
+                            <table class="table table-sm table-striped">
                                 <thead>
                                     <tr>
+                                        <th></th>
                                         <th></th>
                                         <th>fm</th>
                                         <th>lunch</th>
                                         <th>em</th>
                                     </tr>
                                 </thead>
-                                {% regroup month.list by when.isocalendar.1 as weeks %}
 
                                 <tbody>
-                                    {% for week in weeks %}
-                                        <tr>
-                                            <th class="admin-semester-week" colspan="4">
-                                                Vecka {{week.grouper}}
-                                            </th>
-                                        </tr>
-                                        {% regroup week.list by when as days %}
-                                        {% for day in days %}
-                                        <tr>
-                                            <td class="day">{{day.grouper|date:"j"}}</td>
-                                            {% regroup day.list by span as spans %}
-                                            {% for span in spans %}
-                                                {% with sh0=span.list.0 %}
-                                                <td class="shift
-                                                    text-nowrap
-                                                    span-{{ span.grouper }}
-                                                    {% if sh0.enabled %}
-                                                        {% if sh0.exam_period %}bg-primary{%endif%}
-                                                    {% else %}
-                                                    bg-dark
-                                                    {%endif%}
-                                                    {% if sh0.comb.is_taken %}taken{%endif%}
-                                                    ">
-                                                    {% for sh in span.list %}
-                                                        {% if forloop.counter > 1 and sh.comb %}/{% endif %}
-                                                        <span id="shift-{{sh.id}}" class="shift span-{{sh.span}}">
-                                                            {{sh.comb.label|default:"&nbsp;"}}
-                                                        </span>
-                                                    {% endfor %}
-                                                </td>
-                                                {% endwith %}
-                                            {% endfor %}
-                                        </tr>
-                                    {% endfor %}
-
+                                    {% regroup week.list by when as days %}
+                                    {% for day in days %}
+                                    <tr>
+                                        <td class="day text-end">{{day.grouper|date:"j"}}</td>
+                                        <td class="day">{{day.grouper|date:"b"}}</td>
+                                        {% regroup day.list by span as spans %}
+                                        {% for span in spans %}
+                                            <td class="shift
+                                                text-nowrap
+                                                span-{{ span.grouper }}
+                                                ">
+                                                {% for sh in span.list %}
+                                                    {% if sh.comb or not sh.enabled%}
+                                                    <span id="shift-{{sh.id}}"
+                                                        class="badge
+                                                            {% if sh.location == 0 %}bg-secondary{% else %}bg-primary{% endif %}
+                                                            {% if sh.exam_period %}border border-3 border-dark{% endif %}
+                                                            {% if sh.comb.is_taken %}opacity-25{% endif %}
+                                                            {% if not sh.enabled %}opacity-50{% endif %}
+                                                            shift 
+                                                            span-{{sh.span}}">
+                                                        {{sh.comb.label}}
+                                                        {% if not sh.enabled %}-{% endif %}
+                                                    </span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -142,61 +147,12 @@
 {% endblock %}
 
 {% block extra_body %}
-    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
     <script type="text/javascript">
-        CONFIRM_MSG = "Är du säker? Passkombinationer för jobbsläpp kommer också att uppdateras.";
-
         BASE_URL = "{{admin_semester_base_url}}";
-
-        var editShiftsForm = $('form[name=edit-shifts]');
-        var shiftInners = $('table td span.shift');
-
-        $('.months').selectable({
-            filter: 'td.shift',
-            stop: function(ev, ui) {
-                var inputs = editShiftsForm.find('input[type=button]');
-                if ($('table td.ui-selected').length) {
-                    $(inputs).removeAttr('disabled');
-                }
-                else {
-                    $(inputs).attr('disabled', 'disabled');
-                }
-            }
-        });
-
-        $(shiftInners).hover(function() {
-            var comb = $(this).text().trim();
-            if (comb == '') return;
-            $(shiftInners).filter(function() {
-                return $(this).text().trim() == comb;
-            }).addClass('highlight');
-        }, function() {
-            var comb = $(this).text().trim();
-            if (comb == '') return;
-            $(shiftInners).filter(function() {
-                return $(this).text().trim() == comb;
-            }).removeClass('highlight');
-        });
-
-
-        $('.selection input').click(function() {
-            editShiftsForm.find('input[name=make]').attr('value', $(this).attr('id'));
-            var shiftIds = [];
-            $('table td.ui-selected span').each(function() {
-                shiftIds.push(parseInt($(this).attr('id').split('-')[1], 10));
-            });
-            editShiftsForm.find('input[name=shift-ids]')
-                          .attr('value', shiftIds.join('|'));
-
-            if (confirm(CONFIRM_MSG)) {
-                editShiftsForm.submit();
-            }
-        });
 
         $('.choose-semester select').change(function() {
             var name = $(this).children(':selected').html();
             location.href = '' + BASE_URL + '/' + name;
         });
-
     </script>
 {% endblock %}
