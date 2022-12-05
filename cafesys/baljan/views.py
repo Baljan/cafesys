@@ -22,7 +22,7 @@ from django.core.serializers import serialize
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.db import transaction
-from django.db.models import Sum, Count,IntegerField, Case, When, Value, Subquery
+from django.db.models import Sum, Count,IntegerField, Case, When, Value, Subquery, F
 from django.db.models.functions import ExtractHour, ExtractMinute, ExtractIsoWeekDay
 from django.http import HttpResponse, FileResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
@@ -33,6 +33,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 from django.utils.html import escape
 from django.template.loader import render_to_string
+import django_filters
 
 from cafesys.baljan import phone, slack
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
@@ -1155,17 +1156,24 @@ def semester_shifts(request, sem_name):
     return render(request, 'baljan/semester_shifts.html', tpl)
 
 
+
+class OrderFilter(django_filters.FilterSet):
+    put_at__gt = django_filters.DateFilter(field_name='put_at', lookup_expr='gt')
+    put_at__lt = django_filters.DateFilter(field_name='put_at', lookup_expr='lt')
+    paid = django_filters.NumberFilter()
+    paid__gt = django_filters.NumberFilter(field_name='paid', lookup_expr='gt')
+    paid__lt = django_filters.NumberFilter(field_name='paid', lookup_expr='lt')
+    class Meta:
+        model = models.Order
+        fields = []
+
 @require_GET
 @permission_required("baljan.view_order")
 def stats_order_heatmap(request):
-    try:
-        from_year = int(request.GET.get('from_year', 2022)) # TODO: improve filtering
-    except ValueError:
-        raise Http404("Året finns inte")
+    f = OrderFilter(request.GET, queryset=models.Order.objects.all())
     
-    orders = models.Order.objects.filter(
-            accepted=True,
-            put_at__year__gte=from_year
+    orders = f.qs.filter(
+            accepted=True
         ).annotate(
             weekday=ExtractIsoWeekDay('put_at'),
             hour=ExtractHour("put_at"),
@@ -1197,7 +1205,12 @@ def stats_order_heatmap(request):
     buffer = BytesIO() 
     plot.get_figure().savefig(buffer, format='png')
     buffer.seek(0)
-    return FileResponse(buffer, filename='heatmap.png')
+    #return FileResponse(buffer, filename='heatmap.png')
+    tpl = {
+        "image_data": f"data:image/png;base64,{base64.b64encode(buffer.read()).decode()}",
+        "filter": f
+    }
+    return render(request, 'baljan/stat_plot.html', tpl)
 
 @require_GET
 @permission_required("baljan.view_order")
@@ -1237,4 +1250,42 @@ def stats_blipp(request):
     buffer = BytesIO() 
     plot.savefig(buffer, format='png')
     buffer.seek(0)
-    return FileResponse(buffer, filename='blippstats.png')
+    #return FileResponse(buffer, filename='blippstats.png')
+    tpl = {
+        "image_data": f"data:image/png;base64,{base64.b64encode(buffer.read()).decode()}"
+    }
+    return render(request, 'baljan/stat_plot.html', tpl)
+
+@require_GET
+@permission_required("baljan.view_order")
+def stats_active_blipp_users(request):
+    
+    f = OrderFilter(request.GET, queryset=models.Order.objects.all())
+
+    orders = f.qs.filter(
+        accepted=True
+    ).annotate(week=F("put_at__week"), year=F("put_at__year")).order_by("year", "week").values("week", "year").annotate(num_users=Count("user_id", distinct=True)).annotate(num_purchases=Count("id"))#.aggregate(Avg("num_users"))
+    
+    orders_data = []
+    for data in orders:
+        orders_data.append({
+                "when": f"{data['week']}-{data['year']}",
+                "num_users": data["num_users"],
+                "num_purchases": data["num_purchases"],
+                "avg_purchases": data["num_purchases"]/data["num_users"]
+            })
+    order_data = DataFrame(data=orders_data)
+
+    sns.set_theme()
+    plt.figure(figsize = (16,9))
+    plot = sns.catplot(data=order_data, x="when", y="num_users", kind="bar")
+    plot.set_axis_labels("När", "Antal användare")
+    buffer = BytesIO() 
+    plot.savefig(buffer, format='png')
+    buffer.seek(0)
+    #return FileResponse(buffer, filename='blippstats.png')
+    tpl = {
+        "image_data": f"data:image/png;base64,{base64.b64encode(buffer.read()).decode()}",
+        "filter": f
+    }
+    return render(request, 'baljan/stat_plot.html', tpl)
