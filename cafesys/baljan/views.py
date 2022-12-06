@@ -1264,7 +1264,7 @@ def stats_active_blipp_users(request):
 
     orders = f.qs.filter(
         accepted=True
-    ).annotate(week=F("put_at__week"), year=F("put_at__year")).order_by("year", "week").values("week", "year").annotate(num_users=Count("user_id", distinct=True)).annotate(num_purchases=Count("id"))#.aggregate(Avg("num_users"))
+    ).annotate(week=F("put_at__week"), year=F("put_at__year")).order_by("year", "week").values("week", "year").annotate(num_users=Count("user_id", distinct=True)).annotate(num_purchases=Count("id"))
     
     orders_data = []
     for data in orders:
@@ -1278,8 +1278,8 @@ def stats_active_blipp_users(request):
 
     sns.set_theme()
     plt.figure(figsize = (16,9))
-    plot = sns.catplot(data=order_data, x="when", y="num_users", kind="bar")
-    plot.set_axis_labels("När", "Antal användare")
+    plot = sns.catplot(data=order_data, y="when", x="num_users", kind="bar")
+    plot.set_axis_labels("Antal användare", "När")
     buffer = BytesIO() 
     plot.savefig(buffer, format='png')
     buffer.seek(0)
