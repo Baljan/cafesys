@@ -1269,7 +1269,7 @@ def stats_active_blipp_users(request):
     orders_data = []
     for data in orders:
         orders_data.append({
-                "when": f"{data['week']}-{data['year']}",
+                "when": f"{data['week']}-{data['year']} ({data['num_purchases']/data['num_users']})",
                 "num_users": data["num_users"],
                 "num_purchases": data["num_purchases"],
                 "avg_purchases": data["num_purchases"]/data["num_users"]
@@ -1279,7 +1279,7 @@ def stats_active_blipp_users(request):
     sns.set_theme()
     plt.figure(figsize = (16,9))
     plot = sns.catplot(data=order_data, y="when", x="num_users", kind="bar")
-    plot.set_axis_labels("Antal användare", "När")
+    plot.set_axis_labels("Antal användare", "När (Antal köp per användare)")
     buffer = BytesIO() 
     plot.savefig(buffer, format='png')
     buffer.seek(0)
