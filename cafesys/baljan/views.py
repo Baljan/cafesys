@@ -1269,7 +1269,7 @@ def stats_active_blipp_users(request):
     orders_data = []
     for data in orders:
         orders_data.append({
-                "when": f"{data['week']}-{data['year']} ({data['num_purchases']/data['num_users']})",
+                "when": f"{data['week']}-{data['year']} ({round(data['num_purchases']/data['num_users'], 1)})",
                 "num_users": data["num_users"],
                 "num_purchases": data["num_purchases"],
                 "avg_purchases": data["num_purchases"]/data["num_users"]
