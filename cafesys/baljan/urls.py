@@ -66,6 +66,8 @@ urlpatterns = (
 
     path("stats/heatmap", views.stats_order_heatmap, name="stats_order_heatmap"),
     path("stats/blipp", views.stats_blipp, name="stats_blipp"),
-    path("stats/active-users", views.stats_active_blipp_users, name="stats_active_blipp_users")
+    path("stats/active-users", views.stats_active_blipp_users, name="stats_active_blipp_users"),
+
+    path("bookkeep", views.bookkeep_view, name="bookkeep")
     
 )

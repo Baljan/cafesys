@@ -1,0 +1,26 @@
+{% extends "baljan/staff.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}Bokföringssiffror{% endblock %}
+
+{% block staff_info %}
+<h2>Bokföringssiffror</h2>
+<div class="row">
+    <div class="col-12">
+        <form action="#" method="get" class="mb-3">
+            {{ form | crispy }}
+            <input type="submit" class="btn btn-primary" value="Hämta data"/>
+        </form>
+        {% if data %}
+            {% if not past_year %}
+                <div class="alert alert-warning mb-3" role="alert">
+                    Året har inte tagit slut och datan kan därmed vara inkomplett.
+                </div>
+            {% endif%}
+            <pre>{{data}}</pre>
+        {% endif%}
+    </div>  
+</div>
+{% endblock %}
+
+

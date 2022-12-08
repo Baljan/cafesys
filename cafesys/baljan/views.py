@@ -32,6 +32,7 @@ from django.views.generic.dates import WeekArchiveView
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 from django.utils.html import escape
+from django import forms as django_forms
 from django.template.loader import render_to_string
 import django_filters
 
@@ -44,7 +45,7 @@ from cafesys.baljan.models import Order, Good, OrderGood
 from cafesys.baljan.workdist.workdist_adapter import WorkdistAdapter
 from . import credits as creditsmodule
 from . import (forms, ical, models, pdf, planning, pseudogroups, search,
-               stats, trades, workdist)
+               stats, trades, workdist, bookkeep)
 from .forms import OrderForm
 from .util import (adjacent_weeks, all_initials, available_for_call_duty,
                    from_iso8601, htmlents, valid_username, week_dates,
@@ -1289,3 +1290,28 @@ def stats_active_blipp_users(request):
         "filter": f
     }
     return render(request, 'baljan/stat_plot.html', tpl)
+
+class BookkeepForm(django_forms.Form):
+    year = django_forms.IntegerField(
+        label = "År",
+        required = True,
+    )
+
+@require_GET
+@permission_required("baljan.view_order")
+def bookkeep_view(request):
+    form = BookkeepForm(request.GET)
+    data = None
+
+    past_year = False
+    if form.is_valid():
+        year = form.cleaned_data["year"]
+        present = datetime.now()
+        past_year = datetime(year+1, 1, 1) < present 
+        data = bookkeep.get_bookkeep_data(year)
+    
+    return render(request, 'baljan/bookkeep.html', {
+        "form": form,
+        "data": data,
+        "past_year": past_year
+    })
