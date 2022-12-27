@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+import dj_database_url
 import os
 import warnings
 from django.contrib.messages import constants as message_constants
 
 import environ
 
+IS_HEROKU = "DYNO" in os.environ
 
 env = environ.Env()
 
@@ -21,7 +23,7 @@ with warnings.catch_warnings():
 DEBUG = env.bool("DJANGO_DEBUG")
 SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 
-CACHE_BACKEND = env.str("DJANGO_REDIS_URL")
+CACHE_BACKEND = env.str("DJANGO_REDIS_URL", default="")
 
 ADMINS = []
 
@@ -29,17 +31,27 @@ MANAGERS = ADMINS
 
 ALLOWED_HOSTS = ("*",)
 
-DATABASES = {"default": env.db_url("DJANGO_DATABASE_URL")}
+MAX_CONN_AGE = 600
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": CACHE_BACKEND,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
+DATABASES = {}
+
+if IS_HEROKU:
+    # Configure Django for DATABASE_URL environment variable.
+    DATABASES["default"] = dj_database_url.config(
+        conn_max_age=MAX_CONN_AGE, ssl_require=True)
+else:
+    DATABASES["default"] = env.db_url("DJANGO_DATABASE_URL")
+
+if not IS_HEROKU:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": CACHE_BACKEND,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            },
+        }
     }
-}
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_COOKIE_NAME = "baljansessid"
