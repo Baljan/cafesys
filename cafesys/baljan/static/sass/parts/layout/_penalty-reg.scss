@@ -39,7 +39,7 @@ $vt23-blue2: #bbeefe;
     right: 5vw;
     opacity: 0;
     border: none;
-    background-color: transparent;
+    border-radius: 30px;
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 
@@ -53,7 +53,8 @@ $vt23-blue2: #bbeefe;
     & > img {
       max-height: 250px;
       padding: 10px 20px 0;
-      border-radius: 0;
+      border-top-right-radius: 30px;
+      border-top-left-radius: 30px;
       object-fit: contain;
       object-position: center 4px;
       background: $vt23-blue2;
@@ -76,6 +77,8 @@ $vt23-blue2: #bbeefe;
     border-width: 7px;
     border-color: $vt23-blue2;
     border-top: none;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
     background-color: $baljan-white;
 
     h2 {
