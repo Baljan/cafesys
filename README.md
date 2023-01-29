@@ -3,6 +3,10 @@ Cafesys is the Django application driving the website of Sektionscafé Baljan. I
 fantastic *Blipp* system for coffee.
 
 ## Setting up a development environment in Docker
+Install node.js
+```sh
+    npm install
+```
 This assumes you already have Docker and Docker Compose installed.
 ```sh
 cp .env.docker.tmpl .env.docker
