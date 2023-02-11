@@ -28,7 +28,7 @@ icalendar==4.0.9
 requests==2.26.0
 
 # Make the shell great again
-ipython==7.31.1
+ipython==8.10.0
 
 # Sass processor
 libsass==0.21.0
