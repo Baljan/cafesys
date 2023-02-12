@@ -90,7 +90,7 @@ data:
     entryPoint = "http"
     [[acme.domains]]
     main = "baljan.org"
-    sans = ["www.baljan.org", "blipp.baljan.org"]
+    sans = ["www.baljan.org"]
 kind: ConfigMap
 metadata:
   name: traefik-conf
@@ -161,12 +161,6 @@ metadata:
   namespace: baljan
 spec:
   rules:
-  - host: blipp.baljan.org
-    http:
-      paths:
-      - backend:
-          serviceName: baljan-blipp
-          servicePort: 80
   - host: baljan.org
     http:
       paths:
