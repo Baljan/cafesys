@@ -1984,7 +1984,8 @@ msgstr "%s lades till utan problem"
 
 #: cafesys/baljan/views.py:204
 msgid "Thank you!"
-msgstr "Tack för din beställning!"
+msgstr "Tack för din beställning! Ni kommer få en bekräftelse när styrelsen har behandlat din beställning."
+
 
 #: cafesys/baljan/views.py:296
 msgid "Nothing scheduled for this shift (yet)."

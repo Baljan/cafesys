@@ -130,6 +130,7 @@ def orderFromUs(request):
             ordererEmail = form.cleaned_data['ordererEmail']
             phoneNumber = form.cleaned_data['phoneNumber']
             association = form.cleaned_data['association']
+            org = form.cleaned_data['org']
             numberOfCoffee = form.cleaned_data['numberOfCoffee']
             numberOfTea = form.cleaned_data['numberOfTea']
             numberOfSoda = form.cleaned_data['numberOfSoda']
@@ -139,6 +140,7 @@ def orderFromUs(request):
             numberOfPastasalad = form.cleaned_data['numberOfPastasalad']
             pickup = form.cleaned_data['pickup']
             date = form.cleaned_data['date']
+            other = form.cleaned_data['other']
        
             def extend_sub_types(sub_types):
                 return [
@@ -173,9 +175,13 @@ def orderFromUs(request):
                 f"Namn: {orderer}",
                 f"Telefon: {phoneNumber}",
                 f"Email: {ordererEmail}",
+                f"Organisationsnummer: {org}",
                 "",
             ] + [
                 f"Antal {name}: {count}" for name, count, _ in order_fields if count
+            ] + [
+                "",
+                f"Övrigt info och allergier: {other}"
             ] + [
                 "",
                 "Mer detaljerad information hittas i mailet."
