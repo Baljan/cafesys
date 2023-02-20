@@ -96,9 +96,10 @@ window.onload = function justdoit() {
         }
     });
 
-    $("#form-confirmation").on('change', function () {
-        var checked = $(this).is(':checked');
-        $("#submit-button").prop('disabled', !checked);
+    $("#form-confirmation1, #form-confirmation2").on('change', function () {
+        var checked1 = $("#form-confirmation1").is(':checked');
+        var checked2 = $("#form-confirmation2").is(':checked');
+        $("#submit-button").prop('disabled', !(checked1 && checked2));
     });
 };
 
@@ -130,3 +131,15 @@ $(function () {
 
     calcSum();
 });
+
+document.getElementById("pickup").addEventListener("change", function updateMaxValue() {
+    var pickupValue = document.getElementById("pickup").value;
+    var coffeeInput = document.getElementById("coffee");
+    if (pickupValue === "0") {
+      coffeeInput.max_value = 45;
+    } else if (pickupValue === "1") {
+      coffeeInput.max_value = 90;
+    } else {
+      coffeeInput.max_value = 135;
+    }
+  });
