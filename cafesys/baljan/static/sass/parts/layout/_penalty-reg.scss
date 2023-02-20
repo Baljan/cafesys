@@ -4,6 +4,9 @@ $vt22-orange: #ffb380;
 $ht22-pink1: #d35398;
 $ht22-pink2: #de70a9;
 
+$vt23-blue1: #5087be;
+$vt23-blue2: #bbeefe;
+
 .container-styrelsen {
   position: relative;
   margin: 0 auto;
@@ -36,7 +39,7 @@ $ht22-pink2: #de70a9;
     right: 5vw;
     opacity: 0;
     border: none;
-    background-color: transparent;
+    border-radius: 30px;
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 
@@ -50,11 +53,12 @@ $ht22-pink2: #de70a9;
     & > img {
       max-height: 250px;
       padding: 10px 20px 0;
-      border-radius: 0;
+      border-top-right-radius: 30px;
+      border-top-left-radius: 30px;
       object-fit: contain;
       object-position: center 4px;
-      background: $ht22-pink1;
-      background: linear-gradient(0deg, $ht22-pink1 0%, rgba($ht22-pink1, 0.0) 40%, rgba($ht22-pink2, 0.0) 90%, $ht22-pink2 100%), url("/static/img/height-markers.svg"), linear-gradient(0deg, $ht22-pink1 0%, rgba($ht22-pink2, 0.6) 100%);
+      background: $vt23-blue2;
+      background: linear-gradient(0deg, $vt23-blue2 0%, rgba($vt23-blue2, 0.0) 40%, rgba($vt23-blue1, 0.0) 90%, $vt23-blue1 100%), linear-gradient(0deg, $vt23-blue2 0%, rgba($vt23-blue1, 0.6) 100%);
       background-repeat: no-repeat, no-repeat, no-repeat;
       background-position: top;
       background-position-y: top, calc(-3px * 190 - -3px * var(--length)), top;
@@ -62,7 +66,7 @@ $ht22-pink2: #de70a9;
       @supports not (backdrop-filter: blur(10px)) {
         /* CSS to provide fallback alternative for Firefox and similar browsers */
         & {
-          background-image: linear-gradient(0deg, $ht22-pink1 0%, rgba($ht22-pink1, 0.0) 40%, rgba($ht22-pink2, 0.0) 90%, $ht22-pink2 100%), url("/static/img/height-markers.svg"), linear-gradient(0deg, $ht22-pink1 0%, $ht22-pink2 100%);
+          background-image: linear-gradient(0deg, $vt23-blue2 0%, rgba($vt23-blue2, 0.0) 40%, rgba($vt23-blue1, 0.0) 90%, $vt23-blue1 100%), linear-gradient(0deg, $vt23-blue2 0%, $vt23-blue1 100%);
         }
       }
     }
@@ -71,8 +75,10 @@ $ht22-pink2: #de70a9;
   .card-body {
     border-style: solid;
     border-width: 7px;
-    border-color: $ht22-pink1;
+    border-color: $vt23-blue2;
     border-top: none;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
     background-color: $baljan-white;
 
     h2 {
