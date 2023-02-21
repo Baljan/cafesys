@@ -78,6 +78,7 @@ window.onload = function justdoit() {
         else {
             disablePickupFields(false);
         }
+    
     });
 
     $('#id_orderer').on('change', function () {
@@ -102,6 +103,20 @@ window.onload = function justdoit() {
         $("#submit-button").prop('disabled', !(checked1 && checked2));
     });
 };
+
+$(function () { 
+    $('#id_pickup').change(function() {
+        var value = $('#id_pickup').val();
+
+        if(value == 0){
+            $('#id_numberOfCoffee').attr('max', 45);
+        }else if(value == 1){
+            $('#id_numberOfCoffee').attr('max', 90);
+        }else {
+            $('#id_numberOfCoffee').attr('max', 135)
+        }
+    });
+});
 
 $(function () {
     $(".order-group").each(function() {
@@ -131,15 +146,3 @@ $(function () {
 
     calcSum();
 });
-
-document.getElementById("pickup").addEventListener("change", function updateMaxValue() {
-    var pickupValue = document.getElementById("pickup").value;
-    var coffeeInput = document.getElementById("coffee");
-    if (pickupValue === "0") {
-      coffeeInput.max_value = 45;
-    } else if (pickupValue === "1") {
-      coffeeInput.max_value = 90;
-    } else {
-      coffeeInput.max_value = 135;
-    }
-  });
