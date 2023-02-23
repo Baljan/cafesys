@@ -83,7 +83,6 @@ class OrderForm(forms.Form):
         (2,'Eftermiddag 16:15-17:00'),
     )
     
-
     def __init__(self, *args, **kwargs):
         super(OrderForm, self).__init__(*args, **kwargs)
         
@@ -96,7 +95,6 @@ class OrderForm(forms.Form):
             for field_name, label in sub_form_data:
                 self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
 
-        
     orderer = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     ordererEmail = forms.EmailField(required=True, label="Email:")
     phoneNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
@@ -123,7 +121,7 @@ class OrderForm(forms.Form):
               }),required=True, label="Datum:")
     sameAsOrderer = forms.BooleanField(initial=True, required=False, label="Samma som beställare")
     orderSum = forms.CharField(required=False)
-    
+
 class RefillForm(forms.Form):
     def __init__(self, *args, **kwargs):
         code = None
@@ -140,7 +138,6 @@ class RefillForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control'}),
     )
 
-
 class ShiftSelectionForm(forms.Form):
     CHOICES = (
         ('enabled', _('open')),
@@ -152,7 +149,6 @@ class ShiftSelectionForm(forms.Form):
         label=_("make"),
         choices=CHOICES,
     )
-
 
 class WorkableShiftsForm(forms.Form):
     def __init__(self, *args, **kwargs):

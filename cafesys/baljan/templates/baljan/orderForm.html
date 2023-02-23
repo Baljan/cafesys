@@ -11,7 +11,6 @@
 <script type="text/javascript" src="{% static 'js/orderForm.js' %}"></script>
 {% block extra_head %}{% endblock %}
 {% endblock %}
-
 {% block body %}
 
 <h1> Beställa från Baljan </h1>
@@ -19,7 +18,7 @@
     <div class="col-md order-2 order-md-1">
         <div>
             <div>
-                Här kan ni skicka beställningar till Baljan! <br><br>Saknar ni något fält eller har någon fundering kring er beställning kan ni lägga till det under ”Övrig information” 
+                Här kan ni skicka beställningar till Baljan! <br><br>Saknar ni något fält eller har någon fundering kring er beställning kan ni lägga till det under ”Övrig info & allergier” 
                 eller kontakta styrelsen via mail: <a href="mailto:bestallning@baljan.org">bestallning@baljan.org</a>.
             </div>
         </div>
@@ -40,9 +39,9 @@
                     {% order_item form 'soda' 6 %}
                     {% order_item form 'klagg' 7 %}
 
-                    {% order_group form 'jochen' 'Antal jochen' form.JOCHEN_TYPES 34 %}
-                    {% order_group form 'minijochen' 'Antal mini jochen' form.MINI_JOCHEN_TYPES 17 %}
-                    {% order_group form 'pastasalad' 'Antal pastasallad' form.PASTA_SALAD_TYPES 45 %}
+                    {% order_group form 'Jochen' 'Antal jochen' form.JOCHEN_TYPES 34 %}
+                    {% order_group form 'Minijochen' 'Antal mini jochen' form.MINI_JOCHEN_TYPES 17 %}
+                    {% order_group form 'Pastasalad' 'Antal pastasallad' form.PASTA_SALAD_TYPES 45 %}
 
                     <div class="row">
                         <div class="col-9">
@@ -52,10 +51,10 @@
                             = <b><span id="currentSum">0</span> SEK</b>
                         </div>
                     </div>
-                    {{ form.orderSum.as_hidden }}
-                    
-
                     <br/>
+                    <div class="row" id="order_error"></div>
+
+                    {{ form.orderSum.as_hidden }}
                     {% field form.other %}
                 </div>
 
@@ -103,7 +102,7 @@
                     <div class="form-check">
                         <label class="form-check-label" for="form-confirmation2">
                             <input type="checkbox" class="form-check-input" id="form-confirmation2">
-                            <span>Jag godkänner härmed Sektionscafé Baljan <a href="{% url 'integrity' %}">låneregeler</a> och accepterar bli fakturerad eventuell straffavgift om de inte skulle efterföljas.</span>
+                            <span>Jag godkänner härmed Sektionscafé Baljan  <a href="{% static 'laneregler.pdf' %}" target="_blank">låneregeler</a> och accepterar bli fakturerad därefter om de inte skulle efterföljas.</span>
                         </label>
                     </div>
 
@@ -149,6 +148,20 @@
         <div class="wrapper">
             <h2> Vad gäller? </h2>
             Följade gäller vid beställningar:
+
+            <h3> Jochen/Pastasallad </h3>
+            <ul>
+                <li>Beställning av Jochen/pastasallad måste vara inne <b>senast 16:15 på onsdagen veckan innan er beställning</b>.</li>
+                <li>
+                    För information angående allergener och näringsinnehåll se följande <a href="{% static 'foodcon.pdf' %}" target="_blank">innehållsförteckning för Jochen och sallad</a>.
+                </li>
+                <li>
+                    Önskar ni beställa Jochen/pastasallad fria från vissa allergener, fyll i dessa under 
+                    ”Antal övriga” och ange allergierna under ”Övrig info & allergier”. Vid allergi kan 
+                    samtliga pastasallader beställas utan pasta. OBS: Jochen går ej att få glutenfria.
+                </li>
+            </ul>
+
             <h3> Kaffe/te </h3>
             <ul>
                 <li>På grund av termosstorlekar kan vi eventuellt behöva justera antalet kaffe eller te i er beställning. <a href="#termos-size-modal" data-bs-toggle="modal"> Klicka här för att se
@@ -163,21 +176,9 @@
                     backar kan
                     panten skrivas av från fakturan om den lämnas tillbaka senast dagen efter.
                 </li>
-                <li>Har ni speciella önskemål på vilka sorter av läsk eller vatten ni vill ha kan ni specificera detta under ”Övrig information”.</li>
+                <li>Har ni speciella önskemål på vilka sorter av läsk eller vatten ni vill ha kan ni specificera detta under ”Övrig info & allergier”.</li>
             </ul>
 
-            <h3> Jochen/Pastasallad </h3>
-            <ul>
-                <li>Beställning av Jochen/pastasallad måste vara inne <b>senast 16:15 på onsdagen veckan innan er beställning</b>.</li>
-                <li>
-                    För information angående allergener och näringsinnehåll se följande <a href="{% static 'foodcon.pdf' %}" target="_blank">innehållsförteckning för Jochen och sallad</a>.
-                </li>
-                <li>
-                    Önskar ni beställa Jochen/pastasallad fria från vissa allergener, fyll i dessa under 
-                    ”Antal övriga” och ange allergierna under ”Övrig information”. Vid allergi kan 
-                    samtliga pastasallader beställas utan pasta. OBS: Jochen går ej att få glutenfria.
-                </li>
-            </ul>
         </div>
 
     </div>
