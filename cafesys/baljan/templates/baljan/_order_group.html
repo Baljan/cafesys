@@ -7,7 +7,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{{label}}</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" id="{{group_field_name|add:'_btn1'}}" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body">
@@ -24,9 +24,9 @@
                             </div>
                         </div>
                     </div>
-
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Stäng</button>
+                    <div id="{{group_field_name|add:'_error'}}"></div>
+                    <button type="button" id="{{group_field_name|add:'_btn2'}}" class="btn btn-primary" data-bs-dismiss="modal">Stäng</button>
                 </div>
             </div>
         </div>
