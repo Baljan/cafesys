@@ -183,8 +183,11 @@ $(function () {
     $('#id_pickup').change(function() {
         var value = $('#id_pickup').val();
         $("#order_error").html("");
+        
+        if(value == 0){
+            changeLimit('id_numberOfCoffee', 135, '');
 
-        if(value == 1){
+        }else if(value == 1){
             changeLimit('id_numberOfCoffee', 45,'Det går inte beställa mer än 45 koppar kaffe till ' + $('#id_pickup option:selected').text()+ '.');
             if(validDate()){
                 $('#Pastasalad').show();
