@@ -44,6 +44,19 @@ function calcGroupAmnt(groupName) {
     return groupAmnt;
 }
 
+function getWeekNumber(date) {
+    var d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    // Set to nearest Thursday: current date + 4 - current day number
+    // Make Sunday's day number 7
+    d.setDate(d.getDate() + 4 - (d.getDay()||7));
+    // Get first day of year
+    var yearStart = new Date(d.getFullYear(),0,1);
+    // Calculate full weeks to nearest Thursday
+    var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+    return weekNo;
+}
+
 function disablePickupFields(disable) {
     var pickupName = $('#id_pickupName');
     var pickupEmail = $('#id_pickupEmail');
@@ -62,7 +75,28 @@ function disablePickupFields(disable) {
         pickupEmail.val("");
         pickupNumber.val("");
     }
+}
 
+function changeLimit(name, limit, error_msg){
+    $('#' + name).attr('max', limit);
+        if($('#' + name).val() > limit){
+            $('#' + name).val(limit);
+            $("#order_error").html("<p class='text-danger'>" + error_msg + "</p>");
+        }
+}
+
+function clearWindowField(name){
+    $('#' + name + 'Modal :input').each(function() {
+        $(this).val('');
+    });
+    $('#id_numberOf'+ name).val('');  
+    $('#'+ name+ 'Sum').html(''); 
+    calcSum();
+}
+
+function setErrorMsg(text, field){
+    var temp = $("#order_error").text()
+    $('#'+ field).html("<p class='text-danger'>" + text + "<br>" + temp + "</p>");
 }
 
 window.onload = function justdoit() {
@@ -78,6 +112,7 @@ window.onload = function justdoit() {
         else {
             disablePickupFields(false);
         }
+    
     });
 
     $('#id_orderer').on('change', function () {
@@ -96,9 +131,10 @@ window.onload = function justdoit() {
         }
     });
 
-    $("#form-confirmation").on('change', function () {
-        var checked = $(this).is(':checked');
-        $("#submit-button").prop('disabled', !checked);
+    $("#form-confirmation1, #form-confirmation2").on('change', function () {
+        var checked1 = $("#form-confirmation1").is(':checked');
+        var checked2 = $("#form-confirmation2").is(':checked');
+        $("#submit-button").prop('disabled', !(checked1 && checked2));
     });
 };
 
@@ -124,9 +160,102 @@ $(function () {
         }
     });
 
+    //  Set max limit on products depending on chosen pickup time
+    //  0 ,'Morgon 07:30-08:00'
+    //  1,'Lunch 12:15-13:00')
+    //  2,'Eftermiddag 16:15-17:00'
+    $('#id_pickup').change(function() {
+        var value = $('#id_pickup').val();
+        $("#order_error").html("");
+
+        if(value == 0){
+            changeLimit('id_numberOfCoffee', 45,'Det går inte beställa mer än 45 koppar kaffe till ' + $('#id_pickup option:selected').text()+ '.');
+            
+            $('#Pastasalad').show();
+
+        }else if(value == 1){
+            changeLimit('id_numberOfCoffee', 90,'Det går inte beställa mer än 90 koppar kaffe till ' + $('#id_pickup option:selected').text()+'.');
+
+            $('#Pastasalad').hide();
+            clearWindowField('Pastasalad');
+            
+            if($('#id_numberOfJochen').val() > 100){
+                clearWindowField('Jochen')
+                var error_msg = "Det går inte beställa mer än 100st jochen till " + $('#id_pickup option:selected').text()+ ".";
+                setErrorMsg(error_msg, "order_error");
+            }
+        }else{
+            changeLimit('id_numberOfCoffee', 135,'Det går inte beställa mer än 135 koppar kaffe till ' + $('#id_pickup option:selected').text()+ '.');
+            
+            $('#Pastasalad').hide();
+            clearWindowField('Pastasalad');
+
+            if($('#id_numberOfJochen').val() > 100){
+                clearWindowField('Jochen')
+                var error_msg = "Det går inte beställa mer än 100st jochen till " + $('#id_pickup option:selected').text()+ ".";
+                setErrorMsg(error_msg, "order_error");
+            }
+        }
+    });
+
+    // Sets max limit on Jochen for afternoon and evening
+    const inputs = $('#JochenModal').find("input[type='number']");
+    const buttons = $('#JochenModal').find("button");
+    var value = $('#id_pickup').val();
+    const amount = 100;
+    
+    inputs.on("input", function() {
+        if($('#id_pickup').val()== 1 || $('#id_pickup').val() == 2){
+            let sum = 0;
+            inputs.each(function() {
+                sum += parseInt($(this).val()) || 0; 
+            });
+            if(sum > amount){
+                buttons.prop("disabled", true);
+                var error_msg = "Det går inte beställa mer än 100st jochen till " + $('#id_pickup option:selected').text()+ ".";
+                setErrorMsg(error_msg, "Jochen_error")
+            } else {
+                buttons.prop("disabled", false);
+                $("#Jochen_error").html("");
+            }
+        }
+    });
+
+    //disable booking food such as sallad and jochen for same week or next week if after thursday
+    $('#id_date').on("change", function() { 
+        var selectedDate = new Date($("#id_date").val());
+        var now = new Date();
+        
+        var selectedWeek = getWeekNumber(selectedDate);
+        var currentWeek = getWeekNumber(now);
+        var nextWeek = currentWeek + 1; 
+        var nextWeekValid = (selectedWeek == nextWeek && now.getDay() > 4 );
+
+        if (selectedWeek == currentWeek || nextWeekValid) {
+            $('#Pastasalad').hide();
+            $('#Jochen').hide();
+            $('#Minijochen').hide();
+        
+            if($('#id_numberOfPastasalad').val() != "" || $('#id_numberOfJochen').val() != "" || $('#id_numberOfMinijochen').val() != ""){
+                var error_msg = "Orderdatumet är för nära inpå för att kunna beställa pastasallad, jochen eller minijochen.";
+                setErrorMsg(error_msg, "order_error")
+                clearWindowField('Jochen');
+                clearWindowField('Minijochen');
+                clearWindowField('Pastasalad');
+            } 
+        }else {
+            $('#Pastasalad').show();
+            $("#Jochen").show();
+            $('#Minijochen').show();
+            $("#order_error").html("");
+        }   
+    });
+
     $("form").on("submit", function() {
         window.onbeforeunload = null;
     });
 
     calcSum();
 });
+
+

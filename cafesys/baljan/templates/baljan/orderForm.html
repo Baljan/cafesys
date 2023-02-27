@@ -11,7 +11,6 @@
 <script type="text/javascript" src="{% static 'js/orderForm.js' %}"></script>
 {% block extra_head %}{% endblock %}
 {% endblock %}
-
 {% block body %}
 
 <h1> Beställa från Baljan </h1>
@@ -19,14 +18,45 @@
     <div class="col-md order-2 order-md-1">
         <div>
             <div>
-                Här kan ni skicka beställningar till Baljan! <br><br>Saknar ni något fält eller har någon fundering kring er beställning kan ni lägga till det under ”Övrig information” längst ner
-                i formuläret
+                Här kan ni skicka beställningar till Baljan! <br><br>Saknar ni något fält eller har någon fundering kring er beställning kan ni lägga till det under ”Övrig info & allergier” 
                 eller kontakta styrelsen via mail: <a href="mailto:bestallning@baljan.org">bestallning@baljan.org</a>.
             </div>
         </div>
         <div>
             <form method="post">
+
                 {% csrf_token %}
+                <div class="wrapper">
+                    <h2> Uthämtning </h2>
+                    {% field form.date %}
+                    {% field form.pickup%}
+                </div>
+
+                <div>   
+                    <h2> Beställning </h2>
+                    {% order_item form 'coffee' 7%}
+                    {% order_item form 'tea' 6 %}
+                    {% order_item form 'soda' 6 %}
+                    {% order_item form 'klagg' 7 %}
+
+                    {% order_group form 'Jochen' 'Antal jochen' form.JOCHEN_TYPES 34 %}
+                    {% order_group form 'Minijochen' 'Antal mini jochen' form.MINI_JOCHEN_TYPES 17 %}
+                    {% order_group form 'Pastasalad' 'Antal pastasallad' form.PASTA_SALAD_TYPES 45 %}
+
+                    <div class="row">
+                        <div class="col-9">
+                            <b>TOTALT</b>
+                        </div>
+                        <div class="col-3">
+                            = <b><span id="currentSum">0</span> SEK</b>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row" id="order_error"></div>
+
+                    {{ form.orderSum.as_hidden }}
+                    {% field form.other %}
+                </div>
 
                 <div class="wrapper">
                     <h2> Kontaktuppgifter </h2>
@@ -35,6 +65,7 @@
                     {% field form.ordererEmail %}
                     {% field form.phoneNumber %}
                     {% field form.association %}
+                    {% field form.org%}
                     <small class="form-text text-muted">
                         <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                         Baljan tar inte emot beställningar från privatpersoner.
@@ -50,38 +81,7 @@
                     {% field form.pickupNumber %}
                 </div>
 
-
-                <div class="wrapper">
-                    <h2> Beställning </h2>
-
-                    {% order_item form 'coffee' 7 %}
-                    {% order_item form 'tea' 6 %}
-                    {% order_item form 'soda' 6 %}
-                    {% order_item form 'klagg' 7 %}
-
-                    {% order_group form 'jochen' 'Antal jochen' form.JOCHEN_TYPES 34 %}
-                    {% order_group form 'minijochen' 'Antal mini jochen' form.MINI_JOCHEN_TYPES 17 %}
-                    {% order_group form 'pastasalad' 'Antal pastasallad' form.PASTA_SALAD_TYPES 45 %}
-
-                    <div class="row">
-                        <div class="col-9">
-                            <b>TOTALT</b>
-                        </div>
-                        <div class="col-3">
-                            = <b><span id="currentSum">0</span> SEK</b>
-                        </div>
-                    </div>
-                    {{ form.orderSum.as_hidden }}
-                    <br/>
-                </div>
-
                 <div>
-                    <h2> Uthämtning </h2>
-
-                    {% field form.date %}
-                    {% field form.pickup %}
-                    {% field form.other %}
-
                     <small class="form-text text-muted">
                         <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                         Tänk på att all information du väljer att skicka med i beställningen kan komma att sparas
@@ -92,17 +92,17 @@
                         kan du kontakta oss på <a href="mailto:bestallning@baljan.org">bestallning@baljan.org</a>.
                     </small>
 
-                    <br/>
-
-                    <div class="alert alert-info" role="alert">
-                        <i class="fa fa-info-circle" aria-hidden="true"></i>
-                        Ni kommer få en bekräftelse att er beställning är tillagd när styrelsen har tagit emot den.
+                    <div class="form-check">
+                        <label class="form-check-label" for="form-confirmation1">
+                            <input type="checkbox" class="form-check-input" id="form-confirmation1">
+                            <span>Jag godkänner härmed att Sektionscafé Baljan behandlar ovan ifyllda uppgifter enligt deras <a href="{% url 'integrity' %}">integritetspolicy</a>.</span>
+                        </label>
                     </div>
 
                     <div class="form-check">
-                        <label class="form-check-label" for="form-confirmation">
-                            <input type="checkbox" class="form-check-input" id="form-confirmation">
-                            <span>Jag godkänner härmed att Sektionscafé Baljan behandlar ovan ifyllda uppgifter enligt deras <a href="{% url 'integrity' %}">integritetspolicy</a>.</span>
+                        <label class="form-check-label" for="form-confirmation2">
+                            <input type="checkbox" class="form-check-input" id="form-confirmation2">
+                            <span>Jag godkänner härmed Sektionscafé Baljan  <a href="{% static 'laneregler.pdf' %}" target="_blank">låneregeler</a> och accepterar bli fakturerad därefter om de inte skulle efterföljas.</span>
                         </label>
                     </div>
 
@@ -127,8 +127,7 @@
                 <li>Eftermiddag: 16.15 - 17.00
             </ul>
 
-            Baljan fakturerar endast studentföreningar samt sektioner vid Linköpings Universitet. För beställare med fakturaadress utanför Linköpings universitet tillkommer en fakturaavgift på
-            19 kronor. Notera även att Baljan inte har möjlighet att fakturera via E-faktura.
+            Baljan fakturerar endast studentföreningar samt sektioner vid Linköpings Universitet. Notera även att Baljan inte har möjlighet att fakturera via E-faktura.
         </div>
 
         <div>
@@ -149,13 +148,6 @@
         <div class="wrapper">
             <h2> Vad gäller? </h2>
             Följade gäller vid beställningar:
-            <h3> Kaffe/te </h3>
-            <ul>
-                <li>På grund av termosstorlekar kan vi eventuellt behöva justera antalet kaffe eller te i er beställning. <a href="#termos-size-modal" data-bs-toggle="modal"> Klicka här för att se
-                    våra
-                    termosstorlekar.</a></li>
-                <li>Koppar, skedar, socker och mjölk ingår vid beställning av kaffe och te. <br></li>
-            </ul>
 
             <h3> Jochen/Pastasallad </h3>
             <ul>
@@ -165,9 +157,17 @@
                 </li>
                 <li>
                     Önskar ni beställa Jochen/pastasallad fria från vissa allergener, fyll i dessa under 
-                    ”Antal övriga” och ange allergierna under ”Övrig information”. Vid allergi kan 
+                    ”Antal övriga” och ange allergierna under ”Övrig info & allergier”. Vid allergi kan 
                     samtliga pastasallader beställas utan pasta. OBS: Jochen går ej att få glutenfria.
                 </li>
+            </ul>
+
+            <h3> Kaffe/te </h3>
+            <ul>
+                <li>På grund av termosstorlekar kan vi eventuellt behöva justera antalet kaffe eller te i er beställning. <a href="#termos-size-modal" data-bs-toggle="modal"> Klicka här för att se
+                    våra
+                    termosstorlekar.</a></li>
+                <li>Koppar, skedar, socker och mjölk ingår vid beställning av kaffe och te. <br></li>
             </ul>
 
             <h3> Läsk/vatten </h3>
@@ -176,8 +176,9 @@
                     backar kan
                     panten skrivas av från fakturan om den lämnas tillbaka senast dagen efter.
                 </li>
-                <li>Har ni speciella önskemål på vilka sorter av läsk eller vatten ni vill ha kan ni specificera detta under ”Övrig information”.</li>
+                <li>Har ni speciella önskemål på vilka sorter av läsk eller vatten ni vill ha kan ni specificera detta under ”Övrig info & allergier”.</li>
             </ul>
+
         </div>
 
     </div>

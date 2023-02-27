@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.forms.widgets import HiddenInput
@@ -47,6 +48,7 @@ class ProfileCardIdForm(forms.ModelForm):
 class OrderForm(forms.Form):
 
     # [(field name, jochen name), ... ]
+    
     JOCHEN_TYPES = [
         ('ostOchBrieostJochen', 'ost & brieost (ljust bröd)'),
         ('ostOchSkinkaJochen', 'ost & skinka (mörkt bröd)'),
@@ -77,14 +79,14 @@ class OrderForm(forms.Form):
     ]
 
     PICKUP_CHOICES = (
-        (0,'Morgon 07:30-08:00'),
+        (0 ,'Morgon 07:30-08:00'),
         (1,'Lunch 12:15-13:00'),
         (2,'Eftermiddag 16:15-17:00'),
     )
-
+    
     def __init__(self, *args, **kwargs):
         super(OrderForm, self).__init__(*args, **kwargs)
-
+        
         # Iteratively add subforms
         for sub_form_data in [
             self.JOCHEN_TYPES,
@@ -92,33 +94,41 @@ class OrderForm(forms.Form):
             self.PASTA_SALAD_TYPES
         ]:
             for field_name, label in sub_form_data:
-                self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
-
+                self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)  
+                
+    def clean_date(self):
+        date = self.cleaned_data['date']
+        if date.weekday() in [5, 6]:  # 5 is Saturday, 6 is Sunday
+            raise forms.ValidationError("Vänligen välj en veckodag.")
+        return date
+    
     orderer = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     ordererEmail = forms.EmailField(required=True, label="Email:")
     phoneNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
-    association = forms.CharField(min_length=2, max_length=40, required = True, label="Sektion eller förening att fakturera:")
+    association = forms.CharField(min_length=2, max_length=40, required = True, label="Sektion eller förening att fakturera:",)
+    org = forms.RegexField(max_length=11, required = True,label="Orginastionsnummer:",regex=r'[0-9]{6,11}')
     pickupName = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     pickupEmail = forms.EmailField(required=True, label="Email:")
     pickupNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
-    numberOfCoffee = forms.IntegerField(min_value=5, max_value=135, required = False, label="Antal koppar kaffe:")
-    numberOfTea = forms.IntegerField(min_value=5, max_value=135, required = False,label="Antal koppar te:")
+    numberOfCoffee = forms.IntegerField(min_value=5, max_value= 45, required=False, label="Antal koppar kaffe:")
+    numberOfTea = forms.IntegerField(min_value=5, max_value=45, required = False,label="Antal koppar te:")
     numberOfSoda = forms.IntegerField(min_value=5, max_value=200, required = False, label="Antal läsk:")
     numberOfKlagg = forms.IntegerField(min_value=5, max_value=300, required = False, label="Antal klägg:")
     numberOfJochen = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal jochen:")
     numberOfMinijochen = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal mini jochen:")
     numberOfPastasalad = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), required = False, label="Antal pastasallad:")
-    other = forms.CharField(widget=forms.Textarea(attrs={'cols':33,'rows':5}), required=False, label='Övrig information:')
+    
+    other = forms.CharField(widget=forms.Textarea(attrs={'cols':33,'rows':5}), required=False, label= "Övrig info och allergier")
 
     pickup = forms.ChoiceField(choices=PICKUP_CHOICES, label='Tid för uthämtning:')
     date = forms.DateField(widget=forms.DateInput(attrs={ 
                 "min": datetime.now().strftime("%Y-%m-%d"), # TODO: timezone
                 "max": (datetime.now() + relativedelta(months=2)).strftime("%Y-%m-%d"), # TODO: timezone
-                'type': 'date'
-              }),required=True, label="Datum:")
+                'type': 'date'}),
+                required=True, label="Datum:")
     sameAsOrderer = forms.BooleanField(initial=True, required=False, label="Samma som beställare")
     orderSum = forms.CharField(required=False)
-
+    
 class RefillForm(forms.Form):
     def __init__(self, *args, **kwargs):
         code = None
@@ -135,7 +145,6 @@ class RefillForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control'}),
     )
 
-
 class ShiftSelectionForm(forms.Form):
     CHOICES = (
         ('enabled', _('open')),
@@ -147,7 +156,6 @@ class ShiftSelectionForm(forms.Form):
         label=_("make"),
         choices=CHOICES,
     )
-
 
 class WorkableShiftsForm(forms.Form):
     def __init__(self, *args, **kwargs):
