@@ -110,7 +110,7 @@ class OrderForm(forms.Form):
     pickupName = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     pickupEmail = forms.EmailField(required=True, label="Email:")
     pickupNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
-    numberOfCoffee = forms.IntegerField(min_value=5, max_value= 45, required=False, label="Antal koppar kaffe:")
+    numberOfCoffee = forms.IntegerField(min_value=5, max_value= 135, required=False, label="Antal koppar kaffe:")
     numberOfTea = forms.IntegerField(min_value=5, max_value=45, required = False,label="Antal koppar te:")
     numberOfSoda = forms.IntegerField(min_value=5, max_value=200, required = False, label="Antal läsk:")
     numberOfKlagg = forms.IntegerField(min_value=5, max_value=300, required = False, label="Antal klägg:")
