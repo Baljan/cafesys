@@ -81,7 +81,7 @@ function changeLimit(name, limit, error_msg){
     $('#' + name).attr('max', limit);
         if($('#' + name).val() > limit){
             $('#' + name).val(limit);
-            $("#order_error").html("<p class='text-danger'>" + error_msg + "</p>");
+            setErrorMsg(error_msg, "order_error")
         }
 }
 
