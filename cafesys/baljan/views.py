@@ -218,7 +218,7 @@ def orderFromUs(request):
             
             msg.attach('event.ics',cal.to_ical(),'text/calendar')
             msg.send()
-            messages.add_message(request, messages.SUCCESS, _("Thank you!"))
+            messages.add_message(request, messages.SUCCESS, "Tack för din beställning! Ni kommer få en bekräftelse när styrelsen har behandlat din beställning.")
             return HttpResponseRedirect("bestallning")
     else:
         form = OrderForm()
