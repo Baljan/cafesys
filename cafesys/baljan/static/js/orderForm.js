@@ -213,9 +213,10 @@ $(function () {
             if(sum > amount){
                 buttons.prop("disabled", true);
                 var error_msg = "Det går inte beställa mer än 100st jochen till " + $('#id_pickup option:selected').text()+ ".";
-                setErrorMsg(error_msg, "order_error")
+                setErrorMsg(error_msg, "Jochen_error")
             } else {
                 buttons.prop("disabled", false);
+                $("#Jochen_error").html("");
             }
         }
     });
