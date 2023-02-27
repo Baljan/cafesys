@@ -1982,7 +1982,7 @@ msgstr "Utloggad."
 msgid "%s was added successfully."
 msgstr "%s lades till utan problem"
 
-#: cafesys/baljan/views.py:204
+#: cafesys/baljan/views.py:221
 msgid "Thank you!"
 msgstr "Tack för din beställning! Ni kommer få en bekräftelse när styrelsen har behandlat din beställning."
 
