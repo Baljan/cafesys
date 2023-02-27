@@ -213,7 +213,7 @@ $(function () {
             if(sum > amount){
                 buttons.prop("disabled", true);
                 var error_msg = "Det går inte beställa mer än 100st jochen till " + $('#id_pickup option:selected').text()+ ".";
-                setErrorMsg(error_msg, "Jochen_error")
+                $("#Jochen_error").html("<p class='text-danger'>" + error_msg + "</p>");
             } else {
                 buttons.prop("disabled", false);
                 $("#Jochen_error").html("");
