@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.forms.widgets import HiddenInput
@@ -93,8 +94,14 @@ class OrderForm(forms.Form):
             self.PASTA_SALAD_TYPES
         ]:
             for field_name, label in sub_form_data:
-                self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)
-
+                self.fields['numberOf%s' % field_name.title()] = forms.IntegerField(min_value=1, required = False,label="Antal %s:" % label)  
+                
+    def clean_date(self):
+        date = self.cleaned_data['date']
+        if date.weekday() in [5, 6]:  # 5 is Saturday, 6 is Sunday
+            raise forms.ValidationError("Vänligen välj en veckodag.")
+        return date
+    
     orderer = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     ordererEmail = forms.EmailField(required=True, label="Email:")
     phoneNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
@@ -117,11 +124,11 @@ class OrderForm(forms.Form):
     date = forms.DateField(widget=forms.DateInput(attrs={ 
                 "min": datetime.now().strftime("%Y-%m-%d"), # TODO: timezone
                 "max": (datetime.now() + relativedelta(months=2)).strftime("%Y-%m-%d"), # TODO: timezone
-                'type': 'date'
-              }),required=True, label="Datum:")
+                'type': 'date'}),
+                required=True, label="Datum:")
     sameAsOrderer = forms.BooleanField(initial=True, required=False, label="Samma som beställare")
     orderSum = forms.CharField(required=False)
-
+    
 class RefillForm(forms.Form):
     def __init__(self, *args, **kwargs):
         code = None
