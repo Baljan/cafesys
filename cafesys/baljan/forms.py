@@ -79,9 +79,10 @@ class OrderForm(forms.Form):
     ]
 
     PICKUP_CHOICES = (
-        (0 ,'Morgon 07:30-08:00'),
-        (1,'Lunch 12:15-13:00'),
-        (2,'Eftermiddag 16:15-17:00'),
+        (0,'--- Välj en tid ---'), 
+        (1 ,'Morgon 07:30-08:00'),
+        (2,'Lunch 12:15-13:00'),
+        (3,'Eftermiddag 16:15-17:00')
     )
     
     def __init__(self, *args, **kwargs):
@@ -102,6 +103,12 @@ class OrderForm(forms.Form):
             raise forms.ValidationError("Vänligen välj en veckodag.")
         return date
     
+    def clean_pickup(self):
+        pickup = self.cleaned_data['pickup']
+        if pickup == '0': 
+            raise forms.ValidationError("Vänligen välj en tid.")
+        return pickup
+    
     orderer = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     ordererEmail = forms.EmailField(required=True, label="Email:")
     phoneNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
@@ -120,7 +127,7 @@ class OrderForm(forms.Form):
     
     other = forms.CharField(widget=forms.Textarea(attrs={'cols':33,'rows':5}), required=False, label= "Övrig info och allergier")
 
-    pickup = forms.ChoiceField(choices=PICKUP_CHOICES, label='Tid för uthämtning:')
+    pickup = forms.ChoiceField(choices=PICKUP_CHOICES,required=True, label='Tid för uthämtning:')
     date = forms.DateField(widget=forms.DateInput(attrs={ 
                 "min": datetime.now().strftime("%Y-%m-%d"), # TODO: timezone
                 "max": (datetime.now() + relativedelta(months=2)).strftime("%Y-%m-%d"), # TODO: timezone
