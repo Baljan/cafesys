@@ -85,6 +85,22 @@ function changeLimit(name, limit, error_msg){
         }
 }
 
+function validDate(){
+    var selectedDate = new Date($("#id_date").val());
+    var now = new Date();
+        
+    var selectedWeek = getWeekNumber(selectedDate);
+    var currentWeek = getWeekNumber(now);
+    var nextWeek = currentWeek + 1; 
+    var nextWeekValid = (selectedWeek == nextWeek && now.getDay() > 4 );
+
+    if (selectedWeek == currentWeek || nextWeekValid) {
+        return false
+    }else {
+        return true
+    } 
+}
+
 function clearWindowField(name){
     $('#' + name + 'Modal :input').each(function() {
         $(this).val('');
@@ -161,19 +177,20 @@ $(function () {
     });
 
     //  Set max limit on products depending on chosen pickup time
-    //  0 ,'Morgon 07:30-08:00'
-    //  1,'Lunch 12:15-13:00')
-    //  2,'Eftermiddag 16:15-17:00'
+    //  1 ,'Morgon 07:30-08:00'
+    //  2,'Lunch 12:15-13:00')
+    //  3,'Eftermiddag 16:15-17:00'
     $('#id_pickup').change(function() {
         var value = $('#id_pickup').val();
         $("#order_error").html("");
 
-        if(value == 0){
+        if(value == 1){
             changeLimit('id_numberOfCoffee', 45,'Det går inte beställa mer än 45 koppar kaffe till ' + $('#id_pickup option:selected').text()+ '.');
-            
-            $('#Pastasalad').show();
+            if(validDate()){
+                $('#Pastasalad').show();
+            }
 
-        }else if(value == 1){
+        }else if(value == 2){
             changeLimit('id_numberOfCoffee', 90,'Det går inte beställa mer än 90 koppar kaffe till ' + $('#id_pickup option:selected').text()+'.');
 
             $('#Pastasalad').hide();
@@ -184,7 +201,7 @@ $(function () {
                 var error_msg = "Det går inte beställa mer än 100st jochen till " + $('#id_pickup option:selected').text()+ ".";
                 setErrorMsg(error_msg, "order_error");
             }
-        }else{
+        }else if(value == 3){
             changeLimit('id_numberOfCoffee', 135,'Det går inte beställa mer än 135 koppar kaffe till ' + $('#id_pickup option:selected').text()+ '.');
             
             $('#Pastasalad').hide();
@@ -205,7 +222,7 @@ $(function () {
     const amount = 100;
     
     inputs.on("input", function() {
-        if($('#id_pickup').val()== 1 || $('#id_pickup').val() == 2){
+        if($('#id_pickup').val()== 2 || $('#id_pickup').val() == 3){
             let sum = 0;
             inputs.each(function() {
                 sum += parseInt($(this).val()) || 0; 
@@ -223,32 +240,24 @@ $(function () {
 
     //disable booking food such as sallad and jochen for same week or next week if after thursday
     $('#id_date').on("change", function() { 
-        var selectedDate = new Date($("#id_date").val());
-        var now = new Date();
-        
-        var selectedWeek = getWeekNumber(selectedDate);
-        var currentWeek = getWeekNumber(now);
-        var nextWeek = currentWeek + 1; 
-        var nextWeekValid = (selectedWeek == nextWeek && now.getDay() > 4 );
-
-        if (selectedWeek == currentWeek || nextWeekValid) {
+        if(validDate()){
+            $('#Pastasalad').show();
+            $("#Jochen").show();
+            $('#Minijochen').show();
+            $("#order_error").html("");
+        }else{
             $('#Pastasalad').hide();
             $('#Jochen').hide();
             $('#Minijochen').hide();
-        
+            
             if($('#id_numberOfPastasalad').val() != "" || $('#id_numberOfJochen').val() != "" || $('#id_numberOfMinijochen').val() != ""){
                 var error_msg = "Orderdatumet är för nära inpå för att kunna beställa pastasallad, jochen eller minijochen.";
                 setErrorMsg(error_msg, "order_error")
                 clearWindowField('Jochen');
                 clearWindowField('Minijochen');
                 clearWindowField('Pastasalad');
-            } 
-        }else {
-            $('#Pastasalad').show();
-            $("#Jochen").show();
-            $('#Minijochen').show();
-            $("#order_error").html("");
-        }   
+            }
+        }
     });
 
     $("form").on("submit", function() {

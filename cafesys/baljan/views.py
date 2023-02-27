@@ -189,11 +189,11 @@ def orderFromUs(request):
             calendar_description = "\n".join(description_lines)
 
             start, end = time(0,0), time(0,0)
-            if pickup == '0':  # Morgon
+            if pickup == '1':  # Morgon
                 start, end = time(7,30), time(8,0)
-            if pickup == '1':  # Lunch
+            if pickup == '2':  # Lunch
                 start, end = time(12,15), time(13,0)
-            if pickup == '2':  # Eftermiddag
+            if pickup == '3':  # Eftermiddag
                 start, end = time(16,15), time(17,0)
 
             tz = pytz.timezone(settings.TIME_ZONE)
