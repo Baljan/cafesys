@@ -198,6 +198,13 @@ class Meta(object):
             log.warning('could not fetch last semester: %s' % e)
 
         self.intervals.append({
+            'key': 'three_years',
+            'name': 'Tre år',
+            'staff classes': std_staff_classes + ['old worker'],
+            'dates': [today, today - timedelta(years=3)]
+        })
+
+        self.intervals.append({
             'key': 'total',
             'name': _('Total'),
             'staff classes': std_staff_classes + ['old worker'],
