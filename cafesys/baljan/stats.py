@@ -14,7 +14,15 @@ from .util import year_and_week, week_dates, adjacent_weeks
 
 log = getLogger(__name__)
 
-ALL_INTERVALS = ('today', 'yesterday', 'this_week', 'last_week', 'this_semester', 'three_years',  'total')
+ALL_INTERVALS = (
+    'today',
+    'yesterday',
+    'this_week',
+    'last_week',
+    'this_semester',
+    'three_years',
+    'total'
+)
 ALL_LOCATIONS = [
     None,
     0,
