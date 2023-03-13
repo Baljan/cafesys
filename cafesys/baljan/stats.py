@@ -201,7 +201,7 @@ class Meta(object):
             'key': 'three_years',
             'name': 'Tre år',
             'staff classes': std_staff_classes + ['old worker'],
-            'dates': [today, today - timedelta(years=3)]
+            'dates': [today - timedelta(years=3), today]
         })
 
         self.intervals.append({
