@@ -34,7 +34,7 @@
   Namn: {{data.orderer}}<br>
   Email: {{data.ordererEmail}}<br>
   Telefon: {{data.phoneNumber}}<br>
-  Förening/Sektion: {{data.association}}
+  Förening/Sektion: {{data.association}}<br>
   Organisationsnummer: {{data.org}}
   </p>
 
@@ -53,11 +53,11 @@
   <p>
     Datum: {{data.date|date:"l d F Y"}}<br>
     Tid: 
-    {% if data.pickup == '0' %}
+    {% if data.pickup == '1' %}
       Morgon 07:30-08:00
-    {% elif data.pickup == '1' %}
+    {% elif data.pickup == '2' %}
       Lunch 12:15-13:00
-    {% else %}
+    {% elif data.pickup == '3' %}
       Eftermiddag 16:15-17:00
     {% endif %}
   </p>
