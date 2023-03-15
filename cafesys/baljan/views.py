@@ -175,7 +175,6 @@ def orderFromUs(request):
                 f"Namn: {orderer}",
                 f"Telefon: {phoneNumber}",
                 f"Email: {ordererEmail}",
-                f"Organisationsnummer: {org}",
                 "",
             ] + [
                 f"Antal {name}: {count}" for name, count, _ in order_fields if count
