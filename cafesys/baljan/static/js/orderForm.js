@@ -90,13 +90,10 @@ function validDate(){
     var now = new Date();
         
     var selectedWeek = getWeekNumber(selectedDate);
-    console.log(selectedWeek)
     var currentWeek = getWeekNumber(now);
-    console.log(currentWeek)
+    
     var nextWeek = currentWeek + 1; 
     var nextWeekInvalid = (selectedWeek == nextWeek && (now.getDay() > 4 || now.getDay() == 0));
-    console.log("Day " + now.getDay())
-    console.log("nextweekinvalid " + nextWeekInvalid)
 
     if (selectedWeek == currentWeek || nextWeekInvalid) {
         return false
