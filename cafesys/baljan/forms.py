@@ -79,7 +79,7 @@ class OrderForm(forms.Form):
     ]
 
     PICKUP_CHOICES = (
-        (0,'--- Välj en tid ---'), 
+        (0,'---- Välj en tid ----'), 
         (1 ,'Morgon 07:30-08:00'),
         (2,'Lunch 12:15-13:00'),
         (3,'Eftermiddag 16:15-17:00')
