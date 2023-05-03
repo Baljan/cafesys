@@ -113,7 +113,7 @@ class OrderForm(forms.Form):
     ordererEmail = forms.EmailField(required=True, label="Email:")
     phoneNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
     association = forms.CharField(min_length=2, max_length=40, required = True, label="Sektion eller förening att fakturera:",)
-    org = forms.RegexField(max_length=11, required = True,label="Orginastionsnummer:",regex=r'[0-9]{6,11}')
+    org = forms.RegexField(max_length=11, required = True,label="Organisationsnummer:",regex=r'[0-9]{6,11}')
     pickupName = forms.RegexField(min_length=4,max_length=100, required=True, label="Namn:",regex=r'[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}')
     pickupEmail = forms.EmailField(required=True, label="Email:")
     pickupNumber = forms.RegexField(max_length=11, required = True,label="Telefon:",regex=r'[0-9]{6,11}')
