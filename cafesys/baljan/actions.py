@@ -61,7 +61,7 @@ def categories_and_actions(request):
                 ),
                 Action(
                     "Jobbkontrakt",
-                    settings.STATIC_URL + "Personalkontrakt.HT22.pdf",
+                    settings.STATIC_URL + "Personalkontrakt.pdf",
                     resolve_func=None,
                 ),
                 Action(
