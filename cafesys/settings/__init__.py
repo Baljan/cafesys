@@ -38,7 +38,8 @@ DATABASES = {}
 if IS_HEROKU:
     # Configure Django for DATABASE_URL environment variable.
     DATABASES["default"] = dj_database_url.config(
-        conn_max_age=MAX_CONN_AGE, ssl_require=True)
+        conn_max_age=MAX_CONN_AGE, ssl_require=True
+    )
 else:
     DATABASES["default"] = env.db_url("DJANGO_DATABASE_URL")
 
@@ -93,7 +94,9 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
     "sass_processor.finders.CssFinder",
 ]
-SASS_OUTPUT_STYLE = "expanded"
+
+SASS_PROCESSOR_ENABLED = True
+SASS_OUTPUT_STYLE = "compressed" if IS_HEROKU else "expanded"
 
 TEMPLATES = [
     {
@@ -161,7 +164,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 # Override the message tags who have names that don't match with bootstrap
-MESSAGE_TAGS = {message_constants.DEBUG: 'light', message_constants.ERROR: 'danger'}
+MESSAGE_TAGS = {message_constants.DEBUG: "light", message_constants.ERROR: "danger"}
 
 ABSOLUTE_URL_OVERRIDES = {
     "auth.user": lambda o: "/baljan/user/%s" % o.id,
@@ -236,7 +239,7 @@ DEFAULT_FROM_EMAIL = "cafesys@baljan.org"
 ANYMAIL = {
     "MAILGUN_API_KEY": env.str("MAILGUN_API_KEY", default=""),
     "MAILGUN_SENDER_DOMAIN": env.str("MAILGUN_SENDER_DOMAIN", default=""),
-    "MAILGUN_API_URL": "https://api.eu.mailgun.net/v3", # EU server, very important
+    "MAILGUN_API_URL": "https://api.eu.mailgun.net/v3",  # EU server, very important
 }
 SERVER_EMAIL = "cafesys@baljan.org"
 
@@ -273,11 +276,6 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_SSL", "on")
 SLACK_PHONE_WEBHOOK_URL = env.str("SLACK_PHONE_WEBHOOK_URL", default="")
 
 VERIFY_46ELKS_IP = True
-
-SASS_PRECISION = 8
-SASS_PROCESSOR_INCLUDE_DIRS = [
-    os.path.join(ROOT_DIR, 'node_modules'),
-]
 
 ROLLBAR = {
     "access_token": env.str("ROLLBAR_ACCESS_TOKEN", default=""),
