@@ -24,7 +24,7 @@ reportlab==3.6.2
 icalendar==4.0.9
 
 # HTTP client (used to communicate with external APIs)
-requests==2.26.0
+requests==2.31.0
 
 # Make the shell great again
 ipython==8.10.0
