@@ -23,7 +23,10 @@ with warnings.catch_warnings():
 DEBUG = env.bool("DJANGO_DEBUG")
 SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 
-CACHE_BACKEND = env.str("DJANGO_REDIS_URL", default="")
+CACHE_BACKEND = env.str(
+    "REDIS_TLS_URL" if IS_HEROKU else "DJANGO_REDIS_URL", default=""
+)
+
 
 ADMINS = []
 
@@ -43,16 +46,15 @@ if IS_HEROKU:
 else:
     DATABASES["default"] = env.db_url("DJANGO_DATABASE_URL")
 
-if not IS_HEROKU:
-    CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": CACHE_BACKEND,
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            },
-        }
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": CACHE_BACKEND,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
+}
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_COOKIE_NAME = "baljansessid"
@@ -271,7 +273,7 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = True
 
 SLACK_PHONE_WEBHOOK_URL = env.str("SLACK_PHONE_WEBHOOK_URL", default="")
