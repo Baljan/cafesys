@@ -24,7 +24,7 @@ DEBUG = env.bool("DJANGO_DEBUG")
 SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 
 CACHE_BACKEND = env.str(
-    "REDIS_TLS_URL" if IS_HEROKU else "DJANGO_REDIS_URL", default=""
+    "REDIS_URL" if IS_HEROKU else "DJANGO_REDIS_URL", default=""
 )
 
 
