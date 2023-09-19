@@ -14,7 +14,8 @@ logger = getLogger(__name__)
 def send_mail_task(title, body, from_email, to_emails):
     send_mail(title, body, from_email, to_emails)
 
-@shared_task
+# @shared_task
+
 def update_stats():
     from . import stats
     for location in stats.ALL_LOCATIONS:
