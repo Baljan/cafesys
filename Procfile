@@ -1,4 +1,4 @@
 web: gunicorn cafesys.wsgi  --preload
 
 
-worker: celery -A cafesys worker -l error
+worker: celery -A cafesys worker -l info
