@@ -18,7 +18,7 @@ social-auth-app-django==5.0.0
 git+https://github.com/Baljan/python-social-auth-liu@6647be8#egg=social-auth-liu
 
 # PDFs
-reportlab==3.6.2
+reportlab==3.6.13
 
 # iCal export
 icalendar==4.0.9
