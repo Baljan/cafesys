@@ -2,6 +2,66 @@
 Cafesys is the Django application driving the website of Sektionscafé Baljan. It features staff management and the
 fantastic *Blipp* system for coffee.
 
+## Setting up a development environment using heroku local
+If you are using windows as OS start by downloading WSL.
+
+Start by ensuring that all necesary requirements are satisfied by navigating to the project directory and running:
+pip install -r requirements.txt
+
+Install the heroku client:
+WSL/Linux: 
+curl https://cli-assets.heroku.com/install.sh | bash
+or
+sudo snap install --classic heroku
+macOS:
+brew tap heroku/brew && brew install heroku
+
+login to heroku through the termnial by running:
+heroku login
+
+Create a backup of the postgressql database by running:
+heroku pg:backups:capture --app baljan
+
+Download a dump of the database to the current directory:
+heroku pg:backups:download --app baljan
+
+Enable postgressql:
+sudo systemctl enable postgresql 
+
+Start postgressql command-line tool, and run the following lines. The parameters myuser, mypassword and baljan_local can be changed to any arbitrary string but make sure to remember them if changed:
+sudo -u postgres psql
+
+CREATE DATABASE baljan_local;
+
+CREATE USER myuser WITH PASSWORD 'mypassword';
+
+ALTER ROLE myuser SET client_encoding TO 'utf8';
+ALTER ROLE myuser SET default_transaction_isolation TO 'read committed';
+ALTER ROLE myuser SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE baljan_local TO myuser;
+
+Exit the command-line tool for postgressql:
+\q
+
+Populate the newly created database, baljan_local in this case, with the dump file containing the database. Your dumpfile might have another name:
+pg_restore --verbose --no-acl --no-owner -h localhost -U myuser -d baljan_local latest.dump
+
+If you changed the parameters myuser, mypassword or baljan_local, then go to the .env file in the project directory and change the following lines to match your parameters:
+DJANGO_DATABASE_URL=postgres://myuser:mypassword@localhost:5432/baljan_local
+
+The setup is now complete, each time you wish to start the environment run the following:
+for WSL2/Linux:
+sudo service redis-server start
+sudo service postgresql start
+heroku local
+
+for macOS:
+brew services start redis
+brew services start postgresql
+heroku local
+
+
+
 ## Setting up a development environment in Docker
 Install node.js
 ```sh
