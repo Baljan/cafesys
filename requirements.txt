@@ -9,6 +9,7 @@ django-redis==5.0.0
 gunicorn==20.1.0
 whitenoise==5.3.0
 
+
 # Celery for async and periodic tasks
 celery==5.2.3
 
@@ -48,3 +49,7 @@ seaborn==0.11.2
 
 # Email
 django-anymail==8.6
+
+
+# Redis
+redis==3.5.3

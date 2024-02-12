@@ -1,2 +1,2 @@
-#!/bin/sh
-gunicorn cafesys.wsgi -c ${APP_ROOT}/gunicorn-conf.py
+web: gunicorn cafesys.wsgi -c ${APP_ROOT}/gunicorn-conf.py
+
