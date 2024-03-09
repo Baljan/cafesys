@@ -5,6 +5,7 @@ cafesys/collected-static
 *.pyc
 .idea/
 .vscode/
+venv/
 
 # Celery
 celerybeat-schedule

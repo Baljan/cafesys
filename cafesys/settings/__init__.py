@@ -279,8 +279,13 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
-#SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_SSL_REDIRECT = False
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+#SECURE_SSL_REDIRECT = False
+#SECURE_SSL_REDIRECT needs to be false when running locally but true when deployed
+#Deafult value False, but when deployed it fetches DJANGO_SSL_REDIRECT from conf vars
+#on heroku which defines it as true
+SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=False)
+
 
 
 SLACK_PHONE_WEBHOOK_URL = env.str("SLACK_PHONE_WEBHOOK_URL", default="")
