@@ -36,13 +36,18 @@ ALLOWED_HOSTS = ("*",)
 
 MAX_CONN_AGE = 600
 
+
+
 DATABASES = {}
+
+
 
 if IS_HEROKU:
     # Configure Django for DATABASE_URL environment variable.
     DATABASES["default"] = dj_database_url.config(
-        conn_max_age=MAX_CONN_AGE, ssl_require=True
-    )
+        conn_max_age=MAX_CONN_AGE, ssl_require=True)
+   # DATABASES["default"] = env.db_url("DJANGO_DATABASE_URL")
+    #)
 else:
     DATABASES["default"] = env.db_url("DJANGO_DATABASE_URL")
 
@@ -274,8 +279,9 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_SSL_REDIRECT = True
+#SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = False
+
 
 SLACK_PHONE_WEBHOOK_URL = env.str("SLACK_PHONE_WEBHOOK_URL", default="")
 

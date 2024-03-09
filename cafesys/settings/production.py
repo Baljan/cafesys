@@ -5,6 +5,7 @@ SERVE_MEDIA = False
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
+
 # Send correct redirect_uri to login provider
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 
