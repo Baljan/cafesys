@@ -1,2 +1,4 @@
+web: gunicorn cafesys.wsgi  --preload
 
-web: gunicorn cafesys.wsgi:application
+
+worker: celery -A cafesys worker --beat -l info
