@@ -27,7 +27,6 @@ CACHE_BACKEND = env.str(
     "REDIS_URL" if IS_HEROKU else "DJANGO_REDIS_URL", default=""
 )
 
-
 ADMINS = []
 
 MANAGERS = ADMINS

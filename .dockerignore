@@ -11,3 +11,13 @@ cafesys/collected-static
 
 # We don't need to copy this folder as its only purpose is deploying to production
 kubernetes/
+database/
+
+docker-compose.yaml
+Dockerfile
+Procfile
+README.md
+Vagrantfile
+.gitignore
+.dockerignore
+cafesys/baljan/static

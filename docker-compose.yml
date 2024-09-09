@@ -9,50 +9,41 @@ services:
     ports:
       - "8001:80"
 
-  cafesys-celery-beat:
-    image: baljan/cafesys
-    build:
-      context: .
-    env_file: .env.docker
-    command: /app/bin/run-celery-beat
-    volumes:
-      - .:/app
-    links:
-      - redis
-      - postgres
-
-  cafesys-celery-worker:
+  celery-worker:
     image: baljan/cafesys
     build:
       context: .
     env_file: .env.docker
     command: /app/bin/run-celery-worker
-    volumes:
-      - .:/app
     links:
       - redis
       - postgres
 
-  cafesys-django:
+  django:
     image: baljan/cafesys
     build:
       context: .
     env_file: .env.docker
-    volumes:
-      - .:/app
+    command: /app/bin/run-django
     ports:
-      - '8000:80'
+      - "8000:8000"
     links:
       - redis
       - postgres
+    volumes:
+      # Mount static files after build
+      - ./cafesys/baljan/static:/app/cafesys/baljan/static
 
   postgres:
-    image: postgres:9.6-alpine
+    image: postgres:15.7-alpine
     env_file: .env.docker
+    volumes:
+      - ./database:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
       # This gives us a Postgres server listening on the host as well. This can be useful for development outside the
       # Docker environment.
-      - "127.0.0.1:5432:5432"
+      - 5432:5432
 
   redis:
     image: redis:3-alpine
@@ -60,4 +51,4 @@ services:
     ports:
       # This gives us a Redis server listening on the host as well. This can be useful for development outside the
       # Docker environment.
-      - "127.0.0.1:6379:6379"
+      - 6379:6379
