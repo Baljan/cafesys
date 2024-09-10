@@ -57,6 +57,8 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {"ssl_cert_reqs": None},  # needed for heroku
+        } if IS_HEROKU else {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     }
 }
