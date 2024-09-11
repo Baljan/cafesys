@@ -41,12 +41,16 @@ heroku pg:backups:download --app baljan -o docker-entrypoint-initdb.d/latest.dum
 
 4. Copy `.env.docker.tmpl` to `.env.docker`  
 
+5. Create a superuser for the admin
+```sh
+docker compose run --rm django ./manage.py createsuperuser
+```
+
 Then you're ready to go!
 
 To start the project, run:  
 ```sh
 make start
 # or 
-docker compose up --build -d postgres redis
 docker compose up --build -d django celery-worker
-```
+```  
