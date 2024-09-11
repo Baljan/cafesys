@@ -24,6 +24,11 @@ services:
     build:
       context: .
     env_file: .env.docker
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     command: /app/bin/run-django
     ports:
       - "8000:8000"
@@ -40,6 +45,8 @@ services:
     volumes:
       - ./database:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
     ports:
       # This gives us a Postgres server listening on the host as well. This can be useful for development outside the
       # Docker environment.
@@ -48,6 +55,11 @@ services:
   redis:
     image: redis:3-alpine
     env_file: .env.docker
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
     ports:
       # This gives us a Redis server listening on the host as well. This can be useful for development outside the
       # Docker environment.
