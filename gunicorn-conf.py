@@ -5,7 +5,7 @@ from environ import Env
 
 env = Env()
 
-bind = '0.0.0.0:5006'
+bind = '0.0.0.0:8000'
 
 reload = env.bool('GUNICORN_RELOAD', default=False)
 workers = env.int('GUNICORN_WORKERS', default=(cpu_count() * 2 + 1))
@@ -15,5 +15,3 @@ errorlog = '-'  # stderr
 accesslog = '-' if env.bool('GUNICORN_ACCESS_LOG', default=False) else None
 
 timeout = 60
-
-

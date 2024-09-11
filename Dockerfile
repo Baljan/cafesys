@@ -16,16 +16,16 @@ ARG DJANGO_SECRET_KEY=build
 RUN mkdir ${APP_ROOT}
 WORKDIR ${APP_ROOT}
 
-
 RUN pip3 install -U pip setuptools
 
 COPY ./requirements.txt ${APP_ROOT}/requirements.txt
 RUN pip3 install --ignore-installed -r ${APP_ROOT}/requirements.txt
 
-COPY . ${APP_ROOT}
+COPY ./bin ./bin
+COPY ./cafesys ./cafesys
+COPY ./gunicorn-conf.py ./gunicorn-conf.py
+COPY ./manage.py ./manage.py
+
+EXPOSE 8000
 
 RUN django-admin collectstatic --noinput
-
-EXPOSE 80
-# It seems there's no way to do variable substitution here.
-CMD ["/app/bin/run-django"]
