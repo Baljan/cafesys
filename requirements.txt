@@ -10,8 +10,10 @@ whitenoise==5.3.0
 dj-database-url==1.2.0
 psycopg2==2.9.9
 
+
+
 # Celery for async and periodic tasks
-celery==5.4.0
+celery==5.2.3
 
 # Social (i.e. LiU ID) login
 social-auth-core==4.1.0
@@ -45,10 +47,11 @@ pytz==2021.3
 rollbar==0.16.2
 
 # create graphs
-seaborn==0.13.2
+seaborn==0.11.2
 
 # Email
 django-anymail==8.6
+
 
 # Redis
 redis==3.5.3
