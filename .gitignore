@@ -25,3 +25,5 @@ vagrant-*
 
 # Node
 node_modules
+
+latest.dump
