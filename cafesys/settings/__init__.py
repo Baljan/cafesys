@@ -27,6 +27,7 @@ CACHE_BACKEND = env.str(
     "REDIS_URL" if IS_HEROKU else "DJANGO_REDIS_URL", default=""
 )
 
+
 ADMINS = []
 
 MANAGERS = ADMINS
@@ -57,8 +58,6 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {"ssl_cert_reqs": None},  # needed for heroku
-        } if IS_HEROKU else {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     }
 }
