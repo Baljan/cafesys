@@ -14,8 +14,8 @@ psycopg2==2.9.9
 celery==5.4.0
 
 # Social (i.e. LiU ID) login
-social-auth-core==4.1.0
-social-auth-app-django==5.0.0
+social-auth-core==4.4.1
+social-auth-app-django==5.4.1
 git+https://github.com/Baljan/python-social-auth-liu@6647be8#egg=social-auth-liu
 
 # PDFs
