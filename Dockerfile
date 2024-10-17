@@ -26,6 +26,6 @@ COPY ./cafesys ./cafesys
 COPY ./gunicorn-conf.py ./gunicorn-conf.py
 COPY ./manage.py ./manage.py
 
-EXPOSE 8000
+EXPOSE 5006
 
 RUN django-admin collectstatic --noinput

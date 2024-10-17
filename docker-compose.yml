@@ -5,7 +5,7 @@ services:
     build: https://github.com/Baljan/baljans-balla-blipp.git
     env_file: .env.docker
     environment:
-      - NEXT_PUBLIC_BLIPP_API="http://localhost:8000"
+      - NEXT_PUBLIC_BLIPP_API="http://localhost:5006"
     ports:
       - "8001:80"
 
@@ -31,7 +31,7 @@ services:
         condition: service_healthy
     command: /app/bin/run-django
     ports:
-      - "8000:8000"
+      - "5006:5006"
     links:
       - redis
       - postgres
