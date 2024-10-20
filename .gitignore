@@ -27,3 +27,6 @@ vagrant-*
 node_modules
 
 latest.dump
+
+# Ignore database folder
+/database/
