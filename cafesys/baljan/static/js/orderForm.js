@@ -192,6 +192,9 @@ $(function () {
             changeLimit('id_numberOfCoffee', 45,'Det går inte beställa mer än 45 koppar kaffe till ' + $('#id_pickup option:selected').text()+ '.');
             if(validDate()){
                 $('#Pastasalad').show();
+            }else{
+                $('#Pastasalad').hide();
+                clearWindowField('Pastasalad');
             }
 
         }else if(value == 2){
@@ -245,7 +248,12 @@ $(function () {
     //disable booking food such as sallad and jochen for same week or next week if after thursday
     $('#id_date').on("change", function() { 
         if(validDate()){
-            $('#Pastasalad').show();
+            if($('#id_pickup').val() == 1){
+                $('#Pastasalad').show();
+            }else{
+                $('#Pastasalad').hide();
+                clearWindowField('Pastasalad');
+            }
             $("#Jochen").show();
             $('#Minijochen').show();
             $("#order_error").html("");
