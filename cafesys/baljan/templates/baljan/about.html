@@ -16,18 +16,31 @@
         är helt ideella. Allt överskott återinvesteras i utrustning, möbler och vår fantastiska personal.
       </p>
 
-      <div class="row row-cols-1 row-cols-md-2 g-3">
+       <!-- "Beställa" button -->
+       <div class="row row-cols-1 row-cols-md-2 g-3">
         <div class="col col-md-6 col-12">
           <a href="{% url 'order_from_us' %}" class="btn btn-lg btn-outline-secondary d-block">
             <i class="fa fa-shopping-cart"></i> Beställa
           </a>
         </div>
+
+         <!-- "fylla på kaffekort" button -->
         <div class="col col-md-6 col-12">
           <a href="{% url 'credits' %}" class="btn btn-lg btn-outline-secondary d-block">
             <i class="fa fa-coffee"></i> Fylla på kaffekort
           </a>
         </div>
       </div>
+
+      <!-- "Svarta lådan" button -->
+      <div class="row g-3 mt-2">
+        <div class="col col-md-6 mx-auto">
+          <a href="https://docs.google.com/forms/d/1qed5byYRO-PUGrjFVi2tw6n3XRg_KU5dxjnCHAQm1LU/edit" class="btn btn-lg btn-outline-secondary d-block" target="_blank">
+            <i class="fa fa-box"></i> Svarta lådan
+          </a>
+        </div>
+      </div>
+
     </div>
   </section>
 </div>
