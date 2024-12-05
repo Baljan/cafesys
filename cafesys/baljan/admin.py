@@ -2,8 +2,10 @@
 from io import BytesIO
 from datetime import date
 
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
@@ -37,9 +39,75 @@ class ProfileInline(admin.StackedInline):
 
 
 class UserAdminCustom(UserAdmin):
+    actions = ("make_new_worker","make_regular_worker",)
+
     list_filter = UserAdmin.list_filter + ("boardpost__post",)
     readonly_fields = ("user_permissions", "last_login", "date_joined")
     inlines = (ProfileInline, BoardPostInline, IncomingCallFallbackInline)
+
+    def get_search_results(self, request, queryset, search_term):
+        is_multiple = True if ',' in search_term else False
+        queryset, may_have_duplicates = super().get_search_results(request, queryset,"" if is_multiple else search_term)
+        
+        # Customize your search logic
+        if is_multiple:
+            terms = [term.strip().lower() for term in search_term.split(',')]
+            queryset = queryset.filter(username__in=terms)
+
+        return queryset, may_have_duplicates
+
+    def add_users_to_group(self, group_name, queryset):        
+        group = models.Group.objects.get(name__exact=group_name)
+        
+        nonexistant_users = []
+
+        for user in queryset:
+            try:
+                user = models.User.objects.get(username=user.username)
+                user.is_staff = True
+                group.user_set.add(user)
+                user.save()
+            except models.User.DoesNotExist:
+                nonexistant_users.append(user.username)
+
+        return nonexistant_users
+    
+    def remove_users_to_group(self, group_name, queryset):        
+        group = models.Group.objects.get(name__exact=group_name)
+        
+        nonexistant_users = []
+
+        for user in queryset:
+            try:
+                user = models.User.objects.get(username=user.username)
+                group.user_set.remove(user)
+            except models.User.DoesNotExist:
+                nonexistant_users.append(user.username)
+
+        return nonexistant_users
+
+
+    def make_new_worker(self, request, queryset):
+        nonexistant_users = self.add_users_to_group(settings.NEW_WORKER_GROUP, queryset)
+
+        if len(nonexistant_users) > 0:
+            self.message_user(
+                request, _("There are users for which the changes could not be applied.")
+            )
+
+    make_new_worker.short_description = _("Make new worker")
+
+
+    def make_regular_worker(self, request, queryset):   
+        nonexistant_users = self.add_users_to_group(settings.WORKER_GROUP, queryset)
+        self.remove_users_to_group(settings.NEW_WORKER_GROUP, queryset)
+
+        if len(nonexistant_users) > 0:
+            self.message_user(
+                request, _("There are users for which the changes could not be applied.")
+            )
+
+    make_regular_worker.short_description = _("Make regular worker")
 
 
 admin.site.unregister(models.User)

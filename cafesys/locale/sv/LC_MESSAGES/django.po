@@ -173,9 +173,22 @@ msgstr "Inga ändringar sparade. Skapa en ny serie istället."
 msgid "There are used codes in one or more of the series."
 msgstr "Det finns använda koder i serien/-erna."
 
-#: cafesys/baljan/admin.py:257
-msgid "make PDF"
+#: cafesys/baljan/admin.py:475
+msgid "Make PDF"
 msgstr "skapa PDF"
+
+#: cafesys/baljan/admin.py:95
+#: cafesys/baljan/admin.py:107
+msgid: "There are users for which the changes could not be applied."
+msgstr: "Det finns användare där förändringen inte kunde appliceras."
+
+#: cafesys/baljan/admin.py:98
+msgid: "Make new worker"
+msgstr "Gör till ny jobbare"
+
+#: cafesys/baljan/admin.py:110
+msgid: "Make regular worker"
+msgstr "Gör till vanlig jobbare"
 
 #: cafesys/baljan/forms.py:72 cafesys/baljan/models.py:903
 #: cafesys/baljan/models.py:972
