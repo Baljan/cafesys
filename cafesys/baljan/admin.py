@@ -64,7 +64,7 @@ class UserAdminCustom(UserAdmin):
         for user in queryset:
             try:
                 user = models.User.objects.get(username=user.username)
-                user.is_staff = True
+                user.is_staff = False # TODO: Ta bort denna linje nästa commit
                 group.user_set.add(user)
                 user.save()
             except models.User.DoesNotExist:

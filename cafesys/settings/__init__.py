@@ -256,7 +256,7 @@ WORKER_COOLDOWN_SECONDS = 5 * 60  # TODO: Not implemented
 
 BOARD_GROUP = "styrelsen"
 WORKER_GROUP = "jobbare"
-NEW_WORKER_GROUP = "nya-jobbare"
+NEW_WORKER_GROUP = "_nya-jobbare"
 OLDIE_GROUP = "_gamlingar"
 PSEUDO_GROUP_FORMAT = "_%s"
 
