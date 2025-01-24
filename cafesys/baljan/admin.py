@@ -501,7 +501,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
 
         return response
 
-    make_pdf.short_description = _("make PDF")
+    make_pdf.short_description = _("Make PDF")
 
 
 

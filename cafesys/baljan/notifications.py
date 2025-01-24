@@ -21,6 +21,10 @@ TITLE_TEMPLATES = {
     'trade_request_accepted': ugettext_lazy("""Your request to trade %(wanted_shift)s for %(offered_shift)s was accepted"""),
 
     'trade_request_denied': ugettext_lazy("""Your request to trade %(wanted_shift)s for %(offered_shift)s was denied"""),
+
+    'added_to_shifts': ugettext_lazy("""You were signed up for %(amount_shifts)s shift(s)"""),
+
+    'removed_from_shifts': ugettext_lazy("""You were removed from %(amount_shifts)s shift(s)""")
 }
 
 BODY_TEMPLATES = {
@@ -48,6 +52,18 @@ See your shifts here: %(profile_url)s
 
 See your shifts here: %(profile_url)s
 """),
+
+    'added_to_shifts': ugettext_lazy("""You were signed up for the following shifts:
+
+%(shifts)s
+
+See your shifts here: %(profile_url)s"""),
+
+    'removed_from_shifts': ugettext_lazy("""You were removed from the following shifts:
+
+%(shifts)s
+
+See your shifts here: %(profile_url)s""")
 }
 
 def send(notification_type, to_user, wait=False, **kwargs):

@@ -778,27 +778,11 @@ def call_duty_week(request, year=None, week=None):
                 all_new_users.append([])
 
         # Remove old users
-        for shift, old_users, new_users in zip(plan.shifts, all_old_users, all_new_users):
-            for old_user in old_users:
-                if not old_user in new_users:
-                    shift.oncallduty_set.filter(user=old_user).delete()
+        models.OnCallDuty.bulk_remove_shifts(plan.shifts, all_old_users, all_new_users)
 
         # add new users
-        for shift, old_users, new_users in zip(plan.shifts, all_old_users, all_new_users):
-            for new_user in new_users:
-                if not new_user in old_users :
-                    if models.OnCallDuty.objects\
-                        .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
-                        messages.add_message(request, messages.ERROR,
-                            "Kunde inte lägga till %s %s på pass %s." %
-                            (new_user.first_name, new_user.last_name, shift.name_short()),
-                            extra_tags="danger")
-                    else:
-                        o, created = models.OnCallDuty.objects.get_or_create(
-                            shift=shift,
-                            user=new_user
-                        )
-                        assert created
+        for error in models.OnCallDuty.bulk_add_shifts(plan.shifts, all_old_users, all_new_users):
+            messages.add_message(request, messages.ERROR, error, extra_tags="danger")
 
         messages.add_message(request, messages.SUCCESS,
                 _("Your changes were saved."))

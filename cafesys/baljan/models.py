@@ -16,6 +16,8 @@ from django.utils.translation import ugettext as _nl
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import RegexValidator
 
+from functools import partial
+
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from . import notifications, util
 from .util import week_dates, year_and_week, random_string
@@ -507,7 +509,7 @@ class Shift(Located):
         return reverse('day_shifts', kwargs={'day': util.to_iso8601(self.when)})
 
     def __str__(self):
-        return "%s %s %s" % (self.ampm(i18n=False), self.when.strftime('%Y-%m-%d'), self.location_name())
+        return "%s %s %s" % (self.ampm(i18n=True), self.when.strftime('%Y-%m-%d'), self.location_name())
 
 
 class ShiftSignup(Made):
@@ -619,6 +621,53 @@ class OnCallDuty(Made):
 
     def get_absolute_url(self):
         return self.shift._url()
+    
+    
+    @transaction.atomic
+    def bulk_add_shifts(shifts, all_old_users, all_new_users):
+        errors = []
+        users = {}
+
+        for shift, old_users, new_users in zip(shifts, all_old_users, all_new_users):
+            for new_user in new_users:
+                if not new_user in old_users:
+                    if new_user not in users:
+                        users[new_user] = []
+                    
+                    if OnCallDuty.objects\
+                        .filter(shift__when=shift.when, shift__span=shift.span, user=new_user).exists():
+                        errors.append("Kunde inte lägga till %s %s på pass %s." % 
+                                      (new_user.first_name, new_user.last_name, shift.name_short()))
+                    else:
+                        users[new_user].append(shift)
+
+                        _, created = OnCallDuty.objects.get_or_create(
+                            shift=shift,
+                            user=new_user
+                        )
+
+                        assert created
+
+        transaction.on_commit(partial(oncallduty_post_bulk_save, users=users))
+        
+        return errors
+        
+
+    @transaction.atomic
+    def bulk_remove_shifts(shifts, all_old_users, all_new_users):
+        users = {}
+
+        for shift, old_users, new_users in zip(shifts, all_old_users, all_new_users):
+            for old_user in old_users:
+                if not old_user in new_users:
+                    if old_user not in users:
+                        users[old_user] = []
+
+                    users[old_user].append(shift)
+
+                    shift.oncallduty_set.filter(user=old_user).delete()
+
+        transaction.on_commit(partial(oncallduty_post_bulk_delete, users=users))
 
     def __str__(self):
         return "%(user)s on %(shift)s" % {
@@ -626,21 +675,13 @@ class OnCallDuty(Made):
                 'shift': self.shift,
                 }
 
+def oncallduty_post_bulk_save(users):
+    for user, shifts in users.items():
+        notifications.send("added_to_shifts", user, amount_shifts=len(shifts), shifts="\n".join(map(lambda x: " - %s" %(x), shifts)))
 
-def oncallduty_post_save(sender, instance=None, **kwargs):
-    if instance is None:
-        return
-    logger.info("%s saved" % instance)
-    signup_notice_save(instance)
-
-def oncallduty_post_delete(sender, instance=None, **kwargs):
-    if instance is None:
-        return
-    signup_notice_delete(instance)
-    logger.info("%s deleted" % instance)
-
-signals.post_save.connect(oncallduty_post_save, sender=OnCallDuty)
-signals.post_delete.connect(oncallduty_post_delete, sender=OnCallDuty)
+def oncallduty_post_bulk_delete(users):
+    for user, shifts in users.items():
+        notifications.send("removed_from_shifts", user, amount_shifts=len(shifts), shifts="\n".join(map(lambda x: " - %s" %(x), shifts)))
 
 
 class Good(Made):
@@ -761,7 +802,7 @@ class OrderGood(Made):
 
 
 BALANCE_CODE_LENGTH = 8
-BALANCE_CODE_DEFAULT_VALUE = 300 # SEK
+BALANCE_CODE_DEFAULT_VALUE = 315 # SEK
 BALANCE_CODE_MAX_VALUE = 500 # SEK
 SERIES_RELATIVE_LEAST_VALIDITY = relativedelta(years=1)
 SERIES_CODE_DEFAULT_COUNT = 16

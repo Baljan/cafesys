@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-05-25 23:39+0200\n"
+"POT-Creation-Date: 2025-01-24 11:50+0100\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,300 +19,162 @@ msgstr ""
 "X-Translated-Using: django-rosetta 0.5.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: cafesys/baljan/actions.py:39
-#, python-format
-msgid "job opening %s"
-msgstr "jobbsläpp %s"
-
-#: cafesys/baljan/actions.py:46
-msgid "superusers"
-msgstr "superanvändare"
-
-#: cafesys/baljan/actions.py:49
-msgid "board tasks"
-msgstr "för styrelsen"
-
-#: cafesys/baljan/actions.py:50
-msgid "week planning"
-msgstr "veckoplanering"
-
-#: cafesys/baljan/actions.py:52 cafesys/baljan/models.py:332
-msgid "semesters"
-msgstr "terminer"
-
-#: cafesys/baljan/actions.py:55
-msgid "sysadmins"
-msgstr "sysadmins"
-
-#: cafesys/baljan/actions.py:56
-msgid "django admin site"
-msgstr "djangos adminsida"
-
-#: cafesys/baljan/actions.py:57
-msgid "github"
-msgstr "github"
-
-#: cafesys/baljan/actions.py:59
-#: cafesys/baljan/templates/baljan/work_planning.html:59
-msgid "workers"
-msgstr "jobbare"
-
-#: cafesys/baljan/actions.py:60
-msgid "guide"
-msgstr "guide"
-
-#: cafesys/baljan/actions.py:61
-msgid "contract"
-msgstr "kontrakt"
-
-#: cafesys/baljan/actions.py:62
-msgid "add shifts to calendar program"
-msgstr "lägga till pass i kalenderprogram"
-
-#: cafesys/baljan/actions.py:64
-msgid "your account"
-msgstr "ditt konto"
-
-#: cafesys/baljan/actions.py:65 cafesys/baljan/models.py:63
-#: cafesys/baljan/templates/baljan/user.html:20
-#: cafesys/baljan/templates/baljan/user.html:94
-msgid "profile"
-msgstr "profil"
-
-#: cafesys/baljan/actions.py:66
-msgid "credits"
-msgstr "konto"
-
-#: cafesys/baljan/actions.py:67 cafesys/baljan/models.py:776
-msgid "orders"
-msgstr "köp"
-
-#: cafesys/baljan/actions.py:69
-msgid "users"
-msgstr "användare"
-
-#: cafesys/baljan/actions.py:70
-msgid "work planning"
-msgstr "jobbplanering"
-
-#: cafesys/baljan/actions.py:71
-msgid "work for Baljan"
-msgstr "jobba i Baljan"
-
-#: cafesys/baljan/actions.py:72
-msgid "people and groups"
-msgstr "personer och grupper"
-
-#: cafesys/baljan/actions.py:73
-msgid "high score"
-msgstr "topplista"
-
-#: cafesys/baljan/actions.py:74
-msgid "price list"
-msgstr "prislista"
-
-#: cafesys/baljan/actions.py:75
-msgid "order from Baljan"
-msgstr "beställa från Baljan"
-
-#: cafesys/baljan/admin.py:76
-msgid "Toggle exam period"
-msgstr "Växla tenta-p"
-
-#: cafesys/baljan/admin.py:82
-msgid "Toggle enabled"
-msgstr "Växla aktiv"
-
-#: cafesys/baljan/admin.py:102 cafesys/baljan/templates/baljan/user.html:31
-msgid "unset"
-msgstr "ej angett"
-
-#: cafesys/baljan/admin.py:104 cafesys/baljan/models.py:732
-msgid "cost"
-msgstr "pris"
-
-#: cafesys/baljan/admin.py:137
-msgid "Value and Identification"
-msgstr "Värde och identifikation"
-
-#: cafesys/baljan/admin.py:144
-msgid "Code"
-msgstr "Kod"
-
-#: cafesys/baljan/admin.py:177 cafesys/baljan/models.py:885
-msgid "series"
-msgstr "serie"
-
-#: cafesys/baljan/admin.py:190
-msgid "# used"
-msgstr "# använda"
-
-#: cafesys/baljan/admin.py:194
-msgid "# unused"
-msgstr "# oanvända"
-
-#: cafesys/baljan/admin.py:198
-msgid "codes"
-msgstr "koder"
-
-#: cafesys/baljan/admin.py:202 cafesys/baljan/models.py:43
-#: cafesys/baljan/models.py:733 cafesys/baljan/models.py:753
-#: cafesys/baljan/models.py:906 cafesys/baljan/models.py:907
-msgid "currency"
-msgstr "valuta"
-
-#: cafesys/baljan/admin.py:211
-msgid "# made PDFs"
-msgstr "# skapade PDF:er"
-
-#: cafesys/baljan/admin.py:219
-msgid "No changes saved. Create a new series instead."
-msgstr "Inga ändringar sparade. Skapa en ny serie istället."
-
-#: cafesys/baljan/admin.py:238
-msgid "There are used codes in one or more of the series."
-msgstr "Det finns använda koder i serien/-erna."
-
-#: cafesys/baljan/admin.py:475
-msgid "Make PDF"
-msgstr "skapa PDF"
-
-#: cafesys/baljan/admin.py:95
-#: cafesys/baljan/admin.py:107
-msgid: "There are users for which the changes could not be applied."
-msgstr: "Det finns användare där förändringen inte kunde appliceras."
+#: cafesys/baljan/admin.py:95 cafesys/baljan/admin.py:107
+msgid "There are users for which the changes could not be applied."
+msgstr "Det finns användare där förändringen inte kunde appliceras."
 
 #: cafesys/baljan/admin.py:98
-msgid: "Make new worker"
+msgid "Make new worker"
 msgstr "Gör till ny jobbare"
 
 #: cafesys/baljan/admin.py:110
-msgid: "Make regular worker"
+msgid "Make regular worker"
 msgstr "Gör till vanlig jobbare"
 
-#: cafesys/baljan/forms.py:72 cafesys/baljan/models.py:903
-#: cafesys/baljan/models.py:972
-msgid "code"
-msgstr "kod"
+#: cafesys/baljan/admin.py:236
+msgid "Toggle exam period"
+msgstr "Växla tenta-p"
 
-#: cafesys/baljan/forms.py:73
-msgid "found on your value card"
-msgstr "står på ditt värdekort"
+#: cafesys/baljan/admin.py:243
+msgid "Toggle enabled"
+msgstr "Växla aktiv"
 
-#: cafesys/baljan/forms.py:78
-#: cafesys/baljan/templates/baljan/admin_semester.html:108
+#: cafesys/baljan/admin.py:271 cafesys/baljan/templates/baljan/user.html:47
+msgid "unset"
+msgstr "ej angett"
+
+#: cafesys/baljan/admin.py:275 cafesys/baljan/models.py:749
+msgid "cost"
+msgstr "pris"
+
+#: cafesys/baljan/admin.py:334
+msgid "Value and Identification"
+msgstr "Värde och identifikation"
+
+#: cafesys/baljan/admin.py:343
+msgid "Code"
+msgstr "Kod"
+
+#: cafesys/baljan/admin.py:385 cafesys/baljan/models.py:908
+msgid "series"
+msgstr "serie"
+
+#: cafesys/baljan/admin.py:400
+msgid "# used"
+msgstr "# använda"
+
+#: cafesys/baljan/admin.py:405
+msgid "# unused"
+msgstr "# oanvända"
+
+#: cafesys/baljan/admin.py:410
+msgid "codes"
+msgstr "koder"
+
+#: cafesys/baljan/admin.py:415 cafesys/baljan/models.py:66
+#: cafesys/baljan/models.py:750 cafesys/baljan/models.py:771
+#: cafesys/baljan/models.py:931 cafesys/baljan/models.py:932
+msgid "currency"
+msgstr "valuta"
+
+#: cafesys/baljan/admin.py:427
+msgid "# made PDFs"
+msgstr "# skapade PDF:er"
+
+#: cafesys/baljan/admin.py:481
+msgid "There are used codes in one or more of the series."
+msgstr "Det finns använda koder i serien/-erna."
+
+#: cafesys/baljan/admin.py:504
+#, fuzzy
+#| msgid "Make PDF"
+msgid "Make PDF"
+msgstr "skapa PDF"
+
+#: cafesys/baljan/forms.py:157
 msgid "open"
 msgstr "öppet"
 
-#: cafesys/baljan/forms.py:79 cafesys/baljan/templates/baljan/about.html:49
-#: cafesys/baljan/templates/baljan/admin_semester.html:87
-#: cafesys/baljan/templates/baljan/admin_semester.html:110
+#: cafesys/baljan/forms.py:158
 msgid "closed"
 msgstr "stängt"
 
-#: cafesys/baljan/forms.py:80 cafesys/baljan/models.py:435
-#: cafesys/baljan/templates/baljan/admin_semester.html:76
-#: cafesys/baljan/templates/baljan/admin_semester.html:90
-#: cafesys/baljan/templates/baljan/admin_semester.html:112
+#: cafesys/baljan/forms.py:159 cafesys/baljan/models.py:419
 msgid "exam period"
 msgstr "tenta-p"
 
-#: cafesys/baljan/forms.py:84
+#: cafesys/baljan/forms.py:163
 msgid "make"
 msgstr "gör"
 
-#: cafesys/baljan/grids.py:31
-msgid "image"
-msgstr "bild"
-
-#: cafesys/baljan/grids.py:34
-msgid "desciption"
-msgstr "beskrivning"
-
-#: cafesys/baljan/grids.py:37
-msgid "price"
-msgstr "pris"
-
-#: cafesys/baljan/ical.py:48
-msgid "work in Baljan"
-msgstr "jobba i Baljan"
-
-#: cafesys/baljan/ical.py:57
-msgid "on call in Baljan"
-msgstr "jour i Baljan"
-
-#: cafesys/baljan/models.py:25
+#: cafesys/baljan/models.py:29
 msgid "made at"
 msgstr "skapad"
 
-#: cafesys/baljan/models.py:25
+#: cafesys/baljan/models.py:29
 msgid "when the object was created"
 msgstr "när objektet skapades"
 
-#: cafesys/baljan/models.py:39 cafesys/baljan/models.py:652
-#: cafesys/baljan/models.py:751 cafesys/baljan/models.py:930
-#: cafesys/baljan/models.py:966 cafesys/baljan/models.py:976
-#: cafesys/baljan/templates/baljan/user.html:93
+#: cafesys/baljan/models.py:62 cafesys/baljan/models.py:614
+#: cafesys/baljan/models.py:768 cafesys/baljan/models.py:958
+#: cafesys/baljan/models.py:976 cafesys/baljan/models.py:995
+#: cafesys/baljan/models.py:1034 cafesys/baljan/models.py:1045
 msgid "user"
 msgstr "användare"
 
-#: cafesys/baljan/models.py:40
+#: cafesys/baljan/models.py:63
 msgid "mobile phone number"
 msgstr "mobilnummer"
 
-#: cafesys/baljan/models.py:42
+#: cafesys/baljan/models.py:65
 msgid "balance currency"
 msgstr "balansvaluta"
 
-#: cafesys/baljan/models.py:44
+#: cafesys/baljan/models.py:67
 msgid "show email address"
 msgstr "visa epostadress"
 
-#: cafesys/baljan/models.py:45
-msgid "show profile"
-msgstr "visa profil"
-
-#: cafesys/baljan/models.py:46 cafesys/baljan/templates/baljan/user.html:41
+#: cafesys/baljan/models.py:69
 msgid "motto"
 msgstr "motto"
 
-#: cafesys/baljan/models.py:47
+#: cafesys/baljan/models.py:70
 msgid "displayed in high scores"
 msgstr "visas i topplistorna"
 
-#: cafesys/baljan/models.py:49
+#: cafesys/baljan/models.py:72
 msgid "private key"
 msgstr "privat nyckel"
 
-#: cafesys/baljan/models.py:52 cafesys/baljan/models.py:965
-msgid "card id"
-msgstr "kort-id"
-
-#: cafesys/baljan/models.py:54
+#: cafesys/baljan/models.py:78
 msgid "card ids can be manually set"
 msgstr "kord-idn kan sättas manuellt"
 
-#: cafesys/baljan/models.py:64
+#: cafesys/baljan/models.py:100
+msgid "profile"
+msgstr "profil"
+
+#: cafesys/baljan/models.py:101
 msgid "profiles"
 msgstr "profiler"
 
-#: cafesys/baljan/models.py:105
+#: cafesys/baljan/models.py:142
 msgid "wanted sign-up"
 msgstr "passanmälan som efterfrågas"
 
-#: cafesys/baljan/models.py:108
+#: cafesys/baljan/models.py:146
 msgid "offered sign-up"
 msgstr "passanmälan som erbjuds"
 
-#: cafesys/baljan/models.py:110 cafesys/baljan/models.py:754
+#: cafesys/baljan/models.py:149 cafesys/baljan/models.py:772
 msgid "accepted"
 msgstr "accepterad"
 
-#: cafesys/baljan/models.py:111
+#: cafesys/baljan/models.py:150
 msgid "answered"
 msgstr "besvarad"
 
-#: cafesys/baljan/models.py:112
+#: cafesys/baljan/models.py:151
 msgid ""
 "if this is true when the shift is deleted, and \"accepted\" is true as well, "
 "the trade will be performed even if it was in the past"
@@ -320,266 +182,260 @@ msgstr ""
 "om detta är sant när passet tas bort, och \"accepterad\" också är sant, så "
 "kommer bytet att genomföras även om det redan har varit"
 
-#: cafesys/baljan/models.py:115
+#: cafesys/baljan/models.py:154
 msgid "trade request"
 msgstr "bytesförfrågan"
 
-#: cafesys/baljan/models.py:116
+#: cafesys/baljan/models.py:155
 msgid "trade requests"
 msgstr "bytesförfrågningar"
 
-#: cafesys/baljan/models.py:259
+#: cafesys/baljan/models.py:277
+#, fuzzy
+#| msgid "must be something like HT2010"
+msgid "Invalid semester name. Must be something like HT2010 or VT2010."
+msgstr "ska vara något i stil med HT2010"
+
+#: cafesys/baljan/models.py:279
 msgid "first day"
 msgstr "första dag"
 
-#: cafesys/baljan/models.py:260
+#: cafesys/baljan/models.py:280
 msgid "last day"
 msgstr "sista dag"
 
-#: cafesys/baljan/models.py:261 cafesys/baljan/templates/baljan/user.html:24
+#: cafesys/baljan/models.py:281
 msgid "name"
 msgstr "namn"
 
-#: cafesys/baljan/models.py:262
+#: cafesys/baljan/models.py:282
 msgid "must be something like HT2010"
 msgstr "ska vara något i stil med HT2010"
 
-#: cafesys/baljan/models.py:263
+#: cafesys/baljan/models.py:284
 msgid "sign-up possible"
 msgstr "anmälan möjlig"
 
-#: cafesys/baljan/models.py:264
+#: cafesys/baljan/models.py:285
 msgid "if workers can sign up to work on this semester"
 msgstr "om jobbare kan skriva upp sig för att arbeta denna termin"
 
-#: cafesys/baljan/models.py:299
+#: cafesys/baljan/models.py:320
 msgid "bad combination of start and end dates"
 msgstr "dålig kombination av start- och slutdatum"
 
-#: cafesys/baljan/models.py:301
+#: cafesys/baljan/models.py:322
 msgid "bad semester name"
 msgstr "dåligt terminnamn"
 
-#: cafesys/baljan/models.py:311
+#: cafesys/baljan/models.py:332
 #, python-format
 msgid "semester overlaps with %s"
 msgstr "terminen överlappar med %s"
 
-#: cafesys/baljan/models.py:331 cafesys/baljan/models.py:389
-#: cafesys/baljan/models.py:431 cafesys/baljan/models.py:929
-#: cafesys/baljan/templates/baljan/user.html:199
+#: cafesys/baljan/models.py:351 cafesys/baljan/models.py:371
+#: cafesys/baljan/models.py:414 cafesys/baljan/models.py:956
+#: cafesys/baljan/models.py:1049
 msgid "semester"
 msgstr "termin"
 
-#: cafesys/baljan/models.py:382 cafesys/baljan/models.py:424
-#: cafesys/baljan/templates/baljan/call_duty_week.html:26
+#: cafesys/baljan/models.py:352
+msgid "semesters"
+msgstr "terminer"
+
+#: cafesys/baljan/models.py:362 cafesys/baljan/models.py:407
 msgid "morning"
 msgstr "förmiddag"
 
-#: cafesys/baljan/models.py:383 cafesys/baljan/models.py:425
-#: cafesys/baljan/models.py:495
-#: cafesys/baljan/templates/baljan/admin_semester.html:23
-#: cafesys/baljan/templates/baljan/call_duty_week.html:27
+#: cafesys/baljan/models.py:363 cafesys/baljan/models.py:408
+#: cafesys/baljan/models.py:469
 msgid "lunch"
 msgstr "lunch"
 
-#: cafesys/baljan/models.py:384 cafesys/baljan/models.py:426
-#: cafesys/baljan/templates/baljan/call_duty_week.html:28
+#: cafesys/baljan/models.py:364 cafesys/baljan/models.py:409
 msgid "afternoon"
 msgstr "eftermiddag"
 
-#: cafesys/baljan/models.py:390 cafesys/baljan/models.py:540
+#: cafesys/baljan/models.py:373 cafesys/baljan/models.py:502
 msgid "shifts"
 msgstr "pass"
 
-#: cafesys/baljan/models.py:391
+#: cafesys/baljan/models.py:374 cafesys/baljan/models.py:1048
 msgid "label"
 msgstr "etikett"
 
-#: cafesys/baljan/models.py:401
+#: cafesys/baljan/models.py:384
 msgid "shift combination"
 msgstr "jobbpasskombination"
 
-#: cafesys/baljan/models.py:402
+#: cafesys/baljan/models.py:385
 msgid "shift combinations"
 msgstr "jobbpasskombinationer"
 
-#: cafesys/baljan/models.py:432
+#: cafesys/baljan/models.py:416
 msgid "what day the shift is on"
 msgstr "vilken dag passet är på"
 
-#: cafesys/baljan/models.py:433
+#: cafesys/baljan/models.py:417
 msgid "time span"
 msgstr "tidsintervall"
 
-#: cafesys/baljan/models.py:436
+#: cafesys/baljan/models.py:420
 msgid "the work scheduler takes this field into account"
 msgstr "jobbplaneraren tittar på detta fält"
 
-#: cafesys/baljan/models.py:438
+#: cafesys/baljan/models.py:422
 msgid "enabled"
 msgstr "aktiv"
 
-#: cafesys/baljan/models.py:439
+#: cafesys/baljan/models.py:423
 msgid "shifts can be disabled on special days"
 msgstr "pass kan inaktiveras på speciella dagar"
 
-#: cafesys/baljan/models.py:447
+#: cafesys/baljan/models.py:431
 msgid "7:30 am to ca 12:30 pm"
 msgstr "7:30 till ca 12:30"
 
-#: cafesys/baljan/models.py:449
+#: cafesys/baljan/models.py:433
 msgid "for people on call only"
 msgstr "endast för personer med jourtjänst"
 
-#: cafesys/baljan/models.py:451
+#: cafesys/baljan/models.py:435
 msgid "12:00 pm to ca 4:45 pm"
 msgstr "12:00 till ca 16:45"
 
-#: cafesys/baljan/models.py:465
-msgid "7:30 am to ca 8:00 am"
-msgstr "7:30 till ca 8:00"
-
-#: cafesys/baljan/models.py:467
-msgid "12:00 pm to ca 12:30 pm"
-msgstr "12:00 till ca 12:30"
-
-#: cafesys/baljan/models.py:469
-msgid "ca 4:00 pm to ca 4:45 pm"
-msgstr "ca 16:00 till ca 16:45"
-
-#: cafesys/baljan/models.py:494
-#: cafesys/baljan/templates/baljan/admin_semester.html:22
+#: cafesys/baljan/models.py:468
 msgid "am"
 msgstr "fm"
 
-#: cafesys/baljan/models.py:496
-#: cafesys/baljan/templates/baljan/admin_semester.html:24
+#: cafesys/baljan/models.py:470
 msgid "pm"
 msgstr "em"
 
-#: cafesys/baljan/models.py:539 cafesys/baljan/models.py:555
-#: cafesys/baljan/models.py:651
+#: cafesys/baljan/models.py:501 cafesys/baljan/models.py:516
+#: cafesys/baljan/models.py:612
 msgid "shift"
 msgstr "pass"
 
-#: cafesys/baljan/models.py:556 cafesys/baljan/stats.py:65
-#: cafesys/baljan/templates/baljan/day.html:56
+#: cafesys/baljan/models.py:518 cafesys/baljan/stats.py:95
 msgid "worker"
 msgstr "jobbare"
 
-#: cafesys/baljan/models.py:558
+#: cafesys/baljan/models.py:521
 msgid "the user wants to switch this shift for some other"
 msgstr "jobbaren vill byta passet mot något annat"
 
-#: cafesys/baljan/models.py:559
+#: cafesys/baljan/models.py:522
 msgid ""
 "remember that trade requests of sign-ups are removed whenever the sign-up is "
 "altered"
 msgstr "kom ihåg att bytesförfrågningar tas bort när passanmälningar sparas"
 
-#: cafesys/baljan/models.py:566
+#: cafesys/baljan/models.py:529
 msgid "shift sign-up"
 msgstr "passanmälan"
 
-#: cafesys/baljan/models.py:567
+#: cafesys/baljan/models.py:530
 msgid "shift sign-ups"
 msgstr "passanmälningar"
 
-#: cafesys/baljan/models.py:655
+#: cafesys/baljan/models.py:618
 msgid "on call duty"
 msgstr "jourande"
 
-#: cafesys/baljan/models.py:656
+#: cafesys/baljan/models.py:619
 msgid "on call duties"
 msgstr "jourande"
 
-#: cafesys/baljan/models.py:687 cafesys/baljan/templates/baljan/template.html:7
-#: cafesys/baljan/templates/baljan/template.html:11
+#: cafesys/baljan/models.py:703
 msgid "title"
 msgstr "rubrik"
 
-#: cafesys/baljan/models.py:688
+#: cafesys/baljan/models.py:704
 msgid "short description"
 msgstr "kort beskrivning"
 
-#: cafesys/baljan/models.py:689
+#: cafesys/baljan/models.py:705
 msgid "position"
 msgstr "position"
 
-#: cafesys/baljan/models.py:690
+#: cafesys/baljan/models.py:706
 msgid ""
 "when listing goods, this value tells at what position this good should be put"
 msgstr ""
 "när varor listas talar detta värde om på vilken position varan ska läggas"
 
-#: cafesys/baljan/models.py:720 cafesys/baljan/models.py:731
-#: cafesys/baljan/models.py:785
+#: cafesys/baljan/models.py:736 cafesys/baljan/models.py:747
+#: cafesys/baljan/models.py:804 cafesys/baljan/models.py:1070
 msgid "good"
 msgstr "vara"
 
-#: cafesys/baljan/models.py:721
+#: cafesys/baljan/models.py:737
 msgid "goods"
 msgstr "varor"
 
-#: cafesys/baljan/models.py:724
+#: cafesys/baljan/models.py:740
 #, python-format
 msgid "%(title)s (%(desc)s)"
 msgstr "%(title)s (%(desc)s)"
 
-#: cafesys/baljan/models.py:734
+#: cafesys/baljan/models.py:751
 msgid "from date"
 msgstr "från datum"
 
-#: cafesys/baljan/models.py:737
+#: cafesys/baljan/models.py:754
 msgid "good cost"
 msgstr "varupris"
 
-#: cafesys/baljan/models.py:738
+#: cafesys/baljan/models.py:755
 msgid "good costs"
 msgstr "varupriser"
 
-#: cafesys/baljan/models.py:750
+#: cafesys/baljan/models.py:767
 msgid "put at"
 msgstr "lagd"
 
-#: cafesys/baljan/models.py:752
+#: cafesys/baljan/models.py:770
 msgid "paid"
 msgstr "betalat"
 
-#: cafesys/baljan/models.py:775 cafesys/baljan/models.py:784
+#: cafesys/baljan/models.py:793 cafesys/baljan/models.py:802
 msgid "order"
 msgstr "köp"
 
-#: cafesys/baljan/models.py:786 cafesys/baljan/models.py:973
+#: cafesys/baljan/models.py:794
+msgid "orders"
+msgstr "köp"
+
+#: cafesys/baljan/models.py:806
 msgid "count"
 msgstr "antal"
 
-#: cafesys/baljan/models.py:789
+#: cafesys/baljan/models.py:809
 msgid "order good"
 msgstr "köpvara"
 
-#: cafesys/baljan/models.py:790
+#: cafesys/baljan/models.py:810
 msgid "order goods"
 msgstr "köpvaror"
 
-#: cafesys/baljan/models.py:820
+#: cafesys/baljan/models.py:840
 msgid "issued"
 msgstr "skapad"
 
-#: cafesys/baljan/models.py:821
+#: cafesys/baljan/models.py:841
 msgid "least valid until"
 msgstr "minst giltig till"
 
-#: cafesys/baljan/models.py:823 cafesys/baljan/models.py:948
+#: cafesys/baljan/models.py:843
 msgid "made by"
 msgstr "skapad av"
 
-#: cafesys/baljan/models.py:825
+#: cafesys/baljan/models.py:847
 msgid "code count"
 msgstr "antal koder"
 
-#: cafesys/baljan/models.py:827
+#: cafesys/baljan/models.py:849
 #, python-format
 msgid ""
 "multiple of 16 recommended (4x4 on A4 paper), total value can be at most %d "
@@ -587,53 +443,53 @@ msgid ""
 msgstr ""
 "multipel av 16 rekommenderas (4x4 på A4-papper), totalt maxvärde är %d SEK"
 
-#: cafesys/baljan/models.py:828
+#: cafesys/baljan/models.py:850
 msgid "code value"
 msgstr "kodvärde"
 
-#: cafesys/baljan/models.py:830
+#: cafesys/baljan/models.py:852
 #, python-format
 msgid "maximum value is %d SEK"
 msgstr "maxvärde är %d SEK"
 
-#: cafesys/baljan/models.py:831
+#: cafesys/baljan/models.py:853
 msgid "code currency"
 msgstr "kodvaluta"
 
-#: cafesys/baljan/models.py:833
+#: cafesys/baljan/models.py:855
 msgid "add to group"
 msgstr "lägg till i grupp"
 
-#: cafesys/baljan/models.py:834
+#: cafesys/baljan/models.py:856
 msgid "if set, users will be added to this group"
 msgstr "om satt så läggs användare till i den här gruppen"
 
-#: cafesys/baljan/models.py:838 cafesys/baljan/models.py:839
-#: cafesys/baljan/models.py:908
+#: cafesys/baljan/models.py:861 cafesys/baljan/models.py:862
+#: cafesys/baljan/models.py:933
 msgid "refill series"
 msgstr "kodserie"
 
-#: cafesys/baljan/models.py:879
+#: cafesys/baljan/models.py:902
 msgid "Invalid total worth."
 msgstr "Ogiltigt totalvärde."
 
-#: cafesys/baljan/models.py:881
+#: cafesys/baljan/models.py:904
 msgid "Code value too high."
 msgstr "Kodvärde för högt."
 
-#: cafesys/baljan/models.py:887
+#: cafesys/baljan/models.py:911
 msgid "generated by"
 msgstr "genererad av"
 
-#: cafesys/baljan/models.py:895
+#: cafesys/baljan/models.py:920
 msgid "generated refill series PDF"
 msgstr "genererad PDF"
 
-#: cafesys/baljan/models.py:896
+#: cafesys/baljan/models.py:921
 msgid "generated refill series PDFs"
 msgstr "genererade PDF:er"
 
-#: cafesys/baljan/models.py:900
+#: cafesys/baljan/models.py:925
 msgid ""
 "To create a bulk of codes, <a href='../../refillseries/add'>create a new "
 "refill series</a> instead."
@@ -641,181 +497,84 @@ msgstr ""
 "För att skapa många koder, <a href='../../refillseries/add'>skapa en "
 "nyserie</a> istället."
 
-#: cafesys/baljan/models.py:905
+#: cafesys/baljan/models.py:928
+msgid "code"
+msgstr "kod"
+
+#: cafesys/baljan/models.py:930
 msgid "value"
 msgstr "värde"
 
-#: cafesys/baljan/models.py:910
+#: cafesys/baljan/models.py:936
 msgid "used by"
 msgstr "använd av"
 
-#: cafesys/baljan/models.py:911
+#: cafesys/baljan/models.py:938
 msgid "used at"
 msgstr "använd den"
 
-#: cafesys/baljan/models.py:923
+#: cafesys/baljan/models.py:950
 msgid "balance code"
 msgstr "kod"
 
-#: cafesys/baljan/models.py:924
+#: cafesys/baljan/models.py:951
 msgid "balance codes"
 msgstr "koder"
 
-#: cafesys/baljan/models.py:931
+#: cafesys/baljan/models.py:960
 msgid "post"
 msgstr "post"
 
-#: cafesys/baljan/models.py:934
+#: cafesys/baljan/models.py:963
 msgid "board post"
 msgstr "styrelsepost"
 
-#: cafesys/baljan/models.py:935
+#: cafesys/baljan/models.py:964
 msgid "board posts"
 msgstr "styrelseposter"
 
-#: cafesys/baljan/models.py:947
-msgid "set id"
-msgstr "set-id"
+#: cafesys/baljan/models.py:1047
+msgid "priority"
+msgstr ""
 
-#: cafesys/baljan/models.py:949
-msgid "file"
-msgstr "fil"
-
-#: cafesys/baljan/models.py:951 cafesys/baljan/models.py:968
-msgid "created"
-msgstr "skapad"
-
-#: cafesys/baljan/models.py:952 cafesys/baljan/models.py:969
-msgid "time stamp"
-msgstr "tidsstämpel"
-
-#: cafesys/baljan/models.py:955
-msgid "old coffee card set"
-msgstr "gammalt kaffekortset"
-
-#: cafesys/baljan/models.py:956
-msgid "old coffee card sets"
-msgstr "gamla kaffekortset"
-
-#: cafesys/baljan/models.py:964
-msgid "set"
-msgstr "set"
-
-#: cafesys/baljan/models.py:970
-msgid "expires"
-msgstr "går ut"
-
-#: cafesys/baljan/models.py:974
-msgid "left"
-msgstr "kvar"
-
-#: cafesys/baljan/models.py:978
-#: cafesys/baljan/templates/baljan/credits.html:111
-msgid "imported"
-msgstr "importerad"
-
-#: cafesys/baljan/models.py:981 cafesys/baljan/templates/baljan/credits.html:29
-msgid "old coffee card"
-msgstr "gammalt kaffekort"
-
-#: cafesys/baljan/models.py:982
-msgid "old coffee cards"
-msgstr "gamla kaffekort"
-
-#: cafesys/baljan/notifications.py:14
-#, python-format
-msgid "%(requestee)s denied your friend request"
-msgstr "%(requestee)s nekade din vänförfrågan"
-
-#: cafesys/baljan/notifications.py:16
-#, python-format
-msgid "You are now friends with %(requestee)s"
-msgstr "Du är nu vän med %(requestee)s"
-
-#: cafesys/baljan/notifications.py:18
-#, python-format
-msgid "You have received a friend request from %(requestor)s"
-msgstr "Du har mottagit en vänförfrågan från %(requestor)s"
-
-#: cafesys/baljan/notifications.py:20
-#, python-format
-msgid "The friend request from %(requestor)s was canceled"
-msgstr "Vänförfrågan från %(requestor)s drogs tillbaka"
-
-#: cafesys/baljan/notifications.py:22
+#: cafesys/baljan/notifications.py:15
 #, python-format
 msgid "You were signed up for %(shift)s"
 msgstr "Du anmäldes till %(shift)s"
 
-#: cafesys/baljan/notifications.py:24
+#: cafesys/baljan/notifications.py:17
 #, python-format
 msgid "You were removed from %(shift)s"
 msgstr "Du togs bort från %(shift)s"
 
-#: cafesys/baljan/notifications.py:26
+#: cafesys/baljan/notifications.py:19
 #, python-format
 msgid "%(requestor)s wants %(wanted_shift)s in exchange for %(offered_shift)s"
 msgstr "%(requestor)s vill ha %(wanted_shift)s i utbyte mot %(offered_shift)s"
 
-#: cafesys/baljan/notifications.py:28
+#: cafesys/baljan/notifications.py:21
 #, python-format
 msgid ""
 "Your request to trade %(wanted_shift)s for %(offered_shift)s was accepted"
 msgstr ""
 "Din förfrågan att byta %(wanted_shift)s mot %(offered_shift)s accepterades"
 
-#: cafesys/baljan/notifications.py:30
+#: cafesys/baljan/notifications.py:23
 #, python-format
 msgid "Your request to trade %(wanted_shift)s for %(offered_shift)s was denied"
 msgstr "Din förfrågan att byta %(wanted_shift)s mot %(offered_shift)s nekades"
 
-#: cafesys/baljan/notifications.py:34
+#: cafesys/baljan/notifications.py:25
 #, python-format
-msgid ""
-"%(requestee)s denied your friend request.\n"
-"\n"
-"Your profile page: %(profile_url)s\n"
-msgstr ""
-"%(requestee)s nekade din vänförfrågan.\n"
-"\n"
-"Din profilsida: %(profile_url)s\n"
+msgid "You were signed up for %(amount_shifts)s shift(s)"
+msgstr "Du anmäldes till %(amount_shifts)s pass"
 
-#: cafesys/baljan/notifications.py:39
+#: cafesys/baljan/notifications.py:27
 #, python-format
-msgid ""
-"You are now friends with %(requestee)s.\n"
-"\n"
-"Your profile page: %(profile_url)s\n"
-msgstr ""
-"Du är nu vän med %(requestee)s.\n"
-"\n"
-"Din profilsida: %(profile_url)s\n"
+msgid "You were removed from %(amount_shifts)s shift(s)"
+msgstr "Du togs bort från %(amount_shifts)s pass"
 
-#: cafesys/baljan/notifications.py:44
-#, python-format
-msgid ""
-"You have received a friend request from %(requestor)s. Friends can sign each "
-"other up for work shifts.\n"
-"\n"
-"Answer here: %(profile_url)s\n"
-msgstr ""
-"Du har mottagit en vänförfrågan från %(requestor)s. Vänner kan anmäla "
-"varandra till jobbpass.\n"
-"\n"
-"Svara här: %(profile_url)s\n"
-
-#: cafesys/baljan/notifications.py:49
-#, python-format
-msgid ""
-"The friend request from %(requestor)s was canceled.\n"
-"\n"
-"Your profile page: %(profile_url)s\n"
-msgstr ""
-"Vänförfrågan från %(requestor)s avbröts.\n"
-"\n"
-"Din profilsida: %(profile_url)s\n"
-
-#: cafesys/baljan/notifications.py:54
+#: cafesys/baljan/notifications.py:31
 #, python-format
 msgid ""
 "You were signed up for %(shift)s.\n"
@@ -826,7 +585,7 @@ msgstr ""
 "\n"
 "Se dina pass här: %(profile_url)s\n"
 
-#: cafesys/baljan/notifications.py:59
+#: cafesys/baljan/notifications.py:36
 #, python-format
 msgid ""
 "You were removed from %(shift)s.\n"
@@ -837,7 +596,7 @@ msgstr ""
 "\n"
 "Se dina pass här: %(profile_url)s\n"
 
-#: cafesys/baljan/notifications.py:64
+#: cafesys/baljan/notifications.py:41
 #, python-format
 msgid ""
 "%(requestor)s wants %(wanted_shift)s in exchange for %(offered_shift)s.\n"
@@ -848,7 +607,7 @@ msgstr ""
 "\n"
 "Svara på din profilsida: %(profile_url)s\n"
 
-#: cafesys/baljan/notifications.py:69
+#: cafesys/baljan/notifications.py:46
 #, python-format
 msgid ""
 "Your request to trade %(wanted_shift)s for %(offered_shift)s was accepted.\n"
@@ -859,7 +618,7 @@ msgstr ""
 "\n"
 "Se dina pass här: %(profile_url)s\n"
 
-#: cafesys/baljan/notifications.py:74
+#: cafesys/baljan/notifications.py:51
 #, python-format
 msgid ""
 "Your request to trade %(wanted_shift)s for %(offered_shift)s was denied.\n"
@@ -870,93 +629,82 @@ msgstr ""
 "\n"
 "Se dina pass här: %(profile_url)s\n"
 
-#: cafesys/baljan/orders.py:18
-msgid "The order was processed."
-msgstr "Beställningen hanterades."
+#: cafesys/baljan/notifications.py:56
+#, python-format
+msgid ""
+"You were signed up for the following shifts:\n"
+"\n"
+"%(shifts)s\n"
+"\n"
+"See your shifts here: %(profile_url)s"
+msgstr ""
+"Du anmäldes till följande pass:\n"
+"\n"
+"%(shifts)s\n"
+"\n"
+"Se dina pass här: %(profile_url)s"
 
-#: cafesys/baljan/orders.py:34
-msgid "The order was denied."
-msgstr "Beställningen nekades."
+#: cafesys/baljan/notifications.py:62
+#, python-format
+msgid ""
+"You were removed from the following shifts:\n"
+"\n"
+"%(shifts)s\n"
+"\n"
+"See your shifts here: %(profile_url)s"
+msgstr ""
+"Du togs bort från följande pass:\n"
+"\n"
+"%(shifts)s\n"
+"\n"
+"Se dina pass här: %(profile_url)s"
 
-#: cafesys/baljan/orders.py:41
-msgid "The order was accepted."
-msgstr "Beställningen accepterades."
-
-#: cafesys/baljan/orders.py:244
-msgid "Mixed currencies."
-msgstr "Olika valutor."
-
-#: cafesys/baljan/orders.py:247
-msgid "Insufficient funds."
-msgstr "Otillräckligt med pengar."
-
-#: cafesys/baljan/pdf.py:70
+#: cafesys/baljan/pdf.py:71
 #, python-format
 msgid "expires no sooner than %s"
 msgstr "minst giltig till %s"
 
-#: cafesys/baljan/pdf.py:97
-#: cafesys/baljan/templates/baljan/admin_semester.html:95
-#: cafesys/baljan/templates/baljan/work_planning.html:47
-#: cafesys/baljan/views.py:424
-msgid "work shifts"
-msgstr "jobbpass"
-
-#: cafesys/baljan/pdf.py:110
-#, python-format
-msgid "Job Opening %s"
-msgstr "Jobbsläpp %s"
-
-#: cafesys/baljan/pdf.py:156
-#, python-format
-msgid "document generated %s"
-msgstr "dokument genererat %s"
-
-#: cafesys/baljan/pdf.py:169
-msgid "liu ids"
-msgstr "liu-idn"
-
-#: cafesys/baljan/stats.py:63
+#: cafesys/baljan/stats.py:93
 msgid "board member"
 msgstr "styrelsemedlem"
 
-#: cafesys/baljan/stats.py:64
+#: cafesys/baljan/stats.py:94
 msgid "old board member"
 msgstr "gammal styrelsemedlem"
 
-#: cafesys/baljan/stats.py:66
+#: cafesys/baljan/stats.py:96
 msgid "old worker"
 msgstr "gammal jobbare"
 
-#: cafesys/baljan/stats.py:67
+#: cafesys/baljan/stats.py:97
 msgid "normal user"
 msgstr "normal konsument"
 
-#: cafesys/baljan/stats.py:117 cafesys/baljan/views.py:868
+#: cafesys/baljan/stats.py:147
 msgid "Today"
 msgstr "Idag"
 
-#: cafesys/baljan/stats.py:124
+#: cafesys/baljan/stats.py:154
 msgid "Yesterday"
 msgstr "Igår"
 
-#: cafesys/baljan/stats.py:132
+#: cafesys/baljan/stats.py:162
 msgid "This Week"
 msgstr "Denna vecka"
 
-#: cafesys/baljan/stats.py:140
+#: cafesys/baljan/stats.py:170
 msgid "Last Week"
 msgstr "Förra veckan"
 
-#: cafesys/baljan/stats.py:180
+#: cafesys/baljan/stats.py:217
 msgid "Total"
 msgstr "Totalt"
 
-#: cafesys/baljan/stats.py:214
+#: cafesys/baljan/stats.py:251
 msgid "Normal Users"
 msgstr "Vanliga användare"
 
-#: cafesys/baljan/stats.py:215
+#: cafesys/baljan/stats.py:252
 msgid "Staff"
 msgstr "Personal"
 
@@ -964,1100 +712,1114 @@ msgstr "Personal"
 msgid "Log in with LiU ID"
 msgstr ""
 
-#: cafesys/baljan/templates/baljan/about.html:7
-#: cafesys/baljan/templates/baljan/about.html:12
-msgid "About Baljan"
-msgstr "Om Baljan"
-
-#: cafesys/baljan/templates/baljan/about.html:46
-msgid "weekdays"
-msgstr "veckodagar"
-
-#: cafesys/baljan/templates/baljan/about.html:47
-msgid "8:00 pm to 4:15 pm"
-msgstr "08:00 till 16:15"
-
-#: cafesys/baljan/templates/baljan/about.html:48
-msgid "weekends, holidays"
-msgstr "helger, helgdagar"
-
-#: cafesys/baljan/templates/baljan/about.html:52
-msgid ""
-"Open normal hours during mid-terms and final exams, but closed during re-"
-"exams."
-msgstr "Öppet vanliga tider under tenta-p, stängt under omtenta-p."
-
-#: cafesys/baljan/templates/baljan/about.html:63
-msgid ""
-"\n"
-"                Baljan is located at the bottom floor of\n"
-"                <a href=\"http://www.karservice.se/karallen/\">Kårallen</"
-"a>,\n"
-"                campus Valla, Linköping.\n"
-"            "
-msgstr ""
-"\n"
-"                Baljan finns på bottenplan i \n"
-"                <a href=\"http://www.karservice.se/karallen/\">Kårallen</"
-"a>,\n"
-"                campus Valla, Linköping.\n"
-"            "
-
-#: cafesys/baljan/templates/baljan/about.html:71
-msgid "email"
-msgstr "e-post"
-
-#: cafesys/baljan/templates/baljan/about.html:76
-msgid ""
-"\n"
-"                <strong>snail mail</strong><br/>\n"
-"                Sektionscafé Baljan<br/>\n"
-"                Kårallen, universitetet<br/>\n"
-"                581 83 Linköping<br/>\n"
-"                Sweden\n"
-"            "
-msgstr ""
-"\n"
-"                <strong>snigelpost</strong><br/>\n"
-"                Sektionscafé Baljan<br/>\n"
-"                Kårallen, universitetet<br/>\n"
-"                581 83 Linköping\n"
-"            "
-
-#: cafesys/baljan/templates/baljan/about.html:86
-#: cafesys/baljan/templates/baljan/user.html:27
-msgid "phone"
-msgstr "telefon"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:7
-#: cafesys/baljan/templates/baljan/admin_semester.html:11
-msgid "Admin Semester"
-msgstr "Administrera termin"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:55
-msgid "No semester selected."
-msgstr "Ingen termin vald."
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:67
-msgid "create new"
-msgstr "skapa ny"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:74
-msgid "days"
-msgstr "dagar"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:76
-msgid "worker shifts"
-msgstr "jobbarpass"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:93
-msgid "PDF"
-msgstr "PDF"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:97
-msgid "form"
-msgstr "fomulär"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:102
-msgid "Make Selection"
-msgstr "Gör markering"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:118
-msgid "edit on admin site"
-msgstr "hantera på adminsidan"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:125
-msgid "New Semester"
-msgstr "Ny termin"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:138
-msgid "Are you sure? Shift combinations for job openings will also be updated."
-msgstr ""
-"Är du säker? Passkombinationer för jobbsläpp kommer också att uppdateras."
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:139
-#: cafesys/baljan/templates/baljan/call_duty_week.html:77
-#: cafesys/baljan/templates/baljan/day.html:170
-#: cafesys/baljan/templates/baljan/group.html:93
-#: cafesys/baljan/templates/baljan/job_opening.html:119
-#: cafesys/baljan/templates/baljan/search_person.html:64
-#: cafesys/baljan/templates/baljan/template.html:25
-#: cafesys/baljan/templates/baljan/user.html:253
-msgid "This cannot be undone. Are you sure?"
-msgstr "Det här är permanent. Är du säker?"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:145
-#: cafesys/baljan/templates/baljan/call_duty_week.html:68
-#: cafesys/baljan/templates/baljan/user.html:250
-msgid "save"
-msgstr "spara"
-
-#: cafesys/baljan/templates/baljan/admin_semester.html:146
-#: cafesys/baljan/templates/baljan/user.html:251
-msgid "cancel"
-msgstr "avbryt"
-
 #: cafesys/baljan/templates/baljan/baljan.html:6
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: cafesys/baljan/templates/baljan/become_worker.html:6
-#: cafesys/baljan/templates/baljan/become_worker.html:11
-msgid "Work for Baljan"
-msgstr "Jobba i Baljan"
-
-#: cafesys/baljan/templates/baljan/become_worker.html:34
-#, python-format
-msgid ""
-"\n"
-"                <strong><a href=\"%(profile_link)s\">You</a> are\n"
-"                a worker.</strong> If you wish to stop being one, <a\n"
-"                href=\"mailto:%(CONTACT_EMAIL)s\">send us an email</a>.\n"
-"            "
-msgstr ""
-"\n"
-"                <strong><a href=\"%(profile_link)s\">Du</a> är\n"
-"                en jobbare.</strong> Om du vill sluta att vara en, <a\n"
-"                href=\"mailto:%(CONTACT_EMAIL)s\">maila oss</a>. \n"
-"            "
-
-#: cafesys/baljan/templates/baljan/call_duty_week.html:7
-#: cafesys/baljan/templates/baljan/call_duty_week.html:20
-msgid "wk."
-msgstr "v."
-
-#: cafesys/baljan/templates/baljan/call_duty_week.html:33
-msgid "Monday"
-msgstr "måndag"
-
-#: cafesys/baljan/templates/baljan/call_duty_week.html:39
-msgid "Tuesday"
-msgstr "tisdag"
-
-#: cafesys/baljan/templates/baljan/call_duty_week.html:45
-msgid "Wednesday"
-msgstr "onsdag"
-
-#: cafesys/baljan/templates/baljan/call_duty_week.html:51
-msgid "Thursday"
-msgstr "torsdag"
-
-#: cafesys/baljan/templates/baljan/call_duty_week.html:57
-msgid "Friday"
-msgstr "fredag"
-
-#: cafesys/baljan/templates/baljan/call_duty_week.html:64
+#: cafesys/baljan/templates/baljan/call_duty_week.html:89
 msgid "Available Users"
 msgstr "Tillgängliga personer"
 
-#: cafesys/baljan/templates/baljan/call_duty_week.html:64
+#: cafesys/baljan/templates/baljan/call_duty_week.html:89
 msgid "drag and drop"
 msgstr "dra och släpp"
 
-#: cafesys/baljan/templates/baljan/call_duty_week.html:67
-msgid "revert unsaved changes"
-msgstr "ångra osparade ändringar"
-
-#: cafesys/baljan/templates/baljan/call_duty_week.html:76
-#: cafesys/baljan/templates/baljan/day.html:169
-#: cafesys/baljan/templates/baljan/group.html:92
-#: cafesys/baljan/templates/baljan/job_opening.html:118
-#: cafesys/baljan/templates/baljan/search_person.html:63
-#: cafesys/baljan/templates/baljan/template.html:24
-#: cafesys/baljan/templates/baljan/user.html:252
-msgid "Are you sure?"
-msgstr "Är du säker?"
-
-#: cafesys/baljan/templates/baljan/credits.html:8
-#: cafesys/baljan/templates/baljan/credits.html:13
-msgid "Credits"
-msgstr "Konto"
-
-#: cafesys/baljan/templates/baljan/credits.html:16
-msgid "Refill"
-msgstr "Fyll på"
-
-#: cafesys/baljan/templates/baljan/credits.html:18
-#, python-format
-msgid ""
-"\n"
-"        Value cards can be purchased at the café. If you have questions or "
-"run\n"
-"        into problems, <a href=\"mailto:%(CONTACT_EMAIL)s\">contact us</a>. "
-"Abuse\n"
-"        will be logged.\n"
-"        "
-msgstr ""
-"\n"
-"        Värdekort kan köpas på kafét. Om du har frågor eller stöter på "
-"problem,         <a href=\"mailto:%(CONTACT_EMAIL)s\">kontakta oss</"
-"a>.         Missbruk loggas.\n"
-"        "
-
-#: cafesys/baljan/templates/baljan/credits.html:23
-msgid ""
-"\n"
-"        To import an old coffee card (kaffeklippkort), see <a href=\"#import-"
-"old\">below</a>.\n"
-"        "
-msgstr ""
-"\n"
-"        För att importera kaffeklipport, se <a href=\"#import-old\">nedan</"
-"a>.\n"
-"        "
-
-#: cafesys/baljan/templates/baljan/credits.html:36
-msgid "refill"
-msgstr "fyll på"
-
-#: cafesys/baljan/templates/baljan/credits.html:45
-msgid "Available"
-msgstr "Tillgängligt"
-
-#: cafesys/baljan/templates/baljan/credits.html:53
-msgid "the code was used"
-msgstr "koden användes"
-
-#: cafesys/baljan/templates/baljan/credits.html:59
-msgid "invalid or used code"
-msgstr "ogiltig eller använd kod"
-
-#: cafesys/baljan/templates/baljan/credits.html:64
-msgid "LiU Cards Just Work&trade;"
-msgstr "LiU-kort fungerar automatiskt"
-
-#: cafesys/baljan/templates/baljan/credits.html:65
-msgid ""
-"\n"
-"        <p>\n"
-"        LiU card numbers are imported automatically. This means that new\n"
-"        users don't have to enter a number on the web site anymore.\n"
-"        </p>\n"
-"        "
-msgstr ""
-"\n"
-"        <p>\n"
-"        LiU-kortnummer importeras automatiskt. Detta betyder att nya \n"
-"        användare inte längre behöver fylla i ett nummer på webbplatsen.\n"
-"        </p>\n"
-"        "
-
-#: cafesys/baljan/templates/baljan/credits.html:74
-msgid "Wallet Blips"
-msgstr "Plånboksblipp"
-
-#: cafesys/baljan/templates/baljan/credits.html:75
-msgid ""
-"\n"
-"        <p>\n"
-"        If your wallet is made of regular wallet material and doesn't stash "
-"a\n"
-"        public transportation card (or any other RFID tag of the same "
-"type),\n"
-"        you can blip through it. If you have mad blipping skills you might "
-"be\n"
-"        able to use your wallet anyway (hint: LiU card closest to the "
-"reader).\n"
-"        </p>\n"
-"        "
-msgstr ""
-"\n"
-"<p>\n"
-"Om din plånbok är gjord av vanligt plånboksmaterial och inte innehåller \n"
-"något busskort (eller annan RFID-tag av samma typ) så kan du blippa genom "
-"den. \n"
-"Om du är duktig på att blippa är det möjligt att du kan använda plånboken "
-"även \n"
-"om du har andra kort i den (tips: LiU-kortet närmast läsaren).        "
-
-#: cafesys/baljan/templates/baljan/credits.html:86
-msgid "Used Value Cards"
-msgstr "Använda värdekort"
-
-#: cafesys/baljan/templates/baljan/credits.html:90
-#, python-format
-msgid ""
-"\n"
-"                card %(serid)s worth %(worth)s used at %(used_at)s\n"
-"                "
-msgstr ""
-"\n"
-"                kort %(serid)s värt %(worth)s användes %(used_at)s\n"
-"                "
-
-#: cafesys/baljan/templates/baljan/credits.html:94
-#, python-format
-msgid ""
-"\n"
-"                    (you were added to %(group_name)s)\n"
-"                    "
-msgstr ""
-"\n"
-"                    (du lades till i %(group_name)s)\n"
-"                "
-
-#: cafesys/baljan/templates/baljan/credits.html:100
-msgid "you have not used any value cards"
-msgstr "du har inte använt några värdekort"
-
-#: cafesys/baljan/templates/baljan/credits.html:103
-msgid "Old Cards (Kaffeklippkort)"
-msgstr "Kaffeklippkort (gamla systemet)"
-
-#: cafesys/baljan/templates/baljan/credits.html:107
-#, python-format
-msgid ""
-"\n"
-"                card %(setid)s.%(cardid)s with %(left)s of %(count)s klipp "
-"left\n"
-"                "
-msgstr ""
-"\n"
-"                kort %(setid)s.%(cardid)s med %(left)s av %(count)s klipp "
-"kvar                "
-
-#: cafesys/baljan/templates/baljan/credits.html:113
-msgid "unimported"
-msgstr "oimporterad"
-
-#: cafesys/baljan/templates/baljan/credits.html:117
-msgid "you have not used any old coffee cards"
-msgstr "du har inte använt några kaffeklippkort"
-
-#: cafesys/baljan/templates/baljan/day.html:14
-#, python-format
-msgid ""
-"\n"
-"        <a href=\"%(sem_url)s\">&laquo; semester %(sem_name)s</a>\n"
-"    "
-msgstr ""
-"\n"
-"        <a href=\"%(sem_url)s\">&laquo; termin %(sem_name)s</a>\n"
-"    "
-
-#: cafesys/baljan/templates/baljan/day.html:25
-#: cafesys/baljan/templates/baljan/day.html:29
-#: cafesys/baljan/templates/baljan/work_planning.html:55
-msgid "week"
-msgstr "vecka"
-
-#: cafesys/baljan/templates/baljan/day.html:41
-#: cafesys/baljan/templates/baljan/semesters.html:25
-#: cafesys/baljan/templates/baljan/work_planning.html:17
-msgid "admin"
-msgstr "admin"
-
-#: cafesys/baljan/templates/baljan/day.html:54
-msgid "worker wants to trade"
-msgstr "jobbare vill byta"
-
-#: cafesys/baljan/templates/baljan/day.html:61
-#: cafesys/baljan/templates/baljan/day.html:130
+#: cafesys/baljan/templates/baljan/day.html:118
 msgid "remove from this shift"
 msgstr "ta bort från det här passet"
 
-#: cafesys/baljan/templates/baljan/day.html:69
-msgid ""
-"you cannot offer to take this shift because you have no shifts to trade with"
-msgstr ""
-"du kan inte erbjuda att ta passet eftersom att du inte har några pass att "
-"byta med"
-
-#: cafesys/baljan/templates/baljan/day.html:73
-msgid "make untradable"
-msgstr "ångra bytbar"
-
-#: cafesys/baljan/templates/baljan/day.html:75
-msgid "offer to take this shift"
-msgstr "erbjud att ta passet"
-
-#: cafesys/baljan/templates/baljan/day.html:80
-msgid "make tradable"
-msgstr "gör bytbar"
-
-#: cafesys/baljan/templates/baljan/day.html:90
-msgid "The morning and afternoon shifts for workers overlap here."
-msgstr "För- och eftermiddagspassen för jobbare överlappar varandra här."
-
-#: cafesys/baljan/templates/baljan/day.html:92
-msgid "No workers have signed up."
-msgstr "Inga jobbare har anmält sig."
-
-#: cafesys/baljan/templates/baljan/day.html:93
-#: cafesys/baljan/templates/baljan/day.html:138
-msgid "The working hours are"
-msgstr "Arbetstiden är"
-
-#: cafesys/baljan/templates/baljan/day.html:112
-#: cafesys/baljan/templates/baljan/day.html:156
-#: cafesys/baljan/templates/baljan/job_opening.html:123
-msgid "sign up"
-msgstr "anmäl"
-
-#: cafesys/baljan/templates/baljan/day.html:116
-msgid "only approved workers can be signed up"
-msgstr "endast bekräftade jobbare kan anmälas"
-
-#: cafesys/baljan/templates/baljan/day.html:118
-msgid "find worker friends"
-msgstr "hitta jobbarkompisar"
-
-#: cafesys/baljan/templates/baljan/day.html:127
-#: cafesys/baljan/templates/baljan/work_planning.html:60
-msgid "on call"
-msgstr "jour"
-
-#: cafesys/baljan/templates/baljan/day.html:137
-msgid "Nobody has signed up to be on call."
-msgstr "Ingen har anmält sig till att joura."
-
-#: cafesys/baljan/templates/baljan/flash_become_worker.html:3
-msgid "want free coffee? become a worker!"
-msgstr "vill du ha gratis kaffe? bli jobbare!"
-
-#: cafesys/baljan/templates/baljan/group.html:17
-msgid "Group"
-msgstr "Grupp"
-
-#: cafesys/baljan/templates/baljan/group.html:20
+#: cafesys/baljan/templates/baljan/group.html:45
 msgid "Members"
 msgstr "Medlemmar"
 
-#: cafesys/baljan/templates/baljan/group.html:25
-#: cafesys/baljan/templates/baljan/group.html:42
-#: cafesys/baljan/templates/baljan/group.html:48
-msgid "no members"
-msgstr "inga medlemmar"
-
-#: cafesys/baljan/templates/baljan/group.html:34
-msgid "↑ back to top"
-msgstr "↑ till toppen"
-
-#: cafesys/baljan/templates/baljan/group.html:59
-msgid "Other Groups"
-msgstr "Andra grupper"
-
-#: cafesys/baljan/templates/baljan/group.html:72
-msgid "Jump To"
-msgstr "Gå till"
-
-#: cafesys/baljan/templates/baljan/high_score.html:7
-#: cafesys/baljan/templates/baljan/high_score.html:11
-msgid "High Score"
-msgstr "Topplista"
-
-#: cafesys/baljan/templates/baljan/high_score.html:16
-#, python-format
-msgid ""
-"\n"
-"        These lists show the people who have used the blipper&trade;\n"
-"        the most. Each blip represents one coffee, tea, or chocolate.\n"
-"        Start using it you too, to track your caffeine consumption and\n"
-"        to compete for glory and fame in the high scores.\n"
-"        If you have suggestions, feel free to <a href=\"mailto:"
-"%(CONTACT_EMAIL)s\">contact us</a>.\n"
-"        "
-msgstr ""
-"\n"
-"            De här listorna visar de personer som har använt "
-"blipparen&trade;\n"
-"            flitigast. Varje blipp står för en kaffe, te eller choklad.\n"
-"            Börja att använda den du med, för att hålla på koll på din "
-"koffeinkonsumtion och\n"
-"            för att tävla med andra om ära och berömmelse i topplistan.\n"
-"        <a href=\"mailto:%(CONTACT_EMAIL)s\">Kontakta oss</a> om du har "
-"synpunkter.\n"
-"        "
-
-#: cafesys/baljan/templates/baljan/high_score.html:35
-msgid "person"
-msgstr "person"
-
-#: cafesys/baljan/templates/baljan/high_score.html:36
-msgid "blips"
-msgstr "blipp"
-
-#: cafesys/baljan/templates/baljan/job_opening.html:7
-#: cafesys/baljan/templates/baljan/job_opening.html:11
-msgid "Job Opening"
-msgstr "Jobbsläpp"
-
-#: cafesys/baljan/templates/baljan/job_opening.html:17
-msgid "Choose Workers"
-msgstr "Välj jobbare"
-
-#: cafesys/baljan/templates/baljan/job_opening.html:24
-msgid "add"
-msgstr "lägg till"
-
-#: cafesys/baljan/templates/baljan/job_opening.html:29
-#: cafesys/baljan/views.py:587
-msgid "enter liu id"
-msgstr "skriv in liu-id"
-
-#: cafesys/baljan/templates/baljan/job_opening.html:43
-msgid "Choose Combination"
-msgstr "Välj kombination"
-
-#: cafesys/baljan/templates/baljan/job_opening.html:83
-#, python-format
-msgid ""
-"\n"
-"        <h2>\n"
-"            %(done_percent)s%% Done\n"
-"        </h2>\n"
-"        <dl>\n"
-"            <dt>combinations available</dt>\n"
-"            <dd>%(free)s</dd>\n"
-"            <dt>combinations taken</dt>\n"
-"            <dd>%(taken)s</dd>\n"
-"        </dl>\n"
-"    "
-msgstr ""
-"\n"
-"        <h2>\n"
-"            %(done_percent)s%% färdig\n"
-"        </h2>\n"
-"        <dl>\n"
-"            <dt>lediga kombinationer</dt>\n"
-"            <dd>%(free)s</dd>\n"
-"            <dt>tagna kombinationer</dt>\n"
-"            <dd>%(taken)s</dd>\n"
-"        </dl>\n"
-"    "
-
-#: cafesys/baljan/templates/baljan/job_opening.html:97
-msgid "Projector"
-msgstr "Projektor"
-
-#: cafesys/baljan/templates/baljan/job_opening.html:99
-msgid ""
-"\n"
-"            This view is suitable for showing to people queueing during the "
-"job\n"
-"            opening.\n"
-"        "
-msgstr ""
-"\n"
-"            Den här vyn passar att visa på projektor för personer som köar."
-
-#: cafesys/baljan/templates/baljan/job_opening.html:105
-msgid "open view"
-msgstr "öppna vy"
-
-#: cafesys/baljan/templates/baljan/job_opening.html:117
-msgid "mobile:"
-msgstr "mobil:"
-
-#: cafesys/baljan/templates/baljan/job_opening.html:122
-msgid "select two workers and one combination"
-msgstr "välj två jobbare och en kombination"
-
-#: cafesys/baljan/templates/baljan/job_opening_projector.html:6
-msgid "Job Opening Projector"
-msgstr "Jobbsläpp på projektor"
-
-#: cafesys/baljan/templates/baljan/job_opening_projector.html:42
-msgid "updated "
-msgstr "uppdaterad"
-
-#: cafesys/baljan/templates/baljan/login.html:5
-#: cafesys/baljan/templates/baljan/login.html:9
-#: cafesys/baljan/templates/baljan/login.html:29
-#: cafesys/baljan/templates/baljan/login_bu.html:5
-#: cafesys/baljan/templates/baljan/login_bu.html:9
-#: cafesys/baljan/templates/baljan/login_bu.html:28
-msgid "Log in"
-msgstr "Logga in"
-
-#: cafesys/baljan/templates/baljan/login.html:13
-#: cafesys/baljan/templates/baljan/login_bu.html:13
-msgid ""
-"\n"
-"        You need a LiU student account (<em>abcde123</em>) to log in. \n"
-"\n"
-"        In July 1, 2011, the Eletronic Communications Act \n"
-"        (<a href=\"https://lagen.nu/2003:389\">2003:389</a>) was changed.\n"
-"        By logging in, you accept that the site stores cookies on your\n"
-"        device in order to keep a session.\n"
-"        "
-msgstr ""
-"\n"
-"        Du behöver ett LiU-konto (<em>abcde123</em>) för att logga in. \n"
-"\n"
-"        Den 1 juli 2011 ändrades lagen om elektronisk kommunikation \n"
-"        (<a href=\"https://lagen.nu/2003:389\">2003:389</a>).\n"
-"        Genom att logga in accepterar du att kakor lagras på din enhet \n"
-"        för att kunna hålla en session. \n"
-"        "
-
 #: cafesys/baljan/templates/baljan/orders.html:7
-#: cafesys/baljan/templates/baljan/orders.html:11
 msgid "Orders for"
 msgstr "Köp av"
 
-#: cafesys/baljan/templates/baljan/orders.html:34
-msgid "nothing ordered"
-msgstr "inget beställt"
-
-#: cafesys/baljan/templates/baljan/orders.html:42
-msgid "older"
-msgstr "äldre"
-
-#: cafesys/baljan/templates/baljan/orders.html:47
-msgid "newer"
-msgstr "nyare"
-
-#: cafesys/baljan/templates/baljan/price_list.html:7
-#: cafesys/baljan/templates/baljan/price_list.html:11
-msgid "Price List"
-msgstr "Prislista"
-
-#: cafesys/baljan/templates/baljan/price_list.html:14
-msgid "Assortment"
-msgstr "Sortiment"
-
-#: cafesys/baljan/templates/baljan/price_list.html:44
-msgid "Ordering From Us"
-msgstr "Beställa från oss"
-
-#: cafesys/baljan/templates/baljan/search_person.html:6
-#: cafesys/baljan/templates/baljan/search_person.html:10
+#: cafesys/baljan/templates/baljan/search_person.html:7
+#: cafesys/baljan/templates/baljan/search_person.html:13
 msgid "Search Person"
 msgstr "Sök person"
 
-#: cafesys/baljan/templates/baljan/search_person.html:24
-msgid ""
-"\n"
-"            Matches first name, last name, liu id, and groups. Only people "
-"that\n"
-"            match each term show up in the results.\n"
-"            "
-msgstr ""
-"\n"
-"            Söker förnamn, efternamn, liu-id och grupper. Endast personer "
-"som\n"
-"            uppfyller varje term visas i resultatet.\n"
-"            "
-
-#: cafesys/baljan/templates/baljan/search_person.html:32
+#: cafesys/baljan/templates/baljan/search_person.html:30
 msgid "Hits"
 msgstr "Träffar"
 
-#: cafesys/baljan/templates/baljan/search_person.html:46
-#: cafesys/baljan/templates/baljan/user.html:57
+#: cafesys/baljan/templates/baljan/search_person.html:43
 msgid "Groups"
 msgstr "Grupper"
 
-#: cafesys/baljan/templates/baljan/semesters.html:5
-msgid "Semesters"
-msgstr "Terminer"
-
-#: cafesys/baljan/templates/baljan/semesters.html:13
-msgid "Name"
-msgstr "Namn"
-
-#: cafesys/baljan/templates/baljan/semesters.html:14
-msgid "Start"
-msgstr "Start"
-
-#: cafesys/baljan/templates/baljan/semesters.html:15
-msgid "End"
-msgstr "Slut"
-
-#: cafesys/baljan/templates/baljan/semesters.html:16
-msgid "Sign-Up Possible"
-msgstr "Jobbare kan anmäla sig"
-
-#: cafesys/baljan/templates/baljan/semesters.html:28
-msgid "No semesters available."
-msgstr "Inga terminer tillgängliga."
-
-#: cafesys/baljan/templates/baljan/semesters.html:38
-msgid "Add"
-msgstr "Lägg till"
-
-#: cafesys/baljan/templates/baljan/semesters.html:42
-msgid "manage on admin site"
-msgstr "hantera på adminsidan"
-
-#: cafesys/baljan/templates/baljan/stats.html:5
-#: cafesys/baljan/templates/baljan/stats.html:8
-msgid "Statistics"
-msgstr "Statistik"
-
-#: cafesys/baljan/templates/baljan/stats.html:11
-#: cafesys/baljan/templates/baljan/user.html:108
-msgid "from"
-msgstr "från"
-
-#: cafesys/baljan/templates/baljan/stats.html:12
-#: cafesys/baljan/templates/baljan/user.html:155
-msgid "to"
-msgstr "till"
-
-#: cafesys/baljan/templates/baljan/stats.html:13
-msgid "auto-update"
-msgstr "automatisk uppdatering"
-
-#: cafesys/baljan/templates/baljan/stats.html:14
-msgid "Update now"
-msgstr "Uppdatera nu"
-
-#: cafesys/baljan/templates/baljan/stats.html:17
-msgid "Orders per Day and Hour"
-msgstr "Beställningar per dag och timme"
-
 #: cafesys/baljan/templates/baljan/trade.html:7
-#: cafesys/baljan/templates/baljan/trade.html:18
 msgid "Trade Shifts"
 msgstr "Byt pass"
 
-#: cafesys/baljan/templates/baljan/trade.html:14
-msgid "return"
-msgstr "tillbaks"
-
-#: cafesys/baljan/templates/baljan/trade.html:22
-msgid "Wanted Shift"
-msgstr "Begärt pass"
-
-#: cafesys/baljan/templates/baljan/trade.html:25
-msgid "when"
-msgstr "när"
-
-#: cafesys/baljan/templates/baljan/trade.html:31
-msgid "from user"
-msgstr "från användare"
-
-#: cafesys/baljan/templates/baljan/trade.html:40
-msgid "You Can Offer"
-msgstr "Du kan erbjuda"
-
-#: cafesys/baljan/templates/baljan/trade.html:51
-msgid "you have no shifts to offer"
-msgstr "du har inga pass att erbjuda"
-
-#: cafesys/baljan/templates/baljan/trade.html:63
-#, python-format
-msgid ""
-"\n"
-"        Check the shifts you would like to offer. %(first_name)s will be "
-"able to\n"
-"        pick one of them. You can add and remove offers whenever you want "
-"to.\n"
-"        "
+#: cafesys/baljan/templates/baljan/user.html:56
+msgid "Kort-id ej angett."
 msgstr ""
-"\n"
-"        Markera passen som du vill erbjuda. %(first_name)s kommer att "
-"kunna         välja ett av dem. Du kan lägga till och ta bort erbjudanden "
-"när som helst.        "
 
-#: cafesys/baljan/templates/baljan/trade.html:80
-msgid "You have no shifts to offer."
-msgstr "Du har inga pass att erbjuda."
-
-#: cafesys/baljan/templates/baljan/trade.html:84
-msgid "update trade request"
-msgstr "uppdatera bytesförfrågan"
-
-#: cafesys/baljan/templates/baljan/trade.html:84
-msgid "send trade request"
-msgstr "skicka bytesförfrågan"
-
-#: cafesys/baljan/templates/baljan/trade.html:92
-msgid "changes saved"
-msgstr "ändringar sparade"
-
-#: cafesys/baljan/templates/baljan/trade.html:95
-msgid "return to previous page"
-msgstr "tillbaks till föregående sida"
-
-#: cafesys/baljan/templates/baljan/user.html:17
-#: cafesys/baljan/templates/baljan/user.html:180
-msgid "edit"
-msgstr "ändra"
-
-#: cafesys/baljan/templates/baljan/user.html:34
-msgid "last login"
-msgstr "senast inloggad"
-
-#: cafesys/baljan/templates/baljan/user.html:37
-msgid "calendar"
-msgstr "kalender"
-
-#: cafesys/baljan/templates/baljan/user.html:39
-msgid "iCal format"
-msgstr "iCal-format"
-
-#: cafesys/baljan/templates/baljan/user.html:46
+#: cafesys/baljan/templates/baljan/user.html:65
 msgid "None set. It is displayed in the high scores."
 msgstr "Inget sparat. Mottot visas under ditt namn i topplistorna."
 
-#: cafesys/baljan/templates/baljan/user.html:69
-#, python-format
-msgid ""
-"\n"
-"        None. To work in Baljan, one must <a href=\"%(become_worker_link)s"
-"\">become a member of the workers' group</a>.\n"
-"        "
-msgstr ""
-"\n"
-"        Inga. För att jobba i Baljan måste man <a href="
-"\"%(become_worker_link)s\">gå med i jobbargruppen</a>.\n"
-"        "
-
-#: cafesys/baljan/templates/baljan/user.html:79
-msgid "Friends"
-msgstr "Vänner"
-
-#: cafesys/baljan/templates/baljan/user.html:100
+#: cafesys/baljan/templates/baljan/user.html:148
 msgid "Trade Requests"
 msgstr "Bytesförfrågningar"
 
-#: cafesys/baljan/templates/baljan/user.html:102
-msgid "Received"
-msgstr "Mottagna"
-
-#: cafesys/baljan/templates/baljan/user.html:106
-#: cafesys/baljan/templates/baljan/user.html:153
-msgid "wanted"
-msgstr "begärt"
-
-#: cafesys/baljan/templates/baljan/user.html:107
-#: cafesys/baljan/templates/baljan/user.html:154
-msgid "offered"
-msgstr "erbjudet"
-
-#: cafesys/baljan/templates/baljan/user.html:109
-msgid "answer"
-msgstr "svar"
-
-#: cafesys/baljan/templates/baljan/user.html:135
-msgid "deny"
-msgstr "neka"
-
-#: cafesys/baljan/templates/baljan/user.html:140
-msgid "accept"
-msgstr "acceptera"
-
-#: cafesys/baljan/templates/baljan/user.html:149
-msgid "Sent"
-msgstr "Skickat"
-
-#: cafesys/baljan/templates/baljan/user.html:156
-msgid "action"
-msgstr "åtgärd"
-
-#: cafesys/baljan/templates/baljan/user.html:200
-#: cafesys/baljan/templates/baljan/work_planning.html:57
-msgid "date"
-msgstr "datum"
-
-#: cafesys/baljan/templates/baljan/user.html:201
-#: cafesys/baljan/templates/baljan/work_planning.html:58
-msgid "am/pm"
-msgstr "fm/em"
-
-#: cafesys/baljan/templates/baljan/user.html:233
-msgid "Edit Profile"
-msgstr "Ändra profil"
-
-#: cafesys/baljan/templates/baljan/work_planning.html:8
-msgid "Semester"
-msgstr "Termin"
-
-#: cafesys/baljan/templates/baljan/work_planning.html:28
-msgid "upcoming days only"
-msgstr "endast kommande dagar"
-
-#: cafesys/baljan/templates/baljan/work_planning.html:32
-msgid "need workers"
-msgstr "behöver jobbare"
-
-#: cafesys/baljan/templates/baljan/work_planning.html:35
-msgid "only tradable"
-msgstr "endast bytbara"
-
-#: cafesys/baljan/templates/baljan/work_planning.html:42
-msgid "need call duty"
-msgstr "behöver jour"
-
-#: cafesys/baljan/templates/baljan/work_planning.html:48
-msgid "worker list"
-msgstr "jobbarlista"
-
-#: cafesys/baljan/templates/baljan/work_planning.html:49
-msgid "call duty list"
-msgstr "jourlista"
-
-#: cafesys/baljan/templates/baljan/work_planning.html:56
-msgid "day"
-msgstr "dag"
-
-#: cafesys/baljan/templates/baljan/work_planning.html:110
-msgid "overlap"
-msgstr "överlapp"
-
-#: cafesys/baljan/templates/baljan/work_planning.html:125
-#, python-format
-msgid ""
-"\n"
-"                One worker.\n"
-"            "
-msgid_plural ""
-"\n"
-"                A total of %(counter)s workers.\n"
-"            "
-msgstr[0] ""
-"\n"
-"                En jobbare.\n"
-"            "
-msgstr[1] ""
-"\n"
-"Totalt %(counter)s jobbare."
-
-#: cafesys/baljan/templates/baljan/work_planning.html:131
-#, python-format
-msgid ""
-"\n"
-"            <a href=\"%(worker_group_url)s\">Full overview of the group</"
-"a>.\n"
-"            "
-msgstr ""
-"\n"
-"            <a href=\"%(worker_group_url)s\">Full överblick av gruppen</a>.\n"
-"            "
-
-#: cafesys/baljan/templates/baljan/work_planning.html:143
-#, python-format
-msgid ""
-"\n"
-"                One person on the call duty list.\n"
-"            "
-msgid_plural ""
-"\n"
-"                Total of %(counter)s people on the call duty list.\n"
-"            "
-msgstr[0] ""
-"\n"
-"En person på jourlistan."
-msgstr[1] ""
-"\n"
-"Totalt %(counter)s personer på jourlistan."
-
-#: cafesys/baljan/templates/baljan/work_planning.html:149
-#, python-format
-msgid ""
-"\n"
-"            <a href=\"%(board_group_url)s\">Full overview of the group</a>.\n"
-"            "
-msgstr ""
-"\n"
-"            <a href=\"%(board_group_url)s\">Full överblick av gruppen</a>.\n"
-"            "
-
-#: cafesys/baljan/templates/common.html:25
-msgid "hide"
-msgstr "dölj"
-
-#: cafesys/baljan/templates/common.html:38
-msgid ""
-"\n"
-"                Basic functionality is tested in IE 8. You are encouraged "
-"to\n"
-"                switch to a browser with support for transparency.\n"
-"                "
-msgstr ""
-"\n"
-"                Grundläggande funktionalitet testat i IE. Du uppmanas att\n"
-"                byta till en webbläsare med stöd för transparens.\n"
-"                "
-
-#: cafesys/baljan/templates/site_base.html:17
-msgid "logout"
-msgstr "logga ut"
-
-#: cafesys/baljan/templates/site_base.html:19
-msgid "login"
-msgstr "logga in"
-
-#: cafesys/baljan/templatetags/baljan_extras.py:38
-#: cafesys/baljan/templatetags/baljan_extras.py:54
+#: cafesys/baljan/templatetags/baljan_extras.py:44
+#: cafesys/baljan/templatetags/baljan_extras.py:60
 msgid "unnamed"
 msgstr "ej namngiven"
 
-#: cafesys/baljan/views.py:43
-msgid "Logged out."
-msgstr "Utloggad."
-
-#: cafesys/baljan/views.py:72 cafesys/baljan/views.py:792
-#, python-format
-msgid "%s was added successfully."
-msgstr "%s lades till utan problem"
-
-#: cafesys/baljan/views.py:221
-msgid "Thank you!"
-msgstr "Tack för din beställning! Ni kommer få en bekräftelse när styrelsen har behandlat din beställning."
-
-
-#: cafesys/baljan/views.py:296
-msgid "Nothing scheduled for this shift (yet)."
-msgstr "Ingenting schemalagt för detta shift (än)."
-
-#: cafesys/baljan/views.py:308
+#: cafesys/baljan/views.py:334
 msgid "upcoming"
 msgstr "kommande"
 
-#: cafesys/baljan/views.py:309
+#: cafesys/baljan/views.py:335
 msgid "past"
 msgstr "gångna"
 
-#: cafesys/baljan/views.py:425
+#: cafesys/baljan/views.py:463
+msgid "work shifts"
+msgstr "jobbpass"
+
+#: cafesys/baljan/views.py:464
 msgid "call duties"
 msgstr "jourpass"
 
-#: cafesys/baljan/views.py:490
+#: cafesys/baljan/views.py:568
 msgid "This would result in a double booking."
 msgstr "Detta skulle resultera i en dubbelbokning."
 
-#: cafesys/baljan/views.py:493
+#: cafesys/baljan/views.py:571
 msgid "Invalid trade request."
 msgstr "Ogiltig bytesförfrågan."
 
-#: cafesys/baljan/views.py:600
+#: cafesys/baljan/views.py:659
+msgid "enter liu id"
+msgstr "skriv in liu-id"
+
+#: cafesys/baljan/views.py:672
 msgid "OK"
 msgstr "OK"
 
-#: cafesys/baljan/views.py:605
+#: cafesys/baljan/views.py:677
 msgid "liu id unfound"
 msgstr "liu-id hittades inte"
 
-#: cafesys/baljan/views.py:718
+#: cafesys/baljan/views.py:788
 msgid "Your changes were saved."
 msgstr "Dina ändringar sparades."
 
-#: cafesys/baljan/views.py:869 cafesys/baljan/views.py:870
-#: cafesys/baljan/views.py:871
 #, python-format
-msgid "Last %d Days"
-msgstr "Senaste %d dagar"
+#~ msgid "job opening %s"
+#~ msgstr "jobbsläpp %s"
 
-#: cafesys/baljan/views.py:872
-msgid "Forever"
-msgstr "För alltid"
+#~ msgid "superusers"
+#~ msgstr "superanvändare"
+
+#~ msgid "board tasks"
+#~ msgstr "för styrelsen"
+
+#~ msgid "week planning"
+#~ msgstr "veckoplanering"
+
+#~ msgid "sysadmins"
+#~ msgstr "sysadmins"
+
+#~ msgid "django admin site"
+#~ msgstr "djangos adminsida"
+
+#~ msgid "github"
+#~ msgstr "github"
+
+#~ msgid "workers"
+#~ msgstr "jobbare"
+
+#~ msgid "guide"
+#~ msgstr "guide"
+
+#~ msgid "contract"
+#~ msgstr "kontrakt"
+
+#~ msgid "add shifts to calendar program"
+#~ msgstr "lägga till pass i kalenderprogram"
+
+#~ msgid "your account"
+#~ msgstr "ditt konto"
+
+#~ msgid "credits"
+#~ msgstr "konto"
+
+#~ msgid "users"
+#~ msgstr "användare"
+
+#~ msgid "work planning"
+#~ msgstr "jobbplanering"
+
+#~ msgid "work for Baljan"
+#~ msgstr "jobba i Baljan"
+
+#~ msgid "people and groups"
+#~ msgstr "personer och grupper"
+
+#~ msgid "high score"
+#~ msgstr "topplista"
+
+#~ msgid "price list"
+#~ msgstr "prislista"
+
+#~ msgid "order from Baljan"
+#~ msgstr "beställa från Baljan"
+
+#~ msgid "No changes saved. Create a new series instead."
+#~ msgstr "Inga ändringar sparade. Skapa en ny serie istället."
+
+#~ msgid "found on your value card"
+#~ msgstr "står på ditt värdekort"
+
+#~ msgid "image"
+#~ msgstr "bild"
+
+#~ msgid "desciption"
+#~ msgstr "beskrivning"
+
+#~ msgid "price"
+#~ msgstr "pris"
+
+#~ msgid "work in Baljan"
+#~ msgstr "jobba i Baljan"
+
+#~ msgid "on call in Baljan"
+#~ msgstr "jour i Baljan"
+
+#~ msgid "show profile"
+#~ msgstr "visa profil"
+
+#~ msgid "card id"
+#~ msgstr "kort-id"
+
+#~ msgid "7:30 am to ca 8:00 am"
+#~ msgstr "7:30 till ca 8:00"
+
+#~ msgid "12:00 pm to ca 12:30 pm"
+#~ msgstr "12:00 till ca 12:30"
+
+#~ msgid "ca 4:00 pm to ca 4:45 pm"
+#~ msgstr "ca 16:00 till ca 16:45"
+
+#~ msgid "set id"
+#~ msgstr "set-id"
+
+#~ msgid "file"
+#~ msgstr "fil"
+
+#~ msgid "created"
+#~ msgstr "skapad"
+
+#~ msgid "time stamp"
+#~ msgstr "tidsstämpel"
+
+#~ msgid "old coffee card set"
+#~ msgstr "gammalt kaffekortset"
+
+#~ msgid "old coffee card sets"
+#~ msgstr "gamla kaffekortset"
+
+#~ msgid "set"
+#~ msgstr "set"
+
+#~ msgid "expires"
+#~ msgstr "går ut"
+
+#~ msgid "left"
+#~ msgstr "kvar"
+
+#~ msgid "imported"
+#~ msgstr "importerad"
+
+#~ msgid "old coffee card"
+#~ msgstr "gammalt kaffekort"
+
+#~ msgid "old coffee cards"
+#~ msgstr "gamla kaffekort"
+
+#, python-format
+#~ msgid "%(requestee)s denied your friend request"
+#~ msgstr "%(requestee)s nekade din vänförfrågan"
+
+#, python-format
+#~ msgid "You are now friends with %(requestee)s"
+#~ msgstr "Du är nu vän med %(requestee)s"
+
+#, python-format
+#~ msgid "You have received a friend request from %(requestor)s"
+#~ msgstr "Du har mottagit en vänförfrågan från %(requestor)s"
+
+#, python-format
+#~ msgid "The friend request from %(requestor)s was canceled"
+#~ msgstr "Vänförfrågan från %(requestor)s drogs tillbaka"
+
+#, python-format
+#~ msgid ""
+#~ "%(requestee)s denied your friend request.\n"
+#~ "\n"
+#~ "Your profile page: %(profile_url)s\n"
+#~ msgstr ""
+#~ "%(requestee)s nekade din vänförfrågan.\n"
+#~ "\n"
+#~ "Din profilsida: %(profile_url)s\n"
+
+#, python-format
+#~ msgid ""
+#~ "You are now friends with %(requestee)s.\n"
+#~ "\n"
+#~ "Your profile page: %(profile_url)s\n"
+#~ msgstr ""
+#~ "Du är nu vän med %(requestee)s.\n"
+#~ "\n"
+#~ "Din profilsida: %(profile_url)s\n"
+
+#, python-format
+#~ msgid ""
+#~ "You have received a friend request from %(requestor)s. Friends can sign "
+#~ "each other up for work shifts.\n"
+#~ "\n"
+#~ "Answer here: %(profile_url)s\n"
+#~ msgstr ""
+#~ "Du har mottagit en vänförfrågan från %(requestor)s. Vänner kan anmäla "
+#~ "varandra till jobbpass.\n"
+#~ "\n"
+#~ "Svara här: %(profile_url)s\n"
+
+#, python-format
+#~ msgid ""
+#~ "The friend request from %(requestor)s was canceled.\n"
+#~ "\n"
+#~ "Your profile page: %(profile_url)s\n"
+#~ msgstr ""
+#~ "Vänförfrågan från %(requestor)s avbröts.\n"
+#~ "\n"
+#~ "Din profilsida: %(profile_url)s\n"
+
+#~ msgid "The order was processed."
+#~ msgstr "Beställningen hanterades."
+
+#~ msgid "The order was denied."
+#~ msgstr "Beställningen nekades."
+
+#~ msgid "The order was accepted."
+#~ msgstr "Beställningen accepterades."
+
+#~ msgid "Mixed currencies."
+#~ msgstr "Olika valutor."
+
+#~ msgid "Insufficient funds."
+#~ msgstr "Otillräckligt med pengar."
+
+#, python-format
+#~ msgid "Job Opening %s"
+#~ msgstr "Jobbsläpp %s"
+
+#, python-format
+#~ msgid "document generated %s"
+#~ msgstr "dokument genererat %s"
+
+#~ msgid "liu ids"
+#~ msgstr "liu-idn"
+
+#~ msgid "About Baljan"
+#~ msgstr "Om Baljan"
+
+#~ msgid "weekdays"
+#~ msgstr "veckodagar"
+
+#~ msgid "8:00 pm to 4:15 pm"
+#~ msgstr "08:00 till 16:15"
+
+#~ msgid "weekends, holidays"
+#~ msgstr "helger, helgdagar"
+
+#~ msgid ""
+#~ "Open normal hours during mid-terms and final exams, but closed during re-"
+#~ "exams."
+#~ msgstr "Öppet vanliga tider under tenta-p, stängt under omtenta-p."
+
+#~ msgid ""
+#~ "\n"
+#~ "                Baljan is located at the bottom floor of\n"
+#~ "                <a href=\"http://www.karservice.se/karallen/\">Kårallen</"
+#~ "a>,\n"
+#~ "                campus Valla, Linköping.\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "                Baljan finns på bottenplan i \n"
+#~ "                <a href=\"http://www.karservice.se/karallen/\">Kårallen</"
+#~ "a>,\n"
+#~ "                campus Valla, Linköping.\n"
+#~ "            "
+
+#~ msgid "email"
+#~ msgstr "e-post"
+
+#~ msgid ""
+#~ "\n"
+#~ "                <strong>snail mail</strong><br/>\n"
+#~ "                Sektionscafé Baljan<br/>\n"
+#~ "                Kårallen, universitetet<br/>\n"
+#~ "                581 83 Linköping<br/>\n"
+#~ "                Sweden\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "                <strong>snigelpost</strong><br/>\n"
+#~ "                Sektionscafé Baljan<br/>\n"
+#~ "                Kårallen, universitetet<br/>\n"
+#~ "                581 83 Linköping\n"
+#~ "            "
+
+#~ msgid "phone"
+#~ msgstr "telefon"
+
+#~ msgid "Admin Semester"
+#~ msgstr "Administrera termin"
+
+#~ msgid "No semester selected."
+#~ msgstr "Ingen termin vald."
+
+#~ msgid "create new"
+#~ msgstr "skapa ny"
+
+#~ msgid "days"
+#~ msgstr "dagar"
+
+#~ msgid "worker shifts"
+#~ msgstr "jobbarpass"
+
+#~ msgid "PDF"
+#~ msgstr "PDF"
+
+#~ msgid "form"
+#~ msgstr "fomulär"
+
+#~ msgid "Make Selection"
+#~ msgstr "Gör markering"
+
+#~ msgid "edit on admin site"
+#~ msgstr "hantera på adminsidan"
+
+#~ msgid "New Semester"
+#~ msgstr "Ny termin"
+
+#~ msgid ""
+#~ "Are you sure? Shift combinations for job openings will also be updated."
+#~ msgstr ""
+#~ "Är du säker? Passkombinationer för jobbsläpp kommer också att uppdateras."
+
+#~ msgid "This cannot be undone. Are you sure?"
+#~ msgstr "Det här är permanent. Är du säker?"
+
+#~ msgid "save"
+#~ msgstr "spara"
+
+#~ msgid "cancel"
+#~ msgstr "avbryt"
+
+#~ msgid "Work for Baljan"
+#~ msgstr "Jobba i Baljan"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "                <strong><a href=\"%(profile_link)s\">You</a> are\n"
+#~ "                a worker.</strong> If you wish to stop being one, <a\n"
+#~ "                href=\"mailto:%(CONTACT_EMAIL)s\">send us an email</a>.\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "                <strong><a href=\"%(profile_link)s\">Du</a> är\n"
+#~ "                en jobbare.</strong> Om du vill sluta att vara en, <a\n"
+#~ "                href=\"mailto:%(CONTACT_EMAIL)s\">maila oss</a>. \n"
+#~ "            "
+
+#~ msgid "wk."
+#~ msgstr "v."
+
+#~ msgid "Monday"
+#~ msgstr "måndag"
+
+#~ msgid "Tuesday"
+#~ msgstr "tisdag"
+
+#~ msgid "Wednesday"
+#~ msgstr "onsdag"
+
+#~ msgid "Thursday"
+#~ msgstr "torsdag"
+
+#~ msgid "Friday"
+#~ msgstr "fredag"
+
+#~ msgid "revert unsaved changes"
+#~ msgstr "ångra osparade ändringar"
+
+#~ msgid "Are you sure?"
+#~ msgstr "Är du säker?"
+
+#~ msgid "Credits"
+#~ msgstr "Konto"
+
+#~ msgid "Refill"
+#~ msgstr "Fyll på"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "        Value cards can be purchased at the café. If you have questions "
+#~ "or run\n"
+#~ "        into problems, <a href=\"mailto:%(CONTACT_EMAIL)s\">contact us</"
+#~ "a>. Abuse\n"
+#~ "        will be logged.\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "        Värdekort kan köpas på kafét. Om du har frågor eller stöter på "
+#~ "problem,         <a href=\"mailto:%(CONTACT_EMAIL)s\">kontakta oss</"
+#~ "a>.         Missbruk loggas.\n"
+#~ "        "
+
+#~ msgid ""
+#~ "\n"
+#~ "        To import an old coffee card (kaffeklippkort), see <a "
+#~ "href=\"#import-old\">below</a>.\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "        För att importera kaffeklipport, se <a href=\"#import-"
+#~ "old\">nedan</a>.\n"
+#~ "        "
+
+#~ msgid "refill"
+#~ msgstr "fyll på"
+
+#~ msgid "Available"
+#~ msgstr "Tillgängligt"
+
+#~ msgid "the code was used"
+#~ msgstr "koden användes"
+
+#~ msgid "invalid or used code"
+#~ msgstr "ogiltig eller använd kod"
+
+#~ msgid "LiU Cards Just Work&trade;"
+#~ msgstr "LiU-kort fungerar automatiskt"
+
+#~ msgid ""
+#~ "\n"
+#~ "        <p>\n"
+#~ "        LiU card numbers are imported automatically. This means that new\n"
+#~ "        users don't have to enter a number on the web site anymore.\n"
+#~ "        </p>\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "        <p>\n"
+#~ "        LiU-kortnummer importeras automatiskt. Detta betyder att nya \n"
+#~ "        användare inte längre behöver fylla i ett nummer på webbplatsen.\n"
+#~ "        </p>\n"
+#~ "        "
+
+#~ msgid "Wallet Blips"
+#~ msgstr "Plånboksblipp"
+
+#~ msgid ""
+#~ "\n"
+#~ "        <p>\n"
+#~ "        If your wallet is made of regular wallet material and doesn't "
+#~ "stash a\n"
+#~ "        public transportation card (or any other RFID tag of the same "
+#~ "type),\n"
+#~ "        you can blip through it. If you have mad blipping skills you "
+#~ "might be\n"
+#~ "        able to use your wallet anyway (hint: LiU card closest to the "
+#~ "reader).\n"
+#~ "        </p>\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "<p>\n"
+#~ "Om din plånbok är gjord av vanligt plånboksmaterial och inte innehåller \n"
+#~ "något busskort (eller annan RFID-tag av samma typ) så kan du blippa genom "
+#~ "den. \n"
+#~ "Om du är duktig på att blippa är det möjligt att du kan använda plånboken "
+#~ "även \n"
+#~ "om du har andra kort i den (tips: LiU-kortet närmast läsaren).        "
+
+#~ msgid "Used Value Cards"
+#~ msgstr "Använda värdekort"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "                card %(serid)s worth %(worth)s used at %(used_at)s\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                kort %(serid)s värt %(worth)s användes %(used_at)s\n"
+#~ "                "
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "                    (you were added to %(group_name)s)\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                    (du lades till i %(group_name)s)\n"
+#~ "                "
+
+#~ msgid "you have not used any value cards"
+#~ msgstr "du har inte använt några värdekort"
+
+#~ msgid "Old Cards (Kaffeklippkort)"
+#~ msgstr "Kaffeklippkort (gamla systemet)"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "                card %(setid)s.%(cardid)s with %(left)s of %(count)s "
+#~ "klipp left\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                kort %(setid)s.%(cardid)s med %(left)s av %(count)s klipp "
+#~ "kvar                "
+
+#~ msgid "unimported"
+#~ msgstr "oimporterad"
+
+#~ msgid "you have not used any old coffee cards"
+#~ msgstr "du har inte använt några kaffeklippkort"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "        <a href=\"%(sem_url)s\">&laquo; semester %(sem_name)s</a>\n"
+#~ "    "
+#~ msgstr ""
+#~ "\n"
+#~ "        <a href=\"%(sem_url)s\">&laquo; termin %(sem_name)s</a>\n"
+#~ "    "
+
+#~ msgid "week"
+#~ msgstr "vecka"
+
+#~ msgid "admin"
+#~ msgstr "admin"
+
+#~ msgid "worker wants to trade"
+#~ msgstr "jobbare vill byta"
+
+#~ msgid ""
+#~ "you cannot offer to take this shift because you have no shifts to trade "
+#~ "with"
+#~ msgstr ""
+#~ "du kan inte erbjuda att ta passet eftersom att du inte har några pass att "
+#~ "byta med"
+
+#~ msgid "make untradable"
+#~ msgstr "ångra bytbar"
+
+#~ msgid "offer to take this shift"
+#~ msgstr "erbjud att ta passet"
+
+#~ msgid "make tradable"
+#~ msgstr "gör bytbar"
+
+#~ msgid "The morning and afternoon shifts for workers overlap here."
+#~ msgstr "För- och eftermiddagspassen för jobbare överlappar varandra här."
+
+#~ msgid "No workers have signed up."
+#~ msgstr "Inga jobbare har anmält sig."
+
+#~ msgid "The working hours are"
+#~ msgstr "Arbetstiden är"
+
+#~ msgid "sign up"
+#~ msgstr "anmäl"
+
+#~ msgid "only approved workers can be signed up"
+#~ msgstr "endast bekräftade jobbare kan anmälas"
+
+#~ msgid "find worker friends"
+#~ msgstr "hitta jobbarkompisar"
+
+#~ msgid "on call"
+#~ msgstr "jour"
+
+#~ msgid "Nobody has signed up to be on call."
+#~ msgstr "Ingen har anmält sig till att joura."
+
+#~ msgid "want free coffee? become a worker!"
+#~ msgstr "vill du ha gratis kaffe? bli jobbare!"
+
+#~ msgid "Group"
+#~ msgstr "Grupp"
+
+#~ msgid "no members"
+#~ msgstr "inga medlemmar"
+
+#~ msgid "↑ back to top"
+#~ msgstr "↑ till toppen"
+
+#~ msgid "Other Groups"
+#~ msgstr "Andra grupper"
+
+#~ msgid "Jump To"
+#~ msgstr "Gå till"
+
+#~ msgid "High Score"
+#~ msgstr "Topplista"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "        These lists show the people who have used the blipper&trade;\n"
+#~ "        the most. Each blip represents one coffee, tea, or chocolate.\n"
+#~ "        Start using it you too, to track your caffeine consumption and\n"
+#~ "        to compete for glory and fame in the high scores.\n"
+#~ "        If you have suggestions, feel free to <a href=\"mailto:"
+#~ "%(CONTACT_EMAIL)s\">contact us</a>.\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "            De här listorna visar de personer som har använt "
+#~ "blipparen&trade;\n"
+#~ "            flitigast. Varje blipp står för en kaffe, te eller choklad.\n"
+#~ "            Börja att använda den du med, för att hålla på koll på din "
+#~ "koffeinkonsumtion och\n"
+#~ "            för att tävla med andra om ära och berömmelse i topplistan.\n"
+#~ "        <a href=\"mailto:%(CONTACT_EMAIL)s\">Kontakta oss</a> om du har "
+#~ "synpunkter.\n"
+#~ "        "
+
+#~ msgid "person"
+#~ msgstr "person"
+
+#~ msgid "blips"
+#~ msgstr "blipp"
+
+#~ msgid "Job Opening"
+#~ msgstr "Jobbsläpp"
+
+#~ msgid "Choose Workers"
+#~ msgstr "Välj jobbare"
+
+#~ msgid "add"
+#~ msgstr "lägg till"
+
+#~ msgid "Choose Combination"
+#~ msgstr "Välj kombination"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "        <h2>\n"
+#~ "            %(done_percent)s%% Done\n"
+#~ "        </h2>\n"
+#~ "        <dl>\n"
+#~ "            <dt>combinations available</dt>\n"
+#~ "            <dd>%(free)s</dd>\n"
+#~ "            <dt>combinations taken</dt>\n"
+#~ "            <dd>%(taken)s</dd>\n"
+#~ "        </dl>\n"
+#~ "    "
+#~ msgstr ""
+#~ "\n"
+#~ "        <h2>\n"
+#~ "            %(done_percent)s%% färdig\n"
+#~ "        </h2>\n"
+#~ "        <dl>\n"
+#~ "            <dt>lediga kombinationer</dt>\n"
+#~ "            <dd>%(free)s</dd>\n"
+#~ "            <dt>tagna kombinationer</dt>\n"
+#~ "            <dd>%(taken)s</dd>\n"
+#~ "        </dl>\n"
+#~ "    "
+
+#~ msgid "Projector"
+#~ msgstr "Projektor"
+
+#~ msgid ""
+#~ "\n"
+#~ "            This view is suitable for showing to people queueing during "
+#~ "the job\n"
+#~ "            opening.\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "            Den här vyn passar att visa på projektor för personer som "
+#~ "köar."
+
+#~ msgid "open view"
+#~ msgstr "öppna vy"
+
+#~ msgid "mobile:"
+#~ msgstr "mobil:"
+
+#~ msgid "select two workers and one combination"
+#~ msgstr "välj två jobbare och en kombination"
+
+#~ msgid "Job Opening Projector"
+#~ msgstr "Jobbsläpp på projektor"
+
+#~ msgid "updated "
+#~ msgstr "uppdaterad"
+
+#~ msgid "Log in"
+#~ msgstr "Logga in"
+
+#~ msgid ""
+#~ "\n"
+#~ "        You need a LiU student account (<em>abcde123</em>) to log in. \n"
+#~ "\n"
+#~ "        In July 1, 2011, the Eletronic Communications Act \n"
+#~ "        (<a href=\"https://lagen.nu/2003:389\">2003:389</a>) was "
+#~ "changed.\n"
+#~ "        By logging in, you accept that the site stores cookies on your\n"
+#~ "        device in order to keep a session.\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "        Du behöver ett LiU-konto (<em>abcde123</em>) för att logga in. \n"
+#~ "\n"
+#~ "        Den 1 juli 2011 ändrades lagen om elektronisk kommunikation \n"
+#~ "        (<a href=\"https://lagen.nu/2003:389\">2003:389</a>).\n"
+#~ "        Genom att logga in accepterar du att kakor lagras på din enhet \n"
+#~ "        för att kunna hålla en session. \n"
+#~ "        "
+
+#~ msgid "nothing ordered"
+#~ msgstr "inget beställt"
+
+#~ msgid "older"
+#~ msgstr "äldre"
+
+#~ msgid "newer"
+#~ msgstr "nyare"
+
+#~ msgid "Price List"
+#~ msgstr "Prislista"
+
+#~ msgid "Assortment"
+#~ msgstr "Sortiment"
+
+#~ msgid "Ordering From Us"
+#~ msgstr "Beställa från oss"
+
+#~ msgid ""
+#~ "\n"
+#~ "            Matches first name, last name, liu id, and groups. Only "
+#~ "people that\n"
+#~ "            match each term show up in the results.\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "            Söker förnamn, efternamn, liu-id och grupper. Endast personer "
+#~ "som\n"
+#~ "            uppfyller varje term visas i resultatet.\n"
+#~ "            "
+
+#~ msgid "Semesters"
+#~ msgstr "Terminer"
+
+#~ msgid "Name"
+#~ msgstr "Namn"
+
+#~ msgid "Start"
+#~ msgstr "Start"
+
+#~ msgid "End"
+#~ msgstr "Slut"
+
+#~ msgid "Sign-Up Possible"
+#~ msgstr "Jobbare kan anmäla sig"
+
+#~ msgid "No semesters available."
+#~ msgstr "Inga terminer tillgängliga."
+
+#~ msgid "Add"
+#~ msgstr "Lägg till"
+
+#~ msgid "manage on admin site"
+#~ msgstr "hantera på adminsidan"
+
+#~ msgid "Statistics"
+#~ msgstr "Statistik"
+
+#~ msgid "from"
+#~ msgstr "från"
+
+#~ msgid "to"
+#~ msgstr "till"
+
+#~ msgid "auto-update"
+#~ msgstr "automatisk uppdatering"
+
+#~ msgid "Update now"
+#~ msgstr "Uppdatera nu"
+
+#~ msgid "Orders per Day and Hour"
+#~ msgstr "Beställningar per dag och timme"
+
+#~ msgid "return"
+#~ msgstr "tillbaks"
+
+#~ msgid "Wanted Shift"
+#~ msgstr "Begärt pass"
+
+#~ msgid "when"
+#~ msgstr "när"
+
+#~ msgid "from user"
+#~ msgstr "från användare"
+
+#~ msgid "You Can Offer"
+#~ msgstr "Du kan erbjuda"
+
+#~ msgid "you have no shifts to offer"
+#~ msgstr "du har inga pass att erbjuda"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "        Check the shifts you would like to offer. %(first_name)s will be "
+#~ "able to\n"
+#~ "        pick one of them. You can add and remove offers whenever you want "
+#~ "to.\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "        Markera passen som du vill erbjuda. %(first_name)s kommer att "
+#~ "kunna         välja ett av dem. Du kan lägga till och ta bort erbjudanden "
+#~ "när som helst.        "
+
+#~ msgid "You have no shifts to offer."
+#~ msgstr "Du har inga pass att erbjuda."
+
+#~ msgid "update trade request"
+#~ msgstr "uppdatera bytesförfrågan"
+
+#~ msgid "send trade request"
+#~ msgstr "skicka bytesförfrågan"
+
+#~ msgid "changes saved"
+#~ msgstr "ändringar sparade"
+
+#~ msgid "return to previous page"
+#~ msgstr "tillbaks till föregående sida"
+
+#~ msgid "edit"
+#~ msgstr "ändra"
+
+#~ msgid "last login"
+#~ msgstr "senast inloggad"
+
+#~ msgid "calendar"
+#~ msgstr "kalender"
+
+#~ msgid "iCal format"
+#~ msgstr "iCal-format"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "        None. To work in Baljan, one must <a "
+#~ "href=\"%(become_worker_link)s\">become a member of the workers' group</"
+#~ "a>.\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "        Inga. För att jobba i Baljan måste man <a "
+#~ "href=\"%(become_worker_link)s\">gå med i jobbargruppen</a>.\n"
+#~ "        "
+
+#~ msgid "Friends"
+#~ msgstr "Vänner"
+
+#~ msgid "Received"
+#~ msgstr "Mottagna"
+
+#~ msgid "wanted"
+#~ msgstr "begärt"
+
+#~ msgid "offered"
+#~ msgstr "erbjudet"
+
+#~ msgid "answer"
+#~ msgstr "svar"
+
+#~ msgid "deny"
+#~ msgstr "neka"
+
+#~ msgid "accept"
+#~ msgstr "acceptera"
+
+#~ msgid "Sent"
+#~ msgstr "Skickat"
+
+#~ msgid "action"
+#~ msgstr "åtgärd"
+
+#~ msgid "date"
+#~ msgstr "datum"
+
+#~ msgid "am/pm"
+#~ msgstr "fm/em"
+
+#~ msgid "Edit Profile"
+#~ msgstr "Ändra profil"
+
+#~ msgid "Semester"
+#~ msgstr "Termin"
+
+#~ msgid "upcoming days only"
+#~ msgstr "endast kommande dagar"
+
+#~ msgid "need workers"
+#~ msgstr "behöver jobbare"
+
+#~ msgid "only tradable"
+#~ msgstr "endast bytbara"
+
+#~ msgid "need call duty"
+#~ msgstr "behöver jour"
+
+#~ msgid "worker list"
+#~ msgstr "jobbarlista"
+
+#~ msgid "call duty list"
+#~ msgstr "jourlista"
+
+#~ msgid "day"
+#~ msgstr "dag"
+
+#~ msgid "overlap"
+#~ msgstr "överlapp"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "                One worker.\n"
+#~ "            "
+#~ msgid_plural ""
+#~ "\n"
+#~ "                A total of %(counter)s workers.\n"
+#~ "            "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "                En jobbare.\n"
+#~ "            "
+#~ msgstr[1] ""
+#~ "\n"
+#~ "Totalt %(counter)s jobbare."
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "            <a href=\"%(worker_group_url)s\">Full overview of the group</"
+#~ "a>.\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "            <a href=\"%(worker_group_url)s\">Full överblick av gruppen</"
+#~ "a>.\n"
+#~ "            "
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "                One person on the call duty list.\n"
+#~ "            "
+#~ msgid_plural ""
+#~ "\n"
+#~ "                Total of %(counter)s people on the call duty list.\n"
+#~ "            "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "En person på jourlistan."
+#~ msgstr[1] ""
+#~ "\n"
+#~ "Totalt %(counter)s personer på jourlistan."
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "            <a href=\"%(board_group_url)s\">Full overview of the group</"
+#~ "a>.\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "            <a href=\"%(board_group_url)s\">Full överblick av gruppen</"
+#~ "a>.\n"
+#~ "            "
+
+#~ msgid "hide"
+#~ msgstr "dölj"
+
+#~ msgid ""
+#~ "\n"
+#~ "                Basic functionality is tested in IE 8. You are encouraged "
+#~ "to\n"
+#~ "                switch to a browser with support for transparency.\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                Grundläggande funktionalitet testat i IE. Du uppmanas "
+#~ "att\n"
+#~ "                byta till en webbläsare med stöd för transparens.\n"
+#~ "                "
+
+#~ msgid "logout"
+#~ msgstr "logga ut"
+
+#~ msgid "login"
+#~ msgstr "logga in"
+
+#~ msgid "Logged out."
+#~ msgstr "Utloggad."
+
+#, python-format
+#~ msgid "%s was added successfully."
+#~ msgstr "%s lades till utan problem"
+
+#~ msgid "Thank you!"
+#~ msgstr ""
+#~ "Tack för din beställning! Ni kommer få en bekräftelse när styrelsen har "
+#~ "behandlat din beställning."
+
+#~ msgid "Nothing scheduled for this shift (yet)."
+#~ msgstr "Ingenting schemalagt för detta shift (än)."
+
+#, python-format
+#~ msgid "Last %d Days"
+#~ msgstr "Senaste %d dagar"
+
+#~ msgid "Forever"
+#~ msgstr "För alltid"
 
 #~ msgid "picture"
 #~ msgstr "bild"
 
 #~ msgid ""
 #~ "\n"
-#~ "        go to: <a href=\"#individual\">individual</a>, <a href=\"#sections"
-#~ "\">groups</a>\n"
+#~ "        go to: <a href=\"#individual\">individual</a>, <a "
+#~ "href=\"#sections\">groups</a>\n"
 #~ "        "
 #~ msgstr ""
 #~ "\n"
-#~ "        gå till: <a href=\"#individual\">individuellt</a>, <a href="
-#~ "\"#sections\">sektioner</a>\n"
+#~ "        gå till: <a href=\"#individual\">individuellt</a>, <a "
+#~ "href=\"#sections\">sektioner</a>\n"
 #~ "        "
 
 #~ msgid "Individual"
@@ -2224,8 +1986,8 @@ msgstr "För alltid"
 #~ "        <a href=\"http://www.flickr.com/photos/chipgriffin/2210297177/"
 #~ "\">\n"
 #~ "            <img title=\"chipgriffin @ flickr\"\n"
-#~ "                 src=\"%(STATIC_URL)simg/flickr/2210297177_d5a88290b3.jpg"
-#~ "\"/>\n"
+#~ "                 src=\"%(STATIC_URL)simg/flickr/2210297177_d5a88290b3."
+#~ "jpg\"/>\n"
 #~ "        </a>\n"
 #~ "\n"
 #~ "        <dl>\n"
@@ -2246,8 +2008,8 @@ msgstr "För alltid"
 #~ "        <a href=\"http://www.flickr.com/photos/chipgriffin/2210297177/"
 #~ "\">\n"
 #~ "            <img title=\"chipgriffin @ flickr\"\n"
-#~ "                 src=\"%(STATIC_URL)simg/flickr/2210297177_d5a88290b3.jpg"
-#~ "\"/>\n"
+#~ "                 src=\"%(STATIC_URL)simg/flickr/2210297177_d5a88290b3."
+#~ "jpg\"/>\n"
 #~ "        </a>\n"
 #~ "        <dl>\n"
 #~ "            <dt>vardagar</dt>\n"
@@ -2267,8 +2029,8 @@ msgstr "För alltid"
 #~ "        <a href=\"http://www.flickr.com/photos/20988296@N03/2133238064/"
 #~ "\">\n"
 #~ "            <img title=\"MINGHE*luciano @ flickr\" \n"
-#~ "                 src=\"%(STATIC_URL)simg/flickr/2133238064_b7a6f87cf2.jpg"
-#~ "\"/>\n"
+#~ "                 src=\"%(STATIC_URL)simg/flickr/2133238064_b7a6f87cf2."
+#~ "jpg\"/>\n"
 #~ "        </a>\n"
 #~ "        <p>\n"
 #~ "        Baljan is located at the bottom floor of <a\n"
@@ -2302,8 +2064,8 @@ msgstr "För alltid"
 #~ "        <a href=\"http://www.flickr.com/photos/20988296@N03/2133238064/"
 #~ "\">\n"
 #~ "            <img title=\"MINGHE*luciano @ flickr\" \n"
-#~ "                 src=\"%(STATIC_URL)simg/flickr/2133238064_b7a6f87cf2.jpg"
-#~ "\"/>\n"
+#~ "                 src=\"%(STATIC_URL)simg/flickr/2133238064_b7a6f87cf2."
+#~ "jpg\"/>\n"
 #~ "        </a>\n"
 #~ "        <p>\n"
 #~ "        Baljan finns på bottenplan i <a\n"
@@ -2475,8 +2237,8 @@ msgstr "För alltid"
 #~ msgstr "Logga in &raquo;"
 
 #~ msgid ""
-#~ "If you have any trouble logging in to your account, contact us at <a href="
-#~ "\"mailto:%(CONTACT_EMAIL)s\">%(CONTACT_EMAIL)s</a>."
+#~ "If you have any trouble logging in to your account, contact us at <a "
+#~ "href=\"mailto:%(CONTACT_EMAIL)s\">%(CONTACT_EMAIL)s</a>."
 #~ msgstr ""
 #~ "Om du har problem att logga in, kontakta oss på <a href=\"mailto:"
 #~ "%(CONTACT_EMAIL)s\">%(CONTACT_EMAIL)s</a>."
@@ -2741,10 +2503,10 @@ msgstr "För alltid"
 #~ "\n"
 #~ " * wanted shift: http://%(current_site)s%(wanted_url)s\n"
 #~ " * offered shift: http://%(current_site)s%(offered_url)s\n"
-#~ " * profile of %(requester_name)s: http://%(current_site)s"
-#~ "%(requester_url)s\n"
-#~ " * profile of %(responder_name)s: http://%(current_site)s"
-#~ "%(responder_url)s\n"
+#~ " * profile of %(requester_name)s: http://"
+#~ "%(current_site)s%(requester_url)s\n"
+#~ " * profile of %(responder_name)s: http://"
+#~ "%(current_site)s%(responder_url)s\n"
 #~ msgstr ""
 #~ "%(requester_name)s vill ha %(wanted_name)s från %(responder_name)s i "
 #~ "utbyte mot %(offered_name)s.\n"
@@ -2753,10 +2515,10 @@ msgstr "För alltid"
 #~ "\n"
 #~ " * önskat pass: http://%(current_site)s%(wanted_url)s\n"
 #~ " * erbjudet pass: http://%(current_site)s%(offered_url)s\n"
-#~ " * profil för %(requester_name)s: http://%(current_site)s"
-#~ "%(requester_url)s\n"
-#~ " * profil för %(responder_name)s: http://%(current_site)s"
-#~ "%(responder_url)s\n"
+#~ " * profil för %(requester_name)s: http://"
+#~ "%(current_site)s%(requester_url)s\n"
+#~ " * profil för %(responder_name)s: http://"
+#~ "%(current_site)s%(responder_url)s\n"
 
 #~ msgid ""
 #~ "Your request to trade shifts %(happening)s.\n"
