@@ -158,7 +158,10 @@ def orderFromUs(request):
                 ("pastasallad", numberOfPastasalad, extend_sub_types(form.PASTA_SALAD_TYPES)),
             )
 
-            subject = f'[Beställning {date.strftime("%Y-%m-%d")} | {orderer} - {association}]'
+            uid = uuid.uuid4()
+
+            email_subject = f'[Beställning {date.strftime("%Y-%m-%d")} | {orderer} - {association} | #{str(uid).split("-")[0]}]'
+            calendar_subject = f'[Beställning {date.strftime("%Y-%m-%d")} | {orderer} - {association}]'
             from_email = f'Baljan <{settings.DEFAULT_FROM_EMAIL}>'
             to = 'bestallning@baljan.org'
 
@@ -167,7 +170,7 @@ def orderFromUs(request):
                 "order_fields": order_fields,
             })
 
-            msg = EmailMultiAlternatives(subject, "", from_email, [to], headers={'Reply-To': ordererEmail})
+            msg = EmailMultiAlternatives(email_subject, "", from_email, [to], headers={'Reply-To': ordererEmail})
 
             msg.attach_alternative(html_content.encode('utf-8'), "text/html")
 
@@ -204,11 +207,11 @@ def orderFromUs(request):
             cal.add('method', 'REQUEST')
 
             event = Event()
-            event.add("summary", subject)
+            event.add("summary", calendar_subject)
             event.add('dtstart', datetime.combine(date,start,tz))
             event.add('dtend', datetime.combine(date,end,tz))
             event.add('dtstamp', datetime.now(tz))
-            event.add("uid", f"{uuid.uuid4()}@baljan.org")
+            event.add("uid", f"{uid}@baljan.org")
             event.add("description", calendar_description)
             event.add("location", "Baljan")
             event.add("status", "CONFIRMED")
