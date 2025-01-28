@@ -811,7 +811,6 @@ SERIES_MAX_VALUE = BALANCE_CODE_MAX_VALUE * SERIES_CODE_DEFAULT_COUNT
 def default_issued():
     return date.today()
 
-
 def default_least_valid_until():
     return default_issued() + SERIES_RELATIVE_LEAST_VALIDITY
 
@@ -820,6 +819,10 @@ def generate_balance_code():
     while len(BalanceCode.objects.filter(code=code)) != 0:
         code = random_string(BALANCE_CODE_LENGTH)
     return code
+
+def generate_code_prices():
+    coffee_good = GoodCost.objects.get(pk=42) # TODO: Horrible solution, but right now Coffee is PK = 42
+    return [(x * coffee_good.cost, "%d kr" % (x * coffee_good.cost)) for x in [15, 45]]
 
 class RefillSeries(Made):
     issued = models.DateField(_("issued"), default=default_issued)
@@ -832,9 +835,9 @@ class RefillSeries(Made):
     code_count = models.PositiveIntegerField(_("code count"),
             default=SERIES_CODE_DEFAULT_COUNT,
             help_text=_("multiple of 16 recommended (4x4 on A4 paper), total value can be at most %d SEK") % SERIES_MAX_VALUE)
-    code_value = models.PositiveIntegerField(_("code value"),
-            default=BALANCE_CODE_DEFAULT_VALUE,
-            help_text=_("maximum value is %d SEK") % BALANCE_CODE_MAX_VALUE)
+    code_value = models.PositiveIntegerField(_("code value"), 
+            choices=generate_code_prices(), 
+            default=0)
     code_currency = models.CharField(_("code currency"), max_length=5, default="SEK")
 
     add_to_group = models.ForeignKey("auth.Group", verbose_name=_("add to group"),
