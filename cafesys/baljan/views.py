@@ -935,6 +935,10 @@ def support_webhook(request):
     message = data['message']['data']
     decoded_message = json.loads(base64.b64decode(message).decode('utf-8'))
 
+    print(data)
+    print(message)
+    print(decoded_message)
+
     messages = google.get_new_messages(decoded_message.get("historyId"))
     
     for message in messages:
