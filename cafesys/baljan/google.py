@@ -32,7 +32,7 @@ def ensure_gmail_watch():
         LAST_WATCH_TIME = current_time
 
 
-def get_new_messages(service, history_id):
+def get_new_messages(history_id):
     response = service.users().history().list(userId="me", startHistoryId=history_id).execute()
 
     messages = []
@@ -43,17 +43,18 @@ def get_new_messages(service, history_id):
                 for message in history["messagesAdded"]:
                     message_id = message["message"]["id"]
                     print(f"New email received! Message ID: {message_id}")
-                    messages.append(get_email_details(service, message_id))
+                    messages.append(get_email_details(message_id))
     
     return messages
 
-def get_email_details(service, message_id):
+def get_email_details(message_id):
     message = service.users().messages().get(userId="me", id=message_id, format="full").execute()
     
     headers = message["payload"]["headers"]
 
-    data = { message_id }
-
+    data = dict()
+    
+    data["message_id"] = message_id
     data["subject"] = next((h["value"] for h in headers if h["name"] == "Subject"), "No Subject")
     data["sender"] = next((h["value"] for h in headers if h["name"] == "From"), "Unknown Sender")
 
@@ -84,7 +85,7 @@ def generate_slack_message(message):
 			"fields": [
 				{
 					"type": "mrkdwn",
-					"text": "*Titel:* " + {message.get("subject")}
+					"text": "*Titel:* " + message.get("subject")
 				}
 			]
 		}, 
