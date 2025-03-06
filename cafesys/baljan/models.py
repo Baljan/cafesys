@@ -836,7 +836,7 @@ class RefillSeries(Made):
             default=SERIES_CODE_DEFAULT_COUNT,
             help_text=_("multiple of 16 recommended (4x4 on A4 paper), total value can be at most %d SEK") % SERIES_MAX_VALUE)
     code_value = models.PositiveIntegerField(_("code value"), 
-            choices=generate_code_prices, 
+            choices=generate_code_prices(), 
             default=0)
     code_currency = models.CharField(_("code currency"), max_length=5, default="SEK")
 
