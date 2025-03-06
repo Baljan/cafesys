@@ -897,7 +897,7 @@ def incoming_sms(request):
     message = request.POST.get('message', '')
 
     slack_data = slack.compile_slack_sms_message(from_number, message)
-    slack.send_message(slack_data, type="SMS")
+    slack.send_message(slack_data, url="PHONE", type="SMS")
 
     return JsonResponse({})
 
@@ -920,7 +920,7 @@ def post_call(request, location):
             calls,
             location=location
         )
-    slack.send_message(slack_data, type="call")
+    slack.send_message(slack_data, url="PHONE", type="call")
 
     return JsonResponse({})
 
@@ -932,11 +932,14 @@ def support_webhook(request):
 
     data = json.loads(request.body)
 
-    # Decode the Pub/Sub message
     message = data['message']['data']
     decoded_message = json.loads(base64.b64decode(message).decode('utf-8'))
+
+    messages = google.get_new_messages(decoded_message.get("historyId"))
     
-    print("Received email notification:", decoded_message)
+    for message in messages:
+        data = google.generate_slack_message(message)
+        slack.send_message(data, 'SUPPORT', type="email")
 
     return JsonResponse({})
 
