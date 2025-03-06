@@ -58,13 +58,6 @@ def get_email_details(message_id):
     data["subject"] = next((h["value"] for h in headers if h["name"] == "Subject"), "No Subject")
     data["sender"] = next((h["value"] for h in headers if h["name"] == "From"), "Unknown Sender")
 
-    # bodies = []
-
-    # for part in message["payload"].get("parts", []):
-    #     if part["mimeType"] == "text/plain":
-    #         bodies.append(part["body"]["data"])
-
-    # data["email_body"] = "\n\n".join(bodies)
     data["email_body"] = message["snippet"]
 
     return data
