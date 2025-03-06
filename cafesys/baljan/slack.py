@@ -1,3 +1,4 @@
+from typing import Literal
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.conf import settings
 from cafesys.baljan.models import User, Located, PhoneLabel
@@ -8,16 +9,20 @@ import requests
 logger = getLogger(__name__)
 
 
-def send_message(data, type="unknown message type"):
-    if settings.SLACK_PHONE_WEBHOOK_URL:
+def send_message(data, url: Literal["PHONE", "SUPPORT"], type="unknown message type"):
+    WEBHOOK_URL = settings.SLACK_WEBHOOK_URLS.get(url)
+
+    if WEBHOOK_URL:
         slack_response = requests.post(
-            settings.SLACK_PHONE_WEBHOOK_URL,
+            url=WEBHOOK_URL,
             json=data,
             headers={"Content-Type": "application/json"},
         )
 
         if slack_response.status_code != 200:
             logger.warning(f"Unable to post {type} to Slack")
+    else:
+        logger.warning(f"Could not find webhook URL for {url}")
 
 
 def get_from_context(from_user):

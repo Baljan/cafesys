@@ -36,7 +36,7 @@ from django import forms as django_forms
 from django.template.loader import render_to_string
 import django_filters
 
-from cafesys.baljan import phone, slack
+from cafesys.baljan import google, phone, slack
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
 from cafesys.baljan.models import LegalConsent, MutedConsent, BlippConfiguration
 from cafesys.baljan.pseudogroups import is_worker
@@ -897,7 +897,7 @@ def incoming_sms(request):
     message = request.POST.get('message', '')
 
     slack_data = slack.compile_slack_sms_message(from_number, message)
-    slack.send_message(slack_data, type="SMS")
+    slack.send_message(slack_data, url="PHONE", type="SMS")
 
     return JsonResponse({})
 
@@ -920,7 +920,26 @@ def post_call(request, location):
             calls,
             location=location
         )
-    slack.send_message(slack_data, type="call")
+    slack.send_message(slack_data, url="PHONE", type="call")
+
+    return JsonResponse({})
+
+@csrf_exempt
+@require_POST
+def support_webhook(request):
+    # FIXME: Needs authentication from google https://cloud.google.com/pubsub/docs/authenticate-push-subscriptions 
+    google.ensure_gmail_watch()
+
+    data = json.loads(request.body)
+
+    message = data['message']['data']
+    decoded_message = json.loads(base64.b64decode(message).decode('utf-8'))
+
+    messages = google.get_new_messages(decoded_message.get("historyId"))
+    
+    for message in messages:
+        data = google.generate_slack_message(message)
+        slack.send_message(data, 'SUPPORT', type="email")
 
     return JsonResponse({})
 
