@@ -299,3 +299,30 @@ ROLLBAR = {
     "environment": "development" if DEBUG else "production",
     "root": ROOT_DIR,
 }
+
+
+# Google Auth Shizz    
+GOOGLE_PROJECT_ID = env.str("GOOGLE_PROJECT_ID")
+GOOGLE_PRIVATE_KEY_ID = env.str("GOOGLE_PRIVATE_KEY_ID")
+GOOGLE_PRIVATE_KEY = env.str("GOOGLE_PRIVATE_KEY", multiline=True)
+GOOGLE_CLIENT_EMAIL = env.str("GOOGLE_CLIENT_EMAIL")
+GOOGLE_CLIENT_ID = env.str("GOOGLE_CLIENT_ID")
+GOOGLE_AUTH_URI = env.str("GOOGLE_AUTH_URI")
+GOOGLE_TOKEN_URI = env.str("GOOGLE_TOKEN_URI")
+GOOGLE_AUTH_PROVIDER_X509_CERT_URL = env.str("GOOGLE_AUTH_PROVIDER_X509_CERT_URL")
+GOOGLE_CLIENT_X509_CERT_URL = env.str("GOOGLE_CLIENT_X509_CERT_URL")
+GOOGLE_UNIVERSE_DOMAIN = env.str("GOOGLE_UNIVERSE_DOMAIN")
+
+GOOGLE_SERVICE_ACCOUNT_INFO = {
+    "type": "service_account",
+    "project_id": GOOGLE_PROJECT_ID,
+    "private_key_id": GOOGLE_PRIVATE_KEY_ID,
+    "private_key": GOOGLE_PRIVATE_KEY,
+    "client_email": GOOGLE_CLIENT_EMAIL,
+    "client_id": GOOGLE_CLIENT_ID,
+    "auth_uri": GOOGLE_AUTH_URI,
+    "token_uri": GOOGLE_TOKEN_URI,
+    "auth_provider_x509_cert_url": GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
+    "client_x509_cert_url": GOOGLE_CLIENT_X509_CERT_URL,
+    "universe_domain": GOOGLE_UNIVERSE_DOMAIN
+}

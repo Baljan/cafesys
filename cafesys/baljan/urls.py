@@ -68,6 +68,8 @@ urlpatterns = (
     path("stats/blipp", views.stats_blipp, name="stats_blipp"),
     path("stats/active-users", views.stats_active_blipp_users, name="stats_active_blipp_users"),
 
-    path("bookkeep", views.bookkeep_view, name="bookkeep")
+    path("bookkeep", views.bookkeep_view, name="bookkeep"),
+
+    path("support-webhook", views.support_webhook)
     
 )

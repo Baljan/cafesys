@@ -36,7 +36,7 @@ from django import forms as django_forms
 from django.template.loader import render_to_string
 import django_filters
 
-from cafesys.baljan import phone, slack
+from cafesys.baljan import google, phone, slack
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
 from cafesys.baljan.models import LegalConsent, MutedConsent, BlippConfiguration
 from cafesys.baljan.pseudogroups import is_worker
@@ -921,6 +921,22 @@ def post_call(request, location):
             location=location
         )
     slack.send_message(slack_data, type="call")
+
+    return JsonResponse({})
+
+@csrf_exempt
+@require_POST
+def support_webhook(request):
+    # FIXME: Needs authentication from google https://cloud.google.com/pubsub/docs/authenticate-push-subscriptions 
+    google.ensure_gmail_watch()
+
+    data = json.loads(request.body)
+
+    # Decode the Pub/Sub message
+    message = data['message']['data']
+    decoded_message = json.loads(base64.b64decode(message).decode('utf-8'))
+    
+    print("Received email notification:", decoded_message)
 
     return JsonResponse({})
 
