@@ -60,6 +60,7 @@ urlpatterns = (
     path('incoming-sms', views.incoming_sms),
     path('consent', views.consent, name='consent'),
     path('do-blipp', views.do_blipp),
+    path("support-webhook", views.support_webhook),
     path('integrity', views.integrity, name='integrity'),
     path('semester-shifts/<slug:sem_name>', views.semester_shifts, name='semester_shifts'),
     path('styrelsen', views.styrelsen, name='styrelsen'),
@@ -68,8 +69,7 @@ urlpatterns = (
     path("stats/blipp", views.stats_blipp, name="stats_blipp"),
     path("stats/active-users", views.stats_active_blipp_users, name="stats_active_blipp_users"),
 
-    path("bookkeep", views.bookkeep_view, name="bookkeep"),
+    path("bookkeep", views.bookkeep_view, name="bookkeep")
 
-    path("support-webhook", views.support_webhook)
     
 )

@@ -84,7 +84,7 @@ def generate_slack_message(message):
 			"fields": [
 				{
 					"type": "mrkdwn",
-					"text": f"*Titel:* {message.get("subject")}"
+					"text": "*Titel:* " + {message.get("subject")}
 				}
 			]
 		}, 
@@ -93,7 +93,7 @@ def generate_slack_message(message):
 			"fields": [
 				{
 					"type": "mrkdwn",
-					"text": f"*Från:* {message.get("sender")}"
+					"text": "*Från:* " + message.get("sender")
 				}
 			]
 		},
