@@ -821,8 +821,8 @@ def generate_balance_code():
     return code
 
 def generate_code_prices():
-    coffee_good = GoodCost.objects.get(pk=42) # TODO: Horrible solution, but right now Coffee is PK = 42
-    return [(x * coffee_good.cost, "%d kr" % (x * coffee_good.cost)) for x in [15, 45]]
+    COFFEE_PRICE = 7
+    return [(x * COFFEE_PRICE, "%d kr" % (x * COFFEE_PRICE)) for x in [15, 45]]
 
 class RefillSeries(Made):
     issued = models.DateField(_("issued"), default=default_issued)
