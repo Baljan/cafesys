@@ -56,13 +56,14 @@ $vt23-blue2: #bbeefe;
       border-top-left-radius: 30px;
       object-fit: contain;
       object-position: center 4px;
+      background: linear-gradient(0deg, #b081a2 0%, #b2c2d6 100%);
       // background: $vt23-blue2;
-      background-image: url("/static/img/styrelsen/bakgrund_board.webp");
-      //background: linear-gradient(0deg, $vt23-blue2 0%, rgba($vt23-blue2, 0.0) 40%, rgba($vt23-blue1, 0.0) 90%, $vt23-blue1 100%), linear-gradient(0deg, $vt23-blue2 0%, rgba($vt23-blue1, 0.6) 100%);
-      background-repeat: no-repeat, no-repeat, no-repeat;
-      background-position: top;
-      background-position-y: top, calc(-3px * 190 - -3px * var(--length)), top;
-      background-size: 150%; //100%;
+      /* background-image: url("/static/img/styrelsen/bakgrund_board.webp"); */
+      /* background: linear-gradient(0deg,  0%, rgba($vt23-blue2, 0.0) 40%, rgba($vt23-blue1, 0.0) 90%, $vt23-blue1 100%), linear-gradient(0deg, $vt23-blue2 0%, rgba($vt23-blue1, 0.6) 100%); */
+      /* background-repeat: no-repeat, no-repeat, no-repeat; */
+      /* background-position: top; */
+      /* background-position-y: top, calc(-3px * 190 - -3px * var(--length)), top; */
+      /* background-size: 150%; //100%; */
       //@supports not (backdrop-filter: blur(10px)) {
       /* CSS to provide fallback alternative for Firefox and similar browsers */
       //  & {
@@ -76,14 +77,14 @@ $vt23-blue2: #bbeefe;
   .card-body {
     border-style: solid;
     border-width: 7px;
-    border-color: $baljan-white;
+    border-color: #b081a2;
     border-top: none;
     border-bottom-left-radius: 30px;
     border-bottom-right-radius: 30px;
     background-color: $baljan-white;
 
     h2 {
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       color: $baljan-pink;
       margin-bottom: 0.75rem;
     }
