@@ -1039,7 +1039,13 @@ def do_blipp(request):
         can_order_again = order_cooldown_date > latest_order.put_at
 
         if can_order_again is False:
-            return _json_error(402, "Du måste vänta innan du kan blippa igen.")
+            possible_responses = [
+                "Tänk på hjärtat, vänta ett tag!",
+                "Oj, den slank ner snabbt!!",
+                "Varannan vatten hörru!"
+            ]
+            
+            return _json_error(402, possible_responses[order_cooldown_date.second % len(possible_responses)])
 
     
     if is_coffee_free:
