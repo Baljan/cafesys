@@ -92,7 +92,9 @@ class Profile(Made):
 
     def has_free_blipp(self):
         free_with_cooldown = self.user.has_perm('baljan.free_coffee_with_cooldown')
-        return self.user.has_perm('baljan.free_coffee_unlimited') or free_with_cooldown, free_with_cooldown
+        free_unlimited = self.user.has_perm('baljan.free_coffee_unlimited')
+        
+        return free_unlimited or free_with_cooldown, free_with_cooldown and not free_unlimited
 
     def get_absolute_url(self):
         return self.user.get_absolute_url()

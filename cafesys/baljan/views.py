@@ -1035,8 +1035,8 @@ def do_blipp(request):
 
     if has_cooldown:
         latest_order = models.Order.objects.filter(accepted=True, user=user).latest("put_at")
-        order_cooldown_date = datetime.now() - timedelta(minutes=settings.WORKER_COOLDOWN_SECONDS)
-        can_order_again = order_cooldown_date > latest_order.put_at
+        order_cooldown_date = latest_order.put_at + timedelta(seconds=settings.WORKER_COOLDOWN_SECONDS)
+        can_order_again = datetime.now() > order_cooldown_date
 
         if can_order_again is False:
             possible_responses = [
