@@ -941,10 +941,12 @@ def support_webhook(request):
     print(decoded_message.get("historyId"))
 
     messages = google.get_new_messages(decoded_message.get("historyId"))
+
+    print(messages)
     
     for msg in messages:
         data = google.generate_slack_message(msg)
-        slack.send_message(data, 'SUPPORT', type="email")
+        # slack.send_message(data, 'SUPPORT', type="email")
 
     return JsonResponse({})
 
@@ -1029,8 +1031,23 @@ def do_blipp(request):
     # We will always have a user at this point
 
     price = config.good.current_cost().cost
-    is_coffee_free = user.profile.has_free_blipp()
+    is_coffee_free, has_cooldown = user.profile.has_free_blipp()
 
+    if has_cooldown:
+        latest_order = models.Order.objects.filter(accepted=True, user=user).latest("put_at")
+        order_cooldown_date = latest_order.put_at + timedelta(seconds=settings.WORKER_COOLDOWN_SECONDS)
+        can_order_again = datetime.now() > order_cooldown_date
+
+        if can_order_again is False:
+            possible_responses = [
+                "Tänk på hjärtat, vänta ett tag!",
+                "Oj, den slank ner snabbt!!",
+                "Varannan vatten hörru!"
+            ]
+            
+            return _json_error(402, possible_responses[order_cooldown_date.second % len(possible_responses)])
+
+    
     if is_coffee_free:
         price = 0
     else:
