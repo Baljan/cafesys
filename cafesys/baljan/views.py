@@ -1034,20 +1034,23 @@ def do_blipp(request):
     is_coffee_free, has_cooldown = user.profile.has_free_blipp()
 
     if has_cooldown:
-        latest_order = models.Order.objects.filter(accepted=True, user=user).latest("put_at")
-        order_cooldown_date = latest_order.put_at + timedelta(seconds=settings.WORKER_COOLDOWN_SECONDS)
-        current_time = datetime.now()
-        can_order_again = current_time > order_cooldown_date
+        try:
+            latest_order = models.Order.objects.filter(accepted=True, user=user).latest("put_at")
+            order_cooldown_date = latest_order.put_at + timedelta(seconds=settings.WORKER_COOLDOWN_SECONDS)
+            current_time = datetime.now()
+            can_order_again = current_time > order_cooldown_date
 
-        if can_order_again is False:
-            possible_responses = [
-                "Jisses, tänk på hjärtat!",
-                "Oj, den slank ner snabbt!",
-                "Varannan vatten hörru!",
-                "Nån ska högt i topplistan!"
-            ]
-            
-            return _json_error(402, possible_responses[current_time.second % len(possible_responses)], help_text="Vänta en stund innan du blippar igen")
+            if can_order_again is False:
+                possible_responses = [
+                    "Jisses, tänk på hjärtat!",
+                    "Oj, den slank ner snabbt!",
+                    "Varannan vatten hörru!",
+                    "Nån ska högt i topplistan!"
+                ]
+                
+                return _json_error(402, possible_responses[current_time.second % len(possible_responses)], help_text="Vänta en stund innan du blippar igen")
+        except:
+            pass
 
     
     if is_coffee_free:
