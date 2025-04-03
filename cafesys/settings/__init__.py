@@ -252,7 +252,7 @@ ANYMAIL = {
 }
 SERVER_EMAIL = "cafesys@baljan.org"
 
-WORKER_COOLDOWN_SECONDS = 5 * 60  # TODO: Not implemented
+WORKER_COOLDOWN_SECONDS = 60 # 1 minute cooldown
 
 BOARD_GROUP = "styrelsen"
 WORKER_GROUP = "jobbare"
