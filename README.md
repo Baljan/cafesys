@@ -39,14 +39,16 @@ heroku pg:backups:capture --app baljan
 heroku pg:backups:download --app baljan -o docker-entrypoint-initdb.d/latest.dump
 ```
 
-4. Copy `.env.docker.tmpl` to `.env.docker`  
+4. Copy `.env.tmpl` to `.env`  
 
 5. Create a superuser for the admin
 ```sh
 docker compose run --rm django ./manage.py createsuperuser
 ```
 
-Then you're ready to go!
+Then you're ready to go!  
+
+Before starting the project, fill in the missing values. You can find them in Bitwarden!
 
 To start the project, run:  
 ```sh

@@ -3,7 +3,7 @@ services:
   blipp:
     image: baljan/blipp
     build: https://github.com/Baljan/baljans-balla-blipp.git
-    env_file: .env.docker
+    env_file: .env
     environment:
       - NEXT_PUBLIC_BLIPP_API="http://localhost:5006"
     ports:
@@ -13,7 +13,7 @@ services:
     image: baljan/cafesys
     build:
       context: .
-    env_file: .env.docker
+    env_file: .env
     command: /app/bin/run-celery-worker
     links:
       - redis
@@ -23,7 +23,7 @@ services:
     image: baljan/cafesys
     build:
       context: .
-    env_file: .env.docker
+    env_file: .env
     depends_on:
       redis:
         condition: service_healthy
@@ -41,7 +41,7 @@ services:
 
   postgres:
     image: postgres:15.7-alpine
-    env_file: .env.docker
+    env_file: .env
     volumes:
       - ./database:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
@@ -54,7 +54,7 @@ services:
 
   redis:
     image: redis:3-alpine
-    env_file: .env.docker
+    env_file: .env
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 1s
