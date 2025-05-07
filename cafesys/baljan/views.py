@@ -927,7 +927,7 @@ def post_call(request, location):
 @csrf_exempt
 @require_POST
 def support_webhook(request):
-    # FIXME: Needs authentication from google https://cloud.google.com/pubsub/docs/authenticate-push-subscriptions 
+    # FIXME: Needs authentication from google https://cloud.google.com/pubsub/docs/authenticate-push-subscriptions
     google.ensure_gmail_watch()
 
     data = json.loads(request.body)
@@ -935,18 +935,11 @@ def support_webhook(request):
     message = data['message']['data']
     decoded_message = json.loads(base64.b64decode(message).decode('utf-8'))
 
-    print(data)
-    print(message)
-    print(decoded_message)
-    print(decoded_message.get("historyId"))
-
     messages = google.get_new_messages(decoded_message.get("historyId"))
 
-    print(messages)
-    
-    for msg in messages:
-        data = google.generate_slack_message(msg)
-        # slack.send_message(data, 'SUPPORT', type="email")
+    if len(messages) > 0:
+        data = google.generate_slack_message(messages)
+        slack.send_message(data, 'SUPPORT', type="email")
 
     return JsonResponse({})
 
