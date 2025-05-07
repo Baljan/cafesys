@@ -937,8 +937,8 @@ def support_webhook(request):
 
     messages = google.get_new_messages(decoded_message.get("historyId"))
 
-    if len(messages) > 0:
-        data = google.generate_slack_message(messages)
+    for message in messages:
+        data = google.generate_slack_message(message)
         slack.send_message(data, 'SUPPORT', type="email")
 
     return JsonResponse({})

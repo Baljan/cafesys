@@ -123,8 +123,9 @@ def get_email_details(message_id):
 
     data = dict()
 
+    data["id"] = message_id
+
     headers = message["payload"]["headers"]
-    data["message_id"] = message_id
     data["subject"] = next(
         (h["value"] for h in headers if h["name"] == "Subject"), "No Subject"
     )
@@ -132,54 +133,115 @@ def get_email_details(message_id):
         (h["value"] for h in headers if h["name"] == "From"), "Unknown Sender"
     )
 
+    if "internalDate" in message and message["internalDate"].isdigit():
+        data["date"] = int(message["internalDate"]) / 1000
+
     if "snippet" in message and len(message["snippet"]) > 0:
         data["email_body"] = message["snippet"]
 
     return data
 
 
-def generate_slack_message(messages):
-    title = "Nördar, vi har fått mejl!"
-
+def generate_slack_message(message):
     blocks = [
         {
-            "type": "header",
+            "type": "section",
             "text": {
                 "type": "plain_text",
-                "text": title,
+                "emoji": True,
+                "text": "Nördar, vi har fått mejl:",
             },
-        }
+        },
+        {"type": "divider"},
     ]
 
-    for i, message in enumerate(messages):
+    if "subject" in message:
         blocks.append(
             {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*Titel:* {message['subject']}",
-                },
-            }
-        )
-        blocks.append(
-            {
-                "type": "section",
-                "text": {"type": "mrkdwn", "text": f"*Från:* {message.get('sender')}"},
+                "type": "rich_text",
+                "elements": [
+                    {
+                        "type": "rich_text_section",
+                        "elements": [
+                            {
+                                "type": "text",
+                                "text": message["subject"],
+                                "style": {"bold": True},
+                            }
+                        ],
+                    }
+                ],
             },
         )
 
-        if "email_body" in message:
-            blocks.append(
-                {
-                    "type": "section",
-                    "text": {"type": "mrkdwn", "text": message.get("email_body")},
-                }
-            )
+    if "sender" in message:
+        blocks.append(
+            {
+                "type": "rich_text",
+                "elements": [
+                    {
+                        "type": "rich_text_section",
+                        "elements": [
+                            {
+                                "type": "text",
+                                "text": message["sender"],
+                                "style": {"italic": True},
+                            }
+                        ],
+                    }
+                ],
+            },
+        )
 
-        if i + 1 < len(messages):
-            blocks.append({"type": "divider"})
+    if "email_body" in message:
+        blocks.append(
+            {
+                "type": "rich_text",
+                "elements": [
+                    {
+                        "type": "rich_text_section",
+                        "elements": [
+                            {
+                                "type": "text",
+                                "text": message["email_body"],
+                            }
+                        ],
+                    }
+                ],
+            },
+        )
 
-    return {"text": title, "blocks": blocks}
+    if "date" in message:
+        blocks.append(
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": "<!date^%d^{date_long}|February 18th, 2014 at 6:39 AM PST>"
+                        % (message["date"]),
+                    }
+                ],
+            },
+        )
 
+    blocks.append(
+        {"type": "divider"},
+    )
+    blocks.append(
+        {
+            "type": "section",
+            "text": {"type": "plain_text", "text": "Vem tar den?"},
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "emoji": True,
+                    "text": "Jag kan ta den!",
+                },
+                "value": f"take_{message['id']}",
+            },
+        },
+    )
 
-# ensure_gmail_watch()
+    return {"blocks": blocks}
