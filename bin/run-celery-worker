@@ -1,2 +1,2 @@
 #!/bin/sh
-celery -A cafesys worker --uid nobody
+celery -A cafesys worker -P eventlet --uid nobody

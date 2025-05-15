@@ -12,6 +12,7 @@ psycopg2==2.9.9
 
 # Celery for async and periodic tasks
 celery==5.4.0
+eventlet==0.40.0
 
 # Social (i.e. LiU ID) login
 social-auth-core==4.4.1

@@ -18,6 +18,8 @@ services:
     links:
       - redis
       - postgres
+    mem_limit: 512m
+    cpu_count: 1
 
   django:
     image: baljan/cafesys
@@ -35,6 +37,8 @@ services:
     links:
       - redis
       - postgres
+    mem_limit: 512m
+    cpu_count: 1
     volumes:
       # Mount static files after build
       - ./cafesys/baljan/static:/app/cafesys/baljan/static
