@@ -20,19 +20,25 @@ def request_from_slack(request):
     if not settings.SLACK_SIGNING_SECRET:
         return True
 
+    print(request.META)
+    print(request.body)
+
     if (
         "X-Slack-Request-Timestamp" not in request.META
         or "X-Slack-Signature" not in request.META
     ):
+        logger.warning("Missing Slack headers")
         return False
 
     timestamp = request.META["X-Slack-Request-Timestamp"]
     signature = request.META["X-Slack-Signature"]
 
     if not timestamp.isdigit():
+        logger.warning("Timestamp is not valid")
         return False
     if abs(time.time() - int(timestamp)) > 60 * 5:
         # To prevent replay attacks
+        logger.warning("Timestamp to old")
         return False
 
     request_body = request.body
@@ -43,6 +49,9 @@ def request_from_slack(request):
             settings.SLACK_SIGNING_SECRET, sig_basestring, hashlib.sha256
         ).hexdigest()
     )
+
+    print(signature)
+    print(local_signature)
 
     return hmac.compare_digest(signature, local_signature)
 
@@ -125,7 +134,7 @@ def compile_slack_phone_message(phone_from, calls, location):
     )
 
     # outcome_str = 'blivit taget' if status == 'success' else 'missats'
-    notification_text = f'Ett samtal till {location_str} från {call_from_user["formatted"]} har inkommit.'  # TODO: bring back: {outcome_str} av {call_to}.
+    notification_text = f"Ett samtal till {location_str} från {call_from_user['formatted']} har inkommit."  # TODO: bring back: {outcome_str} av {call_to}.
 
     call_recipients_str = "\n".join(
         f"{'🟢' if r['status'] == 'success' else '🔴'} {r['user']['formatted']}"
@@ -147,9 +156,7 @@ def compile_slack_phone_message(phone_from, calls, location):
         {"type": "divider"},
     ]
     if len(context_elements):
-        blocks.append(
-            {"type": "context", "elements": context_elements}
-        )
+        blocks.append({"type": "context", "elements": context_elements})
 
     return {"text": notification_text, "blocks": blocks}
 
@@ -175,9 +182,7 @@ def compile_slack_sms_message(_sms_from_number, message):
         {"type": "divider"},
     ]
     if len(context_elements):
-        blocks.append(
-            {"type": "context", "elements": context_elements}
-        )
+        blocks.append({"type": "context", "elements": context_elements})
 
     return {"text": notification_text, "blocks": blocks}
 

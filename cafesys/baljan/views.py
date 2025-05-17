@@ -939,7 +939,7 @@ def support_webhook(request):
 
     for message in messages:
         data = google.generate_slack_message(message)
-        slack.send_message(data, slack.SLACK_SUPPORT_WEBHOOK_URL, type="email")
+        slack.send_message(data, settings.SLACK_SUPPORT_WEBHOOK_URL, type="email")
 
     return JsonResponse({})
 
@@ -947,6 +947,7 @@ def support_webhook(request):
 @require_POST
 @slack.validate_slack
 def handle_interactivity(request):
+    print(request.body)
     data = json.loads(request.body)
 
     new_message = slack.handle_interactivity(data)
