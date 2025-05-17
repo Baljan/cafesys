@@ -1,28 +1,90 @@
-from typing import Literal
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.conf import settings
-from cafesys.baljan.models import User, Located, PhoneLabel
+from django.core.exceptions import PermissionDenied
+from cafesys.baljan.models import Located, PhoneLabel
+from cafesys.baljan.phone import (
+    is_valid_phone_number,
+    get_user_by_number,
+    remove_area_code,
+)
+from functools import wraps
 from logging import getLogger
-from cafesys.baljan.phone import is_valid_phone_number, get_user_by_number, remove_area_code
+import hashlib
+import hmac
 import requests
+import time
 
 logger = getLogger(__name__)
 
 
-def send_message(data, url: Literal["PHONE", "SUPPORT"], type="unknown message type"):
-    WEBHOOK_URL = settings.SLACK_WEBHOOK_URLS.get(url)
+def request_from_slack(request):
+    if not settings.SLACK_SIGNING_SECRET:
+        return True
 
-    if WEBHOOK_URL:
-        slack_response = requests.post(
-            url=WEBHOOK_URL,
-            json=data,
-            headers={"Content-Type": "application/json"},
-        )
+    if (
+        "X-Slack-Request-Timestamp" not in request.META
+        or "X-Slack-Signature" not in request.META
+    ):
+        return False
 
-        if slack_response.status_code != 200:
-            logger.warning(f"Unable to post {type} to Slack")
-    else:
-        logger.warning(f"Could not find webhook URL for {url}")
+    timestamp = request.META["X-Slack-Request-Timestamp"]
+    signature = request.META["X-Slack-Signature"]
+
+    if not timestamp.isdigit():
+        return False
+    if abs(time.time() - int(timestamp)) > 60 * 5:
+        # To prevent replay attacks
+        return False
+
+    request_body = request.body
+    sig_basestring = "v0:" + timestamp + ":" + request_body
+    local_signature = (
+        "v0="
+        + hmac.new(
+            settings.SLACK_SIGNING_SECRET, sig_basestring, hashlib.sha256
+        ).hexdigest()
+    )
+
+    return hmac.compare_digest(signature, local_signature)
+
+
+def validate_slack(function=None):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        if request_from_slack(request):
+            return function(request, *args, **kwargs)
+        raise PermissionDenied()
+
+    return wrap
+
+
+def handle_interactivity(data):
+    new_message = {}
+
+    for action in data["actions"]:
+        if action.action_id == "support_email":
+            user_id = data["user"]["id"]
+            blocks = data["message"]["blocks"]
+
+            blocks[len(blocks) - 1] = {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": f"<@{user_id}> tar den!"},
+            }
+
+            new_message["replace_original"] = True
+            new_message["blocks"] = blocks
+
+    return new_message
+
+
+def send_message(data, url, type="unknown message type"):
+    slack_response = requests.post(
+        url=url,
+        json=data,
+        headers={"Content-Type": "application/json"},
+    )
+
+    if slack_response.status_code != 200:
+        logger.error(f"Unable to post {type} to Slack")
 
 
 def get_from_context(from_user):
@@ -148,5 +210,3 @@ def _query_user(phone):
             for group in user.groups.all()
         ],
     }
-    
-

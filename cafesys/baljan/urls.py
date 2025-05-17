@@ -61,6 +61,7 @@ urlpatterns = (
     path('consent', views.consent, name='consent'),
     path('do-blipp', views.do_blipp),
     path("support-webhook", views.support_webhook),
+    path("handle-interactivity", views.handle_interactivity),
     path('integrity', views.integrity, name='integrity'),
     path('semester-shifts/<slug:sem_name>', views.semester_shifts, name='semester_shifts'),
     path('styrelsen', views.styrelsen, name='styrelsen'),

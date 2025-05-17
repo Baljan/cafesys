@@ -897,7 +897,7 @@ def incoming_sms(request):
     message = request.POST.get('message', '')
 
     slack_data = slack.compile_slack_sms_message(from_number, message)
-    slack.send_message(slack_data, url="PHONE", type="SMS")
+    slack.send_message(slack_data, settings.SLACK_PHONE_WEBHOOK_URL, type="SMS")
 
     return JsonResponse({})
 
@@ -920,14 +920,14 @@ def post_call(request, location):
             calls,
             location=location
         )
-    slack.send_message(slack_data, url="PHONE", type="call")
+    slack.send_message(slack_data, settings.SLACK_PHONE_WEBHOOK_URL, type="call")
 
     return JsonResponse({})
 
 @csrf_exempt
 @require_POST
 def support_webhook(request):
-    # FIXME: Needs authentication from google https://cloud.google.com/pubsub/docs/authenticate-push-subscriptions 
+    # FIXME: Needs authentication from google https://cloud.google.com/pubsub/docs/authenticate-push-subscriptions
     google.ensure_gmail_watch()
 
     data = json.loads(request.body)
@@ -935,21 +935,28 @@ def support_webhook(request):
     message = data['message']['data']
     decoded_message = json.loads(base64.b64decode(message).decode('utf-8'))
 
-    print(data)
-    print(message)
-    print(decoded_message)
-    print(decoded_message.get("historyId"))
-
     messages = google.get_new_messages(decoded_message.get("historyId"))
 
-    print(messages)
-    
-    for msg in messages:
-        data = google.generate_slack_message(msg)
-        # slack.send_message(data, 'SUPPORT', type="email")
+    for message in messages:
+        data = google.generate_slack_message(message)
+        slack.send_message(data, slack.SLACK_SUPPORT_WEBHOOK_URL, type="email")
 
     return JsonResponse({})
 
+@csrf_exempt
+@require_POST
+@slack.validate_slack
+def handle_interactivity(request):
+    data = json.loads(request.body)
+
+    new_message = slack.handle_interactivity(data)
+
+    if "response_url" in data:
+        slack.send_message(new_message, data["response_url"], type="support-ticket")
+    else:
+        logger.warning("Message did not contain response_url")
+
+    return JsonResponse({})
 
 def consent(request):
     if not request.user.is_authenticated:
