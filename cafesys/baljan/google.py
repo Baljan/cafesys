@@ -234,12 +234,13 @@ def generate_slack_message(message):
             "text": {"type": "plain_text", "text": "Vem tar den?"},
             "accessory": {
                 "type": "button",
+                "style": "primary",
                 "text": {
                     "type": "plain_text",
                     "emoji": True,
                     "text": "Jag kan ta den!",
                 },
-                "value": f"take_{message['id']}",
+                "action_id": "support_email",
             },
         },
     )
