@@ -947,15 +947,16 @@ def support_webhook(request):
 @require_POST
 @slack.validate_slack
 def handle_interactivity(request):
-    print(request.body)
-    data = json.loads(request.body)
+    payload = request.POST.get("payload", None)
 
-    new_message = slack.handle_interactivity(data)
+    if payload is not None:
+        data = json.loads(payload)
+        new_message = slack.handle_interactivity(data)
 
-    if "response_url" in data:
-        slack.send_message(new_message, data["response_url"], type="support-ticket")
-    else:
-        logger.warning("Message did not contain response_url")
+        if "response_url" in data:
+            slack.send_message(new_message, data["response_url"], type="support-ticket")
+        else:
+            logger.warning("Message did not contain response_url")
 
     return JsonResponse({})
 
