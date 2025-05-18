@@ -18,6 +18,7 @@ logger = getLogger(__name__)
 
 def request_from_slack(request):
     if not settings.SLACK_SIGNING_SECRET:
+        print("SLACK_SIGNING_SECRET not set. Returning...")
         return True
 
     print(request.META)
@@ -27,18 +28,18 @@ def request_from_slack(request):
         "X-Slack-Request-Timestamp" not in request.META
         or "X-Slack-Signature" not in request.META
     ):
-        logger.warning("Missing Slack headers")
+        print("Missing Slack headers")
         return False
 
     timestamp = request.META["X-Slack-Request-Timestamp"]
     signature = request.META["X-Slack-Signature"]
 
     if not timestamp.isdigit():
-        logger.warning("Timestamp is not valid")
+        print("Timestamp is not valid")
         return False
     if abs(time.time() - int(timestamp)) > 60 * 5:
         # To prevent replay attacks
-        logger.warning("Timestamp to old")
+        print("Timestamp to old")
         return False
 
     request_body = request.body

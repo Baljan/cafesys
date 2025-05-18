@@ -943,7 +943,7 @@ def support_webhook(request):
     print(messages)
 
     for message in messages:
-        data = slack.generate_slack_message(message)
+        data = slack.generate_support_embed(message)
         slack.send_message(data, settings.SLACK_SUPPORT_WEBHOOK_URL, type="email")
 
     return JsonResponse({})
