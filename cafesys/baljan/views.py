@@ -940,6 +940,7 @@ def support_webhook(request):
     print(data)
     print(message)
     print(decoded_message)
+    print(messages)
 
     for message in messages:
         data = google.generate_slack_message(message)

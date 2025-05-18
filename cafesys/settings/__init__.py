@@ -278,6 +278,10 @@ CELERY_BEAT_SCHEDULE = {
     "update-stats": {
         "task": "cafesys.baljan.tasks.update_stats",
         "schedule": STATS_REFRESH_RATE,
+    },
+    "ensure-gmail-watch": {
+        "task": "cafesys.baljan.tasks.ensure_gmail_watch",
+        "schedule": 24 * 60 * 60,
     }
 }
 

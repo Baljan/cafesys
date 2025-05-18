@@ -25,14 +25,15 @@ def ensure_gmail_watch():
     current_time = time.time()
 
     if current_time - EXPIRATION_TIME > 0:
+        print("Ensuring Gmail watch...")
         try:
             response = (
                 service.users()
                 .watch(
                     userId="me",
                     body={
-                        "labelIds": ["INBOX"],
                         "topicName": settings.GOOGLE_PUBSUB_TOPIC,
+                        "labelFilterAction": "include",
                     },
                 )
                 .execute()
@@ -43,12 +44,10 @@ def ensure_gmail_watch():
             if "expiration" in response and response["expiration"].isdigit():
                 EXPIRATION_TIME = int(response["expiration"])
 
-            logger.info(
-                f"gMail watch renewed until {EXPIRATION_TIME} with id {HISTORY_ID}"
-            )
+            print(f"Gmail watch renewed until {EXPIRATION_TIME} with id {HISTORY_ID}")
         except HttpError as e:
             logger.error(
-                "Could not renew gMail notification watch. Status code : {0}, reason : {1}".format(
+                "Could not renew Gmail notification watch. Status code : {0}, reason : {1}".format(
                     e.status_code, e.error_details
                 )
             )
@@ -67,6 +66,8 @@ def get_new_messages(new_history_id):
 
     chosen_history_id = min(new_history_id, HISTORY_ID)
 
+    print("Chosen", chosen_history_id)
+
     try:
         response = (
             service.users()
@@ -74,6 +75,8 @@ def get_new_messages(new_history_id):
             .list(userId="me", startHistoryId=chosen_history_id)
             .execute()
         )
+
+        print("Response", response)
 
         if "history" not in response:
             return messages
