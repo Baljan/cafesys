@@ -21,18 +21,18 @@ def request_from_slack(request):
         print("SLACK_SIGNING_SECRET not set. Returning...")
         return True
 
-    print(request.META)
-    print(request.body)
+    print("Headers", request.headers)
+    print("Body", request.body)
 
     if (
-        "X-Slack-Request-Timestamp" not in request.META
-        or "X-Slack-Signature" not in request.META
+        "X-Slack-Request-Timestamp" not in request.headers
+        or "X-Slack-Signature" not in request.headers
     ):
         print("Missing Slack headers")
         return False
 
-    timestamp = request.META["X-Slack-Request-Timestamp"]
-    signature = request.META["X-Slack-Signature"]
+    timestamp = request.headers["X-Slack-Request-Timestamp"]
+    signature = request.headers["X-Slack-Signature"]
 
     if not timestamp.isdigit():
         print("Timestamp is not valid")
