@@ -70,7 +70,9 @@ def handle_interactivity(data):
     new_message = {}
 
     for action in data["actions"]:
-        if action["action_id"] == "support_email":
+        action_id = action["action_id"]
+
+        if action_id == "approve":
             user_id = data["user"]["id"]
             blocks = data["message"]["blocks"]
 
@@ -81,6 +83,8 @@ def handle_interactivity(data):
 
             new_message["replace_original"] = True
             new_message["blocks"] = blocks
+        if action_id == "remove":
+            new_message["delete_original"] = True
 
     return new_message
 
@@ -94,6 +98,115 @@ def send_message(data, url, type="unknown message type"):
 
     if slack_response.status_code != 200:
         logger.error(f"Unable to post {type} to Slack")
+
+
+def generate_support_embed(message):
+    blocks = [
+        {
+            "type": "section",
+            "text": {
+                "type": "plain_text",
+                "emoji": True,
+                "text": "Nördar, vi har fått mejl:",
+            },
+        },
+        {"type": "divider"},
+    ]
+
+    if "subject" in message:
+        blocks.append(
+            {
+                "type": "rich_text",
+                "elements": [
+                    {
+                        "type": "rich_text_section",
+                        "elements": [
+                            {
+                                "type": "text",
+                                "text": message["subject"],
+                                "style": {"bold": True},
+                            }
+                        ],
+                    }
+                ],
+            },
+        )
+
+    if "sender" in message:
+        blocks.append(
+            {
+                "type": "rich_text",
+                "elements": [
+                    {
+                        "type": "rich_text_section",
+                        "elements": [
+                            {
+                                "type": "text",
+                                "text": message["sender"],
+                                "style": {"italic": True},
+                            }
+                        ],
+                    }
+                ],
+            },
+        )
+
+    if "email_body" in message:
+        blocks.append(
+            {
+                "type": "rich_text",
+                "elements": [
+                    {
+                        "type": "rich_text_section",
+                        "elements": [
+                            {
+                                "type": "text",
+                                "text": message["email_body"],
+                            }
+                        ],
+                    }
+                ],
+            },
+        )
+
+    if "date" in message:
+        blocks.append(
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": "<!date^%d^{date_long}|February 18th, 2014 at 6:39 AM PST>"
+                        % (message["date"]),
+                    }
+                ],
+            },
+        )
+
+    blocks.append(
+        {"type": "divider"},
+    )
+    blocks.append(
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Jag kan ta den!"},
+                    "style": "primary",
+                    "action_id": "approve",
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Finns inget att ta :("},
+                    "value": "remove",
+                    "action_id": "remove",
+                },
+            ],
+        }
+    )
+
+    return {"blocks": blocks}
 
 
 def get_from_context(from_user):
