@@ -70,7 +70,7 @@ def handle_interactivity(data):
     new_message = {}
 
     for action in data["actions"]:
-        if action.action_id == "support_email":
+        if action["action_id"] == "support_email":
             user_id = data["user"]["id"]
             blocks = data["message"]["blocks"]
 
