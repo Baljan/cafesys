@@ -8,6 +8,13 @@ from django.conf import settings
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
+# FIXME: This needs to be moved or something else needs to be fixed
+# This raises an error when running locally with docker since
+# the docker env does not have access to the environment variables
+# at "build" time, and google.oauth2 needs it. Works fine when
+# running outside of docker and when building on heroku.
+# I think theres a better way tho than just initializing them
+# both to None and then assigning them a value inside of ensure_gmail_watch
 credentials = service_account.Credentials.from_service_account_info(
     info=settings.GOOGLE_SERVICE_ACCOUNT_INFO,
     scopes=SCOPES,
@@ -143,4 +150,3 @@ def get_email_details(message_id):
         data["email_body"] = message["snippet"]
 
     return data
-

@@ -1,90 +1,42 @@
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
 from cafesys.baljan.models import Located, PhoneLabel
 from cafesys.baljan.phone import (
     is_valid_phone_number,
     get_user_by_number,
     remove_area_code,
 )
-from functools import wraps
+from slack_bolt.adapter.django import SlackRequestHandler
+from slack_bolt import App
 from logging import getLogger
-import hashlib
-import hmac
 import requests
-import time
 
 logger = getLogger(__name__)
+app = App(
+    token=settings.SLACK_BOT_TOKEN,
+    request_verification_enabled=True,
+    token_verification_enabled=False,
+)
+handler = SlackRequestHandler(app=app)
 
 
-def request_from_slack(request):
-    if not settings.SLACK_SIGNING_SECRET:
-        print("SLACK_SIGNING_SECRET not set. Returning...")
-        return True
+@app.action("approve")
+def approve_support_ticket(ack, body, respond):
+    user_id = body["user"]["id"]
+    blocks = body["message"]["blocks"]
 
-    request_body = request.body.decode("utf8")
+    blocks[len(blocks) - 1] = {
+        "type": "section",
+        "text": {"type": "mrkdwn", "text": f"<@{user_id}> tar den!"},
+    }
 
-    if (
-        "X-Slack-Request-Timestamp" not in request.headers
-        or "X-Slack-Signature" not in request.headers
-    ):
-        print("Missing Slack headers")
-        return False
-
-    timestamp = request.headers["X-Slack-Request-Timestamp"]
-    signature = request.headers["X-Slack-Signature"]
-
-    if not timestamp.isdigit():
-        print("Timestamp is not valid")
-        return False
-    if abs(time.time() - int(timestamp)) > 60 * 5:
-        # To prevent replay attacks
-        print("Timestamp to old")
-        return False
-
-    sig_basestring = "v0:" + timestamp + ":" + request_body
-    local_signature = (
-        "v0="
-        + hmac.new(
-            settings.SLACK_SIGNING_SECRET.encode(),
-            sig_basestring.encode(),
-            hashlib.sha256,
-        ).hexdigest()
-    )
-
-    return hmac.compare_digest(signature, local_signature)
+    ack()
+    respond(blocks=blocks, replace_original=True)
 
 
-def validate_slack(function=None):
-    @wraps(function)
-    def wrap(request, *args, **kwargs):
-        if request_from_slack(request):
-            return function(request, *args, **kwargs)
-        raise PermissionDenied()
-
-    return wrap
-
-
-def handle_interactivity(data):
-    new_message = {}
-
-    for action in data["actions"]:
-        action_id = action["action_id"]
-
-        if action_id == "approve":
-            user_id = data["user"]["id"]
-            blocks = data["message"]["blocks"]
-
-            blocks[len(blocks) - 1] = {
-                "type": "section",
-                "text": {"type": "mrkdwn", "text": f"<@{user_id}> tar den!"},
-            }
-
-            new_message["replace_original"] = True
-            new_message["blocks"] = blocks
-        if action_id == "remove":
-            new_message["delete_original"] = True
-
-    return new_message
+@app.action("remove")
+def remove_support_ticket(ack, body, respond):
+    ack()
+    respond(delete_original=True)
 
 
 def send_message(data, url, type="unknown message type"):

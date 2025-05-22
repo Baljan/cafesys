@@ -57,3 +57,6 @@ python-decouple==3.5
 
 # Google API
 google-api-python-client==2.163.0
+
+# Slack Bolt
+slack_bolt==1.23.0

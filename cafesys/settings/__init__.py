@@ -292,7 +292,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 #on heroku which defines it as true
 SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=False)
 
-
+SLACK_BOT_TOKEN = env.str("SLACK_BOT_TOKEN", default="")
 SLACK_SIGNING_SECRET = env.str("SLACK_SIGNING_SECRET", default="")
 SLACK_PHONE_WEBHOOK_URL = env.str("SLACK_PHONE_WEBHOOK_URL", default="")
 SLACK_SUPPORT_WEBHOOK_URL = env.str("SLACK_SUPPORT_WEBHOOK_URL", default="")

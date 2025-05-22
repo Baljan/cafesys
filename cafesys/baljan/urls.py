@@ -4,6 +4,12 @@ from django.views.generic import TemplateView
 
 from . import views
 
+from slack_bolt.adapter.django import SlackRequestHandler
+from .slack import app
+
+handler = SlackRequestHandler(app=app)
+
+
 urlpatterns = (
     path(
         "", views.home, name="home"
@@ -61,7 +67,7 @@ urlpatterns = (
     path('consent', views.consent, name='consent'),
     path('do-blipp', views.do_blipp),
     path("support-webhook", views.support_webhook),
-    path("slack/events", views.handle_interactivity),
+    path("handle-interactivity", views.slack_events_handler),
     path('integrity', views.integrity, name='integrity'),
     path('semester-shifts/<slug:sem_name>', views.semester_shifts, name='semester_shifts'),
     path('styrelsen', views.styrelsen, name='styrelsen'),
@@ -71,6 +77,4 @@ urlpatterns = (
     path("stats/active-users", views.stats_active_blipp_users, name="stats_active_blipp_users"),
 
     path("bookkeep", views.bookkeep_view, name="bookkeep")
-
-    
 )

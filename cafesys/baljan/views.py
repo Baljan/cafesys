@@ -937,33 +937,17 @@ def support_webhook(request):
 
     messages = google.get_new_messages(decoded_message.get("historyId"))
 
-    print(data)
-    print(message)
-    print(decoded_message)
-    print(messages)
-
     for message in messages:
         data = slack.generate_support_embed(message)
         slack.send_message(data, settings.SLACK_SUPPORT_WEBHOOK_URL, type="email")
 
     return JsonResponse({})
 
+
 @csrf_exempt
-@require_POST
-@slack.validate_slack
-def handle_interactivity(request):
-    payload = request.POST.get("payload", None)
+def slack_events_handler(request):
+    return slack.handler.handle(request)
 
-    if payload is not None:
-        data = json.loads(payload)
-        new_message = slack.handle_interactivity(data)
-
-        if "response_url" in data:
-            slack.send_message(new_message, data["response_url"], type="support-ticket")
-        else:
-            logger.warning("Message did not contain response_url")
-
-    return JsonResponse({})
 
 def consent(request):
     if not request.user.is_authenticated:
