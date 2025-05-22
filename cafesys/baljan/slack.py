@@ -21,8 +21,7 @@ def request_from_slack(request):
         print("SLACK_SIGNING_SECRET not set. Returning...")
         return True
 
-    print("Headers", request.headers)
-    print("Body", request.body)
+    request_body = request.body.decode("utf8")
 
     if (
         "X-Slack-Request-Timestamp" not in request.headers
@@ -42,17 +41,15 @@ def request_from_slack(request):
         print("Timestamp to old")
         return False
 
-    request_body = request.body
     sig_basestring = "v0:" + timestamp + ":" + request_body
     local_signature = (
         "v0="
         + hmac.new(
-            settings.SLACK_SIGNING_SECRET, sig_basestring, hashlib.sha256
+            settings.SLACK_SIGNING_SECRET.encode(),
+            sig_basestring.encode(),
+            hashlib.sha256,
         ).hexdigest()
     )
-
-    print(signature)
-    print(local_signature)
 
     return hmac.compare_digest(signature, local_signature)
 
