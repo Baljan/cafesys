@@ -36,7 +36,7 @@ from django import forms as django_forms
 from django.template.loader import render_to_string
 import django_filters
 
-from cafesys.baljan import google, phone, slack
+from cafesys.baljan import google, phone, slack, stripe
 from cafesys.baljan.gdpr import AUTOMATIC_LIU_DETAILS, revoke_automatic_liu_details, revoke_policy, consent_to_policy, AUTOMATIC_FULLNAME, ACTION_PROFILE_SAVED, revoke_automatic_fullname
 from cafesys.baljan.models import LegalConsent, MutedConsent, BlippConfiguration
 from cafesys.baljan.pseudogroups import is_worker
@@ -467,6 +467,8 @@ def see_user(request, who):
             (_("call duties"), ['call-duty'], callduties_for(watched)),
             )
     return render(request, 'baljan/user.html', tpl)
+
+
 
 
 @login_required
@@ -1351,3 +1353,9 @@ def bookkeep_view(request):
         "data": data,
         "past_year": past_year
     })
+
+@csrf_exempt
+def stripe_endpoint(request):
+    stripe.handle_webhook(request)
+
+    return HttpResponse("Ok")

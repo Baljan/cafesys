@@ -1097,3 +1097,8 @@ class BlippConfiguration(Located):
     class Meta:
         verbose_name = "Blipp-konfiguration"
         verbose_name_plural = "Blipp-konfigurationer"
+
+
+class Product(models.Model):
+    title = models.CharField(max_length=100)
+    price_id = models.CharField(max_length=64)
