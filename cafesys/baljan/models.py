@@ -1338,3 +1338,8 @@ class SupportFilter(models.Model):
     class Meta:
         verbose_name = _("support mail filter")
         verbose_name_plural = _("support mail filter")
+
+
+class Product(models.Model):
+    title = models.CharField(max_length=100)
+    price_id = models.CharField(max_length=64)

@@ -31,7 +31,7 @@ from django import forms as django_forms
 from django.template.loader import render_to_string
 import django_filters
 
-from cafesys.baljan import google, phone, slack
+from cafesys.baljan import google, phone, slack, stripe
 from cafesys.baljan.gdpr import (
     AUTOMATIC_LIU_DETAILS,
     revoke_automatic_liu_details,
@@ -1544,3 +1544,10 @@ def bookkeep_view(request):
         "baljan/bookkeep.html",
         {"form": form, "data": data, "past_year": past_year},
     )
+
+
+@csrf_exempt
+def stripe_endpoint(request):
+    stripe.handle_webhook(request)
+
+    return HttpResponse("Ok")
