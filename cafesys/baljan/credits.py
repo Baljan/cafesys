@@ -12,6 +12,7 @@ import pytz
 
 log = getLogger(__name__)
 
+
 def manual_refill(entered_code, by_user):
     with transaction.atomic():
         try:
@@ -19,16 +20,16 @@ def manual_refill(entered_code, by_user):
                 code__exact=entered_code,
                 used_by__isnull=True,
                 used_at__isnull=True,
-            )  
+            )
         except BalanceCode.DoesNotExist:
-            log.info(f'{by_user} found {entered_code} used or invalid')
+            log.info(f"{by_user} found {entered_code} used or invalid")
             raise BadRequest("Ogiltig kod, missbruk loggas!")
         # log usage
-        log.info(f'{by_user} found {entered_code} unused')
-        
+        log.info(f"{by_user} found {entered_code} unused")
+
         # use code
         profile = by_user.profile
-        if (balance_code.currency != profile.balance_currency):
+        if balance_code.currency != profile.balance_currency:
             raise PermissionDenied("Valutorna matchar inte.")
         balance_code.used_by = by_user
         tz = pytz.timezone(settings.TIME_ZONE)
@@ -40,6 +41,10 @@ def manual_refill(entered_code, by_user):
         group = balance_code.refill_series.add_to_group
         if group:
             group.user_set.add(by_user)
-            log.info(f'{by_user} added themselves to group "{group.name}" through a BalanceCode')
+            log.info(
+                f'{by_user} added themselves to group "{group.name}" through a BalanceCode'
+            )
 
-        log.info(f'{by_user} used {balance_code.id} successfully for {balance_code.valcur()}')
+        log.info(
+            f"{by_user} used {balance_code.id} successfully for {balance_code.valcur()}"
+        )

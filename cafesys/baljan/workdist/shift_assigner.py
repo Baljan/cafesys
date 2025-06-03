@@ -1,6 +1,8 @@
 import math
 
-from cafesys.baljan.workdist.temporary_shift_combination import TemporaryShiftCombination
+from cafesys.baljan.workdist.temporary_shift_combination import (
+    TemporaryShiftCombination,
+)
 
 
 class ShiftAssigner:
@@ -11,11 +13,17 @@ class ShiftAssigner:
 
     def assign_to_best_combination(self, shift):
         # Always assign to combinations with the fewest number of shifts already assigned
-        used_combinations = self.select_from_smallest_number_of(self.shift_combinations, lambda x: len(x.shifts))
+        used_combinations = self.select_from_smallest_number_of(
+            self.shift_combinations, lambda x: len(x.shifts)
+        )
 
         if shift.exam_period:
             # Don't assign more than one exam period shift before every combination has at least one
-            used_combinations = self.select_combinations_with_smallest_number_of_exam_period_shifts(used_combinations)
+            used_combinations = (
+                self.select_combinations_with_smallest_number_of_exam_period_shifts(
+                    used_combinations
+                )
+            )
 
         self.assign_to_best_combination_in_list(shift, used_combinations)
 
@@ -30,11 +38,13 @@ class ShiftAssigner:
         for comb in combinations:
             if not comb.contains_shift_at_same_day(shift):
                 self.assign_shift_to_combination(shift, comb)
-                print('Assigned sub-optimal shift (' + str(id(comb)) + ')')
+                print("Assigned sub-optimal shift (" + str(id(comb)) + ")")
                 return
 
         # 3. Indicate failure (should never happen)
-        raise Exception('Impossible to assign shifts without assigning two shifts at the same day')
+        raise Exception(
+            "Impossible to assign shifts without assigning two shifts at the same day"
+        )
 
     def assign_shift_to_combination(self, shift, comb):
         # Move combination to end of list to get an even distribution of dates
@@ -43,8 +53,12 @@ class ShiftAssigner:
 
         comb.shifts.append(shift)
 
-    def select_combinations_with_smallest_number_of_exam_period_shifts(self, combinations):
-        return self.select_from_smallest_number_of(combinations, lambda x: x.number_of_shifts_in_exam_period())
+    def select_combinations_with_smallest_number_of_exam_period_shifts(
+        self, combinations
+    ):
+        return self.select_from_smallest_number_of(
+            combinations, lambda x: x.number_of_shifts_in_exam_period()
+        )
 
     def select_from_smallest_number_of(self, collection, f):
         segments = {}

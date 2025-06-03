@@ -23,9 +23,7 @@ with warnings.catch_warnings():
 DEBUG = env.bool("DJANGO_DEBUG")
 SECRET_KEY = env.str("DJANGO_SECRET_KEY")
 
-CACHE_BACKEND = env.str(
-    "REDIS_URL" if IS_HEROKU else "DJANGO_REDIS_URL", default=""
-)
+CACHE_BACKEND = env.str("REDIS_URL" if IS_HEROKU else "DJANGO_REDIS_URL", default="")
 
 ADMINS = []
 
@@ -36,17 +34,16 @@ ALLOWED_HOSTS = ("*",)
 MAX_CONN_AGE = 600
 
 
-
 DATABASES = {}
-
 
 
 if IS_HEROKU:
     # Configure Django for DATABASE_URL environment variable.
     DATABASES["default"] = dj_database_url.config(
-        conn_max_age=MAX_CONN_AGE, ssl_require=True)
-   # DATABASES["default"] = env.db_url("DJANGO_DATABASE_URL")
-    #)
+        conn_max_age=MAX_CONN_AGE, ssl_require=True
+    )
+# DATABASES["default"] = env.db_url("DJANGO_DATABASE_URL")
+# )
 else:
     DATABASES["default"] = env.db_url("DJANGO_DATABASE_URL")
 
@@ -57,7 +54,9 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {"ssl_cert_reqs": None},  # needed for heroku
-        } if IS_HEROKU else {
+        }
+        if IS_HEROKU
+        else {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     }
@@ -252,7 +251,7 @@ ANYMAIL = {
 }
 SERVER_EMAIL = "cafesys@baljan.org"
 
-WORKER_COOLDOWN_SECONDS = 60 # 1 minute cooldown
+WORKER_COOLDOWN_SECONDS = 60  # 1 minute cooldown
 
 BOARD_GROUP = "styrelsen"
 WORKER_GROUP = "jobbare"
@@ -282,14 +281,14 @@ CELERY_BEAT_SCHEDULE = {
     "ensure-gmail-watch": {
         "task": "cafesys.baljan.tasks.ensure_gmail_watch",
         "schedule": 24 * 60 * 60,
-    }
+    },
 }
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-#SECURE_SSL_REDIRECT = False
-#SECURE_SSL_REDIRECT needs to be false when running locally but true when deployed
-#Deafult value False, but when deployed it fetches DJANGO_SSL_REDIRECT from conf vars
-#on heroku which defines it as true
+# SECURE_SSL_REDIRECT = False
+# SECURE_SSL_REDIRECT needs to be false when running locally but true when deployed
+# Deafult value False, but when deployed it fetches DJANGO_SSL_REDIRECT from conf vars
+# on heroku which defines it as true
 SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=False)
 
 SLACK_BOT_TOKEN = env.str("SLACK_BOT_TOKEN", default="")
@@ -307,7 +306,7 @@ ROLLBAR = {
 }
 
 
-# Google Auth Shizz    
+# Google Auth Shizz
 GOOGLE_PROJECT_ID = env.str("GOOGLE_PROJECT_ID", default="")
 GOOGLE_PRIVATE_KEY_ID = env.str("GOOGLE_PRIVATE_KEY_ID", default="")
 GOOGLE_PRIVATE_KEY = env.str("GOOGLE_PRIVATE_KEY", multiline=True, default="")
@@ -315,7 +314,9 @@ GOOGLE_CLIENT_EMAIL = env.str("GOOGLE_CLIENT_EMAIL", default="")
 GOOGLE_CLIENT_ID = env.str("GOOGLE_CLIENT_ID", default="")
 GOOGLE_AUTH_URI = env.str("GOOGLE_AUTH_URI", default="")
 GOOGLE_TOKEN_URI = env.str("GOOGLE_TOKEN_URI", default="")
-GOOGLE_AUTH_PROVIDER_X509_CERT_URL = env.str("GOOGLE_AUTH_PROVIDER_X509_CERT_URL", default="")
+GOOGLE_AUTH_PROVIDER_X509_CERT_URL = env.str(
+    "GOOGLE_AUTH_PROVIDER_X509_CERT_URL", default=""
+)
 GOOGLE_CLIENT_X509_CERT_URL = env.str("GOOGLE_CLIENT_X509_CERT_URL", default="")
 GOOGLE_UNIVERSE_DOMAIN = env.str("GOOGLE_UNIVERSE_DOMAIN", default="")
 GOOGLE_PUBSUB_TOPIC = env.str("GOOGLE_PUBSUB_TOPIC", default="")
@@ -331,5 +332,5 @@ GOOGLE_SERVICE_ACCOUNT_INFO = {
     "token_uri": GOOGLE_TOKEN_URI,
     "auth_provider_x509_cert_url": GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
     "client_x509_cert_url": GOOGLE_CLIENT_X509_CERT_URL,
-    "universe_domain": GOOGLE_UNIVERSE_DOMAIN
+    "universe_domain": GOOGLE_UNIVERSE_DOMAIN,
 }

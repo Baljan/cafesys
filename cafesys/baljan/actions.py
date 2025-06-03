@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.urls import reverse
-from django.utils.translation import ugettext as _
 
 from .models import Semester
 
