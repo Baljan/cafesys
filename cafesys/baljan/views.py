@@ -65,6 +65,7 @@ from .util import (
     available_for_call_duty,
     from_iso8601,
     htmlents,
+    is_ajax,
     valid_username,
     week_dates,
     year_and_week,
@@ -630,7 +631,7 @@ def search_person(request):
         )  # Admins can search by card number.
         hits = search.for_person(terms, is_admin=is_admin)
 
-    if request.is_ajax():
+    if is_ajax(request):
         ser = serialize(
             "json",
             hits,
@@ -719,6 +720,9 @@ def _pair_matrix(pairs):
 
 @permission_required("baljan.manage_job_openings")
 def job_opening_projector(request, semester_name):
+    # TODO: I cant figure out what this site is used for
+    # or if it is even used anymore
+    # Eitherway, it uses request.is_ajax() which got deprecated django 3.1
     tpl = {}
     tpl["semester"] = sem = get_object_or_404(
         models.Semester, name__exact=semester_name
@@ -729,7 +733,7 @@ def job_opening_projector(request, semester_name):
     tz = pytz.timezone(settings.TIME_ZONE)
     tpl["now"] = now = datetime.now(tz).strftime("%H:%M:%S")
 
-    if request.is_ajax():
+    if is_ajax(request):
         pair_info = []
         for pair in pairs:
             pair_info.append(
@@ -755,7 +759,7 @@ def job_opening(request, semester_name):
 
     found_user = None
     if request.method == "POST":
-        if request.is_ajax():  # find user
+        if is_ajax(request):  # find user
             searched_for = request.POST["liu_id"]
             valid_search = valid_username(searched_for)
 
@@ -877,7 +881,7 @@ def call_duty_week(request, year=None, week=None):
 
     id_drags = dict(list(zip(uids, drags)))
 
-    if request.method == "POST" and request.is_ajax():
+    if request.method == "POST" and is_ajax(request):
         initial_users = dict(list(zip(initials, avails)))
         all_old_users = [
             User.objects.filter(oncallduty__shift=shift).distinct()
@@ -1302,7 +1306,7 @@ def semester_shifts(request, sem_name):
                             priority=priority,
                         ).save()
 
-        if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse(json.dumps({"OK": True}))
 
     # Get the workable shifts for the user

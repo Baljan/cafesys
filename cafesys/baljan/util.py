@@ -191,3 +191,8 @@ def asciilize(s):
 
 def valid_username(username):
     return re.match("^[a-z]{2,5}[0-9]{3,3}$", username) is not None
+
+
+# request.is_ajax is deprecated since 3.1, and instead of rebuilding....
+def is_ajax(request):
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"

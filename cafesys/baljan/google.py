@@ -15,19 +15,24 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 # running outside of docker and when building on heroku.
 # I think theres a better way tho than just initializing them
 # both to None and then assigning them a value inside of ensure_gmail_watch
-credentials = service_account.Credentials.from_service_account_info(
-    info=settings.GOOGLE_SERVICE_ACCOUNT_INFO,
-    scopes=SCOPES,
-    subject="robot.nordsson@baljan.org",
-)
-service = build("gmail", "v1", credentials=credentials)
-logger = getLogger(__name__)
+
+if settings.IS_HEROKU:
+    credentials = service_account.Credentials.from_service_account_info(
+        info=settings.GOOGLE_SERVICE_ACCOUNT_INFO,
+        scopes=SCOPES,
+        subject="robot.nordsson@baljan.org",
+    )
+    service = build("gmail", "v1", credentials=credentials)
+    logger = getLogger(__name__)
 
 EXPIRATION_TIME = -1
 HISTORY_ID = None
 
 
 def ensure_gmail_watch():
+    if not settings.IS_HEROKU:
+        return
+
     global EXPIRATION_TIME, HISTORY_ID
     current_time = time.time()
 
