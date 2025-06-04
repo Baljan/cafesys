@@ -24,31 +24,39 @@ make setup
 
 Otherwise, follow the steps below:
 
-1. Login to heroku through the terminal by running:  
+1. Setup a Python virtual environment 
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+pip install ruff pre-commit
+```
+
+2. Login to heroku through the terminal by running:  
 ```sh
 heroku login
 ```
 
-2. Create a backup of the PostgreSQL database by running:  
+3. Create a backup of the PostgreSQL database by running:  
 ```sh
 heroku pg:backups:capture --app baljan
 ```
 
-3. Download a dump of the database to the current directory:  
+4. Download a dump of the database to the current directory:  
 ```sh
 heroku pg:backups:download --app baljan -o docker-entrypoint-initdb.d/latest.dump
 ```
 
-4. Copy `.env.tmpl` to `.env`  
+5. Copy `.env.tmpl` to `.env`  
+Before starting the project, fill in the missing values. You can find them in Bitwarden, or on Heroku!
 
-5. Create a superuser for the admin
+6. Create a superuser for the admin
 ```sh
 docker compose run --rm django ./manage.py createsuperuser
 ```
 
 Then you're ready to go!  
 
-Before starting the project, fill in the missing values. You can find them in Bitwarden!
 
 To start the project, run:  
 ```sh
