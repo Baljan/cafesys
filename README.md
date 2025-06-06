@@ -80,3 +80,15 @@ If you want to test the build process that Heroku uses, you can follow [the step
 TLDR: Running `pack build baljan/cafesys:heroku` will create an image named `baljan/cafesys:heroku`
 
 From here you can also test the image. Buildpacks creates a normal Docker image that you can start, but you may have to tweak some environment variables.
+
+
+## Running migrations on Heroku
+
+Instead of adding a [Heroku Release Phase](https://devcenter.heroku.com/articles/release-phase) to run migrations, which they do not recommend, they suggest using transactions to run migrations.
+
+You do this by running:
+```sh
+heroku run -a baljan python manage.py migrate
+```
+
+This should be done everytime a change to the database is introduced, either if its through a third party app or through a new model.
