@@ -12,6 +12,7 @@ psycopg2==2.9.10
 
 # Celery for async and periodic tasks
 celery==5.5.3
+django_celery_beat==2.8.1
 
 # Social (i.e. LiU ID) login
 social-auth-core==4.6.1

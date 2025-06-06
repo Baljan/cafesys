@@ -13,10 +13,9 @@ sync-database:
 	heroku pg:backups:download --app baljan -o docker-entrypoint-initdb.d/latest.dump
 
 setup: sync-database setup-requirements
-	docker compose up --build -d postgres redis
- 	docker compose run --rm django ./manage.py createsuperuser
-
-	@echo "Setup complete!"
+	docker compose up --build -d db cache
+	docker compose build web 
+	docker compose run --rm web ./manage.py createsuperuser
 
 start:
-	docker compose up --build -d django celery-worker
+	docker compose up --build -d web worker

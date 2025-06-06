@@ -169,7 +169,7 @@ def orderFromUs(request):
             ordererEmail = form.cleaned_data["ordererEmail"]
             phoneNumber = form.cleaned_data["phoneNumber"]
             association = form.cleaned_data["association"]
-            org = form.cleaned_data["org"]  # FIXME: Can this be removed?
+            # org = form.cleaned_data["org"]  # FIXME: Can this be removed?
             numberOfCoffee = form.cleaned_data["numberOfCoffee"]
             numberOfTea = form.cleaned_data["numberOfTea"]
             numberOfSoda = form.cleaned_data["numberOfSoda"]
@@ -456,7 +456,7 @@ def credits(request, code=None):
             try:
                 creditsmodule.manual_refill(entered_code, user)
                 tpl["used_card"] = True
-            except:  # FIXME: what error
+            except Exception:  # Exception is either PermissionDenied or BadRequest
                 tpl["invalid_card"] = True
 
     tpl["refill_form"] = refill_form
@@ -808,7 +808,7 @@ def job_opening(request, semester_name):
                     to_update = models.Profile.objects.get(user__username__exact=uname)
                     to_update.mobile_phone = phone
                     to_update.save()
-                except:  # FIXME: What error
+                except Exception:  # Probably models.Profile.DoesNotExist
                     logger.error("invalid phone for %s: %r" % (uname, phone))
 
             # Assign to shifts.
@@ -940,7 +940,7 @@ def admin_semester(request, name=None):
             try:
                 upcoming_sems = models.Semester.objects.upcoming()
                 sem = upcoming_sems[0]
-            except:  # FIXME:
+            except Exception:  # FIXME: I dont think this even throws an exception
                 pass
     else:
         sem = get_object_or_404(models.Semester, name__exact=name)
@@ -1048,8 +1048,6 @@ def post_call(request, location):
 @require_POST
 def support_webhook(request):
     # FIXME: Needs authentication from google https://cloud.google.com/pubsub/docs/authenticate-push-subscriptions
-    google.ensure_gmail_watch()
-
     data = json.loads(request.body)
 
     message = data["message"]["data"]
@@ -1179,7 +1177,7 @@ def do_blipp(request):
                     possible_responses[current_time.second % len(possible_responses)],
                     help_text="Vänta en stund innan du blippar igen",
                 )
-        except:  # FIXME: Very bad solution
+        except models.Order.DoesNotExist:  # FIXME: Not the best solution
             pass
 
     if is_coffee_free:

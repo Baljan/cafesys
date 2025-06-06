@@ -157,6 +157,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.staticfiles",
     # external
+    "django_celery_beat",
     "django_extensions",
     "crispy_forms",
     "crispy_bootstrap5",
@@ -264,25 +265,15 @@ DEBUG_TOOLBAR_CONFIG = {
     "INTERCEPT_REDIRECTS": False,
 }
 
-STATS_REFRESH_RATE = 5 * 60  # seconds
 STATS_CACHE_KEY = "baljan.stats"
 # How long the stats data live in the cache
 STATS_CACHE_TTL = 24 * 60 * 60  # seconds
 
-CELERY_IMPORTS = ("cafesys.baljan.tasks",)
+CELERY_IMPORTS = ("cafesys.baljan.tasks", "cafesys.baljan.google")
 CELERY_BROKER_URL = CACHE_BACKEND
 CELERY_TASK_SERIALIZER = "json"
 CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_BEAT_SCHEDULE = {
-    "update-stats": {
-        "task": "cafesys.baljan.tasks.update_stats",
-        "schedule": STATS_REFRESH_RATE,
-    },
-    "ensure-gmail-watch": {
-        "task": "cafesys.baljan.tasks.ensure_gmail_watch",
-        "schedule": 24 * 60 * 60,
-    },
-}
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # SECURE_SSL_REDIRECT = False
@@ -320,6 +311,7 @@ GOOGLE_AUTH_PROVIDER_X509_CERT_URL = env.str(
 GOOGLE_CLIENT_X509_CERT_URL = env.str("GOOGLE_CLIENT_X509_CERT_URL", default="")
 GOOGLE_UNIVERSE_DOMAIN = env.str("GOOGLE_UNIVERSE_DOMAIN", default="")
 GOOGLE_PUBSUB_TOPIC = env.str("GOOGLE_PUBSUB_TOPIC", default="")
+GOOGLE_CACHE_KEY = "google_watch_config"
 
 GOOGLE_SERVICE_ACCOUNT_INFO = {
     "type": "service_account",

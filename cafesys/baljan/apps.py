@@ -8,7 +8,5 @@ class BaljanConfig(AppConfig):
     def ready(self):
         # This can only be imported AFTER the app is ready
         from cafesys.baljan.workdist.signals import semester_post_save
-        from cafesys.baljan.google import ensure_gmail_watch
 
         signals.post_save.connect(semester_post_save, sender="baljan.Semester")
-        ensure_gmail_watch()
