@@ -4,7 +4,7 @@ fantastic *Blipp* system for coffee.
 
 ## Setting up a development environment using Docker
 
-> **Note:** This guide requires that you have installed Docker and Docker Compose (see https://docs.docker.com/compose/install/).
+> **Note:** This guide requires that you have installed Python, Docker and Docker Compose (see https://docs.docker.com/compose/install/).
 
 If you are using Windows as OS, start by downloading WSL.
 
@@ -30,6 +30,7 @@ Otherwise, follow the steps below:
 python3 -m venv .venv
 . .venv/bin/activate
 pip install ruff pre-commit
+pre-commit install
 ```
 
 2. Login to heroku through the terminal by running:  
@@ -50,9 +51,14 @@ heroku pg:backups:download --app baljan -o docker-entrypoint-initdb.d/latest.dum
 5. Copy `.env.tmpl` to `.env`  
 Before starting the project, fill in the missing values. You can find them in Bitwarden, or on Heroku!
 
-6. Create a superuser for the admin
+6. Build the Cafesys image
 ```sh
-docker compose run --rm django ./manage.py createsuperuser
+docker compose build web
+```
+
+7. Create a superuser for the admin
+```sh
+docker compose run --rm web ./manage.py createsuperuser
 ```
 
 Then you're ready to go!  
@@ -62,5 +68,5 @@ To start the project, run:
 ```sh
 make start
 # or 
-docker compose up --build -d django celery-worker
+docker compose up --build -d web worker
 ```  
