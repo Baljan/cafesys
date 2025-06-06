@@ -1320,3 +1320,21 @@ class BlippConfiguration(Located):
     class Meta:
         verbose_name = "Blipp-konfiguration"
         verbose_name_plural = "Blipp-konfigurationer"
+
+
+class SupportFilter(models.Model):
+    class Type(models.IntegerChoices):
+        FROM = 0, _("From")
+        SUBJECT = 1, _("Subject")
+
+    type = models.IntegerField(
+        verbose_name=_("type of filter"), choices=Type, default=Type.FROM
+    )
+    value = models.CharField(verbose_name=_("value"), max_length=512)
+
+    def __str__(self):
+        return "%s: %s" % (self.get_type_display(), self.value)
+
+    class Meta:
+        verbose_name = _("support mail filter")
+        verbose_name_plural = _("support mail filter")
