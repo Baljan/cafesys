@@ -1,0 +1,15 @@
+# See README about building production images locally
+[_]
+schema-version = "0.2"
+id = "baljan.cafesys.heroku"
+name = "Cafesys"
+version = "1.0.0"
+
+[io.buildpacks]
+builder = "heroku/builder:24"
+exclude = [
+    "/.venv",
+    "/database",
+    "/docker-entrypoint-initdb.d",
+    "/README.md",
+]

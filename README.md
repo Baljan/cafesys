@@ -70,3 +70,13 @@ make start
 # or 
 docker compose up --build -d web worker
 ```  
+
+## Building for production locally
+
+> This part requires [Buildpacks](https://buildpacks.io/docs/for-platform-operators/how-to/integrate-ci/pack/) to be installed
+
+If you want to test the build process that Heroku uses, you can follow [the steps defined here](https://devcenter.heroku.com/articles/heroku-local#run-your-cloud-native-buildpack-app-locally-using-pack).
+
+TLDR: Running `pack build baljan/cafesys:heroku` will create an image named `baljan/cafesys:heroku`
+
+From here you can also test the image. Buildpacks creates a normal Docker image that you can start, but you may have to tweak some environment variables.
