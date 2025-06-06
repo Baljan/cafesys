@@ -1,4 +1,0 @@
-#!/bin/sh
-# Start without a PID file
-mkdir -p /var/run/celery
-celery -A cafesys beat -s /var/run/celery/beat-schedule --pidfile=

@@ -8,9 +8,11 @@ import re
 
 from .baljan import views
 
+
 # Redirect old /baljan/... urls
 def slash_baljan_redirect(request, path=""):
-    return redirect(re.sub(r'^\/*', '/', path), permanent=True)
+    return redirect(re.sub(r"^\/*", "/", path), permanent=True)
+
 
 urlpatterns = (
     path("auth/", include("social_django.urls", namespace="social")),

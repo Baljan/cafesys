@@ -1,4 +1,3 @@
-import math
 from datetime import date
 
 from django.test import TestCase
@@ -12,7 +11,7 @@ class WorkdistAdapterTestCase(TestCase):
         semester = Semester(
             start=date(year=2019, month=8, day=19),
             end=date(year=2019, month=12, day=20),
-            name='HT2019'
+            name="HT2019",
         )
         semester.save()
 

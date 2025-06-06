@@ -1,38 +1,39 @@
-import time
+from celery import signals
+from datetime import datetime
 from googleapiclient.http import HttpError
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from logging import getLogger
+import time
+
 from django.conf import settings
+from django.core.cache import cache
 
-
-SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
-
-# FIXME: This needs to be moved or something else needs to be fixed
-# This raises an error when running locally with docker since
-# the docker env does not have access to the environment variables
-# at "build" time, and google.oauth2 needs it. Works fine when
-# running outside of docker and when building on heroku.
-# I think theres a better way tho than just initializing them
-# both to None and then assigning them a value inside of ensure_gmail_watch
-credentials = service_account.Credentials.from_service_account_info(
-    info=settings.GOOGLE_SERVICE_ACCOUNT_INFO,
-    scopes=SCOPES,
-    subject="robot.nordsson@baljan.org",
-)
-service = build("gmail", "v1", credentials=credentials)
 logger = getLogger(__name__)
 
-EXPIRATION_TIME = -1
-HISTORY_ID = None
+
+def setup_service():
+    creds = service_account.Credentials.from_service_account_info(
+        info=settings.GOOGLE_SERVICE_ACCOUNT_INFO,
+        scopes=["https://www.googleapis.com/auth/gmail.readonly"],
+        subject="robot.nordsson@baljan.org",
+    )
+    service = build("gmail", "v1", credentials=creds)
+
+    return service
 
 
-def ensure_gmail_watch():
-    global EXPIRATION_TIME, HISTORY_ID
+@signals.worker_ready.connect
+def ensure_gmail_watch(**kwargs):
+    service = setup_service()
+    config = cache.get(
+        settings.GOOGLE_CACHE_KEY, {"expiration_time": 0, "history_id": None}
+    )
+
     current_time = time.time()
 
-    if current_time - EXPIRATION_TIME > 0:
-        print("Ensuring Gmail watch...")
+    if current_time - config["expiration_time"] > 0:
+        logger.info("Ensuring Gmail watch...")
         try:
             response = (
                 service.users()
@@ -46,34 +47,39 @@ def ensure_gmail_watch():
                 .execute()
             )
             if "historyId" in response and response["historyId"].isdigit():
-                HISTORY_ID = int(response["historyId"])
+                config["history_id"] = int(response["historyId"])
 
             if "expiration" in response and response["expiration"].isdigit():
-                EXPIRATION_TIME = int(response["expiration"])
+                config["expiration_time"] = int(response["expiration"])
 
-            print(f"Gmail watch renewed until {EXPIRATION_TIME} with id {HISTORY_ID}")
+            logger.info(
+                "Gmail watch renewed until %s"
+                % (datetime.fromtimestamp(config["expiration_time"] / 1e3))
+            )
+
+            cache.set(
+                settings.GOOGLE_CACHE_KEY,
+                config,
+                config["expiration_time"] - current_time,
+            )
         except HttpError as e:
             logger.error(
                 "Could not renew Gmail notification watch. Status code : {0}, reason : {1}".format(
                     e.status_code, e.error_details
                 )
             )
-            HISTORY_ID = None
-            EXPIRATION_TIME = -1
 
 
 def get_new_messages(new_history_id):
-    global HISTORY_ID
-
     messages = []
+    config = cache.get(settings.GOOGLE_CACHE_KEY)
+    service = setup_service()
 
-    if HISTORY_ID is None:
+    if config is None or config["history_id"] is None:
         logger.warning("Will not get messages due to HISTORY_ID being None.")
         return messages
 
-    chosen_history_id = min(new_history_id, HISTORY_ID)
-
-    print("Chosen", chosen_history_id)
+    chosen_history_id = min(new_history_id, config["history_id"])
 
     try:
         response = (
@@ -82,8 +88,6 @@ def get_new_messages(new_history_id):
             .list(userId="me", startHistoryId=chosen_history_id)
             .execute()
         )
-
-        print("Response", response)
 
         if "history" not in response:
             return messages
@@ -97,12 +101,15 @@ def get_new_messages(new_history_id):
 
         for message in messagesAdded:
             message_id = message["message"]["id"]
-            details = get_email_details(message_id)
+            details = get_email_details(service, message_id)
 
             if details is not None:
                 messages.append(details)
 
-        HISTORY_ID = new_history_id
+        config["history_id"] = new_history_id
+        cache.set(
+            settings.GOOGLE_CACHE_KEY, config, config["expiration_time"] - time.time()
+        )
     except HttpError as e:
         logger.error(
             "Could not get new message history. Status code: {0}, reason : {1}".format(
@@ -113,7 +120,7 @@ def get_new_messages(new_history_id):
     return messages
 
 
-def get_email_details(message_id):
+def get_email_details(service, message_id):
     message = None
 
     try:

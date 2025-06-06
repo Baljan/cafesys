@@ -9,50 +9,53 @@ services:
     ports:
       - "8001:80"
 
-  celery-worker:
+  worker:
     image: baljan/cafesys
     build:
       context: .
     env_file: .env
-    command: /app/bin/run-celery-worker
+    environment:
+      DJANGO_REDIS_URL: redis://cache:6379/0
+      DJANGO_DATABASE_URL: postgres://cafesys:cafesys@db:5432/baljan_local
+    command: celery -A cafesys worker --beat -l info
     links:
-      - redis
-      - postgres
+      - cache
+      - db
 
-  django:
+  web:
     image: baljan/cafesys
     build:
       context: .
     env_file: .env
+    environment:
+      DJANGO_REDIS_URL: redis://cache:6379/0
+      DJANGO_DATABASE_URL: postgres://cafesys:cafesys@db:5432/baljan_local
     depends_on:
-      redis:
+      cache:
         condition: service_healthy
-      postgres:
+      db:
         condition: service_healthy
-    command: /app/bin/run-django
+    command: gunicorn -c gunicorn-conf.py cafesys.wsgi
     ports:
       - "5006:5006"
-    links:
-      - redis
-      - postgres
     volumes:
       # Mount static files after build
       - ./cafesys/baljan/static:/app/cafesys/baljan/static
 
-  postgres:
+  db:
     image: postgres:15.7-alpine
     env_file: .env
-    volumes:
-      - ./database:/var/lib/postgresql/data
-      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
     ports:
-      # This gives us a Postgres server listening on the host as well. This can be useful for development outside the
-      # Docker environment.
+      # This gives us a Postgres server listening on the host as well.
+      # This can be useful for development outside the Docker environment.
       - 5432:5432
+    volumes:
+      - ./database:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
 
-  redis:
+  cache:
     image: redis:3-alpine
     env_file: .env
     healthcheck:
@@ -61,6 +64,6 @@ services:
       timeout: 3s
       retries: 30
     ports:
-      # This gives us a Redis server listening on the host as well. This can be useful for development outside the
-      # Docker environment.
+      # This gives us a Redis server listening on the host as well.
+      # This can be useful for development outside the Docker environment.
       - 6379:6379

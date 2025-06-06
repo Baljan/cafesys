@@ -21,4 +21,9 @@ class TemporaryShiftCombination:
         return False
 
     def __str__(self):
-        return 'ShiftCombination #' + str(id(self)) + '\n' + '\n'.join(map(lambda x: str(x), self.shifts))
+        return (
+            "ShiftCombination #"
+            + str(id(self))
+            + "\n"
+            + "\n".join(map(lambda x: str(x), self.shifts))
+        )

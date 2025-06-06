@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.11
 
 # Kept separate to be substituted in next step
 ENV APP_ROOT=/app
