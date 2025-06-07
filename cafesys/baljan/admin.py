@@ -613,3 +613,11 @@ class BlippConfiguration(admin.ModelAdmin):
 
 
 admin.site.register(models.BlippConfiguration, BlippConfiguration)
+
+
+class SupportFilter(admin.ModelAdmin):
+    list_display = ["type", "value"]
+    list_filter = ["type"]
+
+
+admin.site.register(models.SupportFilter, SupportFilter)

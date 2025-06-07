@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-24 11:50+0100\n"
+"POT-Creation-Date: 2025-06-07 01:04+0200\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,162 +19,162 @@ msgstr ""
 "X-Translated-Using: django-rosetta 0.5.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: cafesys/baljan/admin.py:95 cafesys/baljan/admin.py:107
+#: cafesys/baljan/admin.py:100 cafesys/baljan/admin.py:112
 msgid "There are users for which the changes could not be applied."
 msgstr "Det finns användare där förändringen inte kunde appliceras."
 
-#: cafesys/baljan/admin.py:98
+#: cafesys/baljan/admin.py:103
 msgid "Make new worker"
 msgstr "Gör till ny jobbare"
 
-#: cafesys/baljan/admin.py:110
+#: cafesys/baljan/admin.py:115
 msgid "Make regular worker"
 msgstr "Gör till vanlig jobbare"
 
-#: cafesys/baljan/admin.py:236
+#: cafesys/baljan/admin.py:241
 msgid "Toggle exam period"
 msgstr "Växla tenta-p"
 
-#: cafesys/baljan/admin.py:243
+#: cafesys/baljan/admin.py:248
 msgid "Toggle enabled"
 msgstr "Växla aktiv"
 
-#: cafesys/baljan/admin.py:271 cafesys/baljan/templates/baljan/user.html:47
+#: cafesys/baljan/admin.py:276 cafesys/baljan/templates/baljan/user.html:47
 msgid "unset"
 msgstr "ej angett"
 
-#: cafesys/baljan/admin.py:275 cafesys/baljan/models.py:749
+#: cafesys/baljan/admin.py:280 cafesys/baljan/models.py:851
 msgid "cost"
 msgstr "pris"
 
-#: cafesys/baljan/admin.py:334
+#: cafesys/baljan/admin.py:339
 msgid "Value and Identification"
 msgstr "Värde och identifikation"
 
-#: cafesys/baljan/admin.py:343
+#: cafesys/baljan/admin.py:348
 msgid "Code"
 msgstr "Kod"
 
-#: cafesys/baljan/admin.py:385 cafesys/baljan/models.py:908
+#: cafesys/baljan/admin.py:390 cafesys/baljan/models.py:1039
 msgid "series"
 msgstr "serie"
 
-#: cafesys/baljan/admin.py:400
+#: cafesys/baljan/admin.py:405
 msgid "# used"
 msgstr "# använda"
 
-#: cafesys/baljan/admin.py:405
+#: cafesys/baljan/admin.py:410
 msgid "# unused"
 msgstr "# oanvända"
 
-#: cafesys/baljan/admin.py:410
+#: cafesys/baljan/admin.py:415
 msgid "codes"
 msgstr "koder"
 
-#: cafesys/baljan/admin.py:415 cafesys/baljan/models.py:66
-#: cafesys/baljan/models.py:750 cafesys/baljan/models.py:771
-#: cafesys/baljan/models.py:931 cafesys/baljan/models.py:932
+#: cafesys/baljan/admin.py:420 cafesys/baljan/models.py:80
+#: cafesys/baljan/models.py:852 cafesys/baljan/models.py:877
+#: cafesys/baljan/models.py:1073
 msgid "currency"
 msgstr "valuta"
 
-#: cafesys/baljan/admin.py:427
+#: cafesys/baljan/admin.py:432
 msgid "# made PDFs"
 msgstr "# skapade PDF:er"
 
-#: cafesys/baljan/admin.py:481
+#: cafesys/baljan/admin.py:486
 msgid "There are used codes in one or more of the series."
 msgstr "Det finns använda koder i serien/-erna."
 
-#: cafesys/baljan/admin.py:504
+#: cafesys/baljan/admin.py:509
 #, fuzzy
 #| msgid "Make PDF"
 msgid "Make PDF"
 msgstr "skapa PDF"
 
-#: cafesys/baljan/forms.py:157
+#: cafesys/baljan/forms.py:222
 msgid "open"
 msgstr "öppet"
 
-#: cafesys/baljan/forms.py:158
+#: cafesys/baljan/forms.py:223
 msgid "closed"
 msgstr "stängt"
 
-#: cafesys/baljan/forms.py:159 cafesys/baljan/models.py:419
+#: cafesys/baljan/forms.py:224 cafesys/baljan/models.py:496
 msgid "exam period"
 msgstr "tenta-p"
 
-#: cafesys/baljan/forms.py:163
+#: cafesys/baljan/forms.py:228
 msgid "make"
 msgstr "gör"
 
-#: cafesys/baljan/models.py:29
+#: cafesys/baljan/models.py:30
 msgid "made at"
 msgstr "skapad"
 
-#: cafesys/baljan/models.py:29
+#: cafesys/baljan/models.py:30
 msgid "when the object was created"
 msgstr "när objektet skapades"
 
-#: cafesys/baljan/models.py:62 cafesys/baljan/models.py:614
-#: cafesys/baljan/models.py:768 cafesys/baljan/models.py:958
-#: cafesys/baljan/models.py:976 cafesys/baljan/models.py:995
-#: cafesys/baljan/models.py:1034 cafesys/baljan/models.py:1045
+#: cafesys/baljan/models.py:71 cafesys/baljan/models.py:711
+#: cafesys/baljan/models.py:872 cafesys/baljan/models.py:1107
+#: cafesys/baljan/models.py:1127 cafesys/baljan/models.py:1162
+#: cafesys/baljan/models.py:1221 cafesys/baljan/models.py:1237
 msgid "user"
 msgstr "användare"
 
-#: cafesys/baljan/models.py:63
+#: cafesys/baljan/models.py:76
 msgid "mobile phone number"
 msgstr "mobilnummer"
 
-#: cafesys/baljan/models.py:65
+#: cafesys/baljan/models.py:80
 msgid "balance currency"
 msgstr "balansvaluta"
 
-#: cafesys/baljan/models.py:67
+#: cafesys/baljan/models.py:82
 msgid "show email address"
 msgstr "visa epostadress"
 
-#: cafesys/baljan/models.py:69
+#: cafesys/baljan/models.py:85
 msgid "motto"
 msgstr "motto"
 
-#: cafesys/baljan/models.py:70
+#: cafesys/baljan/models.py:89
 msgid "displayed in high scores"
 msgstr "visas i topplistorna"
 
-#: cafesys/baljan/models.py:72
+#: cafesys/baljan/models.py:93
 msgid "private key"
 msgstr "privat nyckel"
 
-#: cafesys/baljan/models.py:78
+#: cafesys/baljan/models.py:105
 msgid "card ids can be manually set"
 msgstr "kord-idn kan sättas manuellt"
 
-#: cafesys/baljan/models.py:100
+#: cafesys/baljan/models.py:134
 msgid "profile"
 msgstr "profil"
 
-#: cafesys/baljan/models.py:101
+#: cafesys/baljan/models.py:135
 msgid "profiles"
 msgstr "profiler"
 
-#: cafesys/baljan/models.py:142
+#: cafesys/baljan/models.py:183
 msgid "wanted sign-up"
 msgstr "passanmälan som efterfrågas"
 
-#: cafesys/baljan/models.py:146
+#: cafesys/baljan/models.py:189
 msgid "offered sign-up"
 msgstr "passanmälan som erbjuds"
 
-#: cafesys/baljan/models.py:149 cafesys/baljan/models.py:772
+#: cafesys/baljan/models.py:193 cafesys/baljan/models.py:878
 msgid "accepted"
 msgstr "accepterad"
 
-#: cafesys/baljan/models.py:150
+#: cafesys/baljan/models.py:195
 msgid "answered"
 msgstr "besvarad"
 
-#: cafesys/baljan/models.py:151
+#: cafesys/baljan/models.py:198
 msgid ""
 "if this is true when the shift is deleted, and \"accepted\" is true as well, "
 "the trade will be performed even if it was in the past"
@@ -182,260 +182,260 @@ msgstr ""
 "om detta är sant när passet tas bort, och \"accepterad\" också är sant, så "
 "kommer bytet att genomföras även om det redan har varit"
 
-#: cafesys/baljan/models.py:154
+#: cafesys/baljan/models.py:203
 msgid "trade request"
 msgstr "bytesförfrågan"
 
-#: cafesys/baljan/models.py:155
+#: cafesys/baljan/models.py:204
 msgid "trade requests"
 msgstr "bytesförfrågningar"
 
-#: cafesys/baljan/models.py:277
+#: cafesys/baljan/models.py:330
 #, fuzzy
 #| msgid "must be something like HT2010"
 msgid "Invalid semester name. Must be something like HT2010 or VT2010."
 msgstr "ska vara något i stil med HT2010"
 
-#: cafesys/baljan/models.py:279
+#: cafesys/baljan/models.py:334
 msgid "first day"
 msgstr "första dag"
 
-#: cafesys/baljan/models.py:280
+#: cafesys/baljan/models.py:339
 msgid "last day"
 msgstr "sista dag"
 
-#: cafesys/baljan/models.py:281
+#: cafesys/baljan/models.py:344
 msgid "name"
 msgstr "namn"
 
-#: cafesys/baljan/models.py:282
+#: cafesys/baljan/models.py:347
 msgid "must be something like HT2010"
 msgstr "ska vara något i stil med HT2010"
 
-#: cafesys/baljan/models.py:284
+#: cafesys/baljan/models.py:351
 msgid "sign-up possible"
 msgstr "anmälan möjlig"
 
-#: cafesys/baljan/models.py:285
+#: cafesys/baljan/models.py:353
 msgid "if workers can sign up to work on this semester"
 msgstr "om jobbare kan skriva upp sig för att arbeta denna termin"
 
-#: cafesys/baljan/models.py:320
+#: cafesys/baljan/models.py:390
 msgid "bad combination of start and end dates"
 msgstr "dålig kombination av start- och slutdatum"
 
-#: cafesys/baljan/models.py:322
+#: cafesys/baljan/models.py:392
 msgid "bad semester name"
 msgstr "dåligt terminnamn"
 
-#: cafesys/baljan/models.py:332
+#: cafesys/baljan/models.py:403
 #, python-format
 msgid "semester overlaps with %s"
 msgstr "terminen överlappar med %s"
 
-#: cafesys/baljan/models.py:351 cafesys/baljan/models.py:371
-#: cafesys/baljan/models.py:414 cafesys/baljan/models.py:956
-#: cafesys/baljan/models.py:1049
+#: cafesys/baljan/models.py:422 cafesys/baljan/models.py:442
+#: cafesys/baljan/models.py:489 cafesys/baljan/models.py:1104
+#: cafesys/baljan/models.py:1244
 msgid "semester"
 msgstr "termin"
 
-#: cafesys/baljan/models.py:352
+#: cafesys/baljan/models.py:423
 msgid "semesters"
 msgstr "terminer"
 
-#: cafesys/baljan/models.py:362 cafesys/baljan/models.py:407
+#: cafesys/baljan/models.py:431 cafesys/baljan/models.py:481
 msgid "morning"
 msgstr "förmiddag"
 
-#: cafesys/baljan/models.py:363 cafesys/baljan/models.py:408
-#: cafesys/baljan/models.py:469
+#: cafesys/baljan/models.py:432 cafesys/baljan/models.py:482
+#: cafesys/baljan/models.py:549
 msgid "lunch"
 msgstr "lunch"
 
-#: cafesys/baljan/models.py:364 cafesys/baljan/models.py:409
+#: cafesys/baljan/models.py:433 cafesys/baljan/models.py:483
 msgid "afternoon"
 msgstr "eftermiddag"
 
-#: cafesys/baljan/models.py:373 cafesys/baljan/models.py:502
+#: cafesys/baljan/models.py:444 cafesys/baljan/models.py:590
 msgid "shifts"
 msgstr "pass"
 
-#: cafesys/baljan/models.py:374 cafesys/baljan/models.py:1048
+#: cafesys/baljan/models.py:445 cafesys/baljan/models.py:1242
 msgid "label"
 msgstr "etikett"
 
-#: cafesys/baljan/models.py:384
+#: cafesys/baljan/models.py:458
 msgid "shift combination"
 msgstr "jobbpasskombination"
 
-#: cafesys/baljan/models.py:385
+#: cafesys/baljan/models.py:459
 msgid "shift combinations"
 msgstr "jobbpasskombinationer"
 
-#: cafesys/baljan/models.py:416
+#: cafesys/baljan/models.py:491
 msgid "what day the shift is on"
 msgstr "vilken dag passet är på"
 
-#: cafesys/baljan/models.py:417
+#: cafesys/baljan/models.py:493
 msgid "time span"
 msgstr "tidsintervall"
 
-#: cafesys/baljan/models.py:420
+#: cafesys/baljan/models.py:497
 msgid "the work scheduler takes this field into account"
 msgstr "jobbplaneraren tittar på detta fält"
 
-#: cafesys/baljan/models.py:422
+#: cafesys/baljan/models.py:501
 msgid "enabled"
 msgstr "aktiv"
 
-#: cafesys/baljan/models.py:423
+#: cafesys/baljan/models.py:502
 msgid "shifts can be disabled on special days"
 msgstr "pass kan inaktiveras på speciella dagar"
 
-#: cafesys/baljan/models.py:431
+#: cafesys/baljan/models.py:512
 msgid "7:30 am to ca 12:30 pm"
 msgstr "7:30 till ca 12:30"
 
-#: cafesys/baljan/models.py:433
+#: cafesys/baljan/models.py:514
 msgid "for people on call only"
 msgstr "endast för personer med jourtjänst"
 
-#: cafesys/baljan/models.py:435
+#: cafesys/baljan/models.py:516
 msgid "12:00 pm to ca 4:45 pm"
 msgstr "12:00 till ca 16:45"
 
-#: cafesys/baljan/models.py:468
+#: cafesys/baljan/models.py:548
 msgid "am"
 msgstr "fm"
 
-#: cafesys/baljan/models.py:470
+#: cafesys/baljan/models.py:550
 msgid "pm"
 msgstr "em"
 
-#: cafesys/baljan/models.py:501 cafesys/baljan/models.py:516
-#: cafesys/baljan/models.py:612
+#: cafesys/baljan/models.py:589 cafesys/baljan/models.py:608
+#: cafesys/baljan/models.py:709
 msgid "shift"
 msgstr "pass"
 
-#: cafesys/baljan/models.py:518 cafesys/baljan/stats.py:95
+#: cafesys/baljan/models.py:610 cafesys/baljan/stats.py:98
 msgid "worker"
 msgstr "jobbare"
 
-#: cafesys/baljan/models.py:521
+#: cafesys/baljan/models.py:613
 msgid "the user wants to switch this shift for some other"
 msgstr "jobbaren vill byta passet mot något annat"
 
-#: cafesys/baljan/models.py:522
+#: cafesys/baljan/models.py:615
 msgid ""
 "remember that trade requests of sign-ups are removed whenever the sign-up is "
 "altered"
 msgstr "kom ihåg att bytesförfrågningar tas bort när passanmälningar sparas"
 
-#: cafesys/baljan/models.py:529
+#: cafesys/baljan/models.py:624
 msgid "shift sign-up"
 msgstr "passanmälan"
 
-#: cafesys/baljan/models.py:530
+#: cafesys/baljan/models.py:625
 msgid "shift sign-ups"
 msgstr "passanmälningar"
 
-#: cafesys/baljan/models.py:618
+#: cafesys/baljan/models.py:715
 msgid "on call duty"
 msgstr "jourande"
 
-#: cafesys/baljan/models.py:619
+#: cafesys/baljan/models.py:716
 msgid "on call duties"
 msgstr "jourande"
 
-#: cafesys/baljan/models.py:703
+#: cafesys/baljan/models.py:801
 msgid "title"
 msgstr "rubrik"
 
-#: cafesys/baljan/models.py:704
+#: cafesys/baljan/models.py:802
 msgid "short description"
 msgstr "kort beskrivning"
 
-#: cafesys/baljan/models.py:705
+#: cafesys/baljan/models.py:804
 msgid "position"
 msgstr "position"
 
-#: cafesys/baljan/models.py:706
+#: cafesys/baljan/models.py:807
 msgid ""
 "when listing goods, this value tells at what position this good should be put"
 msgstr ""
 "när varor listas talar detta värde om på vilken position varan ska läggas"
 
-#: cafesys/baljan/models.py:736 cafesys/baljan/models.py:747
-#: cafesys/baljan/models.py:804 cafesys/baljan/models.py:1070
+#: cafesys/baljan/models.py:839 cafesys/baljan/models.py:850
+#: cafesys/baljan/models.py:909 cafesys/baljan/models.py:1268
 msgid "good"
 msgstr "vara"
 
-#: cafesys/baljan/models.py:737
+#: cafesys/baljan/models.py:840
 msgid "goods"
 msgstr "varor"
 
-#: cafesys/baljan/models.py:740
+#: cafesys/baljan/models.py:843
 #, python-format
 msgid "%(title)s (%(desc)s)"
 msgstr "%(title)s (%(desc)s)"
 
-#: cafesys/baljan/models.py:751
+#: cafesys/baljan/models.py:853
 msgid "from date"
 msgstr "från datum"
 
-#: cafesys/baljan/models.py:754
+#: cafesys/baljan/models.py:856
 msgid "good cost"
 msgstr "varupris"
 
-#: cafesys/baljan/models.py:755
+#: cafesys/baljan/models.py:857
 msgid "good costs"
 msgstr "varupriser"
 
-#: cafesys/baljan/models.py:767
+#: cafesys/baljan/models.py:869
 msgid "put at"
 msgstr "lagd"
 
-#: cafesys/baljan/models.py:770
+#: cafesys/baljan/models.py:876
 msgid "paid"
 msgstr "betalat"
 
-#: cafesys/baljan/models.py:793 cafesys/baljan/models.py:802
+#: cafesys/baljan/models.py:899 cafesys/baljan/models.py:908
 msgid "order"
 msgstr "köp"
 
-#: cafesys/baljan/models.py:794
+#: cafesys/baljan/models.py:900
 msgid "orders"
 msgstr "köp"
 
-#: cafesys/baljan/models.py:806
+#: cafesys/baljan/models.py:910
 msgid "count"
 msgstr "antal"
 
-#: cafesys/baljan/models.py:809
+#: cafesys/baljan/models.py:913
 msgid "order good"
 msgstr "köpvara"
 
-#: cafesys/baljan/models.py:810
+#: cafesys/baljan/models.py:914
 msgid "order goods"
 msgstr "köpvaror"
 
-#: cafesys/baljan/models.py:840
+#: cafesys/baljan/models.py:952
 msgid "issued"
 msgstr "skapad"
 
-#: cafesys/baljan/models.py:841
+#: cafesys/baljan/models.py:954
 msgid "least valid until"
 msgstr "minst giltig till"
 
-#: cafesys/baljan/models.py:843
+#: cafesys/baljan/models.py:958
 msgid "made by"
 msgstr "skapad av"
 
-#: cafesys/baljan/models.py:847
+#: cafesys/baljan/models.py:965
 msgid "code count"
 msgstr "antal koder"
 
-#: cafesys/baljan/models.py:849
+#: cafesys/baljan/models.py:968
 #, python-format
 msgid ""
 "multiple of 16 recommended (4x4 on A4 paper), total value can be at most %d "
@@ -443,53 +443,48 @@ msgid ""
 msgstr ""
 "multipel av 16 rekommenderas (4x4 på A4-papper), totalt maxvärde är %d SEK"
 
-#: cafesys/baljan/models.py:850
+#: cafesys/baljan/models.py:973
 msgid "code value"
 msgstr "kodvärde"
 
-#: cafesys/baljan/models.py:852
-#, python-format
-msgid "maximum value is %d SEK"
-msgstr "maxvärde är %d SEK"
-
-#: cafesys/baljan/models.py:853
+#: cafesys/baljan/models.py:975
 msgid "code currency"
 msgstr "kodvaluta"
 
-#: cafesys/baljan/models.py:855
+#: cafesys/baljan/models.py:979
 msgid "add to group"
 msgstr "lägg till i grupp"
 
-#: cafesys/baljan/models.py:856
+#: cafesys/baljan/models.py:980
 msgid "if set, users will be added to this group"
 msgstr "om satt så läggs användare till i den här gruppen"
 
-#: cafesys/baljan/models.py:861 cafesys/baljan/models.py:862
-#: cafesys/baljan/models.py:933
+#: cafesys/baljan/models.py:988 cafesys/baljan/models.py:989
+#: cafesys/baljan/models.py:1076
 msgid "refill series"
 msgstr "kodserie"
 
-#: cafesys/baljan/models.py:902
+#: cafesys/baljan/models.py:1032
 msgid "Invalid total worth."
 msgstr "Ogiltigt totalvärde."
 
-#: cafesys/baljan/models.py:904
+#: cafesys/baljan/models.py:1034
 msgid "Code value too high."
 msgstr "Kodvärde för högt."
 
-#: cafesys/baljan/models.py:911
+#: cafesys/baljan/models.py:1043
 msgid "generated by"
 msgstr "genererad av"
 
-#: cafesys/baljan/models.py:920
+#: cafesys/baljan/models.py:1053
 msgid "generated refill series PDF"
 msgstr "genererad PDF"
 
-#: cafesys/baljan/models.py:921
+#: cafesys/baljan/models.py:1054
 msgid "generated refill series PDFs"
 msgstr "genererade PDF:er"
 
-#: cafesys/baljan/models.py:925
+#: cafesys/baljan/models.py:1059
 msgid ""
 "To create a bulk of codes, <a href='../../refillseries/add'>create a new "
 "refill series</a> instead."
@@ -497,57 +492,73 @@ msgstr ""
 "För att skapa många koder, <a href='../../refillseries/add'>skapa en "
 "nyserie</a> istället."
 
-#: cafesys/baljan/models.py:928
+#: cafesys/baljan/models.py:1065
 msgid "code"
 msgstr "kod"
 
-#: cafesys/baljan/models.py:930
+#: cafesys/baljan/models.py:1071 cafesys/baljan/models.py:1333
 msgid "value"
 msgstr "värde"
 
-#: cafesys/baljan/models.py:936
+#: cafesys/baljan/models.py:1082
 msgid "used by"
 msgstr "använd av"
 
-#: cafesys/baljan/models.py:938
+#: cafesys/baljan/models.py:1085
 msgid "used at"
 msgstr "använd den"
 
-#: cafesys/baljan/models.py:950
+#: cafesys/baljan/models.py:1097
 msgid "balance code"
 msgstr "kod"
 
-#: cafesys/baljan/models.py:951
+#: cafesys/baljan/models.py:1098
 msgid "balance codes"
 msgstr "koder"
 
-#: cafesys/baljan/models.py:960
+#: cafesys/baljan/models.py:1109
 msgid "post"
 msgstr "post"
 
-#: cafesys/baljan/models.py:963
+#: cafesys/baljan/models.py:1112
 msgid "board post"
 msgstr "styrelsepost"
 
-#: cafesys/baljan/models.py:964
+#: cafesys/baljan/models.py:1113
 msgid "board posts"
 msgstr "styrelseposter"
 
-#: cafesys/baljan/models.py:1047
+#: cafesys/baljan/models.py:1241
 msgid "priority"
-msgstr ""
+msgstr "prioritering"
+
+#: cafesys/baljan/models.py:1327
+msgid "From"
+msgstr "Från"
+
+#: cafesys/baljan/models.py:1328
+msgid "Subject"
+msgstr "Ämne"
+
+#: cafesys/baljan/models.py:1331
+msgid "type of filter"
+msgstr "typ av filter"
+
+#: cafesys/baljan/models.py:1339 cafesys/baljan/models.py:1340
+msgid "support mail filter"
+msgstr "hjälpmejlfilter"
 
 #: cafesys/baljan/notifications.py:15
 #, python-format
 msgid "You were signed up for %(shift)s"
 msgstr "Du anmäldes till %(shift)s"
 
-#: cafesys/baljan/notifications.py:17
+#: cafesys/baljan/notifications.py:16
 #, python-format
 msgid "You were removed from %(shift)s"
 msgstr "Du togs bort från %(shift)s"
 
-#: cafesys/baljan/notifications.py:19
+#: cafesys/baljan/notifications.py:18
 #, python-format
 msgid "%(requestor)s wants %(wanted_shift)s in exchange for %(offered_shift)s"
 msgstr "%(requestor)s vill ha %(wanted_shift)s i utbyte mot %(offered_shift)s"
@@ -559,12 +570,12 @@ msgid ""
 msgstr ""
 "Din förfrågan att byta %(wanted_shift)s mot %(offered_shift)s accepterades"
 
-#: cafesys/baljan/notifications.py:23
+#: cafesys/baljan/notifications.py:24
 #, python-format
 msgid "Your request to trade %(wanted_shift)s for %(offered_shift)s was denied"
 msgstr "Din förfrågan att byta %(wanted_shift)s mot %(offered_shift)s nekades"
 
-#: cafesys/baljan/notifications.py:25
+#: cafesys/baljan/notifications.py:26
 #, python-format
 msgid "You were signed up for %(amount_shifts)s shift(s)"
 msgstr "Du anmäldes till %(amount_shifts)s pass"
@@ -585,7 +596,7 @@ msgstr ""
 "\n"
 "Se dina pass här: %(profile_url)s\n"
 
-#: cafesys/baljan/notifications.py:36
+#: cafesys/baljan/notifications.py:35
 #, python-format
 msgid ""
 "You were removed from %(shift)s.\n"
@@ -596,7 +607,7 @@ msgstr ""
 "\n"
 "Se dina pass här: %(profile_url)s\n"
 
-#: cafesys/baljan/notifications.py:41
+#: cafesys/baljan/notifications.py:39
 #, python-format
 msgid ""
 "%(requestor)s wants %(wanted_shift)s in exchange for %(offered_shift)s.\n"
@@ -607,7 +618,7 @@ msgstr ""
 "\n"
 "Svara på din profilsida: %(profile_url)s\n"
 
-#: cafesys/baljan/notifications.py:46
+#: cafesys/baljan/notifications.py:43
 #, python-format
 msgid ""
 "Your request to trade %(wanted_shift)s for %(offered_shift)s was accepted.\n"
@@ -618,7 +629,7 @@ msgstr ""
 "\n"
 "Se dina pass här: %(profile_url)s\n"
 
-#: cafesys/baljan/notifications.py:51
+#: cafesys/baljan/notifications.py:47
 #, python-format
 msgid ""
 "Your request to trade %(wanted_shift)s for %(offered_shift)s was denied.\n"
@@ -629,7 +640,7 @@ msgstr ""
 "\n"
 "Se dina pass här: %(profile_url)s\n"
 
-#: cafesys/baljan/notifications.py:56
+#: cafesys/baljan/notifications.py:51
 #, python-format
 msgid ""
 "You were signed up for the following shifts:\n"
@@ -644,7 +655,7 @@ msgstr ""
 "\n"
 "Se dina pass här: %(profile_url)s"
 
-#: cafesys/baljan/notifications.py:62
+#: cafesys/baljan/notifications.py:56
 #, python-format
 msgid ""
 "You were removed from the following shifts:\n"
@@ -659,52 +670,52 @@ msgstr ""
 "\n"
 "Se dina pass här: %(profile_url)s"
 
-#: cafesys/baljan/pdf.py:71
+#: cafesys/baljan/pdf.py:86
 #, python-format
 msgid "expires no sooner than %s"
 msgstr "minst giltig till %s"
 
-#: cafesys/baljan/stats.py:93
+#: cafesys/baljan/stats.py:96
 msgid "board member"
 msgstr "styrelsemedlem"
 
-#: cafesys/baljan/stats.py:94
+#: cafesys/baljan/stats.py:97
 msgid "old board member"
 msgstr "gammal styrelsemedlem"
 
-#: cafesys/baljan/stats.py:96
+#: cafesys/baljan/stats.py:99
 msgid "old worker"
 msgstr "gammal jobbare"
 
-#: cafesys/baljan/stats.py:97
+#: cafesys/baljan/stats.py:100
 msgid "normal user"
 msgstr "normal konsument"
 
-#: cafesys/baljan/stats.py:147
+#: cafesys/baljan/stats.py:157
 msgid "Today"
 msgstr "Idag"
 
-#: cafesys/baljan/stats.py:154
+#: cafesys/baljan/stats.py:166
 msgid "Yesterday"
 msgstr "Igår"
 
-#: cafesys/baljan/stats.py:162
+#: cafesys/baljan/stats.py:176
 msgid "This Week"
 msgstr "Denna vecka"
 
-#: cafesys/baljan/stats.py:170
+#: cafesys/baljan/stats.py:186
 msgid "Last Week"
 msgstr "Förra veckan"
 
-#: cafesys/baljan/stats.py:217
+#: cafesys/baljan/stats.py:243
 msgid "Total"
 msgstr "Totalt"
 
-#: cafesys/baljan/stats.py:251
+#: cafesys/baljan/stats.py:277
 msgid "Normal Users"
 msgstr "Vanliga användare"
 
-#: cafesys/baljan/stats.py:252
+#: cafesys/baljan/stats.py:278
 msgid "Staff"
 msgstr "Personal"
 
@@ -770,45 +781,54 @@ msgstr "Bytesförfrågningar"
 msgid "unnamed"
 msgstr "ej namngiven"
 
-#: cafesys/baljan/views.py:334
+#: cafesys/baljan/views.py:415
 msgid "upcoming"
 msgstr "kommande"
 
-#: cafesys/baljan/views.py:335
+#: cafesys/baljan/views.py:416
 msgid "past"
 msgstr "gångna"
 
-#: cafesys/baljan/views.py:463
+#: cafesys/baljan/views.py:563
 msgid "work shifts"
 msgstr "jobbpass"
 
-#: cafesys/baljan/views.py:464
+#: cafesys/baljan/views.py:564
 msgid "call duties"
 msgstr "jourpass"
 
-#: cafesys/baljan/views.py:568
+#: cafesys/baljan/views.py:679
 msgid "This would result in a double booking."
 msgstr "Detta skulle resultera i en dubbelbokning."
 
-#: cafesys/baljan/views.py:571
+#: cafesys/baljan/views.py:683
 msgid "Invalid trade request."
 msgstr "Ogiltig bytesförfrågan."
 
-#: cafesys/baljan/views.py:659
+#: cafesys/baljan/views.py:781
 msgid "enter liu id"
 msgstr "skriv in liu-id"
 
-#: cafesys/baljan/views.py:672
+#: cafesys/baljan/views.py:792
 msgid "OK"
 msgstr "OK"
 
-#: cafesys/baljan/views.py:677
+#: cafesys/baljan/views.py:797
 msgid "liu id unfound"
 msgstr "liu-id hittades inte"
 
-#: cafesys/baljan/views.py:788
+#: cafesys/baljan/views.py:909
 msgid "Your changes were saved."
 msgstr "Dina ändringar sparades."
+
+#, fuzzy
+#~| msgid "value"
+#~ msgid "Value"
+#~ msgstr "Värde"
+
+#, python-format
+#~ msgid "maximum value is %d SEK"
+#~ msgstr "maxvärde är %d SEK"
 
 #, python-format
 #~ msgid "job opening %s"
@@ -1556,9 +1576,6 @@ msgstr "Dina ändringar sparades."
 
 #~ msgid "Statistics"
 #~ msgstr "Statistik"
-
-#~ msgid "from"
-#~ msgstr "från"
 
 #~ msgid "to"
 #~ msgstr "till"

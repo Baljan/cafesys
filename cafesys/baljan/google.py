@@ -9,6 +9,8 @@ import time
 from django.conf import settings
 from django.core.cache import cache
 
+from .models import SupportFilter
+
 logger = getLogger(__name__)
 
 
@@ -99,11 +101,30 @@ def get_new_messages(new_history_id):
             for message in history["messagesAdded"]
         ]
 
+        filters = SupportFilter.objects.all()
+
         for message in messagesAdded:
             message_id = message["message"]["id"]
             details = get_email_details(service, message_id)
 
-            if details is not None:
+            # This can be done by using aggregate and a PostgreSQLs POSITION function
+            # to get check if a subject / sender can contain filter values.
+            # But we get like one email a day rn so not worth it
+            should_keep = all(
+                [
+                    (
+                        filter.filter_type == SupportFilter.Type.FROM
+                        and filter.value not in details["sender"]
+                    )
+                    or (
+                        filter.filter_type == SupportFilter.Type.SUBJECT
+                        and filter.value not in details["subject"]
+                    )
+                    for filter in filters
+                ]
+            )
+
+            if should_keep and details is not None:
                 messages.append(details)
 
         config["history_id"] = new_history_id
