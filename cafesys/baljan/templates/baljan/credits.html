@@ -9,61 +9,63 @@
 
 {% block body_class %}credits{% endblock %}
 {% block body %}
-    <h1>Kaffekort</h1>
-    <div class="row">
-        <div class="col-sm-6">
-            <h2>Fylla på</h2>
-            <p>
-                Värdekort kan köpas på kafét.
-                Om du har frågor eller stöter på problem, <a href="mailto:{{CONTACT_EMAIL}}">kontakta oss</a>.
-                Missbruk loggas.
-            </p>
-            {% if used_card %}
-                <div class="alert alert-success">
-                    Koden användes.
-                </div>
-            {% endif %}
-
-            {% if invalid_card %}
-                <div class="alert alert-danger">
-                    Ogiltig eller använd kod.
-                </div>
-            {% endif %}
-            <form autocomplete="off" method="POST" action="">
-                {% csrf_token %}
-                <div class="form-group">
-                    {{refill_form}}
-                    <small class="form-text text-muted">Koden står på ditt värdekort.</small>
-                </div>
-                <input type="submit" class="btn btn-primary" value="Fyll på"/>
-            </form>
-
+<h1>Kaffekort</h1>
+<div class="row">
+    <div class="col-sm-6">
+        <h2>Fylla på</h2>
+        <p>
+            Värdekort kan köpas på kafét.
+            Om du har frågor eller stöter på problem, <a href="mailto:{{CONTACT_EMAIL}}">kontakta oss</a>.
+            Missbruk loggas.
+        </p>
+        {% if used_card %}
+        <div class="alert alert-success">
+            Koden användes.
         </div>
-        <div class="col-sm-6">
-            <h2>Tillgängligt</h2>
-            <p>{{currently_available}}</p>
-            <p><a href="{% url 'orders' %}">Visa köphistorik</a></p>
+        {% endif %}
 
-            <h2>LiU-kortet konfigureras manuellt</h2>
-            <p>
-                Du kan ändra vilket RFID-kortnummer du har kopplat till blippen <a href="{% url 'profile' %}?edit=true">i din profil</a>.
-            </p>
-
-            <h2>Använda värdekort</h2>
-            <ul>
-                {% for card in used_cards %}
-                    <li>
-                    Kort: {{card.serid}} värt {{card.valcur }} användes {{card.used_at|date}}
-                    {% if card.refill_series.add_to_group %}
-                        (Du blev tillagd till {{card.refill_series.add_to_group.name}})
-                    {% endif %}
-                    </li>
-                {% empty %}
-                    <li>Du har inte använt några värdekort.</li>
-                {% endfor %}
-            </ul>
+        {% if invalid_card %}
+        <div class="alert alert-danger">
+            Ogiltig eller använd kod.
         </div>
+        {% endif %}
+        <form autocomplete="off" method="POST" action="">
+            {% csrf_token %}
+            <div class="form-group">
+                {{refill_form}}
+                <small class="form-text text-muted">Koden står på ditt värdekort.</small>
+            </div>
+            <input type="submit" class="btn btn-primary" value="Fyll på" />
+        </form>
+
     </div>
+    <div class="col-sm-6">
+        <h2>Tillgängligt</h2>
+        <p>{{currently_available}}</p>
+        <p><a href="{% url 'orders' %}">Visa köphistorik</a></p>
+
+        <h2>LiU-kortet konfigureras manuellt</h2>
+        <p>
+            Du kan ändra vilket RFID-kortnummer du har kopplat till blippen <a href="{% url 'profile' %}?edit=true">i
+                din profil</a>.
+        </p>
+
+        <h2>Använda värdekort</h2>
+        <ul>
+            {% for card in used_cards %}
+            <li>
+                {{card.get_type_display}}: {{ card.transaction_id }} värt {{card.valcur }} användes
+                {{card.used_at|date}}
+                {% if card.refill_series.add_to_group %}
+                (Du blev tillagd till {{card.refill_series.add_to_group.name}})
+                {% endif %}
+            </li>
+            {% empty %}
+            <li>Du har inte använt några värdekort.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 
 {% endblock %}
 

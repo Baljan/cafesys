@@ -1059,8 +1059,8 @@ class BalanceCode(Made):
     # At the moment of writing, we are not planing on phasing out
     # physical balance codes completly. Thats why theres logic for both
     class Type(models.IntegerChoices):
-        PHYSICAL = 0, _("Physical")
-        DIGITAL = 1, _("Digital")
+        PHYSICAL = 0, _("Physical Card")
+        DIGITAL = 1, _("Digital Card")
 
     type = models.SmallIntegerField(choices=Type, null=False, editable=False)
     value = models.PositiveIntegerField(_("value"), default=BALANCE_CODE_DEFAULT_VALUE)
@@ -1078,6 +1078,18 @@ class BalanceCode(Made):
 
     def valcur(self):
         return "%s %s" % (self.value, self.currency)
+
+    # TODO: Maybe we should have like an actual uuid, card_id and move away from serid.
+    # Like instead of having 1337.80085 for physical, and checkout_werokwero_12031923182
+    # for digial, we only use something similar to the code on physical cards.
+    def transaction_id(self):
+        try:
+            return self.physicalbalancecode.serid()
+        except PhysicalBalanceCode.DoesNotExist:
+            return self.digitalbalancecode.checkout_id
+        except DigitalBalanceCode.DoesNotExist:
+            pass
+        return "-"
 
     def save(self, *args, **kwargs):
         if isinstance(self, PhysicalBalanceCode):
@@ -1107,9 +1119,6 @@ class PhysicalBalanceCode(BalanceCode):
     def serid(self):
         return "%d.%d" % (self.refill_series.id, self.id)
 
-    def __str__(self):
-        return self.serid()
-
     class Meta:
         verbose_name = _("physical balance code")
         verbose_name_plural = _("physical balance codes")
@@ -1119,8 +1128,10 @@ class PhysicalBalanceCode(BalanceCode):
 class DigitalBalanceCode(BalanceCode):
     checkout_id = models.CharField(unique=True)
 
-    def __str__(self):
-        return self.checkout_id
+    class Meta:
+        verbose_name = _("digital balance code")
+        verbose_name_plural = _("digital balance codes")
+        ordering = ["-id"]
 
 
 class BalanceCodeProxy(BalanceCode):

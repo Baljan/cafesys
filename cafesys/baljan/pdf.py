@@ -34,13 +34,13 @@ except TTFError:
     title_font = ("Helvetica", 16)
 
 
-def draw_balance_code_card(c: canvas.Canvas, balance_code):
+def draw_physical_balance_code_card(c: canvas.Canvas, physical_balance_code):
     w, h = paper_size
     column_width = (w - 3 * pad) / 2
     center_col1 = pad + (column_width / 2)
     center_col2 = w - center_col1
 
-    code = balance_code
+    code = physical_balance_code
     series = code.refill_series
 
     current_site = Site.objects.get_current()
@@ -94,9 +94,9 @@ def draw_balance_code_card(c: canvas.Canvas, balance_code):
 def refill_series(file_object, list_of_series, name: str):
     c = canvas.Canvas(file_object, pagesize=A8)
     for series in list_of_series:
-        balance_codes = series.balancecode_set.all().order_by("pk")
-        for balance_code in balance_codes:
-            draw_balance_code_card(c, balance_code)
+        physical_balance_codes = series.physicalbalancecode_set.all().order_by("pk")
+        for physical_balance_code in physical_balance_codes:
+            draw_physical_balance_code_card(c, physical_balance_code)
 
     c.setTitle(name)
     c.save()

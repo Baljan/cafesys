@@ -5,6 +5,12 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
+# This migration is the start of the implementation of digital balance codes
+# It creates a new BalanceCode model, that can be either a PhysicalBalanceCode or a DigitalBalanceCode.
+# It also moves all old BalanceCodes (pre summer 2025) to the new PhysicalBalanceCode model.
+# Below is also a bunch of specific code to move the primary key index to the end to prevent
+# Django trying to create BalanceCodes with an id that already exists
+
 
 def transfer_balance_codes(apps, schema_editor):
     OldBalanceCode = apps.get_model("baljan", "OldBalanceCode")
