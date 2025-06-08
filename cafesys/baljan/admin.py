@@ -332,7 +332,7 @@ class OrderAdmin(admin.ModelAdmin):
 admin.site.register(models.Order, OrderAdmin)
 
 
-class BalanceCodeAdmin(admin.ModelAdmin):
+class PhysicalBalanceCodeAdmin(admin.ModelAdmin):
     search_fields = ("code", "used_by__username", "id", "refill_series__id")
     fieldsets = (
         (
@@ -369,7 +369,40 @@ class BalanceCodeAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.BalanceCode, BalanceCodeAdmin)
+admin.site.register(models.PhysicalBalanceCode, PhysicalBalanceCodeAdmin)
+
+
+class BalanceCodeProxyAdmin(admin.ModelAdmin):
+    list_display = ["id", "proxy_id", "used_by", "type"]
+    list_filter = ["type"]
+
+    @admin.display(description="Identifier")
+    def proxy_id(self, obj):
+        try:
+            return obj.physicalbalancecode.serid()
+        except models.PhysicalBalanceCode.DoesNotExist:
+            pass
+        try:
+            return obj.digitalbalancecode.checkout_id
+        except models.DigitalBalanceCode.DoesNotExist:
+            pass
+
+        return "-"
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related()
+
+    def has_add_permission(self, _):
+        return False
+
+
+admin.site.register(models.BalanceCodeProxy, BalanceCodeProxyAdmin)
+
+
+@admin.register(models.DigitalBalanceCode)
+class DigitalBalanceCode(admin.ModelAdmin):
+    list_display = ["id", "checkout_id"]
+    pass
 
 
 class RefillSeriesPDFAdmin(admin.ModelAdmin):
@@ -431,7 +464,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
 
     _pdfs.short_description = _("# made PDFs")
 
-    list_display = (
+    list_display = [
         "id",
         "value",
         _currency,
@@ -440,7 +473,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
         "issued",
         "made_by",
         _pdfs,
-    )
+    ]
     list_filter = ("issued",)
 
     readonly_fields = (
@@ -470,7 +503,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
 
         if not change:
             for i in range(obj.code_count):
-                code = models.BalanceCode(
+                code = models.PhysicalBalanceCode(
                     refill_series=obj, currency=obj.code_currency, value=obj.code_value
                 )
                 code.save()

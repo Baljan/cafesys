@@ -938,7 +938,7 @@ def default_least_valid_until():
 
 def generate_balance_code():
     code = random_string(BALANCE_CODE_LENGTH)
-    while len(BalanceCode.objects.filter(code=code)) != 0:
+    while len(PhysicalBalanceCode.objects.filter(code=code)) != 0:
         code = random_string(BALANCE_CODE_LENGTH)
     return code
 
@@ -990,7 +990,7 @@ class RefillSeries(Made):
         ordering = ("-id",)
 
     def codes(self):
-        return BalanceCode.objects.filter(refill_series=self)
+        return PhysicalBalanceCode.objects.filter(refill_series=self)
 
     def used(self):
         codes = self.codes()
@@ -1055,25 +1055,17 @@ class RefillSeriesPDF(Made):
         ordering = ("-made", "-id", "-refill_series__id")
 
 
-code_help = _(
-    "To create a bulk of codes, <a href='../../refillseries/add'>create a new refill series</a> instead."
-)
-
-
 class BalanceCode(Made):
-    code = models.CharField(
-        _("code"),
-        max_length=BALANCE_CODE_LENGTH,
-        unique=True,
-        default=generate_balance_code,
-        help_text=code_help,
-    )
+    # At the moment of writing, we are not planing on phasing out
+    # physical balance codes completly. Thats why theres logic for both
+    class Type(models.IntegerChoices):
+        PHYSICAL = 0, _("Physical")
+        DIGITAL = 1, _("Digital")
+
+    type = models.SmallIntegerField(choices=Type, null=False, editable=False)
     value = models.PositiveIntegerField(_("value"), default=BALANCE_CODE_DEFAULT_VALUE)
     currency = models.CharField(
         _("currency"), max_length=5, default="SEK", help_text=_("currency")
-    )
-    refill_series = models.ForeignKey(
-        RefillSeries, verbose_name=_("refill series"), on_delete=models.CASCADE
     )
     used_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -1084,19 +1076,60 @@ class BalanceCode(Made):
     )
     used_at = models.DateField(_("used at"), blank=True, null=True)
 
+    def valcur(self):
+        return "%s %s" % (self.value, self.currency)
+
+    def save(self, *args, **kwargs):
+        if isinstance(self, PhysicalBalanceCode):
+            self.type = self.Type.PHYSICAL
+        elif isinstance(self, DigitalBalanceCode):
+            self.type = self.Type.DIGITAL
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = False  # This cannot be abstract
+
+
+class PhysicalBalanceCode(BalanceCode):
+    code = models.CharField(
+        _("code"),
+        max_length=BALANCE_CODE_LENGTH,
+        unique=True,
+        default=generate_balance_code,
+        help_text=_(
+            "To create a bulk of codes, <a href='../../refillseries/add'>create a new refill series</a> instead."
+        ),
+    )
+    refill_series = models.ForeignKey(
+        RefillSeries, verbose_name=_("refill series"), on_delete=models.CASCADE
+    )
+
     def serid(self):
         return "%d.%d" % (self.refill_series.id, self.id)
 
     def __str__(self):
         return self.serid()
 
-    def valcur(self):
-        return "%s %s" % (self.value, self.currency)
-
     class Meta:
+        verbose_name = _("physical balance code")
+        verbose_name_plural = _("physical balance codes")
+        ordering = ("-id", "-refill_series__id")
+
+
+class DigitalBalanceCode(BalanceCode):
+    checkout_id = models.CharField(unique=True)
+
+    def __str__(self):
+        return self.checkout_id
+
+
+class BalanceCodeProxy(BalanceCode):
+    # This class is basically only used for showing all types of
+    # BalanceCodes in a unified view in the admin
+    class Meta:
+        proxy = True
         verbose_name = _("balance code")
         verbose_name_plural = _("balance codes")
-        ordering = ("-id", "-refill_series__id")
 
 
 class BoardPost(Made):
@@ -1338,8 +1371,3 @@ class SupportFilter(models.Model):
     class Meta:
         verbose_name = _("support mail filter")
         verbose_name_plural = _("support mail filter")
-
-
-class Product(models.Model):
-    title = models.CharField(max_length=100)
-    price_id = models.CharField(max_length=64)
