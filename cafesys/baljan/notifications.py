@@ -72,12 +72,15 @@ def send(notification_type, to_user, wait=False, **kwargs):
 
     title = TITLE_TEMPLATES[notification_type] % kwargs
     body = BODY_TEMPLATES[notification_type] % kwargs
-    if wait:
-        send_mail_task(
-            title, body, f"Baljan <{settings.DEFAULT_FROM_EMAIL}>", [to_user.email]
-        )
-    else:
-        send_mail_task.delay(
-            title, body, f"Baljan <{settings.DEFAULT_FROM_EMAIL}>", [to_user.email]
-        )
+
+    mail_function = send_mail_task if wait else send_mail_task.delay
+
+    mail_function(
+        title,
+        body,
+        f"Baljan <{settings.DEFAULT_FROM_EMAIL}>",
+        [to_user.email],
+        reply_to=[settings.REPLY_TO_EMAIL],
+    )
+
     logger.info("%s sent to %s with kwargs %r" % (notification_type, to_user, kwargs))

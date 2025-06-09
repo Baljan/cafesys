@@ -244,6 +244,7 @@ LOGIN_REDIRECT_URL = "/"
 # EMAIL_PORT = _EMAIL_CONFIG.get("EMAIL_PORT")
 # EMAIL_USE_TLS = _EMAIL_CONFIG.get("EMAIL_USE_TLS", True)
 DEFAULT_FROM_EMAIL = "cafesys@baljan.org"
+REPLY_TO_EMAIL = "Personalis <personalis@baljan.org>"
 
 ANYMAIL = {
     "MAILGUN_API_KEY": env.str("MAILGUN_API_KEY", default=""),

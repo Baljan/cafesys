@@ -2,16 +2,17 @@
 from celery import shared_task
 from ..celery import app
 from django.conf import settings
+
 from django.core.cache import cache
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from logging import getLogger
 
 logger = getLogger(__name__)
 
 
 @app.task
-def send_mail_task(title, body, from_email, to_emails):
-    send_mail(title, body, from_email, to_emails)
+def send_mail_task(title, body, from_email, to_emails, **kwargs):
+    EmailMessage(title, body, from_email, to_emails, **kwargs).send()
 
 
 @shared_task
