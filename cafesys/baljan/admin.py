@@ -6,12 +6,9 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group, User
-from django.db.models import Q
 from django.http import HttpResponse
-from django.urls import reverse
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django.utils.safestring import mark_safe
 
 from . import models, pdf
 
@@ -335,8 +332,7 @@ class OrderAdmin(admin.ModelAdmin):
 admin.site.register(models.Order, OrderAdmin)
 
 
-# TODO: Remove for everyone but IT
-class PhysicalBalanceCodeAdmin(admin.ModelAdmin):
+class BalanceCodeAdmin(admin.ModelAdmin):
     search_fields = ("code", "used_by__username", "id", "refill_series__id")
     fieldsets = (
         (
@@ -373,80 +369,7 @@ class PhysicalBalanceCodeAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.PhysicalBalanceCode, PhysicalBalanceCodeAdmin)
-
-
-@admin.register(models.DigitalBalanceCode)
-class DigitalBalanceCode(admin.ModelAdmin):
-    list_display = ["id", "checkout_id"]
-
-
-class BalanceCodeProxyAdmin(admin.ModelAdmin):
-    search_fields = ["id", "used_by__username"]
-    list_display = [
-        "custom_transaction_id",
-        "worth",
-        "fancy_type",
-        "used_by",
-        "used_at",
-    ]
-    list_filter = [
-        "type",
-        "used_at",
-        "value",
-    ]
-
-    @admin.display(description=_("Identifier"), ordering="id")
-    def custom_transaction_id(self, obj):
-        if hasattr(obj, "physicalbalancecode"):
-            url = reverse("admin:baljan_physicalbalancecode_change", args=[obj.id])
-        elif hasattr(obj, "digitalbalancecode"):
-            url = reverse("admin:baljan_digitalbalancecode_change", args=[obj.id])
-        else:
-            return str(obj.id)
-
-        return format_html('<a href="{}">{}</a>', url, obj.transaction_id())
-
-    @admin.display(description=_("Worth"))
-    def worth(self, obj):
-        return obj.valcur()
-
-    @admin.display(description=_("type"))
-    def fancy_type(self, obj):
-        return obj.get_type_display()
-
-    def get_search_results(self, request, queryset, search_term):
-        # Custom search function to make searching by PhysicalBalanceCode.code,
-        # RefillSeries.id, or DigitalBalanceCode.checkout_id possible
-
-        queryset, may_have_duplicates = super().get_search_results(
-            request,
-            queryset,
-            search_term,
-        )
-
-        query = Q(
-            type=models.BalanceCode.Type.DIGITAL,
-            digitalbalancecode__checkout_id=search_term,
-        ) | Q(
-            type=models.BalanceCode.Type.PHYSICAL, physicalbalancecode__code=search_term
-        )
-
-        if search_term.isdigit():
-            query |= Q(
-                type=models.BalanceCode.Type.PHYSICAL,
-                physicalbalancecode__refill_series__id=search_term,
-            )
-
-        queryset |= self.model.objects.filter(query)
-
-        return queryset, may_have_duplicates
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related()
-
-
-admin.site.register(models.BalanceCodeProxy, BalanceCodeProxyAdmin)
+admin.site.register(models.BalanceCode, BalanceCodeAdmin)
 
 
 class RefillSeriesPDFAdmin(admin.ModelAdmin):
@@ -508,7 +431,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
 
     _pdfs.short_description = _("# made PDFs")
 
-    list_display = [
+    list_display = (
         "id",
         "value",
         _currency,
@@ -517,7 +440,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
         "issued",
         "made_by",
         _pdfs,
-    ]
+    )
     list_filter = ("issued",)
 
     readonly_fields = (
@@ -547,7 +470,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
 
         if not change:
             for i in range(obj.code_count):
-                code = models.PhysicalBalanceCode(
+                code = models.BalanceCode(
                     refill_series=obj, currency=obj.code_currency, value=obj.code_value
                 )
                 code.save()
@@ -560,8 +483,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
                 break
         if has_used:
             self.message_user(
-                request,
-                _("There are used codes in one or more of the series."),
+                request, _("There are used codes in one or more of the series.")
             )
             return
 

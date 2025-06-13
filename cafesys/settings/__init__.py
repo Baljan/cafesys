@@ -325,6 +325,3 @@ GOOGLE_SERVICE_ACCOUNT_INFO = {
     "client_x509_cert_url": GOOGLE_CLIENT_X509_CERT_URL,
     "universe_domain": GOOGLE_UNIVERSE_DOMAIN,
 }
-
-# Stripe
-STRIPE_API_KEY = env.str("STRIPE_API_KEY")

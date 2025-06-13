@@ -82,8 +82,6 @@ urlpatterns = (
     path("do-blipp", views.do_blipp),
     path("support-webhook", views.support_webhook),
     path("handle-interactivity", views.slack_events_handler),
-    path("stripe", views.stripe_endpoint),
-    # FIXME: These three above should be under like /webhooks/{google,slack,stripe} for cleanliness
     path("integrity", views.integrity, name="integrity"),
     path(
         "semester-shifts/<slug:sem_name>", views.semester_shifts, name="semester_shifts"
