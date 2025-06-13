@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import dj_database_url
 import os
+import stripe
 import warnings
 from django.contrib.messages import constants as message_constants
 
@@ -325,3 +326,5 @@ GOOGLE_SERVICE_ACCOUNT_INFO = {
     "client_x509_cert_url": GOOGLE_CLIENT_X509_CERT_URL,
     "universe_domain": GOOGLE_UNIVERSE_DOMAIN,
 }
+
+stripe.api_key = env.str("STRIPE_API_KEY")

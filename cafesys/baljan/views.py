@@ -2,6 +2,7 @@
 import base64
 import uuid
 import json
+import itertools
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
 from logging import getLogger
@@ -19,8 +20,19 @@ from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.db import transaction
 from django.db.models import Sum, Count, IntegerField, Case, When, Value, Subquery, F
-from django.db.models.functions import ExtractHour, ExtractMinute, ExtractIsoWeekDay
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
+from django.db.models.functions import (
+    ExtractHour,
+    ExtractMinute,
+    ExtractIsoWeekDay,
+    Cast,
+)
+from django.http import (
+    HttpResponse,
+    HttpResponseRedirect,
+    JsonResponse,
+    Http404,
+    HttpRequest,
+)
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import gettext as _
 from django.views.generic import ListView
@@ -29,6 +41,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 from django import forms as django_forms
 from django.template.loader import render_to_string
+
+
 import django_filters
 
 from cafesys.baljan import google, phone, slack
@@ -76,6 +90,9 @@ from pandas import DataFrame
 import matplotlib.pyplot as plt
 
 from cafesys.baljan.gdpr import get_policies
+
+import stripe
+from stripe import InvalidRequestError
 
 logger = getLogger(__name__)
 
@@ -461,9 +478,22 @@ def credits(request, code=None):
 
     tpl["refill_form"] = refill_form
     tpl["currently_available"] = user.profile.balcur()
-    tpl["used_cards"] = models.BalanceCode.objects.filter(
-        used_by=user,
-    ).order_by("-used_at", "-id")
+
+    phys_qs = models.BalanceCode.objects.filter(used_by=user).annotate(
+        date=Cast("used_at", output_field=models.models.DateTimeField()),
+        type=Value("physical", output_field=models.models.CharField()),
+    )
+
+    dig_qs = models.Purchase.objects.filter(user=user).annotate(
+        date=Cast("made", output_field=models.models.DateTimeField()),
+        type=Value("digital", output_field=models.models.CharField()),
+    )
+
+    tpl["used_cards"] = sorted(
+        itertools.chain(phys_qs, dig_qs), key=lambda obj: obj.date, reverse=True
+    )
+
+    tpl["products"] = models.Product.objects.order_by("price").all()
 
     return render(request, "baljan/credits.html", tpl)
 
@@ -1544,3 +1574,110 @@ def bookkeep_view(request):
         "baljan/bookkeep.html",
         {"form": form, "data": data, "past_year": past_year},
     )
+
+
+class Checkout:
+    @login_required
+    def create(request: HttpRequest):
+        if request.method != "POST":
+            return redirect(reverse("shop"))
+
+        if product_id := request.POST.get("product_id", None):
+            return HttpResponse(status=400)
+
+        try:
+            stripe.Product.retrieve(product_id)
+        except stripe.InvalidRequestError:
+            return Http404(_("Product could not be found"))
+
+        product = models.Product.objects.filter(product_id__exact=product_id).first()
+        if product is None:
+            return HttpResponse(status=400)
+
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                line_items=[
+                    {
+                        "price": product.price_id,
+                        "quantity": 1,
+                    },
+                ],
+                mode="payment",
+                success_url=request.build_absolute_uri(
+                    "/checkout/success?session_id={CHECKOUT_SESSION_ID}"
+                ),
+                cancel_url=request.build_absolute_uri(
+                    "/checkout/cancel?session_id={CHECKOUT_SESSION_ID}"
+                ),
+                customer_email=request.user.email or "",
+            )
+        except User.DoesNotExist:
+            return HttpResponse(status=400)
+        except Exception:
+            return HttpResponse(status=500)
+
+        # TODO: Should use this ID to create a checkout in django,
+        # should have status aswell. To make sure that no "transaction" bugs out,
+        # eg if someone pays, gets redirected but their liu session times out
+        # it should still get validated.qwe
+        # or maybe have celery run a task on any checkout that is either open or expired
+        # With also like a "Handled" flag to prevent reloading the success pagex
+        models.Purchase.objects.create(
+            product=product,
+            user=request.user,
+            session_id=checkout_session.id,
+            value=product.price,
+            currency=checkout_session.currency.upper(),
+        )
+
+        return redirect(to=checkout_session.url, permanent=False)
+
+    @login_required
+    def success(request: HttpRequest):
+        if request.method != "GET":
+            return HttpResponse(status=405)
+        if "session_id" not in request.GET:
+            return HttpResponse(status=400)
+        session_id = request.GET["session_id"]
+
+        shop_redirect = redirect(reverse("shop"))
+
+        db_checkout = models.Purchase.objects.filter(session_id=session_id).first()
+        if not db_checkout:
+            return shop_redirect
+
+        try:
+            checkout = stripe.checkout.Session.retrieve(session_id)
+
+            if checkout.payment_status != "paid" or checkout.status != "complete":
+                raise InvalidRequestError()
+
+        except InvalidRequestError:
+            return shop_redirect
+
+        if db_checkout.status == models.Purchase.Status.UNPAID:
+            db_checkout.status = models.Purchase.Status.PAID
+            db_checkout.save()
+            creditsmodule.digital_refill(db_checkout.product.price, request.user)
+        else:
+            # Försök inte hörru
+            pass
+
+        return render(
+            request, "baljan/checkout/success.html", {"purchase": db_checkout}
+        )
+
+    def cancel(request: HttpRequest):
+        if "session_id" in request.GET:
+            session_id = request.GET["session_id"]
+
+            stripe.checkout.Session.expire(session_id)
+
+        return redirect(reverse("shop"), permanent=True)
+
+
+@login_required
+def shop_page(request):
+    products = models.Product.objects.order_by("price").all()
+
+    return render(request, "baljan/shop.html", {"products": products})

@@ -5,6 +5,8 @@ from logging import getLogger
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db import models, transaction
@@ -14,9 +16,10 @@ from django.utils.encoding import smart_str
 from django.utils.text import format_lazy
 from django.utils.translation import gettext as _nl
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import RegexValidator
 
 from functools import partial
+
+import stripe
 
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from . import notifications, util
@@ -1338,3 +1341,61 @@ class SupportFilter(models.Model):
     class Meta:
         verbose_name = _("support mail filter")
         verbose_name_plural = _("support mail filter")
+
+
+class Product(models.Model):
+    product_id = models.CharField(
+        _("product id"),
+        unique=True,
+        help_text=_("This should correspond to the Product ID in the Stripe admin"),
+    )
+
+    price_id = models.CharField(
+        _("price id"),
+        help_text=_("This will be filled in by Stripe"),
+        editable=False,
+    )
+    name = models.CharField(_("name"), editable=False)
+    image = models.CharField(_("image"), editable=True)
+    price = models.PositiveSmallIntegerField(_("price"))
+
+    def sync(self):
+        product = stripe.Product.retrieve(self.product_id, expand=["default_price"])
+
+        self.name = product.name
+        self.price = product.default_price.unit_amount / 100
+
+        self.price_id = product.default_price.id
+
+    def clean(self):
+        try:
+            self.sync()
+        except stripe.InvalidRequestError:
+            raise ValidationError({"product_id": _("Product ID was not found")})
+
+
+class Purchase(Made):
+    class Status(models.IntegerChoices):
+        PAID = 0, _("Paid")
+        UNPAID = 1, _("Unpaid")
+
+    product = models.ForeignKey(
+        Product, verbose_name=_("product"), on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        verbose_name=_("user"),
+        on_delete=models.SET_NULL,
+    )
+    session_id = models.CharField(_("session id"), unique=True)
+    status = models.PositiveSmallIntegerField(
+        _("status"), choices=Status, default=Status.UNPAID
+    )
+
+    value = models.PositiveSmallIntegerField(_("value"))
+    currency = models.CharField(_("currency"))
+
+    def valcur(self):
+        return "%d %s" % (self.value, self.currency)

@@ -38,6 +38,26 @@
                 <input type="submit" class="btn btn-primary" value="Fyll på"/>
             </form>
 
+            {% if products %}
+            <div  class="my-4">
+                <h2>Fyll på digitalt</h2>
+                <div class="row g-4 ">
+                    {% for product in products %}
+                        <div class="col-6">
+                            <form action="{% url 'checkout-create' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                                <button type="submit" id="checkout-button">
+                                    {% with image_path=product.image %}
+                                        <img class="img-fluid shadow" src="{% static image_path %}" alt="Product image" />
+                                    {% endwith %}
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
         <div class="col-sm-6">
             <h2>Tillgängligt</h2>
@@ -53,9 +73,13 @@
             <ul>
                 {% for card in used_cards %}
                     <li>
-                    Kort: {{card.serid}} värt {{card.valcur }} användes {{card.used_at|date}}
-                    {% if card.refill_series.add_to_group %}
-                        (Du blev tillagd till {{card.refill_series.add_to_group.name}})
+                    {% if card.type == "physical" %}
+                        Fysiskt påfyllnad: {{card.serid}} värt {{card.valcur }} användes {{card.date|date}}
+                        {% if card.refill_series.add_to_group %}
+                            (Du blev tillagd till {{card.refill_series.add_to_group.name}})
+                        {% endif %}
+                    {% else %}
+                        Digital påfyllnad: Värt {{ card.valcur }} användes {{card.date|date}}                        
                     {% endif %}
                     </li>
                 {% empty %}

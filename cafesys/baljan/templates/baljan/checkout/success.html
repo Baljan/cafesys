@@ -1,0 +1,15 @@
+{% extends "baljan/baljan.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block page_title %}{% translate "Success" %}{% endblock page_title %}
+
+{% block body %}
+
+<div class="container d-flex flex-column justify-content-center align-items-center">
+    <img class="p-4" src="{% static 'img/svg/kleggbert.svg' %}" alt="kleggbert">
+    <h1>Tack för ditt köp!</h1>
+    <p>Du har nu fyllt på ditt kort med {{ purchase.valcur }}.</p>
+</div>
+
+{% endblock body %}
