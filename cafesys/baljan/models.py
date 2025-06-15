@@ -20,6 +20,7 @@ from django.utils.translation import gettext_lazy as _
 from functools import partial
 
 import stripe
+from stripe import InvalidRequestError
 
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from . import notifications, util
@@ -1359,6 +1360,9 @@ class Product(models.Model):
     image = models.CharField(_("image"), editable=True)
     price = models.PositiveSmallIntegerField(_("price"))
 
+    def __str__(self):
+        return self.name
+
     def sync(self):
         product = stripe.Product.retrieve(self.product_id, expand=["default_price"])
 
@@ -1397,5 +1401,37 @@ class Purchase(Made):
     value = models.PositiveSmallIntegerField(_("value"))
     currency = models.CharField(_("currency"))
 
+    def __str__(self):
+        return "%s köpt av %s för %s" % (
+            self.product_name(),
+            self.purchaser(),
+            self.valcur(),
+        )
+
+    def product_name(self):
+        return self.product.name
+
+    def purchaser(self):
+        return self.user.username
+
     def valcur(self):
         return "%d %s" % (self.value, self.currency)
+
+    def mark_paid(self):
+        self.status = Purchase.Status.PAID
+
+        self.save()
+
+    def expire(session_id):
+        try:
+            stripe.checkout.Session.expire(session_id)
+            logger.info(f"Expired Stripe Session ({session_id})")
+        except InvalidRequestError:
+            logger.info(f"Could not expire Stripe Session ({session_id})")
+            # Returns an error if the Checkout Session has already expired
+            # or isn’t in an expireable state. But we don't need to handle that
+            pass
+
+        # Maybe this is bad practice like db wise, writing and deleting all the time
+        if product := Purchase.objects.filter(session_id=session_id).first():
+            product.delete()

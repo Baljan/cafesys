@@ -13,6 +13,7 @@ from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group, User
+from django.core.exceptions import BadRequest
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.core.serializers import serialize
@@ -1582,17 +1583,17 @@ class Checkout:
         if request.method != "POST":
             return redirect(reverse("shop"))
 
-        if product_id := request.POST.get("product_id", None):
-            return HttpResponse(status=400)
+        if not (product_id := request.POST.get("product_id", None)):
+            raise BadRequest(_("Product ID was not provided"))
 
         try:
             stripe.Product.retrieve(product_id)
         except stripe.InvalidRequestError:
-            return Http404(_("Product could not be found"))
+            raise Http404(_("Product could not be found"))
 
         product = models.Product.objects.filter(product_id__exact=product_id).first()
         if product is None:
-            return HttpResponse(status=400)
+            raise BadRequest(_("Product does not exist in admin"))
 
         try:
             checkout_session = stripe.checkout.Session.create(
@@ -1604,17 +1605,16 @@ class Checkout:
                 ],
                 mode="payment",
                 success_url=request.build_absolute_uri(
-                    "/checkout/success?session_id={CHECKOUT_SESSION_ID}"
-                ),
-                cancel_url=request.build_absolute_uri(
-                    "/checkout/cancel?session_id={CHECKOUT_SESSION_ID}"
-                ),
+                    "/checkout/success",
+                )
+                + "?session_id={CHECKOUT_SESSION_ID}",
+                cancel_url=request.build_absolute_uri("/checkout/cancel")
+                + "?session_id={CHECKOUT_SESSION_ID}",
                 customer_email=request.user.email or "",
             )
         except User.DoesNotExist:
-            return HttpResponse(status=400)
-        except Exception:
-            return HttpResponse(status=500)
+            # This should never be raised
+            raise BadRequest(_("User should be set"))
 
         # TODO: Should use this ID to create a checkout in django,
         # should have status aswell. To make sure that no "transaction" bugs out,
@@ -1640,11 +1640,11 @@ class Checkout:
             return HttpResponse(status=400)
         session_id = request.GET["session_id"]
 
-        shop_redirect = redirect(reverse("shop"))
+        credits_redirect = redirect(reverse("credits"))
 
         db_checkout = models.Purchase.objects.filter(session_id=session_id).first()
         if not db_checkout:
-            return shop_redirect
+            return credits_redirect
 
         try:
             checkout = stripe.checkout.Session.retrieve(session_id)
@@ -1653,7 +1653,7 @@ class Checkout:
                 raise InvalidRequestError()
 
         except InvalidRequestError:
-            return shop_redirect
+            return credits_redirect
 
         if db_checkout.status == models.Purchase.Status.UNPAID:
             db_checkout.status = models.Purchase.Status.PAID
@@ -1667,13 +1667,12 @@ class Checkout:
             request, "baljan/checkout/success.html", {"purchase": db_checkout}
         )
 
+    @login_required
     def cancel(request: HttpRequest):
         if "session_id" in request.GET:
-            session_id = request.GET["session_id"]
+            models.Purchase.expire(request.GET["session_id"])
 
-            stripe.checkout.Session.expire(session_id)
-
-        return redirect(reverse("shop"), permanent=True)
+        return redirect(reverse("credits"), permanent=True)
 
 
 @login_required

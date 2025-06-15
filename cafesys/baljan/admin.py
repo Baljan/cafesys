@@ -656,3 +656,11 @@ class Product(admin.ModelAdmin):
 
 
 admin.site.register(models.Product, Product)
+
+
+class Purchase(admin.ModelAdmin):
+    list_display = ["id", "product_name", "valcur", "purchaser", "status", "made"]
+    readonly_fields = ["session_id"]
+
+
+admin.site.register(models.Purchase, Purchase)
