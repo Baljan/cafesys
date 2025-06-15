@@ -1376,6 +1376,10 @@ class Product(models.Model):
         except stripe.InvalidRequestError:
             raise ValidationError({"product_id": _("Product ID was not found")})
 
+    class Meta:
+        verbose_name = _("product")
+        verbose_name_plural = _("products")
+
 
 class Purchase(Made):
     product = models.ForeignKey(
@@ -1403,8 +1407,18 @@ class Purchase(Made):
     def product_name(self):
         return self.product.name
 
+    product_name.short_description = _("product name")
+
     def purchaser(self):
         return self.user.username
 
+    purchaser.short_description = _("purchaser")
+
     def valcur(self):
         return "%d %s" % (self.value, self.currency)
+
+    valcur.short_description = _("price")
+
+    class Meta:
+        verbose_name = _("purchase")
+        verbose_name_plural = _("purchases")

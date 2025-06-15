@@ -659,8 +659,13 @@ admin.site.register(models.Product, Product)
 
 
 class Purchase(admin.ModelAdmin):
-    list_display = ["id", "product_name", "valcur", "purchaser", "made"]
+    list_display = ["product_name", "valcur", "purchaser", "made"]
     readonly_fields = ["session_id"]
+
+    list_filter = [
+        "product__name",
+        "made",
+    ]
 
 
 admin.site.register(models.Purchase, Purchase)
