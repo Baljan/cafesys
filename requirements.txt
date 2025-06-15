@@ -60,3 +60,6 @@ google-api-python-client==2.163.0
 
 # Slack Bolt
 slack_bolt==1.23.0
+
+# Stripe
+stripe==12.1.0

@@ -48,3 +48,15 @@ def manual_refill(entered_code, by_user):
         log.info(
             f"{by_user} used {balance_code.id} successfully for {balance_code.valcur()}"
         )
+
+
+def digital_refill(purchase):
+    with transaction.atomic():
+        by_user = purchase.user
+        amount = purchase.value
+
+        profile = by_user.profile
+        profile.balance += amount
+        profile.save()
+
+        log.info(f"{by_user} purchaced digital refill successfully for {amount}")
