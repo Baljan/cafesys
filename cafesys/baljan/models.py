@@ -1356,7 +1356,11 @@ class Product(models.Model):
         editable=False,
     )
     name = models.CharField(_("name"), editable=False)
-    image = models.CharField(_("image"), editable=True)
+    styling = models.CharField(
+        _("styling"),
+        editable=True,
+        help_text=_("This should be set to the custom SCSS class defined in the repo"),
+    )
     price = models.PositiveSmallIntegerField(_("price"))
 
     def __str__(self):

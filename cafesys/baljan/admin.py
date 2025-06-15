@@ -645,7 +645,7 @@ class Product(admin.ModelAdmin):
     )
 
     fieldsets = (
-        (None, {"fields": ("product_id", "image")}),
+        (None, {"fields": ("product_id", "styling")}),
         (
             _("Information from Stripe"),
             {

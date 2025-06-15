@@ -1638,10 +1638,6 @@ class Stripe:
 
         return credits_redirect
 
-    @login_required
-    def cancel_checkout(request: HttpRequest):
-        return redirect(reverse("credits"), permanent=True)
-
     @csrf_exempt
     def events(request: HttpRequest):
         payload = request.body

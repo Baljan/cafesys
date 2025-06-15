@@ -88,9 +88,6 @@ urlpatterns = (
         "stripe/checkout/create", views.Stripe.create_checkout, name="checkout-create"
     ),
     path(
-        "stripe/checkout/cancel", views.Stripe.cancel_checkout, name="checkout-cancel"
-    ),
-    path(
         "stripe/checkout/success",
         views.Stripe.success_checkout,
         name="checkout-success",
