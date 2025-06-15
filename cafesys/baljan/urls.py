@@ -83,9 +83,18 @@ urlpatterns = (
     path("support-webhook", views.support_webhook),
     path("handle-interactivity", views.slack_events_handler),
     path("integrity", views.integrity, name="integrity"),
-    path("checkout/create", views.Checkout.create, name="checkout-create"),
-    path("checkout/success", views.Checkout.success, name="checkout-success"),
-    path("checkout/cancel", views.Checkout.cancel, name="checkout-cancel"),
+    path("stripe/events", views.Stripe.events),
+    path(
+        "stripe/checkout/create", views.Stripe.create_checkout, name="checkout-create"
+    ),
+    path(
+        "stripe/checkout/cancel", views.Stripe.cancel_checkout, name="checkout-cancel"
+    ),
+    path(
+        "stripe/checkout/success",
+        views.Stripe.success_checkout,
+        name="checkout-success",
+    ),
     # FIXME: These three above should be under like /webhooks/{google,slack,stripe} for cleanliness
     path(
         "semester-shifts/<slug:sem_name>", views.semester_shifts, name="semester_shifts"

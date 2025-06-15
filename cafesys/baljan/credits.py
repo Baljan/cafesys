@@ -50,9 +50,11 @@ def manual_refill(entered_code, by_user):
         )
 
 
-def digital_refill(amount, by_user):
+def digital_refill(purchase):
     with transaction.atomic():
-        # TODO: Maybe we should have some more logic in here.
+        by_user = purchase.user
+        amount = purchase.value
+
         profile = by_user.profile
         profile.balance += amount
         profile.save()

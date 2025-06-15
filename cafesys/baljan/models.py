@@ -20,7 +20,6 @@ from django.utils.translation import gettext_lazy as _
 from functools import partial
 
 import stripe
-from stripe import InvalidRequestError
 
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from . import notifications, util
@@ -1379,10 +1378,6 @@ class Product(models.Model):
 
 
 class Purchase(Made):
-    class Status(models.IntegerChoices):
-        PAID = 0, _("Paid")
-        UNPAID = 1, _("Unpaid")
-
     product = models.ForeignKey(
         Product, verbose_name=_("product"), on_delete=models.CASCADE
     )
@@ -1394,9 +1389,6 @@ class Purchase(Made):
         on_delete=models.SET_NULL,
     )
     session_id = models.CharField(_("session id"), unique=True)
-    status = models.PositiveSmallIntegerField(
-        _("status"), choices=Status, default=Status.UNPAID
-    )
 
     value = models.PositiveSmallIntegerField(_("value"))
     currency = models.CharField(_("currency"))
@@ -1416,22 +1408,3 @@ class Purchase(Made):
 
     def valcur(self):
         return "%d %s" % (self.value, self.currency)
-
-    def mark_paid(self):
-        self.status = Purchase.Status.PAID
-
-        self.save()
-
-    def expire(session_id):
-        try:
-            stripe.checkout.Session.expire(session_id)
-            logger.info(f"Expired Stripe Session ({session_id})")
-        except InvalidRequestError:
-            logger.info(f"Could not expire Stripe Session ({session_id})")
-            # Returns an error if the Checkout Session has already expired
-            # or isn’t in an expireable state. But we don't need to handle that
-            pass
-
-        # Maybe this is bad practice like db wise, writing and deleting all the time
-        if product := Purchase.objects.filter(session_id=session_id).first():
-            product.delete()

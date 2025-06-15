@@ -93,7 +93,7 @@ import matplotlib.pyplot as plt
 from cafesys.baljan.gdpr import get_policies
 
 import stripe
-from stripe import InvalidRequestError
+from stripe import SignatureVerificationError
 
 logger = getLogger(__name__)
 
@@ -464,7 +464,6 @@ def profile(request):
 def credits(request, code=None):
     user = request.user
     tpl = {}
-
     refill_form = forms.RefillForm(code=code)
 
     if request.method == "POST":
@@ -1577,106 +1576,98 @@ def bookkeep_view(request):
     )
 
 
-class Checkout:
+class Stripe:
     @login_required
-    def create(request: HttpRequest):
+    def create_checkout(request: HttpRequest):
         if request.method != "POST":
-            return redirect(reverse("shop"))
+            return redirect(reverse("credits"))
 
-        if not (product_id := request.POST.get("product_id", None)):
+        product_id = request.POST.get("product_id", None)
+        if product_id is None:
             raise BadRequest(_("Product ID was not provided"))
-
-        try:
-            stripe.Product.retrieve(product_id)
-        except stripe.InvalidRequestError:
-            raise Http404(_("Product could not be found"))
 
         product = models.Product.objects.filter(product_id__exact=product_id).first()
         if product is None:
-            raise BadRequest(_("Product does not exist in admin"))
+            raise BadRequest(_("Product does not exist"))
 
-        try:
-            checkout_session = stripe.checkout.Session.create(
-                line_items=[
-                    {
-                        "price": product.price_id,
-                        "quantity": 1,
-                    },
-                ],
-                mode="payment",
-                success_url=request.build_absolute_uri(
-                    "/checkout/success",
-                )
-                + "?session_id={CHECKOUT_SESSION_ID}",
-                cancel_url=request.build_absolute_uri("/checkout/cancel")
-                + "?session_id={CHECKOUT_SESSION_ID}",
-                customer_email=request.user.email or "",
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    "price": product.price_id,
+                    "quantity": 1,
+                },
+            ],
+            mode="payment",
+            success_url=request.build_absolute_uri(
+                reverse("checkout-success"),
             )
-        except User.DoesNotExist:
-            # This should never be raised
-            raise BadRequest(_("User should be set"))
-
-        # TODO: Should use this ID to create a checkout in django,
-        # should have status aswell. To make sure that no "transaction" bugs out,
-        # eg if someone pays, gets redirected but their liu session times out
-        # it should still get validated.qwe
-        # or maybe have celery run a task on any checkout that is either open or expired
-        # With also like a "Handled" flag to prevent reloading the success pagex
-        models.Purchase.objects.create(
-            product=product,
-            user=request.user,
-            session_id=checkout_session.id,
-            value=product.price,
-            currency=checkout_session.currency.upper(),
+            + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=request.build_absolute_uri(
+                reverse("credits"),
+            ),
+            customer_email=request.user.email or "",
+            client_reference_id=request.user.id,
+            metadata={"product_id": product.id},
         )
 
         return redirect(to=checkout_session.url, permanent=False)
 
     @login_required
-    def success(request: HttpRequest):
+    def success_checkout(request: HttpRequest):
         if request.method != "GET":
             return HttpResponse(status=405)
         if "session_id" not in request.GET:
             return HttpResponse(status=400)
+
         session_id = request.GET["session_id"]
 
         credits_redirect = redirect(reverse("credits"))
 
-        db_checkout = models.Purchase.objects.filter(session_id=session_id).first()
-        if not db_checkout:
-            return credits_redirect
+        if checkout := stripe.checkout.Session.retrieve(session_id):
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _(
+                    "Thank you for your purchase! You've refilled your card with %(amount)d %(currency)s"
+                )
+                % {
+                    "amount": checkout.amount_total / 100,
+                    "currency": checkout.currency.upper(),
+                },
+            )
 
-        try:
-            checkout = stripe.checkout.Session.retrieve(session_id)
-
-            if checkout.payment_status != "paid" or checkout.status != "complete":
-                raise InvalidRequestError()
-
-        except InvalidRequestError:
-            return credits_redirect
-
-        if db_checkout.status == models.Purchase.Status.UNPAID:
-            db_checkout.status = models.Purchase.Status.PAID
-            db_checkout.save()
-            creditsmodule.digital_refill(db_checkout.product.price, request.user)
-        else:
-            # Försök inte hörru
-            pass
-
-        return render(
-            request, "baljan/checkout/success.html", {"purchase": db_checkout}
-        )
+        return credits_redirect
 
     @login_required
-    def cancel(request: HttpRequest):
-        if "session_id" in request.GET:
-            models.Purchase.expire(request.GET["session_id"])
-
+    def cancel_checkout(request: HttpRequest):
         return redirect(reverse("credits"), permanent=True)
 
+    @csrf_exempt
+    def events(request: HttpRequest):
+        payload = request.body
+        sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
+        event = None
 
-@login_required
-def shop_page(request):
-    products = models.Product.objects.order_by("price").all()
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, settings.STRIPE_ENDPOINT_SECRET
+            )
+        except ValueError:
+            return HttpResponse(status=400)
+        except SignatureVerificationError:
+            return HttpResponse(status=400)
 
-    return render(request, "baljan/shop.html", {"products": products})
+        if event.type == "checkout.session.completed":
+            checkout_session = event.data.object
+
+            purchase = models.Purchase.objects.create(
+                product_id=checkout_session["metadata"]["product_id"],
+                user_id=checkout_session["client_reference_id"],
+                session_id=checkout_session["id"],
+                value=checkout_session["amount_total"] / 100,
+                currency=checkout_session["currency"].upper(),
+            )
+
+            creditsmodule.digital_refill(purchase)
+
+        return HttpResponse(status=200)

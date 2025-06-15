@@ -659,7 +659,7 @@ admin.site.register(models.Product, Product)
 
 
 class Purchase(admin.ModelAdmin):
-    list_display = ["id", "product_name", "valcur", "purchaser", "status", "made"]
+    list_display = ["id", "product_name", "valcur", "purchaser", "made"]
     readonly_fields = ["session_id"]
 
 

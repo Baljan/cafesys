@@ -47,9 +47,9 @@
                             <form action="{% url 'checkout-create' %}" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="product_id" value="{{ product.product_id }}">
-                                <button type="submit" id="checkout-button">
+                                <button type="submit" id="checkout-button" class="hover-overlay shadow p-0 border-0 bg-transparent no-shadow text-decoration-none text-reset">
                                     {% with image_path=product.image %}
-                                        <img class="img-fluid shadow" src="{% static image_path %}" alt="Product image" />
+                                        <img class="img-fluid" src="{% static image_path %}" alt="Product image" />
                                     {% endwith %}
                                 </button>
                             </form>
@@ -74,12 +74,12 @@
                 {% for card in used_cards %}
                     <li>
                     {% if card.type == "physical" %}
-                        Fysiskt påfyllnad: {{card.serid}} värt {{card.valcur }} användes {{card.date|date}}
+                        Fysiskt påfyllnad ({{card.serid}}) värt {{card.valcur }} användes {{card.date|date}}
                         {% if card.refill_series.add_to_group %}
                             (Du blev tillagd till {{card.refill_series.add_to_group.name}})
                         {% endif %}
                     {% else %}
-                        Digital påfyllnad: Värt {{ card.valcur }} användes {{card.date|date}}                        
+                        Digital påfyllnad värt {{ card.valcur }} köptes {{card.date|date}}
                     {% endif %}
                     </li>
                 {% empty %}
