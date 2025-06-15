@@ -1590,6 +1590,11 @@ class Stripe:
         if product is None:
             raise BadRequest(_("Product does not exist"))
 
+        args = {}
+
+        if request.user.email:
+            args["customer_email"] = request.user.email
+
         checkout_session = stripe.checkout.Session.create(
             line_items=[
                 {
@@ -1605,9 +1610,9 @@ class Stripe:
             cancel_url=request.build_absolute_uri(
                 reverse("credits"),
             ),
-            customer_email=request.user.email or "",
             client_reference_id=request.user.id,
             metadata={"product_id": product.id},
+            **args,
         )
 
         return redirect(to=checkout_session.url, permanent=False)
