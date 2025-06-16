@@ -493,7 +493,7 @@ def credits(request, code=None):
         itertools.chain(phys_qs, dig_qs), key=lambda obj: obj.date, reverse=True
     )
 
-    tpl["products"] = models.Product.objects.order_by("price").all()
+    tpl["products"] = models.Product.objects.filter(active=True).order_by("price").all()
 
     return render(request, "baljan/credits.html", tpl)
 
@@ -1670,5 +1670,21 @@ class Stripe:
             )
 
             creditsmodule.digital_refill(purchase)
+        elif event.type == "product.updated":
+            prev = event.data.previous_attributes
+            obj = event.data.object
+
+            if product := models.Product.objects.filter(product_id=obj["id"]).first():
+                updated_fields = {
+                    field.name
+                    for field in models.Product._meta.get_fields()
+                    if field.concrete
+                }
+                matching = prev.keys() & updated_fields
+
+                for key in matching:
+                    setattr(product, key, obj[key])
+
+                product.save()
 
         return HttpResponse(status=200)

@@ -1362,6 +1362,11 @@ class Product(models.Model):
         help_text=_("This should be set to the custom SCSS class defined in the repo"),
     )
     price = models.PositiveSmallIntegerField(_("price"))
+    active = models.BooleanField(
+        _("active"),
+        help_text=_("You can (de)activate a product in Stripe"),
+        editable=False,
+    )
 
     def __str__(self):
         return self.name
@@ -1371,8 +1376,11 @@ class Product(models.Model):
 
         self.name = product.name
         self.price = product.default_price.unit_amount / 100
+        self.active = product.active
 
         self.price_id = product.default_price.id
+
+        return self
 
     def clean(self):
         try:

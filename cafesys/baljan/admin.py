@@ -624,32 +624,27 @@ admin.site.register(models.SupportFilter, SupportFilter)
 
 
 def sync_product(modeladmin, request, queryset):
-    for obj in queryset:
-        if isinstance(obj, models.Product):
-            obj.sync()
-            obj.save()
+    models.Product.objects.bulk_update(
+        [obj.sync() for obj in queryset], fields=["name", "price", "price_id", "active"]
+    )
 
     modeladmin.message_user(
-        request, f"Synced {queryset.len()} product(s).", messages.SUCCESS
+        request, f"Synced {len(queryset)} product(s).", messages.SUCCESS
     )
 
 
 class Product(admin.ModelAdmin):
     actions = [sync_product]
 
-    list_display = ["name", "price", "product_id"]
-    readonly_fields = (
-        "name",
-        "price",
-        "price_id",
-    )
+    list_display = ["name", "price", "product_id", "active"]
+    readonly_fields = ("name", "price", "price_id", "active")
 
     fieldsets = (
         (None, {"fields": ("product_id", "styling")}),
         (
             _("Information from Stripe"),
             {
-                "fields": ("name", "price", "price_id"),
+                "fields": ("name", "price", "price_id", "active"),
             },
         ),
     )
