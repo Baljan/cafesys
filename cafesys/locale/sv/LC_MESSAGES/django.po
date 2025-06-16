@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-15 23:20+0200\n"
+"POT-Creation-Date: 2025-06-16 01:24+0200\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,7 +73,7 @@ msgstr "koder"
 
 #: cafesys/baljan/admin.py:420 cafesys/baljan/models.py:83
 #: cafesys/baljan/models.py:855 cafesys/baljan/models.py:880
-#: cafesys/baljan/models.py:1076 cafesys/baljan/models.py:1398
+#: cafesys/baljan/models.py:1076 cafesys/baljan/models.py:1402
 msgid "currency"
 msgstr "valuta"
 
@@ -123,7 +123,7 @@ msgstr "när objektet skapades"
 #: cafesys/baljan/models.py:875 cafesys/baljan/models.py:1110
 #: cafesys/baljan/models.py:1130 cafesys/baljan/models.py:1165
 #: cafesys/baljan/models.py:1224 cafesys/baljan/models.py:1240
-#: cafesys/baljan/models.py:1392
+#: cafesys/baljan/models.py:1396
 msgid "user"
 msgstr "användare"
 
@@ -502,7 +502,7 @@ msgid "code"
 msgstr "kod"
 
 #: cafesys/baljan/models.py:1074 cafesys/baljan/models.py:1336
-#: cafesys/baljan/models.py:1397
+#: cafesys/baljan/models.py:1401
 msgid "value"
 msgstr "värde"
 
@@ -570,43 +570,47 @@ msgstr "pris-id"
 msgid "This will be filled in by Stripe"
 msgstr "Detta kommer fyllas i automatiskt av Stripe"
 
-#: cafesys/baljan/models.py:1359
-msgid "image"
-msgstr "bild"
+#: cafesys/baljan/models.py:1360
+msgid "styling"
+msgstr ""
 
-#: cafesys/baljan/models.py:1360 cafesys/baljan/models.py:1420
+#: cafesys/baljan/models.py:1362
+msgid "This should be set to the custom SCSS class defined in the repo"
+msgstr ""
+
+#: cafesys/baljan/models.py:1364 cafesys/baljan/models.py:1424
 msgid "price"
 msgstr "pris"
 
-#: cafesys/baljan/models.py:1377
+#: cafesys/baljan/models.py:1381
 msgid "Product ID was not found"
 msgstr "Produkt-idet kunde inte hittas"
 
-#: cafesys/baljan/models.py:1380 cafesys/baljan/models.py:1386
+#: cafesys/baljan/models.py:1384 cafesys/baljan/models.py:1390
 msgid "product"
 msgstr "produkt"
 
-#: cafesys/baljan/models.py:1381
+#: cafesys/baljan/models.py:1385
 msgid "products"
 msgstr "produkter"
 
-#: cafesys/baljan/models.py:1395
+#: cafesys/baljan/models.py:1399
 msgid "session id"
 msgstr "session id"
 
-#: cafesys/baljan/models.py:1410
+#: cafesys/baljan/models.py:1414
 msgid "product name"
 msgstr "produktsnamn"
 
-#: cafesys/baljan/models.py:1415
+#: cafesys/baljan/models.py:1419
 msgid "purchaser"
 msgstr "köpare"
 
-#: cafesys/baljan/models.py:1423
+#: cafesys/baljan/models.py:1427
 msgid "purchase"
 msgstr "digitalt köp"
 
-#: cafesys/baljan/models.py:1424
+#: cafesys/baljan/models.py:1428
 msgid "purchases"
 msgstr "digitala köp"
 
@@ -891,13 +895,16 @@ msgstr "Inget produkt-id gavs"
 msgid "Product does not exist"
 msgstr "Produkten finns inte"
 
-#: cafesys/baljan/views.py:1631
+#: cafesys/baljan/views.py:1636
 #, python-format
 msgid ""
 "Thank you for your purchase! You've refilled your card with %(amount)d "
 "%(currency)s"
 msgstr ""
 "Tack för ditt köp! Du har nu fyllt på ditt kort med %(amount)d %(currency)s."
+
+#~ msgid "image"
+#~ msgstr "bild"
 
 #, fuzzy
 #~| msgid "value"
