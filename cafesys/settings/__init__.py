@@ -327,5 +327,5 @@ GOOGLE_SERVICE_ACCOUNT_INFO = {
     "universe_domain": GOOGLE_UNIVERSE_DOMAIN,
 }
 
-stripe.api_key = env.str("STRIPE_API_KEY")
-STRIPE_ENDPOINT_SECRET = env.str("STRIPE_ENDPOINT_SECRET")
+stripe.api_key = env.str("STRIPE_API_KEY", default="")
+STRIPE_ENDPOINT_SECRET = env.str("STRIPE_ENDPOINT_SECRET", default="")
