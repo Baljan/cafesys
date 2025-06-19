@@ -1045,24 +1045,6 @@ def post_call(request, location):
 
 
 @csrf_exempt
-@require_POST
-def support_webhook(request):
-    # FIXME: Needs authentication from google https://cloud.google.com/pubsub/docs/authenticate-push-subscriptions
-    data = json.loads(request.body)
-
-    message = data["message"]["data"]
-    decoded_message = json.loads(base64.b64decode(message).decode("utf-8"))
-
-    messages = google.get_new_messages(decoded_message.get("historyId"))
-
-    for message in messages:
-        data = slack.generate_support_embed(message)
-        slack.send_message(data, settings.SLACK_SUPPORT_WEBHOOK_URL, type="email")
-
-    return JsonResponse({})
-
-
-@csrf_exempt
 def slack_events_handler(request):
     return slack.handler.handle(request)
 
@@ -1544,3 +1526,22 @@ def bookkeep_view(request):
         "baljan/bookkeep.html",
         {"form": form, "data": data, "past_year": past_year},
     )
+
+
+class Google:
+    @csrf_exempt
+    @require_POST
+    def pubsub(request):
+        # FIXME: Needs authentication from google https://cloud.google.com/pubsub/docs/authenticate-push-subscriptions
+        data = json.loads(request.body)
+
+        message = data["message"]["data"]
+        decoded_message = json.loads(base64.b64decode(message).decode("utf-8"))
+
+        messages = google.get_new_messages(decoded_message.get("historyId"))
+
+        for message in messages:
+            data = slack.generate_support_embed(message)
+            slack.send_message(data, settings.SLACK_SUPPORT_WEBHOOK_URL, type="email")
+
+        return JsonResponse({})

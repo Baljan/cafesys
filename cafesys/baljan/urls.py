@@ -80,7 +80,8 @@ urlpatterns = (
     path("incoming-sms", views.incoming_sms),
     path("consent", views.consent, name="consent"),
     path("do-blipp", views.do_blipp),
-    path("support-webhook", views.support_webhook),
+    # Google
+    path("google/pubsub", views.Google.pubsub),
     path("handle-interactivity", views.slack_events_handler),
     path("integrity", views.integrity, name="integrity"),
     path(

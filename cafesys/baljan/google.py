@@ -18,7 +18,7 @@ def setup_service():
     creds = service_account.Credentials.from_service_account_info(
         info=settings.GOOGLE_SERVICE_ACCOUNT_INFO,
         scopes=["https://www.googleapis.com/auth/gmail.readonly"],
-        subject="robot.nordsson@baljan.org",
+        subject="tyrone@baljan.org",
     )
     service = build("gmail", "v1", credentials=creds)
 
@@ -35,7 +35,7 @@ def ensure_gmail_watch(**kwargs):
     current_time = time.time()
 
     if current_time - config["expiration_time"] > 0:
-        logger.info("Ensuring Gmail watch...")
+        logger.debug("Ensuring Gmail watch...")
         try:
             response = (
                 service.users()

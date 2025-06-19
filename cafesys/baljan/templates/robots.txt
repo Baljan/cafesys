@@ -7,3 +7,9 @@ Disallow: /baljan/friend-request/
 Disallow: /baljan/trade/
 Disallow: /baljan/tradable/
 Disallow: /account/
+
+# Weeks opening
+Disallow: /baljan/[0-9][0-9][0-9][0-9]/[0-9][0-9]
+Allow: /baljan/
+Disallow: /byttan/[0-9][0-9][0-9][0-9]/[0-9][0-9]
+Allow: /byttan/

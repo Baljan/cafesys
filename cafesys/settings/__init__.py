@@ -299,30 +299,15 @@ ROLLBAR = {
 
 # Google Auth Shizz
 GOOGLE_PROJECT_ID = env.str("GOOGLE_PROJECT_ID", default="")
-GOOGLE_PRIVATE_KEY_ID = env.str("GOOGLE_PRIVATE_KEY_ID", default="")
 GOOGLE_PRIVATE_KEY = env.str("GOOGLE_PRIVATE_KEY", multiline=True, default="")
 GOOGLE_CLIENT_EMAIL = env.str("GOOGLE_CLIENT_EMAIL", default="")
-GOOGLE_CLIENT_ID = env.str("GOOGLE_CLIENT_ID", default="")
-GOOGLE_AUTH_URI = env.str("GOOGLE_AUTH_URI", default="")
 GOOGLE_TOKEN_URI = env.str("GOOGLE_TOKEN_URI", default="")
-GOOGLE_AUTH_PROVIDER_X509_CERT_URL = env.str(
-    "GOOGLE_AUTH_PROVIDER_X509_CERT_URL", default=""
-)
-GOOGLE_CLIENT_X509_CERT_URL = env.str("GOOGLE_CLIENT_X509_CERT_URL", default="")
-GOOGLE_UNIVERSE_DOMAIN = env.str("GOOGLE_UNIVERSE_DOMAIN", default="")
 GOOGLE_PUBSUB_TOPIC = env.str("GOOGLE_PUBSUB_TOPIC", default="")
 GOOGLE_CACHE_KEY = "google_watch_config"
 
 GOOGLE_SERVICE_ACCOUNT_INFO = {
-    "type": "service_account",
     "project_id": GOOGLE_PROJECT_ID,
-    "private_key_id": GOOGLE_PRIVATE_KEY_ID,
     "private_key": GOOGLE_PRIVATE_KEY,
     "client_email": GOOGLE_CLIENT_EMAIL,
-    "client_id": GOOGLE_CLIENT_ID,
-    "auth_uri": GOOGLE_AUTH_URI,
     "token_uri": GOOGLE_TOKEN_URI,
-    "auth_provider_x509_cert_url": GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
-    "client_x509_cert_url": GOOGLE_CLIENT_X509_CERT_URL,
-    "universe_domain": GOOGLE_UNIVERSE_DOMAIN,
 }
