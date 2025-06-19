@@ -6,7 +6,7 @@ from .actions import categories_and_actions
 
 
 def actions(request):
-    # TODO: move
+    # FIXME: move
     links, pages = categories_and_actions(request)
     return {"pages": pages, "links": links}
 

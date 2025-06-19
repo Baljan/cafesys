@@ -19,6 +19,9 @@ class Action(object):
 
 def categories_and_actions(request):
     user = request.user
+    # FIXME: This thing really needs to be redone
+    # It basically fetches parses all actions everytime someone loads a page
+    # It should only happen when the actions are needed
 
     # FIXME: Upcoming semesters should be fetched lazily.
     upcoming_sems = Semester.objects.upcoming()
@@ -118,7 +121,11 @@ def categories_and_actions(request):
             break
 
     for action in links + pages:
-        if request.resolver_match.url_name == action.path:
+        # This next line made the 404 page not work for like 3 years
+        if (
+            "resolver_match" in request
+            and request.resolver_match.url_name == action.path
+        ):
             action.active = True
 
     links.reverse()
