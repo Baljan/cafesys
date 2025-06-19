@@ -113,11 +113,11 @@ def get_new_messages(new_history_id):
             should_keep = all(
                 [
                     (
-                        filter.filter_type == SupportFilter.Type.FROM
+                        filter.type == SupportFilter.Type.FROM
                         and filter.value not in details["sender"]
                     )
                     or (
-                        filter.filter_type == SupportFilter.Type.SUBJECT
+                        filter.type == SupportFilter.Type.SUBJECT
                         and filter.value not in details["subject"]
                     )
                     for filter in filters
