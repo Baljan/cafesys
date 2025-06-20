@@ -5,6 +5,8 @@ from logging import getLogger
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db import models, transaction
@@ -14,9 +16,10 @@ from django.utils.encoding import smart_str
 from django.utils.text import format_lazy
 from django.utils.translation import gettext as _nl
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import RegexValidator
 
 from functools import partial
+
+import stripe
 
 from cafesys.baljan.templatetags.baljan_extras import display_name
 from . import notifications, util
@@ -1338,3 +1341,96 @@ class SupportFilter(models.Model):
     class Meta:
         verbose_name = _("support mail filter")
         verbose_name_plural = _("support mail filter")
+
+
+class Product(models.Model):
+    product_id = models.CharField(
+        _("product id"),
+        unique=True,
+        help_text=_("This should correspond to the Product ID in the Stripe admin"),
+    )
+
+    price_id = models.CharField(
+        _("price id"),
+        help_text=_("This will be filled in by Stripe"),
+        editable=False,
+    )
+    name = models.CharField(_("name"), editable=False)
+    styling = models.CharField(
+        _("styling"),
+        editable=True,
+        help_text=_("This should be set to the custom SCSS class defined in the repo"),
+    )
+    price = models.PositiveSmallIntegerField(_("price"))
+    active = models.BooleanField(
+        _("active"),
+        help_text=_("You can (de)activate a product in Stripe"),
+        editable=False,
+    )
+
+    def __str__(self):
+        return self.name
+
+    def sync(self):
+        product = stripe.Product.retrieve(self.product_id, expand=["default_price"])
+
+        self.name = product.name
+        self.price = product.default_price.unit_amount / 100
+        self.active = product.active
+
+        self.price_id = product.default_price.id
+
+        return self
+
+    def clean(self):
+        try:
+            self.sync()
+        except stripe.InvalidRequestError:
+            raise ValidationError({"product_id": _("Product ID was not found")})
+
+    class Meta:
+        verbose_name = _("product")
+        verbose_name_plural = _("products")
+
+
+class Purchase(Made):
+    product = models.ForeignKey(
+        Product, verbose_name=_("product"), on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        verbose_name=_("user"),
+        on_delete=models.SET_NULL,
+    )
+    session_id = models.CharField(_("session id"), unique=True)
+
+    value = models.PositiveSmallIntegerField(_("value"))
+    currency = models.CharField(_("currency"))
+
+    def __str__(self):
+        return "%s köpt av %s för %s" % (
+            self.product_name(),
+            self.purchaser(),
+            self.valcur(),
+        )
+
+    def product_name(self):
+        return self.product.name
+
+    product_name.short_description = _("product name")
+
+    def purchaser(self):
+        return self.user.username
+
+    purchaser.short_description = _("purchaser")
+
+    def valcur(self):
+        return "%d %s" % (self.value, self.currency)
+
+    valcur.short_description = _("price")
+
+    class Meta:
+        verbose_name = _("purchase")
+        verbose_name_plural = _("purchases")

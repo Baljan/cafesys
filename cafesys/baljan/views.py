@@ -2,6 +2,7 @@
 import base64
 import uuid
 import json
+import itertools
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
 from logging import getLogger
@@ -12,6 +13,7 @@ from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group, User
+from django.core.exceptions import BadRequest
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.core.serializers import serialize
@@ -19,8 +21,19 @@ from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.db import transaction
 from django.db.models import Sum, Count, IntegerField, Case, When, Value, Subquery, F
-from django.db.models.functions import ExtractHour, ExtractMinute, ExtractIsoWeekDay
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
+from django.db.models.functions import (
+    ExtractHour,
+    ExtractMinute,
+    ExtractIsoWeekDay,
+    Cast,
+)
+from django.http import (
+    HttpResponse,
+    HttpResponseRedirect,
+    JsonResponse,
+    Http404,
+    HttpRequest,
+)
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import gettext as _
 from django.views.generic import ListView
@@ -29,6 +42,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 from django import forms as django_forms
 from django.template.loader import render_to_string
+
+
 import django_filters
 
 from cafesys.baljan import google, phone, slack
@@ -76,6 +91,9 @@ from pandas import DataFrame
 import matplotlib.pyplot as plt
 
 from cafesys.baljan.gdpr import get_policies
+
+import stripe
+from stripe import SignatureVerificationError
 
 logger = getLogger(__name__)
 
@@ -446,7 +464,6 @@ def profile(request):
 def credits(request, code=None):
     user = request.user
     tpl = {}
-
     refill_form = forms.RefillForm(code=code)
 
     if request.method == "POST":
@@ -461,9 +478,22 @@ def credits(request, code=None):
 
     tpl["refill_form"] = refill_form
     tpl["currently_available"] = user.profile.balcur()
-    tpl["used_cards"] = models.BalanceCode.objects.filter(
-        used_by=user,
-    ).order_by("-used_at", "-id")
+
+    phys_qs = models.BalanceCode.objects.filter(used_by=user).annotate(
+        date=Cast("used_at", output_field=models.models.DateTimeField()),
+        type=Value("physical", output_field=models.models.CharField()),
+    )
+
+    dig_qs = models.Purchase.objects.filter(user=user).annotate(
+        date=Cast("made", output_field=models.models.DateTimeField()),
+        type=Value("digital", output_field=models.models.CharField()),
+    )
+
+    tpl["used_cards"] = sorted(
+        itertools.chain(phys_qs, dig_qs), key=lambda obj: obj.date, reverse=True
+    )
+
+    tpl["products"] = models.Product.objects.filter(active=True).order_by("price").all()
 
     return render(request, "baljan/credits.html", tpl)
 
@@ -1524,6 +1554,121 @@ def bookkeep_view(request):
         "baljan/bookkeep.html",
         {"form": form, "data": data, "past_year": past_year},
     )
+
+
+class Stripe:
+    @login_required
+    def create_checkout(request: HttpRequest):
+        if request.method != "POST":
+            return redirect(reverse("credits"))
+
+        product_id = request.POST.get("product_id", None)
+        if product_id is None:
+            raise BadRequest(_("Product ID was not provided"))
+
+        product = models.Product.objects.filter(product_id__exact=product_id).first()
+        if product is None:
+            raise BadRequest(_("Product does not exist"))
+
+        args = {}
+
+        if request.user.email:
+            args["customer_email"] = request.user.email
+
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    "price": product.price_id,
+                    "quantity": 1,
+                },
+            ],
+            mode="payment",
+            success_url=request.build_absolute_uri(
+                reverse("checkout-success"),
+            )
+            + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=request.build_absolute_uri(
+                reverse("credits"),
+            ),
+            client_reference_id=request.user.id,
+            metadata={"product_id": product.id},
+            **args,
+        )
+
+        return redirect(to=checkout_session.url, permanent=False)
+
+    @login_required
+    def success_checkout(request: HttpRequest):
+        if request.method != "GET":
+            return HttpResponse(status=405)
+        if "session_id" not in request.GET:
+            return HttpResponse(status=400)
+
+        session_id = request.GET["session_id"]
+
+        credits_redirect = redirect(reverse("credits"))
+
+        if checkout := stripe.checkout.Session.retrieve(session_id):
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                _(
+                    "Thank you for your purchase! You've refilled your card with %(amount)d %(currency)s"
+                )
+                % {
+                    "amount": checkout.amount_total / 100,
+                    "currency": checkout.currency.upper(),
+                },
+            )
+
+        return credits_redirect
+
+    @csrf_exempt
+    def events(request: HttpRequest):
+        payload = request.body
+        sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
+        event = None
+
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, settings.STRIPE_ENDPOINT_SECRET
+            )
+        except ValueError:
+            return HttpResponse(status=400)
+        except SignatureVerificationError:
+            return HttpResponse(status=400)
+
+        if event.type == "checkout.session.completed":
+            checkout_session = event.data.object
+
+            purchase = models.Purchase.objects.create(
+                product_id=checkout_session["metadata"]["product_id"],
+                user_id=checkout_session["client_reference_id"],
+                session_id=checkout_session["id"],
+                value=checkout_session["amount_total"] / 100,
+                currency=checkout_session["currency"].upper(),
+            )
+
+            creditsmodule.digital_refill(purchase)
+        elif event.type == "product.updated":
+            prev = event.data.previous_attributes
+            obj = event.data.object
+
+            if product := models.Product.objects.filter(product_id=obj["id"]).first():
+                updated_fields = {
+                    field.name
+                    for field in models.Product._meta.get_fields()
+                    if field.concrete
+                }
+                matching = prev.keys() & updated_fields
+
+                for key in matching:
+                    setattr(product, key, obj[key])
+
+                product.save()
+
+        return HttpResponse(status=200)
+
 
 
 class Google:
