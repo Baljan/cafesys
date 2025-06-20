@@ -9,6 +9,11 @@
 
 {% block body %}
 
+{% comment %} 
+If you use this template for a new view, you also need to include
+its view_name in "included_view_names" in ctx.py to fill links and pages.
+{% endcomment %}
+
 <main>
   <h1>Personal</h1>
   <ul class="nav nav-pills flex-column flex-md-row nav-fill mb-5">

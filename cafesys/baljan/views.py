@@ -935,13 +935,11 @@ def call_duty_week(request, year=None, week=None):
 @permission_required("baljan.delete_semester")
 def admin_semester(request, name=None):
     if name is None:
-        sem = models.Semester.objects.current()
-        if sem is None:
-            try:
-                upcoming_sems = models.Semester.objects.upcoming()
-                sem = upcoming_sems[0]
-            except Exception:  # FIXME: I dont think this even throws an exception
-                pass
+        sem = (
+            models.Semester.objects.current()
+            or models.Semester.objects.upcoming().first()
+            or models.Semester.objects.order_by("-start").first()
+        )
     else:
         sem = get_object_or_404(models.Semester, name__exact=name)
 
