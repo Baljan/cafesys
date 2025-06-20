@@ -965,13 +965,11 @@ def call_duty_week(request, year=None, week=None):
 @permission_required("baljan.delete_semester")
 def admin_semester(request, name=None):
     if name is None:
-        sem = models.Semester.objects.current()
-        if sem is None:
-            try:
-                upcoming_sems = models.Semester.objects.upcoming()
-                sem = upcoming_sems[0]
-            except Exception:  # FIXME: I dont think this even throws an exception
-                pass
+        sem = (
+            models.Semester.objects.current()
+            or models.Semester.objects.upcoming().first()
+            or models.Semester.objects.order_by("-start").first()
+        )
     else:
         sem = get_object_or_404(models.Semester, name__exact=name)
 
@@ -1070,24 +1068,6 @@ def post_call(request, location):
         from_number, calls, location=location
     )
     slack.send_message(slack_data, settings.SLACK_PHONE_WEBHOOK_URL, type="call")
-
-    return JsonResponse({})
-
-
-@csrf_exempt
-@require_POST
-def support_webhook(request):
-    # FIXME: Needs authentication from google https://cloud.google.com/pubsub/docs/authenticate-push-subscriptions
-    data = json.loads(request.body)
-
-    message = data["message"]["data"]
-    decoded_message = json.loads(base64.b64decode(message).decode("utf-8"))
-
-    messages = google.get_new_messages(decoded_message.get("historyId"))
-
-    for message in messages:
-        data = slack.generate_support_embed(message)
-        slack.send_message(data, settings.SLACK_SUPPORT_WEBHOOK_URL, type="email")
 
     return JsonResponse({})
 
@@ -1688,3 +1668,23 @@ class Stripe:
                 product.save()
 
         return HttpResponse(status=200)
+
+
+
+class Google:
+    @csrf_exempt
+    @require_POST
+    def pubsub(request):
+        # FIXME: Needs authentication from google https://cloud.google.com/pubsub/docs/authenticate-push-subscriptions
+        data = json.loads(request.body)
+
+        message = data["message"]["data"]
+        decoded_message = json.loads(base64.b64decode(message).decode("utf-8"))
+
+        messages = google.get_new_messages(decoded_message.get("historyId"))
+
+        for message in messages:
+            data = slack.generate_support_embed(message)
+            slack.send_message(data, settings.SLACK_SUPPORT_WEBHOOK_URL, type="email")
+
+        return JsonResponse({})

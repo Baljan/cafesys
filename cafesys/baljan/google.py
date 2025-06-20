@@ -18,7 +18,7 @@ def setup_service():
     creds = service_account.Credentials.from_service_account_info(
         info=settings.GOOGLE_SERVICE_ACCOUNT_INFO,
         scopes=["https://www.googleapis.com/auth/gmail.readonly"],
-        subject="robot.nordsson@baljan.org",
+        subject="tyrone@baljan.org",
     )
     service = build("gmail", "v1", credentials=creds)
 
@@ -35,7 +35,7 @@ def ensure_gmail_watch(**kwargs):
     current_time = time.time()
 
     if current_time - config["expiration_time"] > 0:
-        logger.info("Ensuring Gmail watch...")
+        logger.debug("Ensuring Gmail watch...")
         try:
             response = (
                 service.users()
@@ -113,11 +113,11 @@ def get_new_messages(new_history_id):
             should_keep = all(
                 [
                     (
-                        filter.filter_type == SupportFilter.Type.FROM
+                        filter.type == SupportFilter.Type.FROM
                         and filter.value not in details["sender"]
                     )
                     or (
-                        filter.filter_type == SupportFilter.Type.SUBJECT
+                        filter.type == SupportFilter.Type.SUBJECT
                         and filter.value not in details["subject"]
                     )
                     for filter in filters
