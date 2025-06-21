@@ -1159,7 +1159,6 @@ def do_blipp(request):
         )
 
     # We will always have a user at this point
-
     price = config.good.current_cost().cost
     is_coffee_free, has_cooldown = user.profile.has_free_blipp()
 
@@ -1194,10 +1193,11 @@ def do_blipp(request):
         price = 0
     else:
         balance = user.profile.balance
-        if balance < price:
+
+        if balance <= 0:
             return _json_error(402, "Du har för lite pengar för att blippa")
 
-        new_balance = balance - price
+        new_balance = max(balance - price, 0)
         user.profile.balance = new_balance
         user.profile.save()
 
@@ -1208,7 +1208,7 @@ def do_blipp(request):
     order.made = datetime.now(tz)
     order.put_at = datetime.now(tz)
     order.user = user
-    order.paid = price
+    order.paid = min(balance - price, price)
     order.currency = "SEK"
     order.accepted = True
     order.save()
@@ -1668,7 +1668,6 @@ class Stripe:
                 product.save()
 
         return HttpResponse(status=200)
-
 
 
 class Google:
