@@ -668,7 +668,8 @@ def signup_notice_delete(signup):
 
 
 def signup_pre_save(sender, instance=None, **kwargs):
-    if instance is None:
+    # Nothing should happen if instance doesn't exist
+    if instance is None or instance.pk is None:
         return
 
     signup = instance
@@ -693,7 +694,8 @@ signals.pre_save.connect(signup_pre_save, sender=ShiftSignup)
 
 
 def signup_pre_delete(sender, instance=None, **kwargs):
-    if instance is None:
+    # Nothing should happen if instance doesn't exist
+    if instance is None or instance.pk is None:
         return
     signup = instance
     signup_post(sender, signup, **kwargs)
