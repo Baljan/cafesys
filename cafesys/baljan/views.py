@@ -760,7 +760,7 @@ def job_opening(request, semester_name):
     found_user = None
     if request.method == "POST":
         if is_ajax(request):  # find user
-            searched_for = request.POST["liu_id"]
+            searched_for = request.POST.get("liu_id", "")
             valid_search = valid_username(searched_for)
 
             if valid_search:
