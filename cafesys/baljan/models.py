@@ -642,7 +642,7 @@ class ShiftSignup(Made):
 
 
 def signup_post(sender, instance=None, **kwargs):
-    # Remove trade requests where this sign-up is wanted wanted or offered.
+    # Remove trade requests where this sign-up is wanted or offered.
     trs = TradeRequest.objects.filter(
         Q(wanted_signup=instance) | Q(offered_signup=instance)
     )
@@ -683,14 +683,22 @@ def signup_pre_save(sender, instance=None, **kwargs):
     )
     trs_possible_doubles.delete()
 
-    if signup.tradable:
-        logger.info("%s saved (tradable)" % signup)
+
+def signup_post_save(sender, instance=None, **kwargs):
+    # Nothing should happen if instance doesn't exist
+    # But in this case instance should always exist
+    if instance is None or instance.pk is None:
+        return
+
+    if instance.tradable:
+        logger.info("%s saved (tradable)" % instance)
     else:
-        logger.info("%s saved (not tradable)" % signup)
-        signup_notice_save(signup)
+        logger.info("%s saved (not tradable)" % instance)
+        signup_notice_save(instance)
 
 
 signals.pre_save.connect(signup_pre_save, sender=ShiftSignup)
+signals.post_save.connect(signup_post_save, sender=ShiftSignup)
 
 
 def signup_pre_delete(sender, instance=None, **kwargs):
