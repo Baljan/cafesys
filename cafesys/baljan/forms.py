@@ -3,6 +3,7 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django import forms
+from .models import Semester
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
@@ -105,6 +106,15 @@ class OrderForm(forms.Form):
         date = self.cleaned_data["date"]
         if date.weekday() in [5, 6]:  # 5 is Saturday, 6 is Sunday
             raise forms.ValidationError("Vänligen välj en veckodag.")
+
+        # TODO: This does not take into account other closed days.
+        # Optimally, we should check if there are shifts at that time
+        # but then we have to make exceptions like styrets-jobbdag
+        sem = Semester.objects.last()
+        if date < sem.start or sem.end < date:
+            raise forms.ValidationError(
+                "Baljan har stängt det valda datumet. Vänligen välj en annan dag."
+            )
         return date
 
     def clean_pickup(self):
