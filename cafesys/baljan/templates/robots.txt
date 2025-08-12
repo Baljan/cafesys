@@ -13,3 +13,8 @@ Disallow: /baljan/[0-9][0-9][0-9][0-9]/[0-9][0-9]
 Allow: /baljan/
 Disallow: /byttan/[0-9][0-9][0-9][0-9]/[0-9][0-9]
 Allow: /byttan/
+
+# Deny OpenAI from stealing data
+User-agent: ChatGPT-User
+User-agent: GPTBot
+Disallow: /
