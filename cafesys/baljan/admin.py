@@ -3,7 +3,7 @@ from io import BytesIO
 from datetime import date
 
 from django.conf import settings
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group, User
 from django.http import HttpResponse
@@ -621,3 +621,46 @@ class SupportFilter(admin.ModelAdmin):
 
 
 admin.site.register(models.SupportFilter, SupportFilter)
+
+
+def sync_product(modeladmin, request, queryset):
+    models.Product.objects.bulk_update(
+        [obj.sync() for obj in queryset], fields=["name", "price", "price_id", "active"]
+    )
+
+    modeladmin.message_user(
+        request, f"Synced {len(queryset)} product(s).", messages.SUCCESS
+    )
+
+
+class Product(admin.ModelAdmin):
+    actions = [sync_product]
+
+    list_display = ["name", "price", "product_id", "active"]
+    readonly_fields = ("name", "price", "price_id", "active")
+
+    fieldsets = (
+        (None, {"fields": ("product_id", "styling")}),
+        (
+            _("Information from Stripe"),
+            {
+                "fields": ("name", "price", "price_id", "active"),
+            },
+        ),
+    )
+
+
+admin.site.register(models.Product, Product)
+
+
+class Purchase(admin.ModelAdmin):
+    list_display = ["product_name", "valcur", "purchaser", "made"]
+    readonly_fields = ["session_id"]
+
+    list_filter = [
+        "product__name",
+        "made",
+    ]
+
+
+admin.site.register(models.Purchase, Purchase)

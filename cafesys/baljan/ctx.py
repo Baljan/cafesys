@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.urls import ResolverMatch
 
 from .actions import categories_and_actions
 
@@ -21,7 +22,7 @@ def actions(request):
     ]
 
     if (
-        hasattr(request, "resolver_match")
+        isinstance(request.resolver_match, ResolverMatch)
         and request.resolver_match.view_name in view_names
     ):
         links, pages = categories_and_actions(request)

@@ -38,6 +38,25 @@
                 <input type="submit" class="btn btn-primary" value="Fyll på"/>
             </form>
 
+            {% if products %}
+            <div class="my-4">
+                <h2>Fyll på digitalt</h2>
+                <div class="row gx-4 gy-2">
+                    {% for product in products %}
+                        <div class="col-lg-6 col-12">
+                            <form action="{% url 'checkout-create' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                                <button type="submit" id="checkout-button" class="btn {{ product.styling }} py-3 py-md-4 w-100 shadow-sm">
+                                    Fyll på med {{ product.price }} SEK
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+                <small class="d-inline-block w-100 my-2 text-muted text-center">All betalning hanteras av Stripe</small>
+            </div>
+            {% endif %}
         </div>
         <div class="col-sm-6">
             <h2>Tillgängligt</h2>
@@ -49,17 +68,21 @@
                 Du kan ändra vilket RFID-kortnummer du har kopplat till blippen <a href="{% url 'profile' %}?edit=true">i din profil</a>.
             </p>
 
-            <h2>Använda värdekort</h2>
+            <h2>Tidigare påfyllningar</h2>
             <ul>
                 {% for card in used_cards %}
                     <li>
-                    Kort: {{card.serid}} värt {{card.valcur }} användes {{card.used_at|date}}
-                    {% if card.refill_series.add_to_group %}
-                        (Du blev tillagd till {{card.refill_series.add_to_group.name}})
+                    {% if card.type == "physical" %}
+                        Kaffekort (<i>{{card.serid}}</i>) värt {{card.valcur }} användes <time datetime='{{ card.date|date:"Y-m-d" }}'>{{card.date|date}}</time>
+                        {% if card.refill_series.add_to_group %}
+                            (Du blev tillagd till {{card.refill_series.add_to_group.name}})
+                        {% endif %}
+                    {% else %}
+                        Digital påfyllnad värt {{ card.valcur }} köptes <time datetime='{{ card.date|date:"Y-m-d" }}'>{{card.date|date}}</time>
                     {% endif %}
                     </li>
                 {% empty %}
-                    <li>Du har inte använt några värdekort.</li>
+                    <li>Du har inte fyllt på ditt kort tidigare.</li>
                 {% endfor %}
             </ul>
         </div>
