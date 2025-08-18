@@ -931,7 +931,7 @@ class OrderGood(Made):
 
 
 BALANCE_CODE_LENGTH = 8
-BALANCE_CODE_DEFAULT_VALUE = 315  # SEK
+BALANCE_CODE_DEFAULT_VALUE = 405  # SEK
 BALANCE_CODE_MAX_VALUE = 500  # SEK
 SERIES_RELATIVE_LEAST_VALIDITY = relativedelta(years=1)
 SERIES_CODE_DEFAULT_COUNT = 16
@@ -954,7 +954,7 @@ def generate_balance_code():
 
 
 def generate_code_prices():
-    COFFEE_PRICE = 7
+    COFFEE_PRICE = 9
     return [(x * COFFEE_PRICE, "%d kr" % (x * COFFEE_PRICE)) for x in [15, 45]]
 
 
