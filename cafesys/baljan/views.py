@@ -1142,7 +1142,9 @@ def do_blipp(request):
                 seconds=settings.WORKER_COOLDOWN_SECONDS
             )
             current_time = datetime.now()
-            can_order_again = current_time > order_cooldown_date
+
+            # https://stackoverflow.com/questions/60003764/typeerror-cant-compare-offset-naive-and-offset-aware-datetimes
+            can_order_again = current_time.timestamp() > order_cooldown_date.timestamp()
 
             if can_order_again is False:
                 possible_responses = [
