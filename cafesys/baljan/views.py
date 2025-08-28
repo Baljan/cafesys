@@ -1191,6 +1191,8 @@ def do_blipp(request):
         except models.Order.DoesNotExist:  # FIXME: Not the best solution
             pass
 
+    tz = pytz.timezone(settings.TIME_ZONE)
+
     if is_coffee_free:
         price = 0
     else:
@@ -1203,14 +1205,12 @@ def do_blipp(request):
         user.profile.balance = new_balance
         user.profile.save()
 
-    tz = pytz.timezone(settings.TIME_ZONE)
-
     order = Order()
     order.location = config.location
     order.made = datetime.now(tz)
     order.put_at = datetime.now(tz)
     order.user = user
-    order.paid = min(balance - price, price)
+    order.paid = price if is_coffee_free else min(balance - price, price)
     order.currency = "SEK"
     order.accepted = True
     order.save()
