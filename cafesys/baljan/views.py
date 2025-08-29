@@ -1210,7 +1210,7 @@ def do_blipp(request):
     order.made = datetime.now(tz)
     order.put_at = datetime.now(tz)
     order.user = user
-    order.paid = price if is_coffee_free else min(balance - price, price)
+    order.paid = price if is_coffee_free else balance - new_balance
     order.currency = "SEK"
     order.accepted = True
     order.save()
