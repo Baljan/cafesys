@@ -93,6 +93,11 @@ urlpatterns = (
         views.Stripe.success_checkout,
         name="checkout-success",
     ),
+    path(
+        "stripe/checkout/cancel",
+        views.Stripe.cancel_checkout,
+        name="checkout-cancel",
+    ),
     # FIXME: These three above should be under like /webhooks/{google,slack,stripe} for cleanliness
     path(
         "semester-shifts/<slug:sem_name>", views.semester_shifts, name="semester_shifts"
