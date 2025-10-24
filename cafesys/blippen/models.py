@@ -7,18 +7,28 @@ from django.forms.models import model_to_dict
 
 
 class Theme(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField()
-    data = models.JSONField()
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, serialize=str
+    )
+    title = models.CharField()  # Should be unique per user
+    data = models.JSONField(null=True)
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    @classmethod
+    def create(self, title, user):
+        return Theme.objects.create(title=title, user=user)
+
     def to_dict(self):
-        a = model_to_dict(self, fields=["id", "title", "data"])
+        # model_to_dict only includes fields that are editable, even if listed
+        instance = dict({"id": self.id})
 
-        a["assets"] = {str(asset.id): asset.to_dict() for asset in self.assets.all()}
+        instance.update(model_to_dict(self, fields=["title", "data"]))
+        instance["assets"] = {
+            str(asset.id): asset.to_dict() for asset in self.assets.all()
+        }
 
-        return a
+        return instance
 
     def __str__(self):
         return self.title

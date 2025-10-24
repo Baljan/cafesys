@@ -4,12 +4,19 @@ import uuid
 
 # from django.contrib.auth.decorators import permission_required
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.forms.models import model_to_dict
-from django.http import HttpRequest, JsonResponse, HttpResponseNotFound, HttpResponse
+from django.http import (
+    HttpRequest,
+    JsonResponse,
+    HttpResponseNotFound,
+    HttpResponse,
+    HttpResponseBadRequest,
+)
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from . import models
+from . import forms, models
 
 
 tz = pytz.timezone(settings.TIME_ZONE)
@@ -25,21 +32,45 @@ class Asset:
 
 class Theme:
     # @permission_required("blippen.view_theme")
+    @csrf_exempt
     def by_id(request: HttpRequest, id: uuid.UUID):
         theme = models.Theme.objects.filter(id=id).first()
 
         if theme is None:
             return HttpResponseNotFound()
 
+        if request.method == "POST":
+            if theme.user != request.user:
+                raise PermissionDenied()
+
+            form = forms.ThemeUpdateForm(request.POST)
+
+            if not form.is_valid():
+                return HttpResponseBadRequest()
+
+            if "title" in form.cleaned_data:
+                theme.title = form.cleaned_data["title"]
+            if "data" in form.cleaned_data:
+                theme.data = form.cleaned_data["data"]
+
+            theme.save()
+
         resp = theme.to_dict()
 
         return JsonResponse(resp)
 
+    # @permission_required("blippen.add_theme")
     @csrf_exempt
     @require_POST
-    # @permission_required("blippen.add_theme")
     def create(request: HttpRequest):
-        return HttpResponse()
+        form = forms.ThemeCreateForm(request.POST)
+
+        if not form.is_valid():
+            return HttpResponseBadRequest()
+
+        theme = models.Theme.create(**form.cleaned_data, user=request.user)
+
+        return JsonResponse(theme.to_dict())
 
 
 class Booking:
