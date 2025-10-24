@@ -29,3 +29,5 @@ latest.dump
 
 # Ignore database folder
 /database/
+
+media/

@@ -149,6 +149,7 @@ INSTALLED_APPS = [
     # Project
     # Must come before admin app to override login template
     "cafesys.baljan.apps.BaljanConfig",
+    "cafesys.blippen.apps.BlippenConfig",
     # Django
     "django.contrib.admin",
     "django.contrib.auth",

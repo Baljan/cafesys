@@ -2,6 +2,8 @@
 from django.urls import path, include
 from django.views.generic import TemplateView
 from django.shortcuts import redirect
+from django.urls import path, include
+from django.views.generic import TemplateView
 
 import re
 
@@ -18,6 +20,7 @@ urlpatterns = (
     path("auth/", include("social_django.urls", namespace="social")),
     path("auth/logout/", views.logout, name="logout"),
     path("", include("cafesys.baljan.urls")),
+    path("blippen/", include("cafesys.blippen.urls")),
     path("baljan/<path:path>", slash_baljan_redirect),
     path("admin/", custom_admin_site.urls),
     path(
