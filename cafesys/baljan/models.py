@@ -130,6 +130,9 @@ class Profile(Made):
             free_with_cooldown and not free_unlimited,
         )
 
+    def can_refill_online(self):
+        return self.user.has_perm("baljan.online_refill")
+
     def get_absolute_url(self):
         return self.user.get_absolute_url()
 
@@ -140,6 +143,7 @@ class Profile(Made):
             ("available_for_call_duty", _nl("Available for call duty")),  # for workers
             ("free_coffee_unlimited", _nl("Unlimited free coffee")),
             ("free_coffee_with_cooldown", _nl("Free coffee with cooldown")),
+            ("online_refill", _nl("Online refill of coffee card balance")),
         )
 
     def __str__(self):

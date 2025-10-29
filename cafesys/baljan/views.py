@@ -493,7 +493,10 @@ def credits(request, code=None):
         itertools.chain(phys_qs, dig_qs), key=lambda obj: obj.date, reverse=True
     )
 
-    tpl["products"] = models.Product.objects.filter(active=True).order_by("price").all()
+    if request.user.profile.can_refill_online():
+        tpl["products"] = (
+            models.Product.objects.filter(active=True).order_by("price").all()
+        )
 
     return render(request, "baljan/credits.html", tpl)
 
