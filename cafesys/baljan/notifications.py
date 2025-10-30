@@ -3,13 +3,19 @@ import logging
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core.mail import EmailMessage
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from cafesys.baljan.tasks import send_mail_task
 
+log = logging.getLogger(__name__)
 
-logger = logging.getLogger(__name__)
+
+INFO = 0
+WARNING = 1
+ERROR = 2
+
 
 TITLE_TEMPLATES = {
     "added_to_shift": _("""You were signed up for %(shift)s"""),
@@ -83,4 +89,36 @@ def send(notification_type, to_user, wait=False, **kwargs):
         reply_to=[settings.REPLY_TO_EMAIL],
     )
 
-    logger.info("%s sent to %s with kwargs %r" % (notification_type, to_user, kwargs))
+    log.info("%s sent to %s with kwargs %r" % (notification_type, to_user, kwargs))
+
+
+def notify_admins(
+    title: str,
+    body: str,
+    level: int = INFO,
+):
+    """Send a notification email to all admins.
+
+    Args:
+        title (str): The title of the notification email.
+        body (str): The body of the notification email.
+        level (int): The logging level of the notification."""
+    log.info(f"Preparing to notify admins: {title}")
+
+    prefixes = {
+        INFO: "INFO",
+        WARNING: "WARNING",
+        ERROR: "ERROR",
+    }
+
+    title = f"[{prefixes.get(level)}] {title}"
+
+    try:
+        EmailMessage(
+            subject=title,
+            body=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[settings.ADMIN_EMAIL],
+        ).send()
+    except Exception as e:
+        log.error(f"Failed to send balance limit warning email: {e}")
