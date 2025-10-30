@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-16 01:24+0200\n"
+"POT-Creation-Date: 2025-09-03 21:37+0200\n"
 "PO-Revision-Date: 2010-07-17 22:06\n"
 "Last-Translator: <simon@spantz.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,7 +73,7 @@ msgstr "koder"
 
 #: cafesys/baljan/admin.py:420 cafesys/baljan/models.py:83
 #: cafesys/baljan/models.py:855 cafesys/baljan/models.py:880
-#: cafesys/baljan/models.py:1076 cafesys/baljan/models.py:1402
+#: cafesys/baljan/models.py:1076 cafesys/baljan/models.py:1410
 msgid "currency"
 msgstr "valuta"
 
@@ -91,7 +91,7 @@ msgstr "Det finns använda koder i serien/-erna."
 msgid "Make PDF"
 msgstr "skapa PDF"
 
-#: cafesys/baljan/admin.py:650
+#: cafesys/baljan/admin.py:645
 msgid "Information from Stripe"
 msgstr "Information från Stripe"
 
@@ -123,7 +123,7 @@ msgstr "när objektet skapades"
 #: cafesys/baljan/models.py:875 cafesys/baljan/models.py:1110
 #: cafesys/baljan/models.py:1130 cafesys/baljan/models.py:1165
 #: cafesys/baljan/models.py:1224 cafesys/baljan/models.py:1240
-#: cafesys/baljan/models.py:1396
+#: cafesys/baljan/models.py:1404
 msgid "user"
 msgstr "användare"
 
@@ -502,7 +502,7 @@ msgid "code"
 msgstr "kod"
 
 #: cafesys/baljan/models.py:1074 cafesys/baljan/models.py:1336
-#: cafesys/baljan/models.py:1401
+#: cafesys/baljan/models.py:1409
 msgid "value"
 msgstr "värde"
 
@@ -578,39 +578,49 @@ msgstr ""
 msgid "This should be set to the custom SCSS class defined in the repo"
 msgstr ""
 
-#: cafesys/baljan/models.py:1364 cafesys/baljan/models.py:1424
+#: cafesys/baljan/models.py:1364 cafesys/baljan/models.py:1432
 msgid "price"
 msgstr "pris"
 
-#: cafesys/baljan/models.py:1381
+#: cafesys/baljan/models.py:1366
+#, fuzzy
+#| msgid "action"
+msgid "active"
+msgstr "åtgärd"
+
+#: cafesys/baljan/models.py:1367
+msgid "You can (de)activate a product in Stripe"
+msgstr "Du kan inaktivera produkter i Stripe"
+
+#: cafesys/baljan/models.py:1389
 msgid "Product ID was not found"
 msgstr "Produkt-idet kunde inte hittas"
 
-#: cafesys/baljan/models.py:1384 cafesys/baljan/models.py:1390
+#: cafesys/baljan/models.py:1392 cafesys/baljan/models.py:1398
 msgid "product"
 msgstr "produkt"
 
-#: cafesys/baljan/models.py:1385
+#: cafesys/baljan/models.py:1393
 msgid "products"
 msgstr "produkter"
 
-#: cafesys/baljan/models.py:1399
+#: cafesys/baljan/models.py:1407
 msgid "session id"
 msgstr "session id"
 
-#: cafesys/baljan/models.py:1414
+#: cafesys/baljan/models.py:1422
 msgid "product name"
 msgstr "produktsnamn"
 
-#: cafesys/baljan/models.py:1419
+#: cafesys/baljan/models.py:1427
 msgid "purchaser"
 msgstr "köpare"
 
-#: cafesys/baljan/models.py:1427
+#: cafesys/baljan/models.py:1435
 msgid "purchase"
 msgstr "digitalt köp"
 
-#: cafesys/baljan/models.py:1428
+#: cafesys/baljan/models.py:1436
 msgid "purchases"
 msgstr "digitala köp"
 
@@ -887,21 +897,25 @@ msgstr "liu-id hittades inte"
 msgid "Your changes were saved."
 msgstr "Dina ändringar sparades."
 
-#: cafesys/baljan/views.py:1587
+#: cafesys/baljan/views.py:1567
 msgid "Product ID was not provided"
 msgstr "Inget produkt-id gavs"
 
-#: cafesys/baljan/views.py:1591
+#: cafesys/baljan/views.py:1571
 msgid "Product does not exist"
 msgstr "Produkten finns inte"
 
-#: cafesys/baljan/views.py:1636
+#: cafesys/baljan/views.py:1616
 #, python-format
 msgid ""
 "Thank you for your purchase! You've refilled your card with %(amount)d "
 "%(currency)s"
 msgstr ""
 "Tack för ditt köp! Du har nu fyllt på ditt kort med %(amount)d %(currency)s."
+
+#: cafesys/baljan/views.py:1631
+msgid "Your purchase was cancelled."
+msgstr "Ditt köp avbröts."
 
 #~ msgid "image"
 #~ msgstr "bild"
@@ -1105,9 +1119,6 @@ msgstr ""
 
 #~ msgid "The order was denied."
 #~ msgstr "Beställningen nekades."
-
-#~ msgid "The order was accepted."
-#~ msgstr "Beställningen accepterades."
 
 #~ msgid "Mixed currencies."
 #~ msgstr "Olika valutor."
@@ -1763,9 +1774,6 @@ msgstr ""
 
 #~ msgid "Sent"
 #~ msgstr "Skickat"
-
-#~ msgid "action"
-#~ msgstr "åtgärd"
 
 #~ msgid "date"
 #~ msgstr "datum"
