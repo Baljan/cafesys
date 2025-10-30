@@ -793,7 +793,7 @@ def job_opening(request, semester_name):
     found_user = None
     if request.method == "POST":
         if is_ajax(request):  # find user
-            searched_for = request.POST["liu_id"]
+            searched_for = request.POST.get("liu_id", "")
             valid_search = valid_username(searched_for)
 
             if valid_search:
@@ -1174,7 +1174,9 @@ def do_blipp(request):
                 seconds=settings.WORKER_COOLDOWN_SECONDS
             )
             current_time = datetime.now()
-            can_order_again = current_time > order_cooldown_date
+
+            # https://stackoverflow.com/questions/60003764/typeerror-cant-compare-offset-naive-and-offset-aware-datetimes
+            can_order_again = current_time.timestamp() > order_cooldown_date.timestamp()
 
             if can_order_again is False:
                 possible_responses = [
@@ -1192,6 +1194,8 @@ def do_blipp(request):
         except models.Order.DoesNotExist:  # FIXME: Not the best solution
             pass
 
+    tz = pytz.timezone(settings.TIME_ZONE)
+
     if is_coffee_free:
         price = 0
     else:
@@ -1204,14 +1208,12 @@ def do_blipp(request):
         user.profile.balance = new_balance
         user.profile.save()
 
-    tz = pytz.timezone(settings.TIME_ZONE)
-
     order = Order()
     order.location = config.location
     order.made = datetime.now(tz)
     order.put_at = datetime.now(tz)
     order.user = user
-    order.paid = min(balance - price, price)
+    order.paid = price if is_coffee_free else balance - new_balance
     order.currency = "SEK"
     order.accepted = True
     order.save()

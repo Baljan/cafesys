@@ -649,7 +649,7 @@ class ShiftSignup(Made):
 
 
 def signup_post(sender, instance=None, **kwargs):
-    # Remove trade requests where this sign-up is wanted wanted or offered.
+    # Remove trade requests where this sign-up is wanted or offered.
     trs = TradeRequest.objects.filter(
         Q(wanted_signup=instance) | Q(offered_signup=instance)
     )
@@ -675,7 +675,8 @@ def signup_notice_delete(signup):
 
 
 def signup_pre_save(sender, instance=None, **kwargs):
-    if instance is None:
+    # Nothing should happen if instance doesn't exist
+    if instance is None or instance.pk is None:
         return
 
     signup = instance
@@ -689,18 +690,27 @@ def signup_pre_save(sender, instance=None, **kwargs):
     )
     trs_possible_doubles.delete()
 
-    if signup.tradable:
-        logger.info("%s saved (tradable)" % signup)
+
+def signup_post_save(sender, instance=None, **kwargs):
+    # Nothing should happen if instance doesn't exist
+    # But in this case instance should always exist
+    if instance is None or instance.pk is None:
+        return
+
+    if instance.tradable:
+        logger.info("%s saved (tradable)" % instance)
     else:
-        logger.info("%s saved (not tradable)" % signup)
-        signup_notice_save(signup)
+        logger.info("%s saved (not tradable)" % instance)
+        signup_notice_save(instance)
 
 
 signals.pre_save.connect(signup_pre_save, sender=ShiftSignup)
+signals.post_save.connect(signup_post_save, sender=ShiftSignup)
 
 
 def signup_pre_delete(sender, instance=None, **kwargs):
-    if instance is None:
+    # Nothing should happen if instance doesn't exist
+    if instance is None or instance.pk is None:
         return
     signup = instance
     signup_post(sender, signup, **kwargs)
@@ -928,7 +938,7 @@ class OrderGood(Made):
 
 
 BALANCE_CODE_LENGTH = 8
-BALANCE_CODE_DEFAULT_VALUE = 315  # SEK
+BALANCE_CODE_DEFAULT_VALUE = 405  # SEK
 BALANCE_CODE_MAX_VALUE = 500  # SEK
 SERIES_RELATIVE_LEAST_VALIDITY = relativedelta(years=1)
 SERIES_CODE_DEFAULT_COUNT = 16
@@ -951,7 +961,7 @@ def generate_balance_code():
 
 
 def generate_code_prices():
-    COFFEE_PRICE = 7
+    COFFEE_PRICE = 9
     return [(x * COFFEE_PRICE, "%d kr" % (x * COFFEE_PRICE)) for x in [15, 45]]
 
 
