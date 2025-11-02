@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='profile',
-            options={'permissions': (('available_for_call_duty', 'Available for call duty'), ('free_coffee_unlimited', 'Unlimited free coff ee'), ('free_coffee_with_cooldown', 'Free coffee with cooldown'), ('online_refill', 'Online refill of coffee card balance')), 'verbose_name ': 'profile', 'verbose_name_plural': 'profiles'},
+            options={'permissions': (('available_for_call_duty', 'Available for call duty'), ('free_coffee_unlimited', 'Unlimited free coff ee'), ('free_coffee_with_cooldown', 'Free coffee with cooldown'), ('online_refill', 'Online refill of coffee card balance')), 'verbose_name': 'profile', 'verbose_name_plural': 'profiles'},
         ),
 
     ]
