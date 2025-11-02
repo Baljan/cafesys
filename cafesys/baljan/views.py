@@ -493,7 +493,10 @@ def credits(request, code=None):
         itertools.chain(phys_qs, dig_qs), key=lambda obj: obj.date, reverse=True
     )
 
-    tpl["products"] = models.Product.objects.filter(active=True).order_by("price").all()
+    if request.user.profile.can_refill_online():
+        tpl["products"] = (
+            models.Product.objects.filter(active=True).order_by("price").all()
+        )
 
     return render(request, "baljan/credits.html", tpl)
 
@@ -1590,7 +1593,7 @@ class Stripe:
             )
             + "?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=request.build_absolute_uri(
-                reverse("credits"),
+                reverse("checkout-cancel"),
             ),
             client_reference_id=request.user.id,
             metadata={"product_id": product.id},
@@ -1624,6 +1627,21 @@ class Stripe:
             )
 
         return credits_redirect
+
+    @login_required
+    def cancel_checkout(request: HttpRequest):
+        messages.add_message(
+            request,
+            messages.ERROR,
+            _("Your purchase was cancelled."),
+            extra_tags="danger",
+        )
+
+        # TODO: maybe we need to cancel the paymentintent here, but maybe not.
+        # They get cancelled within 24 hours
+        # https://stackoverflow.com/questions/70264115/stripe-cancel-url-does-not-cancel-the-payment-so-stripe-does-not-send-a-cancels
+
+        return redirect(reverse("credits"))
 
     @csrf_exempt
     def events(request: HttpRequest):

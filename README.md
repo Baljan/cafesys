@@ -92,3 +92,31 @@ heroku run -a baljan python manage.py migrate
 ```
 
 This should be done everytime a change to the database is introduced, either if its through a third party app or through a new model.
+
+## Running with Stripe locally
+
+Firstly, you need to install [Stripe CLI](https://docs.stripe.com/stripe-cli) on your machine.
+
+After that, run `stripe login` to login using Stripe and choose the test mode, not the production instance  .
+
+Lastly, simply run the following command and keep it running in a terminal:
+
+```sh
+stripe listen --forward-to localhost:8000/stripe/events
+```
+
+This command will spit out a signing secret which you will need to paste into your environment file.
+
+## Creating translations
+
+Every text element should have a translation.
+
+To generate translations, run:
+```sh
+django-admin makemessages -l sv
+```
+
+Then, find the string that you've added and edit the translation to your liking. Then run:
+```sh
+django-admin compilemessages -l sv
+```
