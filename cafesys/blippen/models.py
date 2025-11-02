@@ -15,6 +15,10 @@ class Theme(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    @staticmethod
+    def has_owner(theme_id, user):
+        return Theme.objects.filter(id=theme_id, user=user).exists()
+
     @classmethod
     def create(self, title, user):
         return Theme.objects.create(title=title, user=user)
@@ -35,9 +39,13 @@ class Theme(models.Model):
 
 
 class Asset(models.Model):
+    ASSET_TYPES = {"audio": "Audio", "image": "Image"}
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField()
+    title = models.CharField(max_length=128)
     theme = models.ForeignKey(Theme, on_delete=models.CASCADE, related_name="assets")
+
+    type = models.CharField(choices=ASSET_TYPES)
 
     def get_asset_path(self, filename):
         # The function can be used by the FileField and when accessing the Model
@@ -48,6 +56,17 @@ class Asset(models.Model):
     def to_dict(self):
         return dict({"id": self.id, "url": self.file.url})
 
+    @classmethod
+    def create(self, data):
+        # Vet faktiskt inte varför jag har gjort en separat create metod. inget skiljer
+        # sig ju från den som skrivs under, och den kallas bara från ett ställe
+        return Asset.objects.create(
+            file=data["file"],
+            theme_id=data["theme_id"],
+            title=data["title"],
+            type=data["type"],
+        )
+
     def __str__(self):
         return self.title
 
@@ -55,6 +74,7 @@ class Asset(models.Model):
 class Booking(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
+    priority = models.PositiveSmallIntegerField(default=1)
 
     theme = models.ForeignKey(Theme, on_delete=models.CASCADE)
 

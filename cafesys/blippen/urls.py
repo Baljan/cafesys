@@ -6,5 +6,5 @@ urlpatterns = [
     path("booking/current", views.Booking.current),
     path("theme/", views.Theme.create),
     path("theme/<uuid:id>", views.Theme.by_id),
-    path("theme/<uuid:id>/asset", views.Asset.create),
+    path("asset/", views.Asset.create),
 ]

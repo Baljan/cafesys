@@ -1,37 +1,48 @@
-from datetime import datetime
-import pytz
 import uuid
+from datetime import datetime
 
-# from django.contrib.auth.decorators import permission_required
+import pytz
+
 from django.conf import settings
+from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import PermissionDenied
 from django.forms.models import model_to_dict
 from django.http import (
     HttpRequest,
-    JsonResponse,
-    HttpResponseNotFound,
-    HttpResponse,
     HttpResponseBadRequest,
+    HttpResponseNotFound,
+    JsonResponse,
 )
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from . import forms, models
 
-
 tz = pytz.timezone(settings.TIME_ZONE)
+
+
+# fuck it full crud
 
 
 class Asset:
     @require_POST
     @csrf_exempt
     # @permission_required("blippen.add_asset")
-    def create(request: HttpRequest, theme_slug: str):
-        return HttpResponse(theme_slug)
+    def create(request: HttpRequest):
+        form = forms.AssetCreateForm(request.POST, request.FILES)
+
+        if not form.is_valid():
+            return HttpResponseBadRequest()
+
+        if not models.Theme.has_owner(form.cleaned_data["theme_id"], request.user):
+            return PermissionDenied()
+
+        asset = models.Asset.create(data=form.cleaned_data)
+
+        return JsonResponse(asset.to_dict())
 
 
 class Theme:
-    # @permission_required("blippen.view_theme")
     @csrf_exempt
     def by_id(request: HttpRequest, id: uuid.UUID):
         theme = models.Theme.objects.filter(id=id).first()
@@ -59,11 +70,14 @@ class Theme:
 
         return JsonResponse(resp)
 
-    # @permission_required("blippen.add_theme")
     @csrf_exempt
     @require_POST
+    @permission_required("blippen.add_theme", raise_exception=True)
+    # @login_required
     def create(request: HttpRequest):
         form = forms.ThemeCreateForm(request.POST)
+
+        print(request.user)
 
         if not form.is_valid():
             return HttpResponseBadRequest()
@@ -77,9 +91,11 @@ class Booking:
     def current(request: HttpRequest):
         now = datetime.now(tz).date()
 
-        booking = models.Booking.objects.filter(
-            start_date__lte=now, end_date__gte=now
-        ).first()
+        booking = (
+            models.Booking.objects.filter(start_date__lte=now, end_date__gte=now)
+            # .order_by("+priority")
+            .first()
+        )
 
         if booking is None:
             return HttpResponseNotFound()
