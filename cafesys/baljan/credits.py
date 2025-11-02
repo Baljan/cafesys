@@ -106,7 +106,7 @@ def digital_refill(purchase: Purchase):
         amount = purchase.value
 
         add_credits(
-            profile=user,
+            user=user,
             amount=amount,
         )
 
