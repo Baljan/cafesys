@@ -110,8 +110,8 @@ class OrderForm(forms.Form):
         # TODO: This does not take into account other closed days.
         # Optimally, we should check if there are shifts at that time
         # but then we have to make exceptions like styrets-jobbdag
-        sem = Semester.objects.last()
-        if date < sem.start or sem.end < date:
+        sem = Semester.objects.filter(start__lte=date, end__gte=date).first()
+        if sem is None:
             raise forms.ValidationError(
                 "Baljan har stängt det valda datumet. Vänligen välj en annan dag."
             )
