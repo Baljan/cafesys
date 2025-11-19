@@ -4,16 +4,31 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib import admin, messages
+from django.contrib.admin import AdminSite
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group, User
 from django.http import HttpResponse
+from django.urls import path
 from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
 
-from . import models, pdf
+from . import models, pdf, views
 
-admin.site.site_header = "Baljans balla adminsida"
-admin.site.site_title = "Baljans balla adminsida"
+
+# This is to allow logins from other hosts
+class CustomAdminSite(AdminSite):
+    site_header = "Baljans balla adminsida"
+    site_title = "Baljans balla adminsida"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path("login/", views.CustomAdminLoginView.as_view(), name="login"),
+        ]
+        return custom_urls + urls
+
+
+custom_admin_site = CustomAdminSite(name="custom-admin")
 
 
 class BoardPostInline(admin.TabularInline):

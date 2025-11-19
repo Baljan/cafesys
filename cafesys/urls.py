@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.urls import path, include
-from django.contrib import admin
 from django.views.generic import TemplateView
 from django.shortcuts import redirect
 
 import re
 
+from .baljan.admin import custom_admin_site
 from .baljan import views
 
 
@@ -19,7 +19,7 @@ urlpatterns = (
     path("auth/logout/", views.logout, name="logout"),
     path("", include("cafesys.baljan.urls")),
     path("baljan/<path:path>", slash_baljan_redirect),
-    path("admin/", admin.site.urls),
+    path("admin/", custom_admin_site.urls),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
