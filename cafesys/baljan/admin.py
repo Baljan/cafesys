@@ -130,8 +130,8 @@ class UserAdminCustom(UserAdmin):
     make_regular_worker.short_description = _("Make regular worker")
 
 
-admin.site.unregister(User)
-admin.site.register(User, UserAdminCustom)
+# custom_admin_site.unregister(User)
+custom_admin_site.register(User, UserAdminCustom)
 
 
 class FreeCoffeeListFilter(admin.SimpleListFilter):
@@ -162,8 +162,8 @@ class GroupAdminCustom(GroupAdmin):
     list_filter = (FreeCoffeeListFilter,)
 
 
-admin.site.unregister(Group)
-admin.site.register(Group, GroupAdminCustom)
+# custom_admin_site.unregister(Group)
+custom_admin_site.register(Group, GroupAdminCustom)
 
 
 class ShiftInline(admin.TabularInline):
@@ -184,7 +184,7 @@ class TradeRequestAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.TradeRequest, TradeRequestAdmin)
+custom_admin_site.register(models.TradeRequest, TradeRequestAdmin)
 
 
 class SemesterAdmin(admin.ModelAdmin):
@@ -200,7 +200,7 @@ class SemesterAdmin(admin.ModelAdmin):
             return []
 
 
-admin.site.register(models.Semester, SemesterAdmin)
+custom_admin_site.register(models.Semester, SemesterAdmin)
 
 signup_oncall_fields = (
     "shift__when",
@@ -226,7 +226,7 @@ class ShiftSignupAdmin(admin.ModelAdmin):
     list_filter = ("tradable",)
 
 
-admin.site.register(models.ShiftSignup, ShiftSignupAdmin)
+custom_admin_site.register(models.ShiftSignup, ShiftSignupAdmin)
 
 
 class OnCallDutyAdmin(admin.ModelAdmin):
@@ -234,7 +234,7 @@ class OnCallDutyAdmin(admin.ModelAdmin):
     list_display = signup_oncall_display
 
 
-admin.site.register(models.OnCallDuty, OnCallDutyAdmin)
+custom_admin_site.register(models.OnCallDuty, OnCallDutyAdmin)
 
 
 class OnCallDutyInline(admin.TabularInline):
@@ -265,7 +265,7 @@ class ShiftAdmin(admin.ModelAdmin):
     actions = ["toggle_exam_period", "toggle_enabled"]
 
 
-admin.site.register(models.Shift, ShiftAdmin)
+custom_admin_site.register(models.Shift, ShiftAdmin)
 
 
 class ShiftCombinationAdmin(admin.ModelAdmin):
@@ -277,7 +277,7 @@ class ShiftCombinationAdmin(admin.ModelAdmin):
     list_filter = ("semester",)
 
 
-admin.site.register(models.ShiftCombination, ShiftCombinationAdmin)
+custom_admin_site.register(models.ShiftCombination, ShiftCombinationAdmin)
 
 
 class GoodCostInline(admin.TabularInline):
@@ -310,7 +310,7 @@ class GoodAdmin(admin.ModelAdmin):
     inlines = (GoodCostInline,)
 
 
-admin.site.register(models.Good, GoodAdmin)
+custom_admin_site.register(models.Good, GoodAdmin)
 
 
 class GoodCostAdmin(admin.ModelAdmin):
@@ -322,7 +322,7 @@ class GoodCostAdmin(admin.ModelAdmin):
     list_display = ("good", "cost", "currency")
 
 
-admin.site.register(models.GoodCost, GoodCostAdmin)
+custom_admin_site.register(models.GoodCost, GoodCostAdmin)
 
 
 class OrderGoodInline(admin.TabularInline):
@@ -330,7 +330,7 @@ class OrderGoodInline(admin.TabularInline):
     extra = 1
 
 
-# admin.site.register(models.OrderGood)
+# custom_admin_site.register(models.OrderGood)
 
 
 class OrderAdmin(admin.ModelAdmin):
@@ -344,7 +344,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = (OrderGoodInline,)
 
 
-admin.site.register(models.Order, OrderAdmin)
+custom_admin_site.register(models.Order, OrderAdmin)
 
 
 class BalanceCodeAdmin(admin.ModelAdmin):
@@ -384,7 +384,7 @@ class BalanceCodeAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.BalanceCode, BalanceCodeAdmin)
+custom_admin_site.register(models.BalanceCode, BalanceCodeAdmin)
 
 
 class RefillSeriesPDFAdmin(admin.ModelAdmin):
@@ -408,7 +408,7 @@ class RefillSeriesPDFAdmin(admin.ModelAdmin):
     search_fields = ("refill_series__id", "generated_by__username")
 
 
-admin.site.register(models.RefillSeriesPDF, RefillSeriesPDFAdmin)
+custom_admin_site.register(models.RefillSeriesPDF, RefillSeriesPDFAdmin)
 
 
 class RefillSeriesAdmin(admin.ModelAdmin):
@@ -524,7 +524,7 @@ class RefillSeriesAdmin(admin.ModelAdmin):
     make_pdf.short_description = _("Make PDF")
 
 
-admin.site.register(models.RefillSeries, RefillSeriesAdmin)
+custom_admin_site.register(models.RefillSeries, RefillSeriesAdmin)
 
 
 class BoardPostAdmin(admin.ModelAdmin):
@@ -542,7 +542,7 @@ class BoardPostAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.BoardPost, BoardPostAdmin)
+custom_admin_site.register(models.BoardPost, BoardPostAdmin)
 
 
 class IncomingCallFallback(admin.ModelAdmin):
@@ -550,7 +550,7 @@ class IncomingCallFallback(admin.ModelAdmin):
     list_editable = ("priority",)
 
 
-admin.site.register(models.IncomingCallFallback, IncomingCallFallback)
+custom_admin_site.register(models.IncomingCallFallback, IncomingCallFallback)
 
 
 class PhoneLabelAdmin(admin.ModelAdmin):
@@ -562,7 +562,7 @@ class PhoneLabelAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.PhoneLabel, PhoneLabelAdmin)
+custom_admin_site.register(models.PhoneLabel, PhoneLabelAdmin)
 
 
 class LegalConsent(admin.ModelAdmin):
@@ -592,8 +592,8 @@ class MutedConsent(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.LegalConsent, LegalConsent)
-admin.site.register(models.MutedConsent, MutedConsent)
+custom_admin_site.register(models.LegalConsent, LegalConsent)
+custom_admin_site.register(models.MutedConsent, MutedConsent)
 
 
 class WorkableShift(admin.ModelAdmin):
@@ -611,7 +611,7 @@ class WorkableShift(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.WorkableShift, WorkableShift)
+custom_admin_site.register(models.WorkableShift, WorkableShift)
 
 
 class BlippConfiguration(admin.ModelAdmin):
@@ -627,7 +627,7 @@ class BlippConfiguration(admin.ModelAdmin):
     list_filter = ("location",)
 
 
-admin.site.register(models.BlippConfiguration, BlippConfiguration)
+custom_admin_site.register(models.BlippConfiguration, BlippConfiguration)
 
 
 class SupportFilter(admin.ModelAdmin):
@@ -635,7 +635,7 @@ class SupportFilter(admin.ModelAdmin):
     list_filter = ["type"]
 
 
-admin.site.register(models.SupportFilter, SupportFilter)
+custom_admin_site.register(models.SupportFilter, SupportFilter)
 
 
 def sync_product(modeladmin, request, queryset):
@@ -665,7 +665,7 @@ class Product(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.Product, Product)
+custom_admin_site.register(models.Product, Product)
 
 
 class Purchase(admin.ModelAdmin):
@@ -678,4 +678,4 @@ class Purchase(admin.ModelAdmin):
     ]
 
 
-admin.site.register(models.Purchase, Purchase)
+custom_admin_site.register(models.Purchase, Purchase)
