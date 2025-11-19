@@ -12,6 +12,17 @@ from django.urls import path
 from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
 
+from django_celery_beat.models import (
+    ClockedSchedule,
+    CrontabSchedule,
+    IntervalSchedule,
+    PeriodicTask,
+    SolarSchedule,
+)
+from social_django.models import Association, Nonce, UserSocialAuth
+from django.contrib.sites.models import Site
+
+
 from . import models, pdf, views
 
 
@@ -29,6 +40,21 @@ class CustomAdminSite(AdminSite):
 
 
 custom_admin_site = CustomAdminSite(name="custom-admin")
+
+# Add models from Django Celery Beat
+custom_admin_site.register(ClockedSchedule)
+custom_admin_site.register(CrontabSchedule)
+custom_admin_site.register(IntervalSchedule)
+custom_admin_site.register(PeriodicTask)
+custom_admin_site.register(SolarSchedule)
+
+# Add models from Social Auth
+custom_admin_site.register(Association)
+custom_admin_site.register(Nonce)
+custom_admin_site.register(UserSocialAuth)
+
+# Add models from Django Sites framework
+custom_admin_site.register(Site)
 
 
 class BoardPostInline(admin.TabularInline):
