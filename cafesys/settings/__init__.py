@@ -129,6 +129,7 @@ TEMPLATES = [
 # CRISPY_TEMPLATE_PACK = 'uni_form'
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -226,6 +227,9 @@ SOCIAL_AUTH_PROTECTED_USER_FIELDS = (
     "is_staff",
     "is_superuser",
 )
+
+# To allow login from other allowed origins
+CORS_ALLOW_CREDENTIALS = True
 
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = True

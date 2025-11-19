@@ -43,6 +43,9 @@ from django.views.decorators.http import require_GET, require_POST
 from django import forms as django_forms
 from django.template.loader import render_to_string
 
+from django.contrib.auth.views import LoginView
+from django.utils.http import url_has_allowed_host_and_scheme
+
 
 import django_filters
 
@@ -100,6 +103,23 @@ logger = getLogger(__name__)
 rfidSigner = TimestampSigner(
     salt="rfid"
 )  # TODO: separate key? Maybe not neccecary, but why not.
+
+
+# This is to allow logins from other hosts
+class CustomAdminLoginView(LoginView):
+    template_name = "admin/login.html"
+
+    def get_success_url(self):
+        next_url = self.request.GET.get("next")
+
+        if next_url and url_has_allowed_host_and_scheme(
+            url=next_url,
+            allowed_hosts=settings.SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS,
+            require_https=False,
+        ):
+            return next_url
+
+        return super().get_success_url()
 
 
 def logout(request):
