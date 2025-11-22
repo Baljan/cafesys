@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import time
 
 # from django.contrib.auth.models import User
@@ -17,7 +18,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Lag, TruncDate, TruncWeek
 
-from cafesys.baljan.models import Located, Order, Semester, User, Wrapped
+from cafesys.baljan.models import Order, Semester, User, Wrapped
 
 
 class Command(BaseCommand):
@@ -88,6 +89,8 @@ class Command(BaseCommand):
         #                           /--> top
         # This goes date -> group --+--> by_user
         #                           \--> by_count
+        # This is only to make it easier to search for values.
+        # idk how else i would do it :|
         for entry in scoreboard_data:
             d = entry["date"]
             w = entry["is_worker"]
@@ -202,6 +205,8 @@ class Command(BaseCommand):
                     j = i
 
                     while j < len(items):
+                        # This still counts one day as a streak. This case will be
+                        # handled on the frontend.
                         on_scoreboard = (
                             user.id
                             in items[j][1]["worker" if is_worker else "regular"]["top"]
@@ -226,7 +231,7 @@ class Command(BaseCommand):
 
             # Kortaste tid mellan två koppar
             wrapped_data["shortest_delta"] = (
-                None
+                None  # Only one blipp
                 if len(user_orders) == 1
                 else (
                     user_orders.annotate(
@@ -255,7 +260,7 @@ class Command(BaseCommand):
                 .first()
             )
             wrapped_data["fav_cafe"] = dict(
-                name=Located.LOCATION_CHOICES[fav_cafe_data["location"]][1],
+                id=fav_cafe_data["location"],
                 n_orders=fav_cafe_data["count"],
             )
 
@@ -270,7 +275,15 @@ class Command(BaseCommand):
                 3,
             )
 
-            if not dry_run:
-                Wrapped.objects.create(user=user, data=wrapped_data, semester=semester)
+            kwargs = dict(user=user, data=wrapped_data, semester=semester)
 
-        print("Wrote file in %f secs" % (time.time() - start_time))
+            if not dry_run:
+                existing = Wrapped.objects.filter(semester=semester, user=user)
+                if existing.exists():
+                    existing.update(data=wrapped_data)
+                else:
+                    Wrapped.objects.create(**kwargs)
+            else:
+                print(json.dumps(kwargs, indent=4, default=str))
+
+        print("Finished processing in %f secs" % (time.time() - start_time))
