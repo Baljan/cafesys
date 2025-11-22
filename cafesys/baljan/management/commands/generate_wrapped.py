@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 import time
 
 # from django.contrib.auth.models import User
@@ -18,7 +17,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Lag, TruncDate, TruncWeek
 
-from ...models import Located, Order, Semester, User
+from cafesys.baljan.models import Located, Order, Semester, User, Wrapped
 
 
 class Command(BaseCommand):
@@ -35,10 +34,19 @@ class Command(BaseCommand):
             action="store",
             dest="user",
         )
+        parser.add_argument("--dry-run", action="store_true")
 
     def handle(self, *args, **options):
         start_time = time.time()
         semester_name = options["semester"]
+        dry_run = (
+            "dry_run" in options
+            and options["dry_run"] is not None
+            and options["dry_run"]
+        )
+
+        if dry_run:
+            print("This is a dry run. Will not be inserting any day!")
 
         try:
             semester = Semester.objects.get(name=semester_name)
@@ -77,8 +85,6 @@ class Command(BaseCommand):
             .order_by("date", "-count")
         )
 
-        out_data = []
-
         #                           /--> top
         # This goes date -> group --+--> by_user
         #                           \--> by_count
@@ -109,7 +115,7 @@ class Command(BaseCommand):
             print("Processing %s..." % (user.username))
             is_worker = user.groups.filter(name=settings.WORKER_GROUP).exists()
 
-            wrapped_data = dict(username=user.username, is_worker=is_worker)
+            wrapped_data = dict(is_worker=is_worker)
 
             # Hur mycket druckit
             user_orders = all_orders_of_sem.filter(user=user)
@@ -264,9 +270,7 @@ class Command(BaseCommand):
                 3,
             )
 
-            out_data.append(wrapped_data)
+            if not dry_run:
+                Wrapped.objects.create(user=user, data=wrapped_data, semester=semester)
 
-        out_file = open("data.jsonl", "w")
-        out_file.write(json.dumps(out_data, indent=4, default=str, ensure_ascii=False))
-        out_file.close()
         print("Wrote file in %f secs" % (time.time() - start_time))

@@ -664,3 +664,13 @@ class Purchase(admin.ModelAdmin):
 
 
 admin.site.register(models.Purchase, Purchase)
+
+
+class Wrapped(admin.ModelAdmin):
+    list_display = ["user", "semester", "made"]
+    readonly_fields = ["data"]
+
+    list_filter = ["semester"]
+
+
+admin.site.register(models.Wrapped, Wrapped)

@@ -6,6 +6,7 @@ from logging import getLogger
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -429,6 +430,7 @@ class Semester(Made):
         verbose_name = _("semester")
         verbose_name_plural = _("semesters")
         permissions = (("manage_job_openings", _nl("Can manage job openings")),)
+        ordering = ["-end"]
 
     def __str__(self):
         return self.name
@@ -1448,3 +1450,23 @@ class Purchase(Made):
     class Meta:
         verbose_name = _("purchase")
         verbose_name_plural = _("purchases")
+
+
+class Wrapped(Made):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        verbose_name=_("user"),
+        on_delete=models.SET_NULL,
+    )
+    data = models.JSONField(encoder=DjangoJSONEncoder)
+    semester = models.ForeignKey(
+        Semester, verbose_name=_("semester"), on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return _("Stats for %(user)s during %(semester)s") % {
+            "user": self.user,
+            "semester": self.semester,
+        }
