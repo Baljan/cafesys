@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
 import json
 import time
 
 # from django.contrib.auth.models import User
 from django.conf import settings
-from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import (
-    Avg,
     Count,
     DurationField,
     Exists,
@@ -16,8 +15,9 @@ from django.db.models import (
     OuterRef,
     Window,
 )
-from django.db.models.functions import Lag, TruncDate, TruncWeek
+from django.db.models.functions import Lag, TruncDate
 
+from cafesys.baljan import stats
 from cafesys.baljan.models import Order, Semester, User, Wrapped
 
 
@@ -51,6 +51,8 @@ class Command(BaseCommand):
 
         try:
             semester = Semester.objects.get(name=semester_name)
+            a = (semester.end - semester.start).days
+            semester_length = a - ((a // 7) * 2)
         except Semester.DoesNotExist:
             raise CommandError("could not find semester named %s" % semester_name)
 
@@ -63,28 +65,38 @@ class Command(BaseCommand):
                 raise CommandError("could not find user named %s" % user_name)
         else:
             users = User.objects.annotate(num_orders=Count("order")).filter(
+                # FIXME: Shouldnt this first filter all orders in semester,
+                # and then check if that number is bigger than 1?
                 num_orders__gt=1,
                 order__put_at__gte=semester.start,
-                order__put_at__lte=semester.end,
+                order__put_at__lte=semester.end + timedelta(1),
             )
 
-        worker_group = Group.objects.get(name=settings.WORKER_GROUP)
+        staff_groups = User.objects.filter(
+            groups__name__in=[
+                settings.WORKER_GROUP,
+                settings.BOARD_GROUP,
+                settings.OLDIE_GROUP,
+            ]
+        ).distinct()
 
         all_orders_of_sem = Order.objects.filter(
             put_at__gte=semester.start, put_at__lte=semester.end
         )
 
-        scoreboard = dict()
+        stats_by_date = dict()
         scoreboard_data = (
             all_orders_of_sem.annotate(date=TruncDate("put_at"))
             .values("date", "user")
             .annotate(
                 count=Count("date"),
-                is_worker=Exists(worker_group.user_set.filter(id=OuterRef("user__id"))),
+                is_staff=Exists(staff_groups.filter(id=OuterRef("user__id"))),
             )
-            .values("date", "user", "count", "is_worker")
+            .values("date", "user", "count", "is_staff")
             .order_by("date", "-count")
         )
+
+        top = stats.compute_stats(interval="this_semester", limit=None)["groups"]
 
         #                           /--> top
         # This goes date -> group --+--> by_user
@@ -93,16 +105,16 @@ class Command(BaseCommand):
         # idk how else i would do it :|
         for entry in scoreboard_data:
             d = entry["date"]
-            w = entry["is_worker"]
-            if d not in scoreboard:
+            w = entry["is_staff"]
+            if d not in stats_by_date:
                 branches = dict(
                     regular=dict(by_user=dict(), by_count=dict(), top=[]),
                     worker=dict(by_user=dict(), by_count=dict(), top=[]),
                 )
 
-                scoreboard[d] = branches
+                stats_by_date[d] = branches
 
-            target = scoreboard[d]["worker"] if w else scoreboard[d]["regular"]
+            target = stats_by_date[d]["worker"] if w else stats_by_date[d]["regular"]
 
             if len(target["top"]) < 15:
                 target["top"].append(entry["user"])
@@ -116,9 +128,12 @@ class Command(BaseCommand):
 
         for user in users:
             print("Processing %s..." % (user.username))
-            is_worker = user.groups.filter(name=settings.WORKER_GROUP).exists()
+            is_staff = staff_groups.filter(id=user.id).exists()
 
-            wrapped_data = dict(is_worker=is_worker)
+            wrapped_data = dict(
+                is_staff=is_staff,
+                overall_placement=(top[1 if is_staff else 0]["top_users"].index(user)),
+            )
 
             # Hur mycket druckit
             user_orders = all_orders_of_sem.filter(user=user)
@@ -148,8 +163,8 @@ class Command(BaseCommand):
             # Bästa placering i topplistan
             p = dict(date=None, count=None, place=None, shared=None, other_dates=[])
 
-            for date, data in scoreboard.items():
-                target = data["worker"] if is_worker else data["regular"]
+            for date, data in stats_by_date.items():
+                target = data["worker"] if is_staff else data["regular"]
 
                 if user.id not in target["by_user"]:
                     continue
@@ -188,7 +203,7 @@ class Command(BaseCommand):
             wrapped_data["best_placement"] = p
 
             # Längsta streak på topplistan
-            items = list(scoreboard.items())
+            items = list(stats_by_date.items())
             streak = dict(start=None, end=None, duration=0)
             start, end, duration = None, None, 0
 
@@ -197,7 +212,7 @@ class Command(BaseCommand):
                 date, data = items[i]
 
                 on_scoreboard = (
-                    user.id in data["worker" if is_worker else "regular"]["top"]
+                    user.id in data["worker" if is_staff else "regular"]["top"]
                 )
 
                 if on_scoreboard:
@@ -209,7 +224,7 @@ class Command(BaseCommand):
                         # handled on the frontend.
                         on_scoreboard = (
                             user.id
-                            in items[j][1]["worker" if is_worker else "regular"]["top"]
+                            in items[j][1]["worker" if is_staff else "regular"]["top"]
                         )
 
                         if not on_scoreboard:
@@ -266,14 +281,7 @@ class Command(BaseCommand):
 
             # Ökad konsumption under tenta-p?
             # Average blipp per vecka
-            wrapped_data["week_avg"] = round(
-                user_orders.annotate(week=TruncWeek("put_at"))
-                .values("week")
-                .annotate(count=Count("week"))
-                .values("week", "count")
-                .aggregate(avg=Avg("count"))["avg"],
-                3,
-            )
+            wrapped_data["week_avg"] = round(len(user_orders) / semester_length, 3)
 
             kwargs = dict(user=user, data=wrapped_data, semester=semester)
 
