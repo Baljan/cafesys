@@ -9,6 +9,7 @@ gunicorn==23.0.0
 whitenoise==6.9.0
 dj-database-url==3.0.0
 psycopg2==2.9.10
+django-cors-headers==4.9.0
 
 # Celery for async and periodic tasks
 celery==5.5.3
