@@ -3,6 +3,7 @@ from . import *  # noqa
 
 SERVE_MEDIA = False
 
+SESSION_COOKIE_DOMAIN = ".baljan.org"
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
