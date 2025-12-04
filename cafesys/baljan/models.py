@@ -18,6 +18,7 @@ from django.utils.text import format_lazy
 from django.utils.translation import gettext as _nl
 from django.utils.translation import gettext_lazy as _
 
+
 from functools import partial
 
 import stripe

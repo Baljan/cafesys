@@ -64,12 +64,16 @@ class Command(BaseCommand):
             except User.DoesNotExist:
                 raise CommandError("could not find user named %s" % user_name)
         else:
-            users = User.objects.annotate(num_orders=Count("order")).filter(
-                # FIXME: Shouldnt this first filter all orders in semester,
-                # and then check if that number is bigger than 1?
-                num_orders__gt=1,
-                order__put_at__gte=semester.start,
-                order__put_at__lte=semester.end + timedelta(1),
+            users = (
+                User.objects.filter(
+                    order__put_at__gte=semester.start,
+                    order__put_at__lte=semester.end + timedelta(1),
+                    profile__show_profile=True,
+                    # FIXME: All users should be able to view their wrapped,
+                    # even those who dont want to be included in the scoreboard
+                )
+                .annotate(num_orders=Count("order"))
+                .exclude(num_orders=0)
             )
 
         staff_groups = User.objects.filter(
@@ -97,6 +101,11 @@ class Command(BaseCommand):
         )
 
         top = stats.compute_stats(interval="this_semester", limit=None)["groups"]
+
+        a = len(top[0]["top_users"]) + len(top[1]["top_users"])
+        b = len(users)
+
+        assert a == b
 
         #                           /--> top
         # This goes date -> group --+--> by_user

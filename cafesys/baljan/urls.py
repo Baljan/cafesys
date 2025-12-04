@@ -111,4 +111,5 @@ urlpatterns = (
         name="stats_active_blipp_users",
     ),
     path("bookkeep", views.bookkeep_view, name="bookkeep"),
+    path("wrapped", views.wrapped_data, name="wrapped"),
 )
