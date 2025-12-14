@@ -703,5 +703,14 @@ class Purchase(admin.ModelAdmin):
         "made",
     ]
 
-
 custom_admin_site.register(models.Purchase, Purchase)
+
+
+class Wrapped(admin.ModelAdmin):
+    list_display = ["user", "semester", "made"]
+    readonly_fields = ["data"]
+
+    list_filter = ["semester"]
+
+
+custom_admin_site.register(models.Wrapped, Wrapped)
