@@ -1581,6 +1581,19 @@ def bookkeep_view(request):
     )
 
 
+@csrf_exempt
+def wrapped_data(request: HttpRequest):
+    if request.user is None or request.user.is_anonymous:
+        return HttpResponse(status=401)
+
+    wrapped = models.Wrapped.objects.filter(user=request.user).first()
+
+    if wrapped is None:
+        raise BadRequest(_("Found no Wrapped data for user"))
+
+    return JsonResponse(wrapped.data)
+
+
 class Stripe:
     @login_required
     def create_checkout(request: HttpRequest):

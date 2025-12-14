@@ -77,7 +77,18 @@ def top_consumers(start=None, end=None, simple=False, location=None):
     return top
 
 
-def compute_stats_for_location(location):
+def compute_stats(interval=None, **kwargs):
+    s = Stats()
+
+    if interval is None:
+        return [s.get_interval(i, **kwargs) for i in ALL_INTERVALS]
+    elif interval in ALL_INTERVALS:
+        return s.get_interval(interval, **kwargs)
+
+    raise Exception("Interval does not exist as option")
+
+
+def compute_stats_for_location(location=None):
     s = Stats()
     return [s.get_interval(i, location) for i in ALL_INTERVALS]
 
@@ -264,14 +275,13 @@ class Stats(object):
         self.meta = Meta()
         self.meta.compute()
 
-    def get_interval(self, interval_key, location):
+    def get_interval(self, interval_key, location=None, limit=15):
         interval = self.meta.interval_keys[interval_key]
         staff_users = set()
         for cls_name in interval["staff classes"]:
             staff_users |= set(self.meta.class_members[cls_name])
         normal_users = self.meta.all_users - staff_users
 
-        limit = 15
         groups = []
         for title, users in [
             (_("Normal Users"), normal_users),
@@ -296,7 +306,11 @@ class Stats(object):
 
             top = top.annotate(
                 num_orders=Count("order"),
-            ).order_by("-num_orders")[:limit]
+            ).order_by("-num_orders")
+
+            if limit is not None:
+                top = top[:limit]
+
             top = list(top)
 
             groups.append(
