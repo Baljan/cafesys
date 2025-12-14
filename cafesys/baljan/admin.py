@@ -703,6 +703,7 @@ class Purchase(admin.ModelAdmin):
         "made",
     ]
 
+
 custom_admin_site.register(models.Purchase, Purchase)
 
 
