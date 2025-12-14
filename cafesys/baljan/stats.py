@@ -275,7 +275,7 @@ class Stats(object):
         self.meta = Meta()
         self.meta.compute()
 
-    def get_interval(self, interval_key, location=None, limit=15):
+    def get_interval(self, interval_key, location=None, limit=15, is_wrapped=False):
         interval = self.meta.interval_keys[interval_key]
         staff_users = set()
         for cls_name in interval["staff classes"]:
@@ -289,7 +289,6 @@ class Stats(object):
         ]:
             top = User.objects.filter(
                 id__in=[u.id for u in users],
-                profile__show_profile=True,
             )
 
             filter_args = {}
@@ -300,6 +299,11 @@ class Stats(object):
 
             if location is not None:
                 filter_args["order__location"] = location
+
+            if not is_wrapped:
+                filter_args["profile__show_profile"] = (
+                    True  # FIXME: fugly solution will rebuild
+                )
 
             if filter_args:
                 top = top.filter(**filter_args)

@@ -68,9 +68,6 @@ class Command(BaseCommand):
                 User.objects.filter(
                     order__put_at__gte=semester.start,
                     order__put_at__lte=semester.end + timedelta(1),
-                    profile__show_profile=True,
-                    # FIXME: All users should be able to view their wrapped,
-                    # even those who dont want to be included in the scoreboard
                 )
                 .annotate(num_orders=Count("order"))
                 .exclude(num_orders=0)
@@ -100,7 +97,9 @@ class Command(BaseCommand):
             .order_by("date", "-count")
         )
 
-        top = stats.compute_stats(interval="this_semester", limit=None)["groups"]
+        top = stats.compute_stats(
+            interval="this_semester", limit=None, is_wrapped=True
+        )["groups"]
 
         a = len(top[0]["top_users"]) + len(top[1]["top_users"])
         b = len(users)
