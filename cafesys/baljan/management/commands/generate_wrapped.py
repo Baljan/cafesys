@@ -289,7 +289,7 @@ class Command(BaseCommand):
 
             # Ökad konsumption under tenta-p?
             # Average blipp per vecka
-            wrapped_data["week_avg"] = round(len(user_orders) / semester_length, 3)
+            wrapped_data["week_avg"] = round(5 * len(user_orders) / semester_length, 3)
 
             kwargs = dict(user=user, data=wrapped_data, semester=semester)
 
