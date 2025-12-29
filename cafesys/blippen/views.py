@@ -4,9 +4,8 @@ from datetime import datetime
 import pytz
 
 from django.conf import settings
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.forms.models import model_to_dict
 from django.http import (
     HttpRequest,
     HttpResponseBadRequest,
@@ -25,6 +24,17 @@ tz = pytz.timezone(settings.TIME_ZONE)
 
 
 class Asset:
+    @csrf_exempt
+    def by_id(request: HttpRequest, id: uuid.UUID):
+        asset = models.Asset.objects.filter(id=id).first()
+
+        if asset is None:
+            return HttpResponseNotFound()
+
+        resp = asset.to_dict()
+
+        return JsonResponse(resp)
+
     @require_POST
     @csrf_exempt
     # @permission_required("blippen.add_asset")
@@ -50,7 +60,7 @@ class Theme:
         if theme is None:
             return HttpResponseNotFound()
 
-        if request.method == "POST":
+        if request.method == "POST":  # Update theme
             if theme.user != request.user:
                 raise PermissionDenied()
 
@@ -72,8 +82,8 @@ class Theme:
 
     @csrf_exempt
     @require_POST
-    @permission_required("blippen.add_theme", raise_exception=True)
-    # @login_required
+    # @permission_required("blippen.add_theme", raise_exception=True)
+    @login_required
     def create(request: HttpRequest):
         form = forms.ThemeCreateForm(request.POST)
 
@@ -100,6 +110,6 @@ class Booking:
         if booking is None:
             return HttpResponseNotFound()
 
-        resp = model_to_dict(booking)
+        resp = booking.theme.to_dict()
 
         return JsonResponse(resp)

@@ -28,9 +28,7 @@ class Theme(models.Model):
         instance = dict({"id": self.id})
 
         instance.update(model_to_dict(self, fields=["title", "data"]))
-        instance["assets"] = {
-            str(asset.id): asset.to_dict() for asset in self.assets.all()
-        }
+        instance["assets"] = [asset.id for asset in self.assets.all()]
 
         return instance
 
@@ -54,7 +52,14 @@ class Asset(models.Model):
     file = models.FileField(upload_to=get_asset_path)
 
     def to_dict(self):
-        return dict({"id": self.id, "url": self.file.url})
+        return dict(
+            {
+                "id": self.id,
+                "title": self.title,
+                "type": self.type,
+                "url": self.file.url,
+            }
+        )
 
     @classmethod
     def create(self, data):

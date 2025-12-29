@@ -17,7 +17,7 @@ def to_utc(dt):
     # even if it doesn't take daylight saving into account.
     try:
         local_dt = swe.localize(dt)
-    except:  # FIXME: What error.
+    except ValueError:  # FIXME: What error.
         local_dt = dt.replace(tzinfo=pytz.timezone(tz))
 
     utc_dt = local_dt.astimezone(pytz.utc)
