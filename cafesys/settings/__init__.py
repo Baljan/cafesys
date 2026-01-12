@@ -97,6 +97,8 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = str(APPS_DIR + "collected-static")
 STATIC_URL = "/static/"
 
+APPEND_SLASH = False
+
 # Django-sass-processor
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
