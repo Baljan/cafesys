@@ -97,7 +97,7 @@ This should be done everytime a change to the database is introduced, either if 
 
 Firstly, you need to install [Stripe CLI](https://docs.stripe.com/stripe-cli) on your machine.
 
-After that, run `stripe login` to login using Stripe and choose the test mode, not the production instance  .
+After that, run `stripe login` to login using Stripe.
 
 Lastly, simply run the following command and keep it running in a terminal:
 
@@ -106,6 +106,8 @@ stripe listen --forward-to localhost:8000/stripe/events
 ```
 
 This command will spit out a signing secret which you will need to paste into your environment file.
+Go to the Stripe Dashboard, and select the sandbox instance, not the production instance.
+From there you need to get the sandbox private API-key which you also need to add to the environment file.
 
 ## Creating translations
 
@@ -120,3 +122,5 @@ Then, find the string that you've added and edit the translation to your liking.
 ```sh
 django-admin compilemessages -l sv
 ```
+
+Man behöver python3-devel och libpq-devel för att installera requiemnets lokalt

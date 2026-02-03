@@ -11,32 +11,32 @@ from logging import getLogger
 import requests
 
 logger = getLogger(__name__)
-app = App(
-    token=settings.SLACK_BOT_TOKEN,
-    request_verification_enabled=True,
-    token_verification_enabled=False,
-)
-handler = SlackRequestHandler(app=app)
 
+if settings.SLACK_BOT_TOKEN is not None:
+    app = App(
+        token=settings.SLACK_BOT_TOKEN,
+        request_verification_enabled=True,
+        token_verification_enabled=False,
+    )
+    handler = SlackRequestHandler(app=app)
 
-@app.action("approve")
-def approve_support_ticket(ack, body, respond):
-    user_id = body["user"]["id"]
-    blocks = body["message"]["blocks"]
+    @app.action("approve")
+    def approve_support_ticket(ack, body, respond):
+        user_id = body["user"]["id"]
+        blocks = body["message"]["blocks"]
 
-    blocks[len(blocks) - 1] = {
-        "type": "section",
-        "text": {"type": "mrkdwn", "text": f"<@{user_id}> tar den!"},
-    }
+        blocks[len(blocks) - 1] = {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": f"<@{user_id}> tar den!"},
+        }
 
-    ack()
-    respond(blocks=blocks, replace_original=True)
+        ack()
+        respond(blocks=blocks, replace_original=True)
 
-
-@app.action("remove")
-def remove_support_ticket(ack, body, respond):
-    ack()
-    respond(delete_original=True)
+    @app.action("remove")
+    def remove_support_ticket(ack, body, respond):
+        ack()
+        respond(delete_original=True)
 
 
 def send_message(data, url, type="unknown message type"):

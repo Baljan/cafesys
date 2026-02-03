@@ -1630,6 +1630,12 @@ class Stripe:
             ),
             client_reference_id=request.user.id,
             metadata={"product_id": product.id},
+            consent_collection={"terms_of_service": "required"},
+            custom_text={
+                "terms_of_service_acceptance": {
+                    "message": "Jag godkänner [regler och villkor för internetköp](https://www.baljan.org/static/internetkopspolicy.pdf)",
+                },
+            },
             **args,
         )
 
