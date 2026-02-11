@@ -38,9 +38,14 @@ def get_bookkeep_data(year: int):
     )
     unused_balance_never = (
         Profile.objects.annotate(num_orders=Count("user__order"))
-        .filter(num_orders=0)
-        .aggregate(Sum("balance"))
+        .filter(balance__gt=0, num_orders=0)
+        .order_by("user__date_joined", "user__last_login")
     )
+
+    for profile in unused_balance_never:
+        print(
+            f"{profile.user.username} har {profile.balance} kr (Gick med {profile.user.date_joined.strftime('%d/%m/%y')}, loggat in senast {profile.user.last_login.strftime('%d/%m/%y')})"
+        )
 
     order_sum = Order.objects.filter(
         put_at__range=(year_start, year_end), accepted=True
@@ -57,8 +62,8 @@ def get_bookkeep_data(year: int):
         unused_balance_after["balance__sum"] = 0
     if unused_balance_dubble["balance__sum"] is None:
         unused_balance_dubble["balance__sum"] = 0
-    if unused_balance_never["balance__sum"] is None:
-        unused_balance_never["balance__sum"] = 0
+    # if unused_balance_never["balance__sum"] is None:
+    #     unused_balance_never["balance__sum"] = 0
     if total_balance["balance__sum"] is None:
         total_balance["balance__sum"] = 0
     if order_sum["paid__sum"] is None:
@@ -71,7 +76,7 @@ def get_bookkeep_data(year: int):
     res += f"(3) Kontosumman för de som blippat tidigare men inte under detta år: {unused_balance_before['balance__sum']} SEK\n"
     res += f"(4) Kontosumman för de som blippat efter men inte under detta år: {unused_balance_after['balance__sum']} SEK\n"
     res += f"(5) Kontosumman för de som finns med i  både (3) och (4), dvs. haft blippuppehåll: {unused_balance_dubble['balance__sum']} SEK\n"
-    res += f"(6) Kontosumman för de som aldrig någonsin blippat: {unused_balance_never['balance__sum']} SEK\n"
+    # res += f"(6) Kontosumman för de som aldrig någonsin blippat: {unused_balance_never['balance__sum']} SEK\n"
     res += f"(7) Kontosumman för alla konton (2)+(3)+(4)-(5)+(6)=(7): {total_balance['balance__sum']} SEK\n"
     res += "\n"
     res += f"Kaffekort aktiverade under året: {balance_code_sum['value__sum']} SEK\n"
