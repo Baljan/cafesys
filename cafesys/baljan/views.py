@@ -3,6 +3,7 @@ import base64
 import uuid
 import json
 import itertools
+import copy
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
 from logging import getLogger
@@ -1033,7 +1034,24 @@ def high_score(request, location=None):
     if settings.STATS_CACHE_KEY:
         fetched_stats = cache.get(stats.get_cache_key(location)) or []
     else:
-        fetched_stats = stats.compute_stats_for_location(location)
+        fetched_stats = stats.compute_stats_for_location(
+            location,
+        )
+
+    if request.user.is_authenticated:
+        for inter in fetched_stats:
+            if all(
+                [request.user not in group["top_users"] for group in inter["groups"]]
+            ):
+                rank, score, is_staff = stats.compute_stats_for_user(
+                    user=request.user, location=location, interval=inter["key"]
+                )
+
+                clone = copy.copy(request.user)
+
+                clone.num_orders = score
+                clone.rank = rank
+                inter["groups"][int(is_staff)]["top_users"].append(clone)
 
     tpl["stats"] = fetched_stats
     tpl["all_empty"] = all([x["empty"] for x in fetched_stats])

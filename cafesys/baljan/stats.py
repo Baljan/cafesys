@@ -1,16 +1,22 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 from logging import getLogger
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db.models import Count
+from django.db.models import (
+    Count,
+    F,
+    Window,
+)
+from django.db.models.functions import DenseRank
 from django.utils.translation import gettext_lazy as _
 
 from cafesys.baljan.templatetags.baljan_extras import display_name
-from .models import Semester
-from .util import year_and_week, week_dates, adjacent_weeks
+
+from .models import Semester, Order
+from .util import adjacent_weeks, week_dates, year_and_week
 
 log = getLogger(__name__)
 
@@ -88,9 +94,14 @@ def compute_stats(interval=None, **kwargs):
     raise Exception("Interval does not exist as option")
 
 
-def compute_stats_for_location(location=None):
+def compute_stats_for_location(location=None, **kwargs):
     s = Stats()
-    return [s.get_interval(i, location) for i in ALL_INTERVALS]
+    return [s.get_interval(i, location, **kwargs) for i in ALL_INTERVALS]
+
+
+def compute_stats_for_user(user=None, location=None, interval=None, **kwargs):
+    s = Stats()
+    return s.get_rank_for_user(interval, user, location, **kwargs)
 
 
 def get_cache_key(location):
@@ -310,6 +321,7 @@ class Stats(object):
 
             top = top.annotate(
                 num_orders=Count("order"),
+                rank=Window(expression=DenseRank(), order_by=F("num_orders").desc()),
             ).order_by("-num_orders")
 
             if limit is not None:
@@ -326,6 +338,45 @@ class Stats(object):
 
         return {
             "name": interval["name"],
+            "key": interval["key"],
             "groups": groups,
             "empty": sum([len(g["top_users"]) for g in groups]) == 0,
         }
+
+    def get_rank_for_user(
+        self,
+        interval_key,
+        user,
+        location=None,
+    ):
+        interval = self.meta.interval_keys[interval_key]
+
+        staff_users = set()
+        for cls_name in interval["staff classes"]:
+            staff_users |= set(self.meta.class_members[cls_name])
+
+        is_staff = user in staff_users
+
+        filter_args = {}
+        if interval["dates"]:
+            dates = list(interval["dates"])
+            filter_args["put_at__gte"] = dates[0]
+            filter_args["put_at__lte"] = dates[-1] + timedelta(days=1)
+
+        if location is not None:
+            filter_args["location"] = location
+
+        user_score = Order.objects.filter(user=user, **filter_args).count()
+
+        rank = (
+            Order.objects.filter(**filter_args)
+            .values("user")
+            .annotate(num_orders=Count("id"))
+            .filter(num_orders__gt=user_score)
+            .values("num_orders")
+            .distinct()
+            .count()
+            + 1
+        )
+
+        return (rank, user_score, is_staff)
