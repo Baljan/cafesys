@@ -96,12 +96,7 @@ def compute_stats(interval=None, **kwargs):
 
 def compute_stats_for_location(location=None, **kwargs):
     s = Stats()
-    return [s.get_interval(i, location, **kwargs) for i in ALL_INTERVALS]
-
-
-def compute_stats_for_user(user=None, location=None, interval=None, **kwargs):
-    s = Stats()
-    return s.get_rank_for_user(interval, user, location, **kwargs)
+    return s, [s.get_interval(i, location, **kwargs) for i in ALL_INTERVALS]
 
 
 def get_cache_key(location):

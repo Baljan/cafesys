@@ -1032,9 +1032,9 @@ def high_score(request, location=None):
     tpl = {}
 
     if settings.STATS_CACHE_KEY:
-        fetched_stats = cache.get(stats.get_cache_key(location)) or []
+        all_stats, fetched_stats = cache.get(stats.get_cache_key(location)) or []
     else:
-        fetched_stats = stats.compute_stats_for_location(
+        all_stats, fetched_stats = stats.compute_stats_for_location(
             location,
         )
 
@@ -1043,10 +1043,9 @@ def high_score(request, location=None):
             if all(
                 [request.user not in group["top_users"] for group in inter["groups"]]
             ):
-                rank, score, is_staff = stats.compute_stats_for_user(
-                    user=request.user, location=location, interval=inter["key"]
+                rank, score, is_staff = all_stats.get_rank_for_user(
+                    inter["key"], request.user, location
                 )
-
                 clone = copy.copy(request.user)
 
                 clone.num_orders = score
