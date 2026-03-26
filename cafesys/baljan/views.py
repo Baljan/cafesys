@@ -3,7 +3,6 @@ import base64
 import uuid
 import json
 import itertools
-import copy
 from datetime import date, datetime, time, timedelta
 from io import BytesIO
 from logging import getLogger
@@ -1039,18 +1038,17 @@ def high_score(request, location=None):
         )
 
     if request.user.is_authenticated:
-        for inter in fetched_stats:
+        for interval in fetched_stats:
             if all(
-                [request.user not in group["top_users"] for group in inter["groups"]]
+                [request.user not in group["top_users"] for group in interval["groups"]]
             ):
-                rank, score, is_staff = all_stats.get_rank_for_user(
-                    inter["key"], request.user, location
+                leaderboard_entry = all_stats.get_rank_for_user(
+                    interval["key"], request.user, location
                 )
-                clone = copy.copy(request.user)
-
-                clone.num_orders = score
-                clone.rank = rank
-                inter["groups"][int(is_staff)]["top_users"].append(clone)
+                if leaderboard_entry is not None:
+                    interval["groups"][int(leaderboard_entry.is_staff)][
+                        "top_users"
+                    ].append(leaderboard_entry)
 
     tpl["stats"] = fetched_stats
     tpl["all_empty"] = all([x["empty"] for x in fetched_stats])
@@ -1212,6 +1210,7 @@ def do_blipp(request):
             )
             current_time = datetime.now()
 
+            # FIXME: Use timezone created below...
             # https://stackoverflow.com/questions/60003764/typeerror-cant-compare-offset-naive-and-offset-aware-datetimes
             can_order_again = current_time.timestamp() > order_cooldown_date.timestamp()
 
@@ -1260,7 +1259,6 @@ def do_blipp(request):
     order_good.good = config.good
     order_good.count = 1
     order_good.save()
-
     if is_coffee_free:
         user_balance = "unlimited"
         message = "Du har <b>∞ kr</b> kvar att blippa för"
@@ -1268,10 +1266,23 @@ def do_blipp(request):
         user_balance = user.profile.balance
         message = "Du har <b>%s kr</b> kvar att blippa för" % user_balance
 
+    rank = None
+    is_staff = False
+
+    if settings.STATS_CACHE_KEY:
+        all_stats, _ = cache.get(stats.get_cache_key(config.location)) or []
+
+        leaderboard_entry, is_staff = all_stats.get_rank_for_user(
+            "today", user, config.location
+        )
+        rank = leaderboard_entry.rank
+
     return JsonResponse(
         {
             "message": message,
             "balance": user_balance,
+            "rank": rank,
+            "is_staff": is_staff,
             "paid": price,
             "theme_override": config.theme_override,
         }

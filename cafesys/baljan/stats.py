@@ -361,17 +361,25 @@ class Stats(object):
         if location is not None:
             filter_args["location"] = location
 
-        user_score = Order.objects.filter(user=user, **filter_args).count()
+        num_orders = Order.objects.filter(user=user, **filter_args).count()
+
+        if num_orders == 0:
+            return None
 
         rank = (
             Order.objects.filter(**filter_args)
             .values("user")
             .annotate(num_orders=Count("id"))
-            .filter(num_orders__gt=user_score)
+            .filter(num_orders__gt=num_orders)
             .values("num_orders")
             .distinct()
             .count()
             + 1
         )
 
-        return (rank, user_score, is_staff)
+        # TODO: This does not feel like a good solution
+        setattr(user, "num_orders", num_orders)
+        setattr(user, "rank", rank)
+        setattr(user, "is_staff", is_staff)
+
+        return user
