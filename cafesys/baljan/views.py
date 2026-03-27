@@ -1048,16 +1048,15 @@ def high_score(request, location=None):
                     interval["key"], request.user, location
                 )
                 if rank_info is not None:
+                    num_orders, rank, is_staff = rank_info
                     # At max we are cloning 5 users per request, not to bad i think
                     # more testing needs to be done.
                     # But not the cleanest solution
                     clone = copy.copy(request.user)
-                    clone.num_orders = rank_info["num_orders"]
-                    clone.rank = rank_info["rank"]
+                    clone.num_orders = num_orders
+                    clone.rank = rank
 
-                    interval["groups"][int(rank_info["is_staff"])]["top_users"].append(
-                        clone
-                    )
+                    interval["groups"][int(is_staff)]["top_users"].append(clone)
 
     tpl["stats"] = fetched_stats
     tpl["all_empty"] = all([x["empty"] for x in fetched_stats])
@@ -1283,20 +1282,21 @@ def do_blipp(request):
 
     # TODO: Maybe have location specific incitements instead of None as location
     rank_info = all_stats.get_rank_for_user("today", user, None)
+    _, rank, is_staff = rank_info
 
     # rank_info will never be None here, because
     # the user has atleast one order to their name today
-    if rank_info["rank"] == 1:
-        if rank_info["is_staff"]:
+    if rank == 1:
+        if is_staff:
             response_body["incitement"] = (
-                f"Du ligger plats {rank_info['rank']} bland alla jobbare idag!"
+                f"Du ligger plats {rank} bland alla jobbare idag!"
             )
         else:
-            response_body["incitement"] = f"Du ligger plats {rank_info['rank']} idag!"
+            response_body["incitement"] = f"Du ligger plats {rank} idag!"
     else:
         diff_from_next = all_stats.get_incitement(rank_info)
         response_body["incitement"] = (
-            f"Du ligger bara {diff_from_next} {'koppar' if diff_from_next > 1 else 'kopp'} bakom {swedify_rank(rank_info['rank'] - 1)} platsen. Kämpa!"
+            f"Du ligger bara {diff_from_next} {'koppar' if diff_from_next > 1 else 'kopp'} bakom {swedify_rank(rank - 1)} platsen. Kämpa!"
         )
 
     return JsonResponse(response_body)

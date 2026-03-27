@@ -391,9 +391,10 @@ class Stats(object):
             + 1
         )
 
-        return {"num_orders": num_orders, "rank": rank, "is_staff": is_staff}
+        return (num_orders, rank, is_staff)
 
     def get_incitement(self, rank_info, location=None):
+        num_orders, _, is_staff = rank_info
         interval = self.meta.interval_keys["today"]
 
         staff_users = set()
@@ -403,15 +404,14 @@ class Stats(object):
         normal_users = self.meta.all_users - staff_users
 
         filter_args = self.get_filter_args(interval, location)
-
         scores_above = self.get_rank_queryset(
-            rank_info["num_orders"],
+            num_orders,
             filter_args,
-            staff_users if rank_info["is_staff"] else normal_users,
+            staff_users if is_staff else normal_users,
         ).order_by("-num_orders")
 
         next_in_line = scores_above.last()
 
-        diff_from_next = next_in_line - rank_info["num_orders"] if next_in_line else 0
+        diff_from_next = next_in_line - num_orders if next_in_line else 0
 
         return diff_from_next
