@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import base64
+import copy
 import uuid
 import json
 import itertools
@@ -1043,13 +1044,20 @@ def high_score(request, location=None):
             if all(
                 [request.user not in group["top_users"] for group in interval["groups"]]
             ):
-                leaderboard_entry = all_stats.get_rank_for_user(
+                rank_info = all_stats.get_rank_for_user(
                     interval["key"], request.user, location
                 )
-                if leaderboard_entry is not None:
-                    interval["groups"][int(leaderboard_entry.is_staff)][
-                        "top_users"
-                    ].append(leaderboard_entry)
+                if rank_info is not None:
+                    # At max we are cloning 5 users per request, not to bad i think
+                    # more testing needs to be done.
+                    # But not the cleanest solution
+                    clone = copy.copy(request.user)
+                    clone.num_orders = rank_info["num_orders"]
+                    clone.rank = rank_info["rank"]
+
+                    interval["groups"][int(rank_info["is_staff"])]["top_users"].append(
+                        clone
+                    )
 
     tpl["stats"] = fetched_stats
     tpl["all_empty"] = all([x["empty"] for x in fetched_stats])
@@ -1273,24 +1281,22 @@ def do_blipp(request):
             config.location,
         )
 
-    # TODO: Maybe have location specific incitements
-    leaderboard_entry = all_stats.get_rank_for_user("today", user, None)
-    diff_from_next = all_stats.get_incitement(leaderboard_entry)
+    # TODO: Maybe have location specific incitements instead of None as location
+    rank_info = all_stats.get_rank_for_user("today", user, None)
 
-    # LeaderboardEntry will never be None here, because
+    # rank_info will never be None here, because
     # the user has atleast one order to their name today
-    if leaderboard_entry.rank == 1:
-        if leaderboard_entry.is_staff:
+    if rank_info["rank"] == 1:
+        if rank_info["is_staff"]:
             response_body["incitement"] = (
-                f"Du ligger plats {leaderboard_entry.rank} bland alla jobbare idag!"
+                f"Du ligger plats {rank_info['rank']} bland alla jobbare idag!"
             )
         else:
-            response_body["incitement"] = (
-                f"Du ligger plats {leaderboard_entry.rank} idag!"
-            )
+            response_body["incitement"] = f"Du ligger plats {rank_info['rank']} idag!"
     else:
+        diff_from_next = all_stats.get_incitement(rank_info)
         response_body["incitement"] = (
-            f"Du ligger bara {diff_from_next} {'koppar' if diff_from_next > 1 else 'kopp'} bakom {swedify_rank(leaderboard_entry.rank - 1)} platsen. Kämpa!"
+            f"Du ligger bara {diff_from_next} {'koppar' if diff_from_next > 1 else 'kopp'} bakom {swedify_rank(rank_info['rank'] - 1)} platsen. Kämpa!"
         )
 
     return JsonResponse(response_body)

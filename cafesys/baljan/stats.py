@@ -103,17 +103,6 @@ def get_cache_key(location):
     return "%s-%s" % (settings.STATS_CACHE_KEY, location)
 
 
-class LeaderboardEntry:
-    def __init__(self, user, rank=None, num_orders=None, is_staff=False):
-        self.user = user
-        self.rank = rank or user.rank
-        self.num_orders = num_orders or user.num_orders
-        self.is_staff = is_staff
-
-    def __str__(self):
-        return f"{self.user.username} #{self.rank} ({self.num_orders})"
-
-
 class Meta(object):
     def __init__(self):
         self.classes = {}
@@ -333,7 +322,7 @@ class Stats(object):
             if limit is not None:
                 top = top[:limit]
 
-            top = [LeaderboardEntry(u) for u in top]
+            top = list(top)
 
             groups.append(
                 {
@@ -348,6 +337,29 @@ class Stats(object):
             "groups": groups,
             "empty": sum([len(g["top_users"]) for g in groups]) == 0,
         }
+
+    def get_filter_args(self, interval, location=None):
+        filter_args = {}
+
+        if interval["dates"]:
+            dates = list(interval["dates"])
+            filter_args["put_at__gte"] = dates[0]
+            filter_args["put_at__lte"] = dates[-1] + timedelta(days=1)
+
+        if location is not None:
+            filter_args["location"] = location
+
+        return filter_args
+
+    def get_rank_queryset(self, num_orders, filter_args, user_set):
+        return (
+            Order.objects.filter(**filter_args, user__in=user_set)
+            .values("user")
+            .annotate(num_orders=Count("id"))
+            .filter(num_orders__gt=num_orders)
+            .values_list("num_orders", flat=True)
+            .distinct()
+        )
 
     def get_rank_for_user(
         self,
@@ -364,36 +376,24 @@ class Stats(object):
 
         is_staff = user in staff_users
 
-        filter_args = {}
-        if interval["dates"]:
-            dates = list(interval["dates"])
-            filter_args["put_at__gte"] = dates[0]
-            filter_args["put_at__lte"] = dates[-1] + timedelta(days=1)
+        filter_args = self.get_filter_args(interval, location)
+        base_qs = Order.objects.filter(**filter_args, user=user)
 
-        if location is not None:
-            filter_args["location"] = location
-
-        num_orders = Order.objects.filter(user=user, **filter_args).count()
+        num_orders = base_qs.filter(user=user).count()
 
         if num_orders == 0:
             return None
 
         rank = (
-            Order.objects.filter(
-                **filter_args, user__in=(staff_users if is_staff else normal_users)
-            )
-            .values("user")
-            .annotate(num_orders=Count("id"))
-            .filter(num_orders__gt=num_orders)
-            .values("num_orders")
-            .distinct()
-            .count()
+            self.get_rank_queryset(
+                num_orders, filter_args, staff_users if is_staff else normal_users
+            ).count()
             + 1
         )
 
-        return LeaderboardEntry(user, rank, num_orders, is_staff)
+        return {"num_orders": num_orders, "rank": rank, "is_staff": is_staff}
 
-    def get_incitement(self, leaderboard_entry, location=None):
+    def get_incitement(self, rank_info, location=None):
         interval = self.meta.interval_keys["today"]
 
         staff_users = set()
@@ -402,29 +402,16 @@ class Stats(object):
 
         normal_users = self.meta.all_users - staff_users
 
-        filter_args = {}
+        filter_args = self.get_filter_args(interval, location)
 
-        if interval["dates"]:
-            dates = list(interval["dates"])
-            filter_args["put_at__gte"] = dates[0]
-            filter_args["put_at__lte"] = dates[-1] + timedelta(days=1)
+        scores_above = self.get_rank_queryset(
+            rank_info["num_orders"],
+            filter_args,
+            staff_users if rank_info["is_staff"] else normal_users,
+        ).order_by("-num_orders")
 
-        if location is not None:
-            filter_args["location"] = location
+        next_in_line = scores_above.last()
 
-        scores_above = (
-            Order.objects.filter(
-                **filter_args,
-                user__in=(staff_users if leaderboard_entry.is_staff else normal_users),
-            )
-            .values("user")
-            .annotate(num_orders=Count("id"))
-            .filter(num_orders__gt=leaderboard_entry.num_orders)
-            .values_list("num_orders", flat=True)
-            .order_by("-num_orders")
-            .distinct()
-        )
-
-        diff_from_next = scores_above.last() - leaderboard_entry.num_orders
+        diff_from_next = next_in_line - rank_info["num_orders"] if next_in_line else 0
 
         return diff_from_next
