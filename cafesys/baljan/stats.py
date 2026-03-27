@@ -103,6 +103,17 @@ def get_cache_key(location):
     return "%s-%s" % (settings.STATS_CACHE_KEY, location)
 
 
+class LeaderboardEntry:
+    def __init__(self, user, rank=None, num_orders=None, is_staff=False):
+        self.user = user
+        self.rank = rank or user.rank
+        self.num_orders = num_orders or user.num_orders
+        self.is_staff = is_staff
+
+    def __str__(self):
+        return f"{self.user.username} #{self.rank} ({self.num_orders})"
+
+
 class Meta(object):
     def __init__(self):
         self.classes = {}
@@ -322,7 +333,7 @@ class Stats(object):
             if limit is not None:
                 top = top[:limit]
 
-            top = list(top)
+            top = [LeaderboardEntry(u) for u in top]
 
             groups.append(
                 {
@@ -349,6 +360,7 @@ class Stats(object):
         staff_users = set()
         for cls_name in interval["staff classes"]:
             staff_users |= set(self.meta.class_members[cls_name])
+        normal_users = self.meta.all_users - staff_users
 
         is_staff = user in staff_users
 
@@ -367,7 +379,9 @@ class Stats(object):
             return None
 
         rank = (
-            Order.objects.filter(**filter_args)
+            Order.objects.filter(
+                **filter_args, user__in=(staff_users if is_staff else normal_users)
+            )
             .values("user")
             .annotate(num_orders=Count("id"))
             .filter(num_orders__gt=num_orders)
@@ -377,9 +391,40 @@ class Stats(object):
             + 1
         )
 
-        # TODO: This does not feel like a good solution
-        setattr(user, "num_orders", num_orders)
-        setattr(user, "rank", rank)
-        setattr(user, "is_staff", is_staff)
+        return LeaderboardEntry(user, rank, num_orders, is_staff)
 
-        return user
+    def get_incitement(self, leaderboard_entry, location=None):
+        interval = self.meta.interval_keys["today"]
+
+        staff_users = set()
+        for cls_name in interval["staff classes"]:
+            staff_users |= set(self.meta.class_members[cls_name])
+
+        normal_users = self.meta.all_users - staff_users
+
+        filter_args = {}
+
+        if interval["dates"]:
+            dates = list(interval["dates"])
+            filter_args["put_at__gte"] = dates[0]
+            filter_args["put_at__lte"] = dates[-1] + timedelta(days=1)
+
+        if location is not None:
+            filter_args["location"] = location
+
+        scores_above = (
+            Order.objects.filter(
+                **filter_args,
+                user__in=(staff_users if leaderboard_entry.is_staff else normal_users),
+            )
+            .values("user")
+            .annotate(num_orders=Count("id"))
+            .filter(num_orders__gt=leaderboard_entry.num_orders)
+            .values_list("num_orders", flat=True)
+            .order_by("-num_orders")
+            .distinct()
+        )
+
+        diff_from_next = scores_above.last() - leaderboard_entry.num_orders
+
+        return diff_from_next

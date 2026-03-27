@@ -87,6 +87,7 @@ from .util import (
     valid_username,
     week_dates,
     year_and_week,
+    swedify_rank,
 )
 import pytz
 import seaborn as sns
@@ -1259,34 +1260,40 @@ def do_blipp(request):
     order_good.good = config.good
     order_good.count = 1
     order_good.save()
-    if is_coffee_free:
-        user_balance = "unlimited"
-        message = "Du har <b>∞ kr</b> kvar att blippa för"
-    else:
-        user_balance = user.profile.balance
-        message = "Du har <b>%s kr</b> kvar att blippa för" % user_balance
 
-    rank = None
-    is_staff = False
+    response_body = {
+        "balance": "unlimited" if is_coffee_free else user.profile.balance,
+        "theme_override": config.theme_override,
+    }
 
     if settings.STATS_CACHE_KEY:
-        all_stats, _ = cache.get(stats.get_cache_key(config.location)) or []
-
-        leaderboard_entry, is_staff = all_stats.get_rank_for_user(
-            "today", user, config.location
+        all_stats, _ = cache.get(stats.get_cache_key(config.location))
+    else:
+        all_stats, _ = stats.compute_stats_for_location(
+            config.location,
         )
-        rank = leaderboard_entry.rank
 
-    return JsonResponse(
-        {
-            "message": message,
-            "balance": user_balance,
-            "rank": rank,
-            "is_staff": is_staff,
-            "paid": price,
-            "theme_override": config.theme_override,
-        }
-    )
+    # TODO: Maybe have location specific incitements
+    leaderboard_entry = all_stats.get_rank_for_user("today", user, None)
+    diff_from_next = all_stats.get_incitement(leaderboard_entry)
+
+    # LeaderboardEntry will never be None here, because
+    # the user has atleast one order to their name today
+    if leaderboard_entry.rank == 1:
+        if leaderboard_entry.is_staff:
+            response_body["incitement"] = (
+                f"Du ligger plats {leaderboard_entry.rank} bland alla jobbare idag!"
+            )
+        else:
+            response_body["incitement"] = (
+                f"Du ligger plats {leaderboard_entry.rank} idag!"
+            )
+    else:
+        response_body["incitement"] = (
+            f"Du ligger bara {diff_from_next} {'koppar' if diff_from_next > 1 else 'kopp'} bakom {swedify_rank(leaderboard_entry.rank - 1)} platsen. Kämpa!"
+        )
+
+    return JsonResponse(response_body)
 
 
 def integrity(request):

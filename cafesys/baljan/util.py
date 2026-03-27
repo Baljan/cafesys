@@ -196,3 +196,9 @@ def valid_username(username):
 # request.is_ajax is deprecated since 3.1, and instead of rebuilding....
 def is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+
+def swedify_rank(rank: int):
+    if rank <= 2:
+        return f"{rank}a"
+    return f"{rank}e"
