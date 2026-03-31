@@ -257,7 +257,7 @@ class Meta(object):
         self.intervals.append(
             {
                 "key": "total",
-                "name": _("Total"),
+                "name": _("GDPR Time Period"),
                 "staff classes": std_staff_classes + ["old worker"],
                 "dates": None,
             }
