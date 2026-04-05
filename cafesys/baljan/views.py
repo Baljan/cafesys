@@ -604,6 +604,9 @@ def see_user(request, who):
         tpl["sent_trade_requests"] = tr_sent = trades.requests_sent_by(u)
         tpl["received_trade_requests"] = tr_recd = trades.requests_sent_to(u)
         tpl["trade_requests"] = tr_sent or tr_recd
+
+        # FIXME: Possibly, we have to filter out the phone number field here if the
+        # user has not consented.
         profile_forms = [c(instance=i) for c, i in profile_form_cls_inst]
         tpl["profile_forms"] = profile_forms
 
@@ -1018,6 +1021,9 @@ def admin_semester(request, name=None):
 
 
 def user_calendar(request, private_key):
+    # TODO: Maybe we need to anonymize this, by like encrypt used_id + private_key
+    # using the django secret key. But we would then have to update all urls if
+    # we need to update the secret key, if it ever gets leaked
     user = get_object_or_404(User, profile__private_key__exact=private_key)
     cal = ical.for_user(user)
     return HttpResponse(str(cal), content_type="text/calendar")
@@ -1627,8 +1633,12 @@ class Stripe:
 
         args = {}
 
-        if request.user.email:
-            args["customer_email"] = request.user.email
+        # This is commented out.
+        # If we set this at our end, we send the data to Stripe and therefore have
+        # to declare it in our integrity policy. The user is also unable to change it
+        # if we set it automatically.
+        # if request.user.email:
+        #     args["customer_email"] = request.user.email
 
         checkout_session = stripe.checkout.Session.create(
             line_items=[
@@ -1645,7 +1655,10 @@ class Stripe:
             cancel_url=request.build_absolute_uri(
                 reverse("checkout-cancel"),
             ),
-            client_reference_id=request.user.id,
+            # The private_key (if leaked) can be used to find a users calendar, if they
+            # have one, which is always anonymous. No personal details are disclosed
+            # in the calendar.
+            client_reference_id=request.user.profile.private_key,
             metadata={"product_id": product.id},
             consent_collection={"terms_of_service": "required"},
             custom_text={
@@ -1717,15 +1730,22 @@ class Stripe:
         if event.type == "checkout.session.completed":
             checkout_session = event.data.object
 
-            purchase = models.Purchase.objects.create(
-                product_id=checkout_session["metadata"]["product_id"],
-                user_id=checkout_session["client_reference_id"],
-                session_id=checkout_session["id"],
-                value=checkout_session["amount_total"] / 100,
-                currency=checkout_session["currency"].upper(),
-            )
+            if user := models.User.objects.filter(
+                profile__private_key__exact=checkout_session["client_reference_id"]
+            ).first():
+                purchase = models.Purchase.objects.create(
+                    product_id=checkout_session["metadata"]["product_id"],
+                    user=user,
+                    session_id=checkout_session["id"],
+                    value=checkout_session["amount_total"] / 100,
+                    currency=checkout_session["currency"].upper(),
+                )
 
-            creditsmodule.digital_refill(purchase)
+                creditsmodule.digital_refill(purchase)
+            else:
+                raise Exception(
+                    f"User with private key '{checkout_session['client_reference_id']}' was not found. Transaction ID: {checkout_session['id']}"
+                )
         elif event.type == "product.updated":
             prev = event.data.previous_attributes
             obj = event.data.object
