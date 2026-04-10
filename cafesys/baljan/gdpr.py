@@ -194,6 +194,13 @@ class ConsentRedirectionMiddleware:
 
     def __call__(self, request):
         user = request.user
+        # FIXME: This does not take into account updated policies.
+        # If we update our policies, or add a new one, a user should be sent to this
+        # page again and have resubmit content.
+        # We could have a table that holds just users and which policies they have seen,
+        # consented or not consented to. That way we could easily check if a user has
+        # consented to specific policies and / or has permission to do certain things
+        # on the website.
         if user.is_authenticated and not user.profile.has_seen_consent:
             current_url = resolve(request.path_info).url_name
             if current_url != "consent" and current_url != "logout":
