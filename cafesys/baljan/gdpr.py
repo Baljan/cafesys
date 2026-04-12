@@ -83,55 +83,63 @@ def legal_social_details(backend, strategy, details, response, user, *args, **kw
     details = dict(backend.get_user_details(response), **details)
     details["fullname"] = None
 
-    if user is not None and is_worker(user):
-        # Workers are not affected by the consent as they are bound by an agreement which
-        # regulates our processing of their personal details.
+    if user is not None:
+        if is_worker(user):
+            # Workers are not affected by the consent as they are bound by an agreement which
+            # regulates our processing of their personal details.
 
-        # We must ensure that we keep an up-to-date username though.
-        username = details["username"]
+            # We must ensure that we keep an up-to-date username though.
+            username = details["username"]
 
-        # Only update the username if it has changed!
-        if user.username != username:
-            user.username = username
-            strategy.storage.user.changed(user)
+            # Only update the username if it has changed!
+            if user.username != username:
+                user.username = username
+                strategy.storage.user.changed(user)
 
-        return {"details": details}
+            return {"details": details}
 
-    if not LegalConsent.is_present(user, AUTOMATIC_LIU_DETAILS):
-        # Note that we must NOT remove the e-mail address here! This is needed for the step
-        #   social_core.pipeline.social_auth.associate_by_email
-        #
-        # Users that have never logged in using OAUTH before will not have an anonymous
-        # identifier connected to their account, which is what python-social-auth uses for
-        # connecting a login response to an actual user by default. If this identifier is
-        # missing they must instead be associated using their e-mail address so we need to
-        # keep the email-value in the details dictionary for this. We will later reset
-        # this value in the step
-        #   cafesys.baljan.gdpr.clean_social_details
-        #
-        # Note: users that have never logged in using OAUTH could either be very old, and
-        # previously logged in using the ADFS solution. Another alternative is that they
-        # have been created as part of the "jobbsläpp" and thus have never logged in at all.
-        #
-        pass
+        if not LegalConsent.is_present(user, AUTOMATIC_LIU_DETAILS):
+            # Note that we must NOT remove the e-mail address here! This is needed for the step
+            #   social_core.pipeline.social_auth.associate_by_email
+            #
+            # Users that have never logged in using OAUTH before will not have an anonymous
+            # identifier connected to their account, which is what python-social-auth uses for
+            # connecting a login response to an actual user by default. If this identifier is
+            # missing they must instead be associated using their e-mail address so we need to
+            # keep the email-value in the details dictionary for this. We will later reset
+            # this value in the step
+            #   cafesys.baljan.gdpr.clean_social_details
+            #
+            # Note: users that have never logged in using OAUTH could either be very old, and
+            # previously logged in using the ADFS solution. Another alternative is that they
+            # have been created as part of the "jobbsläpp" and thus have never logged in at all.
+            #
+            pass
+        else:
+            # The user has given their consent to storing their username and e-mail
+            # given from LiU ADFS. If this is their first time logging in after
+            # giving their consent we must explicitly change the username here,
+            # as python-social-auth will not change this "protected" field themselves.
+
+            username = details["username"]
+
+            # Only update the username if it has changed!
+            if user.username != username:
+                user.username = username
+                strategy.storage.user.changed(user)
+
+        if not LegalConsent.is_present(user, AUTOMATIC_FULLNAME):
+            # The user has not consented to the automatic retrieval of their fullname
+            # from the LiU database, so we clear these fields from the details dict.
+            details["first_name"] = ""
+            details["last_name"] = ""
     else:
-        # The user has given their consent to storing their username and e-mail
-        # given from LiU ADFS. If this is their first time logging in after
-        # giving their consent we must explicitly change the username here,
-        # as python-social-auth will not change this "protected" field themselves.
-
-        username = details["username"]
-
-        # Only update the username if it has changed!
-        if user.username != username:
-            user.username = username
-            strategy.storage.user.changed(user)
-
-    if not LegalConsent.is_present(user, AUTOMATIC_FULLNAME):
-        # The user has not consented to the automatic retrieval of their fullname
-        # from the LiU database, so we clear these fields from the details dict.
+        # If it is the users first time logging in, we automatically remove all relevant
+        # details so that it is never saved to our database
         details["first_name"] = ""
         details["last_name"] = ""
+
+    # Four lines with the same code above for readabilitys sake
 
     return {"details": details}
 

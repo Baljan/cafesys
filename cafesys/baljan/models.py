@@ -1181,8 +1181,9 @@ class LegalConsent(models.Model):
         settings.AUTH_USER_MODEL,
         verbose_name=_("user"),
         blank=False,
-        null=True,
-        on_delete=models.SET_NULL,
+        # I do not see any downside by having this cascade. If a user is removed from
+        # the system, so should the information about their LegalConsent
+        on_delete=models.CASCADE,
     )
     policy_name = models.CharField(blank=False, max_length=64)
     policy_version = models.IntegerField(blank=False)
