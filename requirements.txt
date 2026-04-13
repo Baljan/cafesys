@@ -18,7 +18,7 @@ django_celery_beat==2.8.1
 # Social (i.e. LiU ID) login
 social-auth-core==4.8.5
 social-auth-app-django==5.7.0
-git+https://github.com/Baljan/python-social-auth-liu@6647be8#egg=social-auth-liu
+social-auth-liu @ git+https://github.com/Baljan/python-social-auth-liu@master
 
 # PDFs
 reportlab==4.4.1
