@@ -105,6 +105,11 @@
                                             {{ policy.date_of_consent }}
                                         </td>
                                         <td>
+                                            <form method="post" class="mb-2">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/consent">
+                                                <button type="submit" class="btn btn-secondary btn-sm">Förnya</button>
+                                            </form>
                                             <form method="post">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="policy" value="{{ key }}/{{ policy.version }}/revoke">

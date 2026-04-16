@@ -143,8 +143,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "livereload.middleware.LiveReloadScript",
     "cafesys.baljan.gdpr.ConsentRedirectionMiddleware",
-    "cafesys.baljan.gdpr.LegalConsentMiddleware",
     "rollbar.contrib.django.middleware.RollbarNotifierMiddleware",
+    "cafesys.baljan.gdpr.LegalConsentMiddleware",
 ]
 
 ROOT_URLCONF = "cafesys.urls"

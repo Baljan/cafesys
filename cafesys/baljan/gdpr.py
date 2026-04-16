@@ -223,9 +223,13 @@ class LegalConsentMiddleware:
 
         if request.user.is_authenticated and request.user.profile.has_seen_consent:
             try:
-                consent = LegalConsent.objects.get(user=request.user)
+                consent = (
+                    LegalConsent.objects.filter(user=request.user, revoked=False)
+                    .order_by("time_of_consent")
+                    .first()
+                )
 
-                if consent.time_of_consent:
+                if consent:
                     now = timezone.now()
                     warning_threshold = now + self.WARNING_DATE
                     expires_at = consent.time_of_consent + relativedelta(years=7)
