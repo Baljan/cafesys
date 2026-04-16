@@ -1,6 +1,8 @@
 from django.shortcuts import redirect
 from django.templatetags.static import static
 from django.urls import reverse, resolve
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 from cafesys.baljan.models import LegalConsent
 from cafesys.baljan.pseudogroups import is_worker
@@ -206,5 +208,34 @@ class ConsentRedirectionMiddleware:
             current_url = resolve(request.path_info).url_name
             if current_url != "consent" and current_url != "logout":
                 return redirect(reverse("consent"))
+
+        return self.get_response(request)
+
+
+class LegalConsentMiddleware:
+    WARNING_DATE = relativedelta(years=1)
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        request.legal_consent_notice = None
+
+        if request.user.is_authenticated and request.user.profile.has_seen_consent:
+            try:
+                consent = LegalConsent.objects.get(user=request.user)
+
+                if consent.time_of_consent:
+                    now = timezone.now()
+                    warning_threshold = now + self.WARNING_DATE
+                    expires_at = consent.time_of_consent + relativedelta(years=7)
+
+                    if expires_at <= warning_threshold:
+                        request.legal_consent_notice = {
+                            "expires_at": expires_at,
+                        }
+
+            except LegalConsent.DoesNotExist:
+                pass
 
         return self.get_response(request)

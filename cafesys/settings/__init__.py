@@ -143,6 +143,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "livereload.middleware.LiveReloadScript",
     "cafesys.baljan.gdpr.ConsentRedirectionMiddleware",
+    "cafesys.baljan.gdpr.LegalConsentMiddleware",
     "rollbar.contrib.django.middleware.RollbarNotifierMiddleware",
 ]
 
@@ -291,10 +292,10 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # on heroku which defines it as true
 SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=False)
 
-SLACK_BOT_TOKEN = env.str("SLACK_BOT_TOKEN", default="")
-SLACK_SIGNING_SECRET = env.str("SLACK_SIGNING_SECRET", default="")
-SLACK_PHONE_WEBHOOK_URL = env.str("SLACK_PHONE_WEBHOOK_URL", default="")
-SLACK_SUPPORT_WEBHOOK_URL = env.str("SLACK_SUPPORT_WEBHOOK_URL", default="")
+SLACK_BOT_TOKEN = env.str("SLACK_BOT_TOKEN", default=None)
+SLACK_SIGNING_SECRET = env.str("SLACK_SIGNING_SECRET", default=None)
+SLACK_PHONE_WEBHOOK_URL = env.str("SLACK_PHONE_WEBHOOK_URL", default=None)
+SLACK_SUPPORT_WEBHOOK_URL = env.str("SLACK_SUPPORT_WEBHOOK_URL", default=None)
 
 
 VERIFY_46ELKS_IP = True

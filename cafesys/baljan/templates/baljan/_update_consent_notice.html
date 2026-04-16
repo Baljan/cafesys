@@ -1,0 +1,13 @@
+{% if user.is_authenticated and request.legal_consent_notice %}
+    <div class="alert alert-info my-0 shadow-sm" role="alert">
+        <div class="container">
+            <div class="d-grid d-md-flex justify-content-between align-items-center gap-2">
+                <span>
+                    <strong>Viktigt!</strong> Det är snart dags att förnya ditt medgivande. Det löper ut den {{ request.legal_consent_notice.expires_at|date }}!
+                </span>
+                <a href="{% url 'profile' %}#consents" class="btn btn-outline-primary">Uppdatera medgivande</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{# FIXME: This needs translations #}
