@@ -349,8 +349,10 @@ class Stats(object):
         staff_users = set()
         for cls_name in interval["staff classes"]:
             staff_users |= set(self.meta.class_members[cls_name])
+        normal_users = self.meta.all_users - staff_users
 
         is_staff = user in staff_users
+        filter_set = staff_users if is_staff else normal_users
 
         filter_args = {}
         if interval["dates"]:
@@ -364,7 +366,7 @@ class Stats(object):
         user_score = Order.objects.filter(user=user, **filter_args).count()
 
         rank = (
-            Order.objects.filter(**filter_args)
+            Order.objects.filter(**filter_args, user__in=filter_set)
             .values("user")
             .annotate(num_orders=Count("id"))
             .filter(num_orders__gt=user_score)
