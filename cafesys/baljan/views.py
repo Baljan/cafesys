@@ -1658,6 +1658,8 @@ class Stripe:
             # The private_key (if leaked) can be used to find a users calendar, if they
             # have one, which is always anonymous. No personal details are disclosed
             # in the calendar.
+            # FIXME: we should use the norEduPersonLIN claim that we get from LIU here.
+            # or just write in the policy that we share the private_key
             client_reference_id=request.user.profile.private_key,
             metadata={"product_id": product.id},
             consent_collection={"terms_of_service": "required"},
