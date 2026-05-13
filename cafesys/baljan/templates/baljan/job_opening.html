@@ -13,11 +13,13 @@
 <div class="row">
     <div class="col">
         <h3>Välj jobbare</h3>
-        <input class="form-control" type="text" id="id_liu_id" name="liu_id" maxlength="8" placeholder="Skriv in LiuId"/>
+        <input class="form-control" type="text" id="id_liu_id" name="liu_id" maxlength="8" placeholder="Skriv in LiU-ID"/>
 
+        <h4 style="margin-top: .5em">Tilldelade jobbare</h4>
         <ul class="work-pair">
         </ul>
 
+        <h4>Pass i fråga</h4>
         <ul class="shifts-in-combination">
         </ul>
         <div class="submit-wrap">
@@ -25,7 +27,7 @@
                 <input type="hidden" name="shift-ids" value="" />
                 <input type="hidden" name="user-ids" value="" />
                 <input type="hidden" name="phones" value="" />
-                <input class="btn btn-primary" disabled="disabled" type="submit"/>
+                <input class="btn btn-primary" disabled type="submit"/>
             </form>
         </div>
     </div>
@@ -41,7 +43,7 @@
                         {% if pair.is_taken %}
                             title="{{pair.taken_by|join:", "}}"
                         {% endif %}
-
+                        role="button"
                         class="
                             pair
                             {% if pair.is_free %}free{%else%}taken{%endif%}
@@ -146,6 +148,22 @@
         currentCombLabel = $.trim($(cell).text());
         var pair = PAIRS[currentCombLabel];
         var shifts = pair.shifts;
+        $.ajax({
+            data: {'shift_ids': pair.ids},
+            type: 'post',
+            dataType: 'json',
+            success: function(result) {
+                if (!result) return;
+                
+                if (result.all_ok === true) {
+                    addedUsers = result.users
+                } else {
+                    addedUsers = []
+                }
+                refreshAdded()
+            }
+        });
+
         if ($(cell).hasClass('free')) {
             currentCombShiftIds = pair.ids;
             $(cell).toggleClass('table-primary');
@@ -169,39 +187,44 @@
         setActiveComb(this);
     });
 
+    var addUsers = function(user) {
+        addedList.append('<li><a/></li>');
+        var last = addedList.find('li:last');
+        last.data('username', i);
+        var link = last.find('a');
+        link.attr('href', user.url);
+        link.text(user.text);
+        last.append('<a href="#" class="remove">&#x2715;</a>');
+        last.append('<input class="form-control" type="text" maxlength="10" placeholder="Mobil"/>');
+        var phone = last.find('input');
+        $(phone).addClass('phone-' + i);
+        $(phone).val(user.phone);
+        $(phone).data('username', i);
+        $(phone).keyfilter(/[\d]/);
+        $(phone).change(function() {
+            var uName =$(this).data('username');
+            addedUsers[uName].phone = $(this).val();
+            refreshSave();
+        });
+        last.find(".remove").click(function() {
+            removeUser($(this).parent().data('username'));
+        });
+    }
 
     var removeUser = function(id) {
         delete addedUsers[id];
         refreshAdded();
     };
 
+
+
     var refreshAdded = function() {
         addedList.find('li').remove();
         for (i in addedUsers) {
             var user = addedUsers[i];
-            addedList.append('<li><a/></li>');
-            var last = addedList.find('li:last');
-            last.data('username', i);
-            var link = last.find('a');
-            link.attr('href', user.url);
-            link.text(user.text);
-            last.append(' <a href="#" class="remove">&#x2715;</a>');
-            last.append('<input class="form-control" type="text" maxlength="10" placeholder="Mobil"/>');
-            var phone = last.find('input');
-            $(phone).addClass('phone-' + i);
-            $(phone).val(user.phone);
-            $(phone).data('username', i);
-            $(phone).keyfilter(/[\d]/);
-            $(phone).change(function() {
-                var uName =$(this).data('username');
-                addedUsers[uName].phone = $(this).val();
-                refreshSave();
-            });
+            addUsers(user)
         }
 
-        addedList.find('li .remove').click(function() {
-            removeUser($(this).parent().data('username'));
-        });
         refreshSave();
     };
 

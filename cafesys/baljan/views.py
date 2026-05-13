@@ -814,6 +814,37 @@ def job_opening(request, semester_name):
     found_user = None
     if request.method == "POST":
         if is_ajax(request):  # find user
+            shift_ids = request.POST.getlist("shift_ids[]")
+            print(request.POST, shift_ids)
+            if len(shift_ids) > 0:
+                shift_combs = models.ShiftSignup.objects.filter(shift_id__in=shift_ids)
+
+                info = {}
+                if len(shift_combs) == 0:
+                    info["msg"] = _("Shift combination not found for semester.")
+                    info["msg_class"] = "invalid"
+                else:
+                    users = set()
+                    for comb in shift_combs:
+                        users.add(comb.user)
+                    info["users"] = list(
+                        map(
+                            lambda user: {
+                                "username": user.username,
+                                "text": "%s (%s)"
+                                % (user.get_full_name(), user.username),
+                                "phone": user.profile.mobile_phone,
+                                "url": user.get_absolute_url(),
+                            },
+                            list(users),
+                        )
+                    )
+                    info["msg"] = _("OK")
+                    info["msg_class"] = "saved"
+                    info["all_ok"] = True
+
+                return HttpResponse(json.dumps(info))
+
             searched_for = request.POST.get("liu_id", "")
             valid_search = valid_username(searched_for)
 
