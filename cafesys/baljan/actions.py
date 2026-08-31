@@ -17,30 +17,6 @@ class Action(object):
             self.link = resolve_func(path, args=args, kwargs=kwargs)
 
 
-# Which categories each group sees, most privileged first. A group inherits the
-# categories below it, except for substitutes: they deliberately skip "regulars",
-# since that category holds the job opening sign-up ("Jobbpass {sem}").
-CATEGORY_INHERITANCE = {
-    "superusers": (
-        "superusers",
-        settings.BOARD_GROUP,
-        settings.WORKER_GROUP,
-        "regulars",
-        "anyone",
-    ),
-    settings.BOARD_GROUP: (
-        settings.BOARD_GROUP,
-        settings.WORKER_GROUP,
-        "regulars",
-        "anyone",
-    ),
-    settings.WORKER_GROUP: (settings.WORKER_GROUP, "regulars", "anyone"),
-    settings.SUBSTITUTE_GROUP: (settings.SUBSTITUTE_GROUP, "anyone"),
-    "regulars": ("regulars", "anyone"),
-    "anyone": ("anyone",),
-}
-
-
 def _worker_links():
     """Guides and documents shared by workers and substitutes.
 
@@ -70,18 +46,30 @@ def _worker_links():
     )
 
 
-def _category_of(user):
+def _categories_for(user):
+    """Which action categories the user sees, most privileged first.
+
+    Each group inherits the categories below it, except for substitutes: they
+    deliberately skip "regulars", since that category holds the job opening
+    sign-up ("Jobbpass {sem}").
+    """
     if not user.is_authenticated:
-        return "anyone"
+        return ("anyone",)
     if user.is_superuser:
-        return "superusers"
+        return (
+            "superusers",
+            settings.BOARD_GROUP,
+            settings.WORKER_GROUP,
+            "regulars",
+            "anyone",
+        )
     if user.groups.filter(name__exact=settings.BOARD_GROUP).exists():
-        return settings.BOARD_GROUP
+        return (settings.BOARD_GROUP, settings.WORKER_GROUP, "regulars", "anyone")
     if user.groups.filter(name__exact=settings.WORKER_GROUP).exists():
-        return settings.WORKER_GROUP
+        return (settings.WORKER_GROUP, "regulars", "anyone")
     if user.groups.filter(name__exact=settings.SUBSTITUTE_GROUP).exists():
-        return settings.SUBSTITUTE_GROUP
-    return "regulars"
+        return (settings.SUBSTITUTE_GROUP, "anyone")
+    return ("regulars", "anyone")
 
 
 def categories_and_actions(request):
@@ -145,7 +133,7 @@ def categories_and_actions(request):
         ("anyone", "Användare", (Action("Info", "staff_homepage"),)),
     ]
 
-    categories = CATEGORY_INHERITANCE[_category_of(user)]
+    categories = _categories_for(user)
 
     links = [item for cat, _, ita in all_links if cat in categories for item in ita]
     pages = [item for cat, _, ita in all_pages if cat in categories for item in ita]
