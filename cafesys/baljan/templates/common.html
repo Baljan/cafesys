@@ -31,7 +31,7 @@
           <a class="nav-link" href="{% url 'credits' %}">
             <i class="fa fa-coffee text-primary" ></i> Kaffekort</a>
         </li>
-        {% if perms.baljan.self_and_friend_signup %}
+        {% if perms.baljan.staff_access %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'staff_homepage' %}">
             <i class="fa fa-user-tie text-primary" ></i> Personal</a>

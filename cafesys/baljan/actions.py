@@ -17,6 +17,61 @@ class Action(object):
             self.link = resolve_func(path, args=args, kwargs=kwargs)
 
 
+def _worker_links():
+    """Guides and documents shared by workers and substitutes.
+
+    Built fresh on every call: the actions are mutated (`active`) per request.
+    """
+    return (
+        Action(
+            "Jobbarguide Baljan",
+            settings.STATIC_URL + "jobbguidebaljan.pdf",
+            resolve_func=None,
+        ),
+        Action(
+            "Jobbarguide Byttan",
+            settings.STATIC_URL + "jobbguidebyttan.pdf",
+            resolve_func=None,
+        ),
+        Action(
+            "Jobbkontrakt",
+            settings.STATIC_URL + "Personalkontrakt.pdf",
+            resolve_func=None,
+        ),
+        Action(
+            "Lägga in pass i kalenderprogram",
+            settings.STATIC_URL + "ical-calendar.pdf",
+            resolve_func=None,
+        ),
+    )
+
+
+def _categories_for(user):
+    """Which action categories the user sees, most privileged first.
+
+    Each group inherits the categories below it, except for substitutes: they
+    deliberately skip "regulars", since that category holds the job opening
+    sign-up ("Jobbpass {sem}").
+    """
+    if not user.is_authenticated:
+        return ("anyone",)
+    if user.is_superuser:
+        return (
+            "superusers",
+            settings.BOARD_GROUP,
+            settings.WORKER_GROUP,
+            "regulars",
+            "anyone",
+        )
+    if user.groups.filter(name__exact=settings.BOARD_GROUP).exists():
+        return (settings.BOARD_GROUP, settings.WORKER_GROUP, "regulars", "anyone")
+    if user.groups.filter(name__exact=settings.WORKER_GROUP).exists():
+        return (settings.WORKER_GROUP, "regulars", "anyone")
+    if user.groups.filter(name__exact=settings.SUBSTITUTE_GROUP).exists():
+        return (settings.SUBSTITUTE_GROUP, "anyone")
+    return ("regulars", "anyone")
+
+
 def categories_and_actions(request):
     user = request.user
 
@@ -43,32 +98,8 @@ def categories_and_actions(request):
             "Styrelsen",
             (Action("Skapa nya kaffekort", "admin:baljan_refillseries_add"),),
         ),
-        (
-            settings.WORKER_GROUP,
-            "Jobbare",
-            (
-                Action(
-                    "Jobbarguide Baljan",
-                    settings.STATIC_URL + "jobbguidebaljan.pdf",
-                    resolve_func=None,
-                ),
-                Action(
-                    "Jobbarguide Byttan",
-                    settings.STATIC_URL + "jobbguidebyttan.pdf",
-                    resolve_func=None,
-                ),
-                Action(
-                    "Jobbkontrakt",
-                    settings.STATIC_URL + "Personalkontrakt.pdf",
-                    resolve_func=None,
-                ),
-                Action(
-                    "Lägga in pass i kalenderprogram",
-                    settings.STATIC_URL + "ical-calendar.pdf",
-                    resolve_func=None,
-                ),
-            ),
-        ),
+        (settings.WORKER_GROUP, "Jobbare", _worker_links()),
+        (settings.SUBSTITUTE_GROUP, "Inhoppare", _worker_links()),
         ("regulars", "Ditt konto", ()),
         ("anyone", "Användare", ()),
     ]
@@ -93,29 +124,19 @@ def categories_and_actions(request):
                 Action("Jobbplanering", "semester"),
             ),
         ),
+        (
+            settings.SUBSTITUTE_GROUP,
+            "Inhoppare",
+            (Action("Jobbplanering", "semester"),),
+        ),
         ("regulars", "Ditt konto", tuple(regulars_upcoming_sem_actions)),
         ("anyone", "Användare", (Action("Info", "staff_homepage"),)),
     ]
 
-    if user.is_authenticated:
-        if user.is_superuser:
-            group = "superusers"
-        elif user.groups.filter(name__exact=settings.BOARD_GROUP).exists():
-            group = settings.BOARD_GROUP
-        elif user.groups.filter(name__exact=settings.WORKER_GROUP).exists():
-            group = settings.WORKER_GROUP
-        else:
-            group = "regulars"
-    else:
-        group = "anyone"
+    categories = _categories_for(user)
 
-    links = []
-    pages = []
-    for i, action_category in enumerate(all_links):
-        if group == action_category[0]:
-            links = [item for _, _, ita in all_links[i:] for item in ita]
-            pages = [item for _, _, ita in all_pages[i:] for item in ita]
-            break
+    links = [item for cat, _, ita in all_links if cat in categories for item in ita]
+    pages = [item for cat, _, ita in all_pages if cat in categories for item in ita]
 
     for action in links + pages:
         if request.resolver_match.url_name == action.path:

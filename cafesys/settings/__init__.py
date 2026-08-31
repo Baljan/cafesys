@@ -267,6 +267,7 @@ WORKER_COOLDOWN_SECONDS = 60  # 1 minute cooldown
 
 BOARD_GROUP = "styrelsen"
 WORKER_GROUP = "jobbare"
+SUBSTITUTE_GROUP = "inhoppare"
 NEW_WORKER_GROUP = "_nya-jobbare"
 OLDIE_GROUP = "_gamlingar"
 PSEUDO_GROUP_FORMAT = "_%s"

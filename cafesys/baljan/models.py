@@ -146,6 +146,7 @@ class Profile(Made):
             ("free_coffee_unlimited", _nl("Unlimited free coffee")),
             ("free_coffee_with_cooldown", _nl("Free coffee with cooldown")),
             ("online_refill", _nl("Online refill of coffee card balance")),
+            ("staff_access", _nl("Can access the staff pages")),
         )
 
     def __str__(self):
