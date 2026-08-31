@@ -1093,6 +1093,7 @@ def high_score(request, location=None):
 @csrf_exempt
 @require_POST
 @phone.validate_46elks
+@phone.get_from_user
 def incoming_ivr_call(request):
     response = phone.compile_ivr_response(request)
 
