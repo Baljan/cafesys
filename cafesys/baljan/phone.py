@@ -50,8 +50,8 @@ WORKER_CALL_ROUTING = {
 ELKS_IPS = ["176.10.154.199", "85.24.146.132", "185.39.146.243", "2001:9b0:2:902::199"]
 
 # External numbers reachable from the board menu
-SMORGASFIKET_PHONE = "+46000000000"  # TODO: fyll i Smörgåsfikets riktiga nummer
-TEDDYS_PHONE = "+46000000000"  # TODO: fyll i Teddys riktiga nummer
+SMORGASFIKET_PHONE = "+46000000000"
+TEDDYS_PHONE = "+46000000000"
 
 # Call targets a menu key can route to
 DUTY, WORKERS, SMORGASFIKET, TEDDYS = "duty", "workers", "smorgasfiket", "teddys"
