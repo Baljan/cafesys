@@ -11,10 +11,11 @@ import pytz
 from re import match
 from datetime import date, datetime, time
 from logging import getLogger
-from collections import Counter
+from collections import Counter, namedtuple
 from functools import wraps
 
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.core.exceptions import (
     PermissionDenied,
     MultipleObjectsReturned,
@@ -48,14 +49,52 @@ WORKER_CALL_ROUTING = {
 # IP addresses used by 46Elks
 ELKS_IPS = ["176.10.154.199", "85.24.146.132", "185.39.146.243", "2001:9b0:2:902::199"]
 
-# Map the keystrokes from IVR to a location
-IVR_KEY_MAPPING = {
-    # {ivr_key}: ({Location}, {call_workers}, {required_permission})
-    1: (Located.KARALLEN, False, None),
-    2: (Located.STH_VALLA, False, None),
-    3: (Located.KARALLEN, True, "baljan.view_profile"),
-    4: (Located.STH_VALLA, True, "baljan.view_profile"),
+# External numbers reachable from the board menu
+SMORGASFIKET_PHONE = "+46000000000"
+TEDDYS_PHONE = "+46000000000"
+
+# Call targets a menu key can route to
+DUTY, WORKERS, SMORGASFIKET, TEDDYS = "duty", "workers", "smorgasfiket", "teddys"
+
+# Calls to external targets are not duty calls; they get no post-call hook and
+# therefore stay out of the Slack log.
+EXTERNAL_TARGETS = frozenset({SMORGASFIKET, TEDDYS})
+
+# Map the keystrokes from IVR to a call target
+# {ivr_key}: ({Location}, {target}, {required_permission})
+DEFAULT_KEYS = {
+    1: (Located.KARALLEN, DUTY, None),
+    2: (Located.STH_VALLA, DUTY, None),
+    3: (Located.KARALLEN, WORKERS, "baljan.view_profile"),
+    4: (Located.STH_VALLA, WORKERS, "baljan.view_profile"),
 }
+
+# The board hears its own recording and numbering. The whole menu is gated on
+# board membership, so the keys need no extra permission.
+BOARD_KEYS = {
+    1: (Located.KARALLEN, SMORGASFIKET, None),
+    2: (Located.KARALLEN, TEDDYS, None),
+    3: (Located.KARALLEN, WORKERS, None),  # jobbarna i Baljan
+    4: (Located.STH_VALLA, WORKERS, None),  # jobbarna i Byttan
+}
+
+IvrMenu = namedtuple("IvrMenu", "audio keys")
+
+DEFAULT_AUDIO = "ivr.mp3"
+
+MENUS = {
+    "default": IvrMenu(audio=DEFAULT_AUDIO, keys=DEFAULT_KEYS),
+    "board": IvrMenu(audio="ivr-styrelsen.mp3", keys=BOARD_KEYS),
+}
+
+
+def menu_for(user):
+    """Returns the IVR menu the given caller should hear."""
+    if user is None:
+        return MENUS["default"]
+    if user.groups.filter(name__exact=settings.BOARD_GROUP).exists():
+        return MENUS["board"]
+    return MENUS["default"]
 
 
 # Utility functions
@@ -266,6 +305,16 @@ def _compile_worker_number_list(location=Located.KARALLEN):
     return []
 
 
+# How each call target is turned into a list of numbers to try. The external
+# targets take `location` only for uniformity; it does not affect the number.
+COMPILERS = {
+    DUTY: _compile_duty_number_list,
+    WORKERS: _compile_worker_number_list,
+    SMORGASFIKET: lambda location: [SMORGASFIKET_PHONE],
+    TEDDYS: lambda location: [TEDDYS_PHONE],
+}
+
+
 def _build_46elks_response(phone_numbers):
     """Builds a response message compatible with 46elks.com"""
 
@@ -286,10 +335,22 @@ def _build_46elks_response(phone_numbers):
         return {}
 
 
-def compile_ivr_response(request):
+def _existing_audio(audio):
+    """Falls back to the default recording if the wanted one is missing."""
+    if finders.find("audio/phone/" + audio):
+        return audio
+    return DEFAULT_AUDIO
+
+
+def compile_ivr_response(request, menu=None):
+    if menu is None:
+        menu = menu_for(getattr(request, "from_user", None))
+
     # TODO: reverse url
     next_url = request.build_absolute_uri("/incoming-call")
-    audio_url = request.build_absolute_uri("/static/audio/phone/ivr.mp3")
+    audio_url = request.build_absolute_uri(
+        "/static/audio/phone/" + _existing_audio(menu.audio)
+    )
     if settings.SOCIAL_AUTH_REDIRECT_IS_HTTPS:
         next_url = next_url.replace("http://", "https://")
         audio_url = audio_url.replace("http://", "https://")
@@ -309,8 +370,9 @@ def compile_incoming_call_response(request):
     response is found in the file header.
     """
 
+    menu = menu_for(request.from_user)
     ivr_key = request.POST.get("result", None)
-    call_workers = False
+    target = DUTY
     if ivr_key is not None:
         if ivr_key == "failed":
             why = request.POST["why"]
@@ -322,7 +384,7 @@ def compile_incoming_call_response(request):
         else:
             ivr_key = int(ivr_key[0])
 
-            location, call_workers, required_permission = IVR_KEY_MAPPING.get(
+            location, target, required_permission = menu.keys.get(
                 ivr_key, (None, None, None)
             )
 
@@ -333,19 +395,15 @@ def compile_incoming_call_response(request):
             )
             if location is None or not user_has_permission:
                 # Replay IVR message if an invalid key is pressed, or insufficient permissions of caller
-                return compile_ivr_response(request)
+                return compile_ivr_response(request, menu=menu)
     else:
         # Route calls that did not go through the IVR to Kårallen
         location = Located.KARALLEN
 
-    phone_numbers = (
-        _compile_worker_number_list(location=location)
-        if call_workers
-        else _compile_duty_number_list(location=location)
-    )
+    phone_numbers = COMPILERS[target](location=location)
     response = _build_46elks_response(phone_numbers)
 
-    if response:
+    if response and target not in EXTERNAL_TARGETS:
         # Attach 'whenhangup' to top of call chain
         # TODO: reverse url
         hangup_url = request.build_absolute_uri("/post-call/{}".format(location))
