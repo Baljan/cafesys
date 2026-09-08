@@ -26,6 +26,7 @@ from cafesys.baljan.models import (
     IncomingCallFallback,
     Located,
     OnCallDuty,
+    Profile,
     ShiftSignup,
     User,
 )
@@ -49,9 +50,10 @@ WORKER_CALL_ROUTING = {
 # IP addresses used by 46Elks
 ELKS_IPS = ["176.10.154.199", "85.24.146.132", "185.39.146.243", "2001:9b0:2:902::199"]
 
-# External numbers reachable from the board menu
-SMORGASFIKET_PHONE = "+46000000000"
-TEDDYS_PHONE = "+46000000000"
+# The external cafés reachable from the board menu are each kept as a user
+# account, so their numbers can be changed in the admin instead of in the code.
+SMORGASFIKET_USERNAME = "smorgasfiket"
+TEDDYS_USERNAME = "teddys"
 
 # Call targets a menu key can route to
 DUTY, WORKERS, SMORGASFIKET, TEDDYS = "duty", "workers", "smorgasfiket", "teddys"
@@ -305,13 +307,29 @@ def _compile_worker_number_list(location=Located.KARALLEN):
     return []
 
 
+def _compile_external_number_list(username):
+    """Returns the number of an external café, kept on a user account."""
+    number = (
+        Profile.objects.filter(user__username=username)
+        .values_list("mobile_phone", flat=True)
+        .first()
+    )
+
+    # Covers both a missing account and one without a number filled in
+    if not number:
+        logger.warning("No phone number for external target user %s", username)
+        return []
+
+    return [_format_phone(number)]
+
+
 # How each call target is turned into a list of numbers to try. The external
 # targets take `location` only for uniformity; it does not affect the number.
 COMPILERS = {
     DUTY: _compile_duty_number_list,
     WORKERS: _compile_worker_number_list,
-    SMORGASFIKET: lambda location: [SMORGASFIKET_PHONE],
-    TEDDYS: lambda location: [TEDDYS_PHONE],
+    SMORGASFIKET: lambda location: _compile_external_number_list(SMORGASFIKET_USERNAME),
+    TEDDYS: lambda location: _compile_external_number_list(TEDDYS_USERNAME),
 }
 
 
