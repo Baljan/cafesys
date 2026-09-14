@@ -90,9 +90,6 @@ from .util import (
     year_and_week,
 )
 import pytz
-import seaborn as sns
-from pandas import DataFrame
-import matplotlib.pyplot as plt
 
 from cafesys.baljan.gdpr import get_policies
 
@@ -100,6 +97,19 @@ import stripe
 from stripe import SignatureVerificationError
 
 logger = getLogger(__name__)
+
+
+def _plotting():
+    """Lazy-import av plottbiblioteken (~95 MB) så de bara laddas i statistikvyerna."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from pandas import DataFrame
+
+    return sns, plt, DataFrame
+
 
 rfidSigner = TimestampSigner(
     salt="rfid"
@@ -1448,6 +1458,7 @@ class OrderFilter(django_filters.FilterSet):
 @require_GET
 @permission_required("baljan.view_order")
 def stats_order_heatmap(request):
+    sns, plt, DataFrame = _plotting()
     f = OrderFilter(request.GET, queryset=models.Order.objects.all())
 
     orders = (
@@ -1487,6 +1498,7 @@ def stats_order_heatmap(request):
 
     buffer = BytesIO()
     plot.get_figure().savefig(buffer, format="png")
+    plt.close("all")
     buffer.seek(0)
     # return FileResponse(buffer, filename='heatmap.png')
     tpl = {
@@ -1499,6 +1511,7 @@ def stats_order_heatmap(request):
 @require_GET
 @permission_required("baljan.view_order")
 def stats_blipp(request):
+    sns, plt, DataFrame = _plotting()
     try:
         from_year = int(request.GET.get("from_year", 2022))  # TODO: improve filtering
     except ValueError:
@@ -1554,6 +1567,7 @@ def stats_blipp(request):
     plot.set_axis_labels("", "SEK")
     buffer = BytesIO()
     plot.savefig(buffer, format="png")
+    plt.close("all")
     buffer.seek(0)
     # return FileResponse(buffer, filename='blippstats.png')
     tpl = {
@@ -1565,6 +1579,7 @@ def stats_blipp(request):
 @require_GET
 @permission_required("baljan.view_order")
 def stats_active_blipp_users(request):
+    sns, plt, DataFrame = _plotting()
     f = OrderFilter(request.GET, queryset=models.Order.objects.all())
 
     orders = (
@@ -1594,6 +1609,7 @@ def stats_active_blipp_users(request):
     plot.set_axis_labels("Antal användare", "När (Antal köp per användare)")
     buffer = BytesIO()
     plot.savefig(buffer, format="png")
+    plt.close("all")
     buffer.seek(0)
     # return FileResponse(buffer, filename='blippstats.png')
     tpl = {
