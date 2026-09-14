@@ -17,7 +17,7 @@ services:
     environment:
       DJANGO_REDIS_URL: redis://cache:6379/0
       DJANGO_DATABASE_URL: postgres://cafesys:cafesys@db:5432/baljan_local
-    command: celery -A cafesys worker --beat -l info
+    command: celery -A cafesys worker --beat -l info --concurrency=2 --without-gossip --without-mingle --without-heartbeat
     links:
       - cache
       - db
