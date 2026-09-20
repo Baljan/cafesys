@@ -33,7 +33,7 @@ history are internal and must stay out of it.
         <strong>{{ order.date|date:"l j F Y" }}</strong>,
         {{ order.get_pickup_display }}, i Baljan.
       {% elif order.status == 'denied' %}
-        Beställningen är nekad och kommer inte att lagas.
+        Beställningen är nekad.
       {% elif order.status == 'cancelled' %}
         Beställningen är avbeställd.
       {% elif order.status == 'delivered' %}
