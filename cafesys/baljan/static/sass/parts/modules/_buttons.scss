@@ -8,3 +8,33 @@
   --bs-btn-border-color: hsl(231, 100%, 72%);
   --bs-btn-hover-bg: hsl(231, 88%, 73%);
 }
+
+// Prominent "Köp kaffekort" call to action on the front page
+.btn-buy-coffee-card {
+  --bs-btn-color: #{$baljan-white};
+  --bs-btn-bg: #{$baljan-pink};
+  --bs-btn-border-color: #{$baljan-pink};
+  --bs-btn-hover-color: #{$baljan-white};
+  --bs-btn-hover-bg: #{darken($baljan-pink, 8%)};
+  --bs-btn-hover-border-color: #{darken($baljan-pink, 8%)};
+  --bs-btn-active-color: #{$baljan-white};
+  --bs-btn-active-bg: #{darken($baljan-pink, 12%)};
+  --bs-btn-active-border-color: #{darken($baljan-pink, 12%)};
+  --bs-btn-focus-shadow-rgb: 230, 0, 139;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  box-shadow: 0 0.5rem 1.25rem rgba($baljan-pink, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 0.75rem 1.5rem rgba($baljan-pink, 0.45);
+  }
+
+  .fa {
+    margin-right: 0.35rem;
+  }
+}
