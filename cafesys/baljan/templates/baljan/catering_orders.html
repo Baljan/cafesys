@@ -18,24 +18,24 @@
   </p>
 </div>
 
-<form method="get" class="row gx-2 gy-2 align-items-end mb-4">
-  <div class="col-12 col-md-3">
+<form method="get" class="row g-3 align-items-end mb-4">
+  <div class="col-12 col-sm-6 col-lg-2">
     <label for="id_status" class="form-label mb-1">Status</label>
     {{ filter.form.status }}
   </div>
-  <div class="col-6 col-md-2">
+  <div class="col-6 col-sm-3 col-lg-2">
     <label for="id_date__gte" class="form-label mb-1">Från och med</label>
     {{ filter.form.date__gte }}
   </div>
-  <div class="col-6 col-md-2">
+  <div class="col-6 col-sm-3 col-lg-2">
     <label for="id_date__lte" class="form-label mb-1">Till och med</label>
     {{ filter.form.date__lte }}
   </div>
-  <div class="col-12 col-md-3">
+  <div class="col-12 col-sm-6 col-lg-3">
     <label for="id_association" class="form-label mb-1">Förening</label>
     {{ filter.form.association }}
   </div>
-  <div class="col-12 col-md-2 d-flex gap-2">
+  <div class="col-12 col-sm-6 col-lg-3 d-flex gap-2">
     <button type="submit" class="btn btn-primary flex-grow-1">Filtrera</button>
     <a href="{% url 'catering_orders' %}" class="btn btn-outline-secondary">Rensa</a>
   </div>
