@@ -280,6 +280,43 @@ class OrderFormTestCase(TestCase):
         kinds = [content_type for _name, _c, content_type in message.attachments]
         self.assertIn("text/calendar", kinds)
 
+    def test_values_too_wide_for_their_column_are_rejected_as_form_errors(self):
+        """Not as a DataError from Postgres halfway through the view.
+
+        Django's own field defaults are wider than the columns on CateringOrder:
+        EmailField allows 320 against a 254 column, and orderSum had no limit at
+        all against displayed_sum's 32.
+        """
+        too_wide = {
+            "orderSum": "9" * 200,
+            "ordererEmail": "a" * 285 + "@example.com",
+            "pickupEmail": "b" * 285 + "@example.com",
+        }
+        for field, value in too_wide.items():
+            with self.subTest(field=field):
+                response = self.client.post(
+                    reverse("order_from_us"), self.payload(**{field: value})
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertFalse(CateringOrder.objects.exists())
+
+    def test_line_breaks_are_rejected_before_they_reach_a_mail_header(self):
+        """`orderer` and `association` end up in the subject line.
+
+        Django raises BadHeaderError rather than letting a Bcc through, but that
+        happens inside send(), after the order has already been written. A
+        crafted submission should not get that far.
+        """
+        for field in ("orderer", "association"):
+            with self.subTest(field=field):
+                response = self.client.post(
+                    reverse("order_from_us"),
+                    self.payload(**{field: "Anna Andersson\nBcc: evil@example.com"}),
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertFalse(CateringOrder.objects.exists())
+                self.assertEqual(mail.outbox, [])
+
     def test_a_weekend_is_rejected_and_nothing_is_stored(self):
         saturday = date.today()
         while saturday.weekday() != 5:

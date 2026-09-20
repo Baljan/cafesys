@@ -11,6 +11,19 @@ from django.utils.translation import gettext as _
 from . import models
 
 
+def no_control_characters(value):
+    """Reject line breaks and other control characters.
+
+    `orderer` and `association` are interpolated into the subject of the mail to
+    the board. A newline there makes Django raise BadHeaderError deep inside
+    send(), which is a 500 for the visitor and an order row already written to
+    the database. Django stops the actual header injection; this stops the
+    crafted submission from getting that far at all.
+    """
+    if any(ch in value for ch in "\r\n") or any(ord(ch) < 32 for ch in value):
+        raise forms.ValidationError("Fältet får inte innehålla radbrytningar.")
+
+
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
@@ -128,9 +141,14 @@ class OrderForm(forms.Form):
         max_length=100,
         required=True,
         label="Namn:",
+        # Unanchored, so it only requires that a name appears somewhere in the
+        # value; the validator below rules out what must never follow it.
         regex=r"[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}",
+        validators=[no_control_characters],
     )
-    ordererEmail = forms.EmailField(required=True, label="Email:")
+    # max_length matches CateringOrder.orderer_email; EmailField would
+    # otherwise allow 320 and fail on insert instead of in validation.
+    ordererEmail = forms.EmailField(max_length=254, required=True, label="Email:")
     phoneNumber = forms.RegexField(
         max_length=11, required=True, label="Telefon:", regex=r"[0-9]{6,11}"
     )
@@ -139,6 +157,7 @@ class OrderForm(forms.Form):
         max_length=40,
         required=True,
         label="Sektion eller förening att fakturera:",
+        validators=[no_control_characters],
     )
     org = forms.RegexField(
         max_length=11, required=True, label="Organisationsnummer:", regex=r"[0-9]{6,11}"
@@ -150,7 +169,7 @@ class OrderForm(forms.Form):
         label="Namn:",
         regex=r"[a-zåäöA-ÅÄÖ]{2,20}[ \t][a-zåäöA-ZÅÄÖ]{2,20}",
     )
-    pickupEmail = forms.EmailField(required=True, label="Email:")
+    pickupEmail = forms.EmailField(max_length=254, required=True, label="Email:")
     pickupNumber = forms.RegexField(
         max_length=11, required=True, label="Telefon:", regex=r"[0-9]{6,11}"
     )
@@ -207,7 +226,9 @@ class OrderForm(forms.Form):
     sameAsOrderer = forms.BooleanField(
         initial=True, required=False, label="Samma som beställare"
     )
-    orderSum = forms.CharField(required=False)
+    # Filled in by JavaScript and only kept for reference, but it still has
+    # to fit CateringOrder.displayed_sum.
+    orderSum = forms.CharField(max_length=32, required=False)
 
 
 class RefillForm(forms.Form):

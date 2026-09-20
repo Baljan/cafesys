@@ -342,7 +342,6 @@ def orderFromUs(request):
             )
 
             order = _apply_order_form(models.CateringOrder(), form)
-            order.notify_receipt()
 
             email_subject = f"[Beställning {date.strftime('%Y-%m-%d')} | {orderer} - {association} | #{order.pk}]"
             calendar_subject = (
@@ -388,6 +387,11 @@ def orderFromUs(request):
             order.save(
                 update_fields=["board_message_id", "board_subject", "updated_at"]
             )
+
+            # After the board's mail, not before: if that one fails the visitor
+            # gets an error page, and promising "we have your order" while the
+            # board never heard about it is worse than staying quiet.
+            order.notify_receipt()
 
             messages.add_message(
                 request,
