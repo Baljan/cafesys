@@ -13,6 +13,7 @@ from cafesys.baljan.tasks import (
     remove_old_catering_orders,
     send_catering_order_board_decision_email,
     send_catering_order_decision_email,
+    send_catering_order_receipt_email,
 )
 
 
@@ -623,6 +624,54 @@ class CateringRetentionTestCase(TestCase):
 
         self.assertEqual(removed, 1)
         self.assertEqual(list(CateringOrder.objects.all()), [recent])
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class CateringContactAddressTestCase(TestCase):
+    """Orderers are pointed at the orders inbox, never at the board's."""
+
+    def orderer_mails(self, order):
+        return [m for m in mail.outbox if m.to == [order.orderer_email]]
+
+    def test_the_receipt_points_at_the_orders_inbox(self):
+        order = make_order()
+        send_catering_order_receipt_email(order.pk)
+        message = only_to(order.orderer_email)
+        self.assertEqual(message.reply_to, [settings.CATERING_EMAIL])
+        html = message.alternatives[0][0]
+        self.assertIn(settings.CATERING_EMAIL, html)
+        self.assertNotIn(settings.CONTACT_EMAIL, html)
+
+    def test_the_decision_mails_do_too(self):
+        for status in (CateringOrder.Status.APPROVED, CateringOrder.Status.DENIED):
+            with self.subTest(status=status):
+                mail.outbox = []
+                order = make_order(status=status)
+                send_catering_order_decision_email(order.pk)
+                message = only_to(order.orderer_email)
+                self.assertEqual(message.reply_to, [settings.CATERING_EMAIL])
+                self.assertNotIn(settings.CONTACT_EMAIL, message.alternatives[0][0])
+
+    def test_the_public_page_does_too(self):
+        """Only the page's own contact line.
+
+        The site-wide footer lists every Baljan address, the board's included,
+        so the whole document is the wrong thing to assert on.
+        """
+        order = make_order()
+        html = self.client.get(order.get_public_url()).content.decode()
+        start = html.index("Behöver något ändras")
+        sentence = html[start : html.index("uppge", start)]
+        self.assertIn(settings.CATERING_EMAIL, sentence)
+        self.assertNotIn(settings.CONTACT_EMAIL, sentence)
+
+    def test_the_board_mail_carries_no_contact_line(self):
+        """It lands in the orders inbox; naming that address is a loop."""
+        order = make_order(status=CateringOrder.Status.APPROVED)
+        send_catering_order_board_decision_email(order.pk)
+        html = only_to(settings.CATERING_EMAIL).alternatives[0][0]
+        self.assertNotIn("Har du frågor?", html)
+        self.assertIn("Sektionscafé Baljan", html)
 
 
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")

@@ -123,7 +123,7 @@ def send_catering_order_decision_email(order_id):
         {
             "order": order,
             "order_fields": order.ordered_items(),
-            "CONTACT_EMAIL": settings.CONTACT_EMAIL,
+            "CATERING_EMAIL": settings.CATERING_EMAIL,
         },
     )
 
@@ -132,7 +132,7 @@ def send_catering_order_decision_email(order_id):
         "",
         f"Baljan <{settings.DEFAULT_FROM_EMAIL}>",
         [order.orderer_email],
-        reply_to=[settings.CONTACT_EMAIL],
+        reply_to=[settings.CATERING_EMAIL],
     )
     msg.attach_alternative(html_content, "text/html")
 
@@ -183,7 +183,7 @@ def send_catering_order_receipt_email(order_id):
         "baljan/email/order_received.html",
         {
             "order": order,
-            "CONTACT_EMAIL": settings.CONTACT_EMAIL,
+            "CATERING_EMAIL": settings.CATERING_EMAIL,
         },
     )
 
@@ -192,7 +192,7 @@ def send_catering_order_receipt_email(order_id):
         "",
         f"Baljan <{settings.DEFAULT_FROM_EMAIL}>",
         [order.orderer_email],
-        reply_to=[settings.CONTACT_EMAIL],
+        reply_to=[settings.CATERING_EMAIL],
     )
     msg.attach_alternative(html_content, "text/html")
     # No invite yet: nothing is booked until the board says yes.
@@ -263,11 +263,8 @@ def send_catering_order_board_decision_email(order_id):
 
     html_content = render_to_string(
         "baljan/email/order_board_decision.html",
-        {
-            "order": order,
-            "approved": approved,
-            "CONTACT_EMAIL": settings.CONTACT_EMAIL,
-        },
+        # No contact address: this mail is already in the orders inbox.
+        {"order": order, "approved": approved},
     )
 
     msg = EmailMultiAlternatives(

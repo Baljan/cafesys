@@ -764,7 +764,7 @@ def catering_order_status(request, token):
     response = render(
         request,
         "baljan/catering_order_status.html",
-        {"order": order, "CONTACT_EMAIL": settings.CONTACT_EMAIL},
+        {"order": order, "CATERING_EMAIL": settings.CATERING_EMAIL},
     )
     # A forwarded link should not end up in a search index, and the token must
     # not ride along in the Referer when someone clicks a link on the page.
