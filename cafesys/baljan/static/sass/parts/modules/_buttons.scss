@@ -9,32 +9,87 @@
   --bs-btn-hover-bg: hsl(231, 88%, 73%);
 }
 
-// Prominent "Köp kaffekort" call to action on the front page
+// Prominent "Köp kaffekort" call to action on the front page.
+//
+// The colour drift eases back and forth between Baljan's pink and blue instead
+// of tiling a repeating band. Tiling showed the seam as a barber-pole stripe on
+// a button this wide; an alternating sweep has no seam to hide, so the stops can
+// be spread out softly and the angle can be slightly diagonal.
+@keyframes baljan-colour-drift {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
+
 .btn-buy-coffee-card {
   --bs-btn-color: #{$baljan-white};
-  --bs-btn-bg: #{$baljan-pink};
-  --bs-btn-border-color: #{$baljan-pink};
   --bs-btn-hover-color: #{$baljan-white};
-  --bs-btn-hover-bg: #{darken($baljan-pink, 8%)};
-  --bs-btn-hover-border-color: #{darken($baljan-pink, 8%)};
   --bs-btn-active-color: #{$baljan-white};
+  // Flat pink stands in if the gradient never paints.
+  --bs-btn-bg: #{$baljan-pink};
+  --bs-btn-hover-bg: #{darken($baljan-pink, 8%)};
   --bs-btn-active-bg: #{darken($baljan-pink, 12%)};
-  --bs-btn-active-border-color: #{darken($baljan-pink, 12%)};
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-border-color: transparent;
   --bs-btn-focus-shadow-rgb: 230, 0, 139;
+
   font-weight: 700;
   letter-spacing: 0.02em;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  box-shadow: 0 0.5rem 1.25rem rgba($baljan-pink, 0.35);
+  font-size: 1.5rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-radius: 0.75rem;
+
+  @media screen and (max-width: 575px) {
+    font-size: 1.25rem;
+    padding-top: 1.15rem;
+    padding-bottom: 1.15rem;
+  }
+
+  // $baljan-blue is darkened a touch throughout: at full brightness it only
+  // reaches 2.8:1 against the white label, under the 3:1 WCAG AA floor for
+  // large bold text. Every stop below stays at or above 3.6:1.
+  background-image: linear-gradient(
+    100deg,
+    $baljan-pink 0%,
+    $baljan-pink 12%,
+    mix($baljan-pink, $baljan-dark-blue, 55%) 32%,
+    $baljan-dark-blue 52%,
+    mix($baljan-dark-blue, darken($baljan-blue, 6%), 45%) 70%,
+    darken($baljan-blue, 6%) 88%,
+    darken($baljan-blue, 6%) 100%
+  );
+  background-size: 220% 100%;
+  background-position: 0% 50%;
+  animation: baljan-colour-drift 9s ease-in-out infinite alternate;
+
+  text-shadow: 0 1px 2px rgba($baljan-black, 0.45);
+  // A violet glow sits between the two ends of the drift, so it never clashes
+  // with whichever colour the button happens to be showing.
+  box-shadow: 0 0.5rem 1.5rem rgba(mix($baljan-pink, $baljan-dark-blue, 50%), 0.4);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 
   &:hover,
   &:focus-visible {
     transform: translateY(-2px);
-    box-shadow: 0 0.75rem 1.5rem rgba($baljan-pink, 0.45);
+    box-shadow: 0 0.75rem 1.85rem rgba(mix($baljan-pink, $baljan-dark-blue, 50%), 0.55);
   }
 
   .fa {
-    margin-right: 0.35rem;
+    margin-right: 0.5rem;
+  }
+
+  // Keep the colours, drop the motion.
+  @media (prefers-reduced-motion: reduce) {
+    &,
+    &:hover,
+    &:focus-visible {
+      animation: none;
+      transform: none;
+    }
   }
 }
