@@ -614,16 +614,44 @@ class OrderListView(LoginRequiredMixin, ListView):
 
 
 class CateringOrderFilter(django_filters.FilterSet):
+    """The board's filters.
+
+    django-filter renders bare widgets with no classes at all, which leaves the
+    select at its intrinsic width beside its label while the text inputs stretch
+    edge to edge and run together. The widgets are spelled out here so they get
+    the same Bootstrap classes as the rest of the staff pages.
+    """
+
     status = django_filters.ChoiceFilter(
-        choices=models.CateringOrder.Status.choices, label="Status"
+        choices=models.CateringOrder.Status.choices,
+        label="Status",
+        empty_label="Alla",
+        widget=django_forms.Select(attrs={"class": "form-select"}),
     )
     date__gte = django_filters.DateFilter(
-        field_name="date", lookup_expr="gte", label="Från och med"
+        field_name="date",
+        lookup_expr="gte",
+        label="Från och med",
+        # type=date gives the native picker, as on the public order form.
+        widget=django_forms.DateInput(
+            attrs={"class": "form-control", "type": "date"}, format="%Y-%m-%d"
+        ),
     )
     date__lte = django_filters.DateFilter(
-        field_name="date", lookup_expr="lte", label="Till och med"
+        field_name="date",
+        lookup_expr="lte",
+        label="Till och med",
+        widget=django_forms.DateInput(
+            attrs={"class": "form-control", "type": "date"}, format="%Y-%m-%d"
+        ),
     )
-    association = django_filters.CharFilter(lookup_expr="icontains", label="Förening")
+    association = django_filters.CharFilter(
+        lookup_expr="icontains",
+        label="Förening",
+        widget=django_forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Sök förening"}
+        ),
+    )
 
     class Meta:
         model = models.CateringOrder
