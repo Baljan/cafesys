@@ -1,0 +1,23 @@
+{% extends "baljan/email/_base.html" %}
+
+{% block content %}
+  <h1>Din beställning är godkänd</h1>
+
+  <p>Hej {{ order.orderer }}!</p>
+
+  <p>
+    Styrelsen har behandlat din beställning och den är godkänd. Den hämtas
+    <strong>{{ order.date|date:"l j F Y" }}</strong>, {{ order.get_pickup_display }}, i Baljan.
+  </p>
+
+  {% if order.staff_message %}
+    <div class="message">{{ order.staff_message|linebreaks }}</div>
+  {% endif %}
+
+  {% include "baljan/email/_order_summary.html" %}
+
+  <p>
+    En kalenderinbjudan med tiden är bifogad. Behöver något ändras, hör av dig så
+    snart som möjligt.
+  </p>
+{% endblock %}

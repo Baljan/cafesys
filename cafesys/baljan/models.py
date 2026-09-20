@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from datetime import date, datetime
+import secrets
+from datetime import date, datetime, time
 from django.utils import timezone
 from logging import getLogger
 
@@ -67,6 +68,17 @@ def generate_private_key():
     while len(Profile.objects.filter(private_key=private_key)) != 0:
         private_key = random_string(PRIVATE_KEY_LENGTH)
     return private_key
+
+
+def generate_catering_access_token():
+    """A secret that stands in for a login on the public order page.
+
+    `random_string` is seeded from `random` and is not safe for something that
+    guards personal data, so this goes through `secrets` instead. Anyone holding
+    the token can read the order, which is the point: the link in the email is
+    the only key the orderer ever gets.
+    """
+    return secrets.token_urlsafe(32)
 
 
 class Profile(Made):
@@ -1472,4 +1484,324 @@ class Wrapped(Made):
         return _("Stats for %(user)s during %(semester)s") % {
             "user": self.user,
             "semester": self.semester,
+        }
+
+
+class CateringOrder(Made):
+    """An order placed through the public order form ("beställning").
+
+    This is not the same thing as `Order`, which records a single purchase paid
+    for with a coffee card. A catering order is a request from an association to
+    have Baljan prepare food and drink for a given day. It is submitted by an
+    anonymous visitor and then handled by the board.
+
+    The ordered goods are stored as a snapshot in `items` rather than as rows
+    pointing at a catalogue. The assortment lives in `OrderForm` as plain Python
+    tuples and is changed between semesters, so a snapshot is the only way an old
+    order keeps meaning what it meant when it was placed.
+    """
+
+    # Labels are plain Swedish, like PICKUP_CHOICES below: they are shown to the
+    # board as-is and there is no other language to switch to.
+    class Status(models.TextChoices):
+        PENDING = "pending", "Väntar"
+        APPROVED = "approved", "Godkänd"
+        DENIED = "denied", "Nekad"
+        CANCELLED = "cancelled", "Avbeställd"
+        DELIVERED = "delivered", "Levererad"
+        INVOICED = "invoiced", "Fakturerad"
+
+    MORNING = 1
+    LUNCH = 2
+    AFTERNOON = 3
+
+    PICKUP_CHOICES = (
+        (MORNING, "Morgon 07:30-08:00"),
+        (LUNCH, "Lunch 12:15-13:00"),
+        (AFTERNOON, "Eftermiddag 16:15-17:00"),
+    )
+
+    #: Start and end of each pickup window, used when building calendar invites.
+    PICKUP_TIMES = {
+        MORNING: (time(7, 30), time(8, 0)),
+        LUNCH: (time(12, 15), time(13, 0)),
+        AFTERNOON: (time(16, 15), time(17, 0)),
+    }
+
+    orderer = models.CharField(_("orderer"), max_length=100)
+    orderer_email = models.EmailField(_("orderer email"))
+    orderer_phone = models.CharField(_("orderer phone number"), max_length=11)
+
+    association = models.CharField(_("association"), max_length=100)
+    org_number = models.CharField(
+        _("organisation number"), max_length=20, blank=True, default=""
+    )
+
+    pickup_name = models.CharField(
+        _("name of person picking up"), max_length=100, blank=True, default=""
+    )
+    pickup_email = models.EmailField(
+        _("email of person picking up"), blank=True, default=""
+    )
+    pickup_phone = models.CharField(
+        _("phone number of person picking up"), max_length=11, blank=True, default=""
+    )
+
+    date = models.DateField(_("date"))
+    pickup = models.PositiveSmallIntegerField(_("pickup time"), choices=PICKUP_CHOICES)
+    other = models.TextField(
+        _("other information and allergies"), blank=True, default=""
+    )
+
+    #: The sum shown in the browser when the order was placed. Computed by
+    #: JavaScript and therefore not to be trusted; kept only for reference.
+    displayed_sum = models.CharField(
+        _("sum shown to the orderer"), max_length=32, blank=True, default=""
+    )
+
+    #: Snapshot of the ordered goods: a list of {"key", "label", "count"} dicts.
+    items = models.JSONField(_("items"), encoder=DjangoJSONEncoder, default=list)
+
+    status = models.CharField(
+        _("status"),
+        max_length=16,
+        choices=Status.choices,
+        default=Status.PENDING,
+        db_index=True,
+    )
+    staff_note = models.TextField(
+        _("internal note"),
+        blank=True,
+        default="",
+        help_text=_("only visible to the board, never sent to the orderer"),
+    )
+    staff_message = models.TextField(
+        _("message to the orderer"),
+        blank=True,
+        default="",
+        help_text=_("included in the email sent when the order is decided"),
+    )
+
+    handled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        verbose_name=_("handled by"),
+        related_name="handled_catering_orders",
+        on_delete=models.SET_NULL,
+    )
+    handled_at = models.DateTimeField(_("handled at"), null=True, blank=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    #: Stands in for a login on the public status page. The primary key cannot
+    #: do that job: it runs 1, 2, 3, and the page carries a name, an email
+    #: address, a phone number and the allergies written into `other`.
+    access_token = models.CharField(
+        _("access token"),
+        max_length=64,
+        unique=True,
+        default=generate_catering_access_token,
+    )
+
+    #: The `Message-ID` of the mail sent to the board when the order came in,
+    #: kept so the decision can answer in that same thread.
+    board_message_id = models.CharField(
+        _("board message id"), max_length=255, blank=True, default=""
+    )
+    #: That mail's subject, stored rather than recomputed: the board may edit
+    #: the order afterwards, and Gmail splits a thread whose subject changed
+    #: even when `References` still lines up.
+    board_subject = models.CharField(
+        _("board subject"), max_length=255, blank=True, default=""
+    )
+
+    class Meta:
+        verbose_name = _("catering order")
+        verbose_name_plural = _("catering orders")
+        ordering = ["-made"]
+        permissions = (("manage_catering_orders", _nl("Can manage catering orders")),)
+
+    def __str__(self):
+        return "%(orderer)s - %(association)s (%(date)s)" % {
+            "orderer": self.orderer,
+            "association": self.association,
+            "date": self.date,
+        }
+
+    def get_absolute_url(self):
+        return reverse("catering_order", kwargs={"pk": self.pk})
+
+    def get_public_url(self):
+        """Where the orderer reads their own order, no login involved."""
+        return reverse("catering_order_status", kwargs={"token": self.access_token})
+
+    def public_url(self):
+        """`get_public_url` as an absolute URL, for the emails.
+
+        The decision mails are rendered in a Celery task, where there is no
+        request to build one from; the current `Site` is what the rest of the
+        code uses in the same spot (see `ical.make_event`).
+        """
+        return "https://%s%s" % (util.current_site(), self.get_public_url())
+
+    def board_url(self):
+        """`get_absolute_url` as an absolute URL, for the mail to the board."""
+        return "https://%s%s" % (util.current_site(), self.get_absolute_url())
+
+    @property
+    def is_pending(self):
+        return self.status == self.Status.PENDING
+
+    @property
+    def is_decided(self):
+        return self.status != self.Status.PENDING
+
+    def pickup_window(self):
+        """Return the pickup window as two aware datetimes."""
+        start, end = self.PICKUP_TIMES[self.pickup]
+        tz = timezone.get_current_timezone()
+        return (
+            datetime.combine(self.date, start, tz),
+            datetime.combine(self.date, end, tz),
+        )
+
+    def ordered_items(self):
+        """The snapshot, with empty lines dropped."""
+        return [item for item in self.items if item.get("count")]
+
+    def grouped_items(self):
+        """Ordered goods as groups, each with its sub-types nested underneath.
+
+        The snapshot is flat: a Jochen line and then one line per filling, each
+        tagged with the group it belongs to. Listing those side by side reads as
+        if the fillings were extra items, so they are nested here instead.
+
+        Groups with nothing ordered are left out entirely.
+        """
+        groups = []
+        by_label = {}
+
+        for item in self.items:
+            if item.get("group"):
+                continue
+            group = {
+                "label": item["label"],
+                "count": item.get("count") or 0,
+                "children": [],
+            }
+            groups.append(group)
+            by_label[item["label"]] = group
+
+        for item in self.items:
+            parent = by_label.get(item.get("group"))
+            if parent is None or not item.get("count"):
+                continue
+            parent["children"].append({"label": item["label"], "count": item["count"]})
+
+        return [g for g in groups if g["count"] or g["children"]]
+
+    def total_items(self):
+        """How many things were ordered, counting each group only once."""
+        return sum(group["count"] for group in self.grouped_items())
+
+    def set_status(self, status, user=None, notify=False):
+        """Move the order to `status`, recording who did it.
+
+        Passing `notify=True` queues a decision email to the orderer once the
+        surrounding transaction has committed.
+        """
+        self.status = status
+        self.handled_by = user
+        self.handled_at = timezone.now()
+        self.save()
+
+        if notify:
+            self.notify_orderer()
+            self.notify_board()
+
+    def approve(self, user=None, message=None, notify=True):
+        if message is not None:
+            self.staff_message = message
+        self.set_status(self.Status.APPROVED, user=user, notify=notify)
+
+    def deny(self, user=None, message=None, notify=True):
+        if message is not None:
+            self.staff_message = message
+        self.set_status(self.Status.DENIED, user=user, notify=notify)
+
+    def notify_orderer(self):
+        """Queue the decision email.
+
+        Only the primary key is handed to the task. Celery is configured with a
+        JSON serialiser, so the calendar attachment cannot travel as an argument;
+        the task rebuilds it from the stored order instead.
+        """
+        from .tasks import send_catering_order_decision_email
+
+        transaction.on_commit(lambda: send_catering_order_decision_email.delay(self.pk))
+
+    def notify_receipt(self):
+        """Queue the "we have your order" mail sent right after it was placed.
+
+        It carries the link to the public status page, which is the only way the
+        orderer ever learns their own token.
+        """
+        from .tasks import send_catering_order_receipt_email
+
+        transaction.on_commit(lambda: send_catering_order_receipt_email.delay(self.pk))
+
+    def notify_board(self):
+        """Queue the answer in the board's own mail thread for this order.
+
+        A decision taken on the website is otherwise invisible in the inbox that
+        received the order, so the thread reads as if nothing had happened.
+        """
+        from .tasks import send_catering_order_board_decision_email
+
+        transaction.on_commit(
+            lambda: send_catering_order_board_decision_email.delay(self.pk)
+        )
+
+
+class CateringOrderEmail(Made):
+    """A record of one email sent to the person who placed a catering order.
+
+    Written after the message has actually left, so a row means it was sent. It
+    says nothing about whether it arrived: there is no delivery tracking.
+
+    Orders placed before this model existed have no rows at all, so an empty
+    history means "not known", not "nothing was sent".
+    """
+
+    class Kind(models.TextChoices):
+        RECEIVED = "received", "Kvittens"
+        APPROVED = "approved", "Godkännande"
+        DENIED = "denied", "Nekande"
+
+    order = models.ForeignKey(
+        CateringOrder,
+        verbose_name=_("catering order"),
+        related_name="emails",
+        on_delete=models.CASCADE,
+    )
+    kind = models.CharField(_("kind"), max_length=16, choices=Kind.choices)
+    subject = models.CharField(_("subject"), max_length=255)
+    to_email = models.EmailField(_("recipient"))
+    body = models.TextField(
+        _("message"),
+        blank=True,
+        default="",
+        help_text=_("what the board wrote, not the full rendered email"),
+    )
+
+    class Meta:
+        verbose_name = _("sent catering order email")
+        verbose_name_plural = _("sent catering order emails")
+        # Oldest first: the history reads top to bottom.
+        ordering = ["made"]
+
+    def __str__(self):
+        return "%(kind)s till %(to)s" % {
+            "kind": self.get_kind_display(),
+            "to": self.to_email,
         }

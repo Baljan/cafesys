@@ -63,6 +63,22 @@ urlpatterns = (
     path("high-score", views.high_score, name="high_score"),
     path("bestallning", views.orderFromUs, name="order_from_us"),
     path(
+        "bestallning/<str:token>",
+        views.catering_order_status,
+        name="catering_order_status",
+    ),
+    path(
+        "bestallning/<str:token>/kalender.ics",
+        views.catering_order_calendar,
+        name="catering_order_calendar",
+    ),
+    path(
+        "bestallningar",
+        views.CateringOrderListView.as_view(),
+        name="catering_orders",
+    ),
+    path("bestallningar/<int:pk>", views.catering_order, name="catering_order"),
+    path(
         "trade/take/<int:signup_pk>/<path:redir>", views.trade_take, name="take_signup"
     ),
     path(

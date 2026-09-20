@@ -238,6 +238,8 @@ CORS_ALLOW_CREDENTIALS = True
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = True
 CONTACT_EMAIL = "styrelsen@baljan.org"
+# Where catering orders land, and where the decision answers in the same thread.
+CATERING_EMAIL = "bestallning@baljan.org"
 ADMIN_EMAIL = "1337@baljan.org"
 CONTACT_PHONE = "0766860043"
 USER_EMAIL_DOMAIN = "student.liu.se"

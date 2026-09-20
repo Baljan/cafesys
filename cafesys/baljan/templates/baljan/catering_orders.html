@@ -1,0 +1,82 @@
+{% extends "baljan/staff.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+{% load baljan_extras %}
+
+{% block page_title %}Beställningar{% endblock %}
+
+{% block staff_info %}
+<div class="d-flex flex-wrap align-items-baseline justify-content-between mb-3">
+  <h2 class="mb-0">Beställningar</h2>
+  <p class="text-muted mb-0">
+    {% if pending_count %}
+      <strong>{{ pending_count }}</strong> väntar på besked
+    {% else %}
+      Inga obehandlade beställningar
+    {% endif %}
+  </p>
+</div>
+
+<form method="get" class="row gx-2 gy-2 align-items-end mb-4">
+  <div class="col-12 col-md-3">
+    <label for="id_status" class="form-label mb-1">Status</label>
+    {{ filter.form.status }}
+  </div>
+  <div class="col-6 col-md-2">
+    <label for="id_date__gte" class="form-label mb-1">Från och med</label>
+    {{ filter.form.date__gte }}
+  </div>
+  <div class="col-6 col-md-2">
+    <label for="id_date__lte" class="form-label mb-1">Till och med</label>
+    {{ filter.form.date__lte }}
+  </div>
+  <div class="col-12 col-md-3">
+    <label for="id_association" class="form-label mb-1">Förening</label>
+    {{ filter.form.association }}
+  </div>
+  <div class="col-12 col-md-2 d-flex gap-2">
+    <button type="submit" class="btn btn-primary flex-grow-1">Filtrera</button>
+    <a href="{% url 'catering_orders' %}" class="btn btn-outline-secondary">Rensa</a>
+  </div>
+</form>
+
+<div class="table-responsive">
+  <table class="table table-baljan align-middle">
+    <thead>
+      <tr>
+        <th>Datum</th>
+        <th>Upphämtning</th>
+        <th>Beställare</th>
+        <th>Förening</th>
+        <th>Status</th>
+        <th>Inkom</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+        <tr>
+          <td>{{ order.date|date:"Y-m-d" }}</td>
+          <td>{{ order.get_pickup_display }}</td>
+          <td>{{ order.orderer }}</td>
+          <td>{{ order.association }}</td>
+          <td>{% catering_status_badge order %}</td>
+          <td><time datetime="{{ order.made|date:'c' }}">{{ order.made|naturalday }}</time></td>
+          <td class="text-end">
+            <a href="{% url 'catering_order' order.pk %}" class="btn btn-sm btn-outline-dark">Öppna</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-muted py-4">
+            Inga beställningar matchar filtret.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% pagination page_obj %}
+{% endblock %}

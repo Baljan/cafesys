@@ -1,0 +1,30 @@
+{% extends "baljan/email/_base.html" %}
+
+{% block content %}
+  <h1>
+    Beställning #{{ order.pk }} är {% if approved %}godkänd{% else %}nekad{% endif %}
+    från hemsidan
+  </h1>
+
+  <p>
+    {{ order.orderer }} &mdash; {{ order.association }},
+    {{ order.date|date:"l j F Y" }}, {{ order.get_pickup_display }}.
+  </p>
+
+  <p>
+    {% if approved %}Godkänd{% else %}Nekad{% endif %} av
+    <strong>{{ order.handled_by|default:"okänd" }}</strong>
+    {{ order.handled_at|date:"Y-m-d H:i" }}. Beställaren har fått besked.
+  </p>
+
+  {% if order.staff_message %}
+    <p>Det här fick beställaren läsa:</p>
+    <div class="message">{{ order.staff_message|linebreaks }}</div>
+  {% else %}
+    <p>Inget meddelande skickades med till beställaren.</p>
+  {% endif %}
+
+  <p>
+    <a href="{{ order.board_url }}">Öppna beställningen på hemsidan</a>
+  </p>
+{% endblock %}
