@@ -715,3 +715,33 @@ class Wrapped(admin.ModelAdmin):
 
 
 custom_admin_site.register(models.Wrapped, Wrapped)
+
+
+class CateringOrderAdmin(admin.ModelAdmin):
+    list_display = (
+        "pk",
+        "date",
+        "orderer",
+        "association",
+        "pickup",
+        "status",
+        "handled_by",
+        "made",
+    )
+    list_filter = ("status", "date", "pickup")
+    search_fields = ("orderer", "orderer_email", "association", "org_number")
+    readonly_fields = ("made", "updated_at", "handled_at")
+    date_hierarchy = "date"
+
+
+custom_admin_site.register(models.CateringOrder, CateringOrderAdmin)
+
+
+class CateringOrderEmailAdmin(admin.ModelAdmin):
+    list_display = ("order", "kind", "to_email", "made")
+    list_filter = ("kind", "made")
+    search_fields = ("to_email", "subject", "order__orderer", "order__association")
+    readonly_fields = ("made",)
+
+
+custom_admin_site.register(models.CateringOrderEmail, CateringOrderEmailAdmin)

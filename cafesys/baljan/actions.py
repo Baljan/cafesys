@@ -112,7 +112,11 @@ def categories_and_actions(request):
         (
             settings.BOARD_GROUP,
             "Styrelsen",
-            (Action("Veckoplanering", "call_duty_week"),) + tuple(upcoming_sem_actions),
+            (
+                Action("Veckoplanering", "call_duty_week"),
+                Action("Beställningar", "catering_orders"),
+            )
+            + tuple(upcoming_sem_actions),
         ),
         (
             settings.WORKER_GROUP,

@@ -1,0 +1,60 @@
+{% spaceless %}
+<html>
+<head>
+  <style>
+    body {
+      border: 1px dotted black;
+      padding: 1.5rem;
+      font-family: sans-serif;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin: 0 0 1rem;
+    }
+
+    h2 {
+      margin: 1.5rem 0 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    p {
+      margin: 0.5rem 0 0.5rem;
+    }
+
+    table {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+
+    td {
+      border: 1px solid black;
+      padding: 0.25rem;
+    }
+
+    .message {
+      border-left: 4px solid #e6008b;
+      padding: 0.5rem 1rem;
+      margin: 1rem 0;
+    }
+
+    .footer {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  {% block content %}{% endblock %}
+
+  <div class="footer">
+    <p>
+      Har du frågor? Svara på det här mailet eller hör av dig till
+      <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a>.
+    </p>
+    <p>Sektionscafé Baljan</p>
+  </div>
+</body>
+</html>
+{% endspaceless %}

@@ -1,0 +1,225 @@
+{% extends "baljan/staff.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+{% load baljan_extras %}
+
+{% block page_title %}Beställning #{{ order.pk }}{% endblock %}
+
+{% block staff_info %}
+<div class="mb-3">
+  <a href="{% url 'catering_orders' %}" class="text-decoration-none">&laquo; Alla beställningar</a>
+</div>
+
+<div class="d-flex flex-wrap align-items-baseline justify-content-between mb-4">
+  <h2 class="mb-0">
+    Beställning #{{ order.pk }} {% catering_status_badge order %}
+  </h2>
+  <p class="text-muted mb-0">
+    Inkom <time datetime="{{ order.made|date:'c' }}">{{ order.made|date:"Y-m-d H:i" }}</time>
+    {% if order.handled_at %}
+      &middot; behandlad av {{ order.handled_by|default:"okänd" }}
+      <time datetime="{{ order.handled_at|date:'c' }}">{{ order.handled_at|date:"Y-m-d H:i" }}</time>
+    {% endif %}
+  </p>
+</div>
+
+<div class="row g-4">
+  <div class="col-12 col-lg-7">
+    <div class="card mb-4">
+      <div class="card-body pb-3">
+        <h3 class="h5 card-title">Beställning</h3>
+        <dl class="row mb-0">
+          <dt class="col-5 col-sm-4 fw-semibold">Datum</dt>
+          <dd class="col-7 col-sm-8 mb-1">{{ order.date|date:"l j F Y" }}</dd>
+          <dt class="col-5 col-sm-4 fw-semibold">Upphämtning</dt>
+          <dd class="col-7 col-sm-8 mb-1">{{ order.get_pickup_display }}</dd>
+          <dt class="col-5 col-sm-4 fw-semibold">Förening</dt>
+          <dd class="col-7 col-sm-8 mb-0">
+            {{ order.association }}
+            {% if order.org_number %}<span class="text-muted">({{ order.org_number }})</span>{% endif %}
+          </dd>
+        </dl>
+      </div>
+
+      <div class="card-body border-top py-2 d-flex align-items-baseline justify-content-between">
+        <h4 class="h6 text-uppercase dark-blue mb-0" style="letter-spacing:.06em">Varor</h4>
+        <span class="text-muted small">{{ order.total_items }} st totalt</span>
+      </div>
+
+      <ul class="list-group list-group-flush">
+        {% for group in order.grouped_items %}
+          <li class="list-group-item d-flex justify-content-between align-items-baseline">
+            <span>{{ group.label }}</span>
+            <strong class="ms-3">{{ group.count }}</strong>
+          </li>
+          {% for child in group.children %}
+            <li class="list-group-item d-flex justify-content-between align-items-baseline ps-4 py-1 small text-muted border-0">
+              <span>&rsaquo; {{ child.label }}</span>
+              <span class="ms-3">{{ child.count }}</span>
+            </li>
+          {% endfor %}
+        {% empty %}
+          <li class="list-group-item text-muted">Inga varor angivna.</li>
+        {% endfor %}
+      </ul>
+
+      <div class="card-body border-top py-2 d-flex justify-content-between align-items-baseline">
+        <span>
+          Summa i formuläret
+          <small class="d-block text-muted">Räknad i webbläsaren, kontrollera själv.</small>
+        </span>
+        <strong class="ms-3">{{ order.displayed_sum|default:"—" }}{% if order.displayed_sum %} SEK{% endif %}</strong>
+      </div>
+
+      {% if order.other %}
+        <div class="card-body border-top">
+          <h4 class="h6">Övrigt och allergier</h4>
+          <p class="mb-0">{{ order.other|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h3 class="h5 card-title">Kontakt</h3>
+        <dl class="row mb-0">
+          <dt class="col-5 col-sm-4">Beställare</dt>
+          <dd class="col-7 col-sm-8">{{ order.orderer }}</dd>
+          <dt class="col-5 col-sm-4">Mail</dt>
+          <dd class="col-7 col-sm-8"><a href="mailto:{{ order.orderer_email }}">{{ order.orderer_email }}</a></dd>
+          <dt class="col-5 col-sm-4">Telefon</dt>
+          <dd class="col-7 col-sm-8">{{ order.orderer_phone }}</dd>
+          {% if order.pickup_name %}
+            <dt class="col-5 col-sm-4">Hämtas av</dt>
+            <dd class="col-7 col-sm-8">
+              {{ order.pickup_name }}<br>
+              <a href="mailto:{{ order.pickup_email }}">{{ order.pickup_email }}</a><br>
+              {{ order.pickup_phone }}
+            </dd>
+          {% endif %}
+        </dl>
+      </div>
+
+      <div class="card-body border-top">
+        <h4 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Beställarens länk</h4>
+        <p class="text-muted small mb-2">
+          Sidan beställaren ser. Skicka den om de tappat bort sitt mail &mdash;
+          men bara till beställaren, den som har länken kan läsa beställningen.
+        </p>
+        <input type="text" class="form-control form-control-sm font-monospace"
+               value="{{ order.public_url }}" readonly
+               onclick="this.select()">
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h3 class="h5 card-title">Besked till beställaren</h3>
+        {% if order.is_decided %}
+          <p class="text-muted">
+            Beskedet är redan skickat. Du kan skicka ett nytt genom att välja igen.
+          </p>
+        {% endif %}
+        <form method="POST" action="">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="staff_message" class="form-label">Meddelande (följer med i mailet)</label>
+            <textarea class="form-control" id="staff_message" name="staff_message"
+                      rows="3">{{ order.staff_message }}</textarea>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" name="task" value="approve" class="btn btn-success flex-grow-1">
+              Godkänn
+            </button>
+            <button type="submit" name="task" value="deny" class="btn btn-outline-danger flex-grow-1">
+              Neka
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body pb-2">
+        <h3 class="h5 card-title">Skickade mail</h3>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for email in order.emails.all %}
+          <li class="list-group-item">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <strong>{{ email.get_kind_display }}</strong>
+              <small class="text-muted ms-3">
+                <time datetime="{{ email.made|date:'c' }}">{{ email.made|date:"j M H:i" }}</time>
+              </small>
+            </div>
+            <div class="small text-muted">Skickat till {{ email.to_email }}</div>
+            {% if email.body %}
+              <div class="small mt-1 fst-italic">{{ email.body|linebreaksbr }}</div>
+            {% else %}
+              <div class="small mt-1 text-muted">Inget eget meddelande följde med.</div>
+            {% endif %}
+          </li>
+        {% empty %}
+          <li class="list-group-item text-muted small">
+            Inget mail har skickats till beställaren än.
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="card-body pt-2">
+        <small class="text-muted">
+          Visar att mailet lämnade oss, inte att det kommit fram.
+        </small>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <h3 class="h5 card-title">Status</h3>
+        <form method="POST" action="" class="d-flex gap-2">
+          {% csrf_token %}
+          <input type="hidden" name="task" value="status">
+          <select name="status" class="form-select">
+            {% for value, label in statuses %}
+              <option value="{{ value }}" {% if value == order.status %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-outline-secondary">Sätt</button>
+        </form>
+        <small class="text-muted d-block mt-2">
+          Ändrar bara statusen internt. Inget mail skickas.
+        </small>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h3 class="h5 card-title">Intern anteckning</h3>
+        <form method="POST" action="">
+          {% csrf_token %}
+          <input type="hidden" name="task" value="note">
+          <textarea class="form-control mb-2" name="staff_note" rows="4">{{ order.staff_note }}</textarea>
+          <button type="submit" class="btn btn-outline-secondary">Spara anteckning</button>
+        </form>
+        <small class="text-muted d-block mt-2">Syns bara för styrelsen.</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="my-5">
+
+<h3 class="h5">Redigera beställningen</h3>
+<p class="text-muted">
+  Ändringar sparas utan att beställaren meddelas. Skicka ett nytt besked ovan om
+  de behöver veta.
+</p>
+<form method="POST" action="">
+  {% csrf_token %}
+  <input type="hidden" name="task" value="save">
+  {{ form | crispy }}
+  <button type="submit" class="btn btn-primary">Spara ändringar</button>
+</form>
+{% endblock %}

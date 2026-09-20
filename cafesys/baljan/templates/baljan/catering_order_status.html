@@ -1,0 +1,117 @@
+{% extends "baljan/baljan.html" %}
+{% load baljan_extras %}
+
+{% comment %}
+The orderer's own view of their order, opened from the link in their mail.
+
+Nothing on this page is for the board: `staff_note`, `handled_by` and the mail
+history are internal and must stay out of it.
+{% endcomment %}
+
+{% block page_title %}Beställning #{{ order.pk }}{% endblock %}
+{% block body_class %}baljan catering-order-status{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+
+    <div class="d-flex flex-wrap align-items-baseline justify-content-between mb-4">
+      <h2 class="mb-0">
+        Beställning #{{ order.pk }} {% catering_status_badge order %}
+      </h2>
+      <p class="text-muted mb-0">
+        Inkom <time datetime="{{ order.made|date:'c' }}">{{ order.made|date:"Y-m-d H:i" }}</time>
+      </p>
+    </div>
+
+    <div class="alert {% if order.status == 'approved' %}alert-success{% elif order.status == 'denied' or order.status == 'cancelled' %}alert-warning{% else %}alert-info{% endif %}">
+      {% if order.status == 'pending' %}
+        Din beställning ligger hos styrelsen. Du får ett mail så snart den är
+        behandlad &mdash; den är inte bekräftad förrän dess.
+      {% elif order.status == 'approved' %}
+        Beställningen är godkänd. Den hämtas
+        <strong>{{ order.date|date:"l j F Y" }}</strong>,
+        {{ order.get_pickup_display }}, i Baljan.
+      {% elif order.status == 'denied' %}
+        Beställningen är nekad och kommer inte att lagas.
+      {% elif order.status == 'cancelled' %}
+        Beställningen är avbeställd.
+      {% elif order.status == 'delivered' %}
+        Beställningen är utlämnad. Tack!
+      {% elif order.status == 'invoiced' %}
+        Beställningen är utlämnad och fakturerad.
+      {% endif %}
+    </div>
+
+    {% if order.is_decided and order.staff_message %}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Meddelande från Baljan</h3>
+          {{ order.staff_message|linebreaks }}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="card mb-4">
+      <div class="card-body pb-3">
+        <h3 class="h5 card-title">Beställning</h3>
+        <dl class="row mb-0">
+          <dt class="col-5 col-sm-4 fw-semibold">Datum</dt>
+          <dd class="col-7 col-sm-8 mb-1">{{ order.date|date:"l j F Y" }}</dd>
+          <dt class="col-5 col-sm-4 fw-semibold">Upphämtning</dt>
+          <dd class="col-7 col-sm-8 mb-1">{{ order.get_pickup_display }}</dd>
+          <dt class="col-5 col-sm-4 fw-semibold">Förening</dt>
+          <dd class="col-7 col-sm-8 mb-0">
+            {{ order.association }}
+            {% if order.org_number %}<span class="text-muted">({{ order.org_number }})</span>{% endif %}
+          </dd>
+        </dl>
+      </div>
+
+      <div class="card-body border-top py-2 d-flex align-items-baseline justify-content-between">
+        <h4 class="h6 text-uppercase dark-blue mb-0" style="letter-spacing:.06em">Varor</h4>
+        <span class="text-muted small">{{ order.total_items }} st totalt</span>
+      </div>
+
+      <ul class="list-group list-group-flush">
+        {% for group in order.grouped_items %}
+          <li class="list-group-item d-flex justify-content-between align-items-baseline">
+            <span>{{ group.label }}</span>
+            <strong class="ms-3">{{ group.count }}</strong>
+          </li>
+          {% for child in group.children %}
+            <li class="list-group-item d-flex justify-content-between align-items-baseline ps-4 py-1 small text-muted border-0">
+              <span>&rsaquo; {{ child.label }}</span>
+              <span class="ms-3">{{ child.count }}</span>
+            </li>
+          {% endfor %}
+        {% empty %}
+          <li class="list-group-item text-muted">Inga varor angivna.</li>
+        {% endfor %}
+      </ul>
+
+      {% if order.other %}
+        <div class="card-body border-top">
+          <h4 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Övrigt och allergier</h4>
+          <div class="mb-0">{{ order.other|linebreaks }}</div>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if order.status == 'approved' %}
+      <p>
+        <a class="btn btn-outline-primary" href="{% url 'catering_order_calendar' token=order.access_token %}">
+          Lägg till i kalendern
+        </a>
+      </p>
+    {% endif %}
+
+    <p class="text-muted">
+      Behöver något ändras eller avbeställas, hör av dig till
+      <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a> och uppge
+      beställningsnummer #{{ order.pk }}.
+    </p>
+
+  </div>
+</div>
+{% endblock %}

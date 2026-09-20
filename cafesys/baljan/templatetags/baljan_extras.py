@@ -264,3 +264,24 @@ def admin_button(user, app_label, model_name, action, object_id=None):
         "has_perm": has_perm,
         "link": link,
     }
+
+
+#: Bootstrap colour for each catering order status.
+CATERING_STATUS_STYLES = {
+    "pending": "warning text-dark",
+    "approved": "success",
+    "denied": "danger",
+    "cancelled": "secondary",
+    "delivered": "info text-dark",
+    "invoiced": "dark",
+}
+
+
+@register.simple_tag
+def catering_status_badge(order):
+    """Render a catering order's status as a coloured badge."""
+    style = CATERING_STATUS_STYLES.get(order.status, "secondary")
+    return mark_safe(
+        '<span class="badge bg-%s">%s</span>'
+        % (style, escape(order.get_status_display()))
+    )

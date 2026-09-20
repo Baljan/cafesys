@@ -11,6 +11,8 @@ def actions(request):
         "admin_semester",
         "bookkeep",
         "call_duty_week",
+        "catering_order",
+        "catering_orders",
         "job_opening",
         "search_person",
         "semester",
