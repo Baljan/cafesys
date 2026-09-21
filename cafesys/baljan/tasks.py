@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from celery import shared_task
+from googleapiclient.errors import HttpError
 from ..celery import app
 from django.conf import settings
 
@@ -282,6 +283,60 @@ def send_catering_order_board_decision_email(order_id):
     logger.info("board told about the decision on catering order %s", order_id)
 
 
+@app.task(
+    # Google answers 503 often enough that giving up on the first one would
+    # leave the calendar quietly wrong. Failures are logged and nothing else:
+    # the board finds out by looking, not by being told.
+    autoretry_for=(HttpError,),
+    retry_backoff=True,
+    max_retries=3,
+)
+def sync_catering_order_calendar(order_id):
+    """Make the orders calendar agree with the order's current status.
+
+    Approved, delivered and invoiced orders belong in the calendar; pending,
+    denied and cancelled ones do not. The task reads the status and makes that
+    true, so it can run twice without creating a second event and it does not
+    care which button was pressed.
+    """
+    from . import google, ical
+    from .models import CateringOrder
+
+    calendar_id = settings.GOOGLE_CALENDAR_ID
+    if not calendar_id:
+        return
+
+    order = CateringOrder.objects.filter(pk=order_id).first()
+    if order is None:
+        # The retention task removes the event before it removes the row.
+        logger.warning("catering order %s is gone, calendar left alone", order_id)
+        return
+
+    if not order.calendar_event_wanted:
+        if order.calendar_event_id:
+            google.delete_event(calendar_id, order.calendar_event_id)
+            order.calendar_event_id = ""
+            order.save(update_fields=["calendar_event_id", "updated_at"])
+            logger.info("calendar event for catering order %s removed", order_id)
+        return
+
+    start, end = order.pickup_window()
+    body = {
+        "summary": "[Beställning %s] %s - %s"
+        % (order.date.strftime("%Y-%m-%d"), order.orderer, order.association),
+        "description": ical.catering_order_description(order),
+        "location": "Baljan",
+        "start": {"dateTime": start.isoformat(), "timeZone": settings.TIME_ZONE},
+        "end": {"dateTime": end.isoformat(), "timeZone": settings.TIME_ZONE},
+    }
+
+    event_id = google.upsert_event(calendar_id, order.calendar_event_id, body)
+    if event_id != order.calendar_event_id:
+        order.calendar_event_id = event_id
+        order.save(update_fields=["calendar_event_id", "updated_at"])
+    logger.info("calendar event for catering order %s written", order_id)
+
+
 @shared_task
 def remove_old_catering_orders():
     """Drop catering orders older than two years.
@@ -296,8 +351,26 @@ def remove_old_catering_orders():
 
     from .models import CateringOrder
 
+    from . import google
+
     cutoff = timezone.now() - relativedelta(years=2)
-    deleted, _ = CateringOrder.objects.filter(made__lt=cutoff).delete()
+    doomed = CateringOrder.objects.filter(made__lt=cutoff)
+
+    # Before the rows go: the event description carries the orderer's name,
+    # phone number, address and allergies, so leaving the events behind would
+    # make this purge only half a purge.
+    calendar_id = settings.GOOGLE_CALENDAR_ID
+    if calendar_id:
+        for event_id in doomed.exclude(calendar_event_id="").values_list(
+            "calendar_event_id", flat=True
+        ):
+            try:
+                google.delete_event(calendar_id, event_id)
+            except Exception:
+                # One stubborn event must not stop the rest being deleted.
+                logger.exception("could not remove calendar event %s", event_id)
+
+    deleted, _ = doomed.delete()
     if deleted:
         logger.info("removed %s old catering order(s)", deleted)
     return deleted

@@ -1615,6 +1615,13 @@ class CateringOrder(Made):
         _("board subject"), max_length=255, blank=True, default=""
     )
 
+    #: The event in the shared orders calendar, once there is one. Google
+    #: documents event ids as 5-1024 characters, so the column is sized to the
+    #: documented maximum rather than to what ids happen to look like today.
+    calendar_event_id = models.CharField(
+        _("calendar event id"), max_length=1024, blank=True, default=""
+    )
+
     class Meta:
         verbose_name = _("catering order")
         verbose_name_plural = _("catering orders")
@@ -1655,6 +1662,20 @@ class CateringOrder(Made):
     @property
     def is_decided(self):
         return self.status != self.Status.PENDING
+
+    @property
+    def calendar_event_wanted(self):
+        """Whether this order belongs in the orders calendar as it stands.
+
+        Driven by the current status rather than by which button was pressed,
+        which is what makes the sync idempotent: approving twice moves the same
+        event instead of creating a second one.
+        """
+        return self.status in (
+            self.Status.APPROVED,
+            self.Status.DELIVERED,
+            self.Status.INVOICED,
+        )
 
     def pickup_window(self):
         """Return the pickup window as two aware datetimes."""
@@ -1715,6 +1736,10 @@ class CateringOrder(Made):
         self.handled_at = timezone.now()
         self.save()
 
+        # Unconditional: the calendar follows every status, not just the two
+        # that mail anyone.
+        self.sync_calendar()
+
         if notify:
             self.notify_orderer()
             self.notify_board()
@@ -1761,6 +1786,16 @@ class CateringOrder(Made):
         transaction.on_commit(
             lambda: send_catering_order_board_decision_email.delay(self.pk)
         )
+
+    def sync_calendar(self):
+        """Queue the orders-calendar sync.
+
+        A no-op unless GOOGLE_CALENDAR_ID is set, so nothing reaches Google in
+        development or in the tests.
+        """
+        from .tasks import sync_catering_order_calendar
+
+        transaction.on_commit(lambda: sync_catering_order_calendar.delay(self.pk))
 
 
 class CateringOrderEmail(Made):

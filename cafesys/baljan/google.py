@@ -25,6 +25,60 @@ def setup_service():
     return service
 
 
+def setup_calendar_service():
+    """Calendar client for the catering sync.
+
+    Unlike `setup_service`, this one passes no `subject`: the service account
+    acts as itself rather than impersonating a mailbox. It reaches the calendar
+    because the calendar has been shared with the account's own address, which
+    is an ordinary sharing setting rather than a domain-wide delegation grant.
+    That keeps the sync off any one person's account and out of the Workspace
+    admin console.
+    """
+    creds = service_account.Credentials.from_service_account_info(
+        info=settings.GOOGLE_SERVICE_ACCOUNT_INFO,
+        scopes=["https://www.googleapis.com/auth/calendar.events"],
+    )
+    return build("calendar", "v3", credentials=creds)
+
+
+def upsert_event(calendar_id, event_id, body):
+    """Write `body` to the calendar, and return the event's id.
+
+    Patches when an id is given, creates otherwise. An id pointing at an event
+    that is no longer there — someone deleted it by hand in Google — is not an
+    error: the event is simply created again.
+    """
+    service = setup_calendar_service()
+
+    if event_id:
+        try:
+            event = (
+                service.events()
+                .patch(calendarId=calendar_id, eventId=event_id, body=body)
+                .execute()
+            )
+            return event["id"]
+        except HttpError as error:
+            if error.status_code not in (404, 410):
+                raise
+            logger.info("calendar event %s is gone, creating a new one", event_id)
+
+    event = service.events().insert(calendarId=calendar_id, body=body).execute()
+    return event["id"]
+
+
+def delete_event(calendar_id, event_id):
+    """Remove an event. Already gone counts as done."""
+    service = setup_calendar_service()
+    try:
+        service.events().delete(calendarId=calendar_id, eventId=event_id).execute()
+    except HttpError as error:
+        if error.status_code not in (404, 410):
+            raise
+        logger.info("calendar event %s was already gone", event_id)
+
+
 @signals.worker_ready.connect
 def ensure_gmail_watch(**kwargs):
     service = setup_service()
