@@ -270,6 +270,9 @@ def _apply_order_form(order, form):
     order.displayed_sum = data.get("orderSum") or ""
     order.items = _catering_items(form)
     order.save()
+    # Edits move the event when the order already has one, and do nothing
+    # otherwise.
+    order.sync_calendar()
     return order
 
 

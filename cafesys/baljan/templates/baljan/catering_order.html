@@ -65,10 +65,7 @@
       </ul>
 
       <div class="card-body border-top py-2 d-flex justify-content-between align-items-baseline">
-        <span>
-          Summa i formuläret
-          <small class="d-block text-muted">Räknad i webbläsaren, kontrollera själv.</small>
-        </span>
+        <span>Summa i formuläret</span>
         <strong class="ms-3">{{ order.displayed_sum|default:"—" }}{% if order.displayed_sum %} SEK{% endif %}</strong>
       </div>
 
@@ -103,11 +100,7 @@
 
       <div class="card-body border-top">
         <h4 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Beställarens länk</h4>
-        <p class="text-muted small mb-2">
-          Sidan beställaren ser. Skicka den om de tappat bort sitt mail &mdash;
-          men bara till beställaren, den som har länken kan läsa beställningen.
-        </p>
-        <input type="text" class="form-control form-control-sm font-monospace"
+        <input type="text" class="form-control form-control-sm font-monospace mt-2"
                value="{{ order.public_url }}" readonly
                onclick="this.select()">
       </div>
@@ -168,11 +161,6 @@
           </li>
         {% endfor %}
       </ul>
-      <div class="card-body pt-2">
-        <small class="text-muted">
-          Visar att mailet lämnade oss, inte att det kommit fram.
-        </small>
-      </div>
     </div>
 
     <div class="card mb-4">

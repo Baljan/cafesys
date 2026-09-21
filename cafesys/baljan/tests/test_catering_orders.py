@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from unittest import mock
 
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission, User
@@ -9,11 +10,13 @@ from django.urls import resolve, reverse
 from cafesys.baljan.actions import categories_and_actions
 from cafesys.celery import app as celery_app
 from cafesys.baljan.models import CateringOrder, CateringOrderEmail, Semester
+from cafesys.baljan import google
 from cafesys.baljan.tasks import (
     remove_old_catering_orders,
     send_catering_order_board_decision_email,
     send_catering_order_decision_email,
     send_catering_order_receipt_email,
+    sync_catering_order_calendar,
 )
 
 
@@ -943,3 +946,189 @@ class CateringBoardThreadTestCase(TestCase):
     def test_a_deleted_order_does_not_raise(self):
         send_catering_order_board_decision_email(9999)
         self.assertEqual(mail.outbox, [])
+
+
+@override_settings(
+    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    GOOGLE_CALENDAR_ID="testkalender@group.calendar.google.com",
+)
+class CateringCalendarTestCase(TestCase):
+    """Approved orders are mirrored into the shared orders calendar."""
+
+    @classmethod
+    def setUpTestData(cls):
+        today = date.today()
+        Semester.objects.create(
+            name="HT26",
+            start=today - timedelta(days=30),
+            end=today + timedelta(days=120),
+        )
+        cls.permission = Permission.objects.get(codename="manage_catering_orders")
+
+    def setUp(self):
+        celery_app.conf.task_always_eager = True
+        celery_app.conf.task_eager_propagates = True
+        self.addCleanup(setattr, celery_app.conf, "task_always_eager", False)
+        self.addCleanup(setattr, celery_app.conf, "task_eager_propagates", False)
+
+        # Stand in for Google at the module boundary, the way test_phone does.
+        self.upsert = mock.patch.object(
+            google, "upsert_event", return_value="evt-1"
+        ).start()
+        self.delete = mock.patch.object(google, "delete_event").start()
+        self.addCleanup(mock.patch.stopall)
+
+    def board_client(self):
+        user = User.objects.create(username="board")
+        group, _ = Group.objects.get_or_create(name=settings.BOARD_GROUP)
+        group.permissions.add(self.permission)
+        user.groups.add(group)
+        profile = user.profile
+        profile.has_seen_consent = True
+        profile.save()
+        self.client.force_login(user)
+        return self.client
+
+    def decide(self, order, task, **extra):
+        data = {"task": task}
+        data.update(extra)
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.post(reverse("catering_order", args=[order.pk]), data)
+        order.refresh_from_db()
+        return order
+
+    def test_approving_writes_an_event_and_keeps_its_id(self):
+        order = make_order()
+        self.board_client()
+        order = self.decide(order, "approve")
+
+        self.assertEqual(self.upsert.call_count, 1)
+        calendar_id, event_id, body = self.upsert.call_args[0]
+        self.assertEqual(calendar_id, settings.GOOGLE_CALENDAR_ID)
+        self.assertEqual(event_id, "")
+        self.assertEqual(order.calendar_event_id, "evt-1")
+
+        self.assertIn(order.association, body["summary"])
+        self.assertIn(order.orderer_phone, body["description"])
+        self.assertIn("Ingen laktos", body["description"])
+        self.assertEqual(body["location"], "Baljan")
+        self.assertEqual(body["start"]["timeZone"], settings.TIME_ZONE)
+
+    def test_approving_again_moves_the_same_event(self):
+        order = make_order()
+        self.board_client()
+        self.decide(order, "approve")
+        self.decide(order, "approve")
+
+        self.assertEqual(self.upsert.call_count, 2)
+        self.assertEqual(self.upsert.call_args[0][1], "evt-1")
+        self.assertEqual(self.delete.call_count, 0)
+
+    def test_editing_an_approved_order_moves_the_event(self):
+        order = make_order()
+        self.board_client()
+        self.decide(order, "approve")
+        self.upsert.reset_mock()
+
+        later = next_weekday(21)
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.post(
+                reverse("catering_order", args=[order.pk]),
+                order_payload(task="save", date=later.isoformat()),
+            )
+
+        self.assertEqual(self.upsert.call_count, 1)
+        self.assertEqual(self.upsert.call_args[0][1], "evt-1")
+        self.assertIn(
+            later.strftime("%Y-%m-%d"), self.upsert.call_args[0][2]["summary"]
+        )
+
+    def test_denying_takes_the_event_away(self):
+        order = make_order()
+        self.board_client()
+        self.decide(order, "approve")
+        order = self.decide(order, "deny")
+
+        self.delete.assert_called_once_with(settings.GOOGLE_CALENDAR_ID, "evt-1")
+        self.assertEqual(order.calendar_event_id, "")
+
+    def test_cancelling_takes_it_away_too(self):
+        order = make_order()
+        self.board_client()
+        self.decide(order, "approve")
+        order = self.decide(order, "status", status="cancelled")
+
+        self.delete.assert_called_once_with(settings.GOOGLE_CALENDAR_ID, "evt-1")
+        self.assertEqual(order.calendar_event_id, "")
+
+    def test_the_later_bookkeeping_states_keep_the_event(self):
+        order = make_order()
+        self.board_client()
+        self.decide(order, "approve")
+        order = self.decide(order, "status", status="delivered")
+
+        self.assertEqual(self.delete.call_count, 0)
+        self.assertEqual(order.calendar_event_id, "evt-1")
+
+    def test_a_pending_order_is_not_in_the_calendar(self):
+        make_order()
+        self.assertEqual(self.upsert.call_count, 0)
+
+    def test_google_failing_does_not_fell_the_decision(self):
+        """The status and the mails stand even when the calendar does not.
+
+        eager_propagates is turned off for this one: it makes a failing task
+        raise in whoever queued it, which a real worker never does. Production
+        only ever calls .delay() from an on_commit hook.
+        """
+        celery_app.conf.task_eager_propagates = False
+        self.upsert.side_effect = RuntimeError("Google är nere")
+        order = make_order()
+        self.board_client()
+
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.post(
+                reverse("catering_order", args=[order.pk]),
+                {"task": "approve", "staff_message": "Vi ses!"},
+            )
+
+        order.refresh_from_db()
+        self.assertEqual(order.status, CateringOrder.Status.APPROVED)
+        self.assertEqual(order.calendar_event_id, "")
+        self.assertIn("Vi ses!", only_to(order.orderer_email).alternatives[0][0])
+
+    def test_the_purge_takes_the_events_with_it(self):
+        order = make_order(
+            status=CateringOrder.Status.APPROVED, calendar_event_id="evt-old"
+        )
+        CateringOrder.objects.filter(pk=order.pk).update(
+            made=order.made - timedelta(days=365 * 3)
+        )
+
+        removed = remove_old_catering_orders()
+
+        self.assertEqual(removed, 1)
+        self.delete.assert_called_once_with(settings.GOOGLE_CALENDAR_ID, "evt-old")
+
+    def test_a_stubborn_event_does_not_stop_the_purge(self):
+        order = make_order(
+            status=CateringOrder.Status.APPROVED, calendar_event_id="evt-old"
+        )
+        CateringOrder.objects.filter(pk=order.pk).update(
+            made=order.made - timedelta(days=365 * 3)
+        )
+        self.delete.side_effect = RuntimeError("Google är nere")
+
+        self.assertEqual(remove_old_catering_orders(), 1)
+        self.assertFalse(CateringOrder.objects.exists())
+
+
+class CateringCalendarOffTestCase(TestCase):
+    """With no calendar configured, nothing reaches Google at all."""
+
+    @override_settings(GOOGLE_CALENDAR_ID="")
+    def test_nothing_is_called(self):
+        with mock.patch.object(google, "setup_calendar_service") as service:
+            order = make_order(status=CateringOrder.Status.APPROVED)
+            sync_catering_order_calendar(order.pk)
+        self.assertEqual(service.call_count, 0)
