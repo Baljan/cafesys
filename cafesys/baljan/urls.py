@@ -77,6 +77,12 @@ urlpatterns = (
         views.CateringOrderListView.as_view(),
         name="catering_orders",
     ),
+    path("bestallningar/idag", views.catering_today, name="catering_today"),
+    path(
+        "bestallningar/extrabestallning",
+        views.catering_extra_order,
+        name="catering_extra_order",
+    ),
     path("bestallningar/<int:pk>", views.catering_order, name="catering_order"),
     path(
         "trade/take/<int:signup_pk>/<path:redir>", views.trade_take, name="take_signup"

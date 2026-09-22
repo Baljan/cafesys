@@ -1,4 +1,5 @@
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
+from zoneinfo import ZoneInfo
 from unittest import mock
 
 from django.conf import settings
@@ -13,6 +14,9 @@ from cafesys.baljan.actions import categories_and_actions
 from cafesys.celery import app as celery_app
 from dateutil.relativedelta import relativedelta
 from cafesys.baljan.models import (
+    THERMOS_SIZES,
+    earliest_supplier_order_date,
+    plan_thermoses,
     CateringOrder,
     CateringOrderEmail,
     CateringOrderStatusChange,
@@ -27,6 +31,15 @@ from cafesys.baljan.tasks import (
     send_catering_order_receipt_email,
     sync_catering_order_calendar,
 )
+
+
+def let_cooldown_pass(order):
+    """Age the order's history past the decision-mail cooldown."""
+    CateringOrderStatusChange.objects.filter(order=order).update(
+        made=timezone.now()
+        - CateringOrder.DECISION_MAIL_COOLDOWN
+        - timedelta(seconds=1)
+    )
 
 
 def next_weekday(days_ahead=7):
@@ -998,8 +1011,11 @@ class CateringBoardThreadTestCase(TestCase):
 
     def test_the_later_bookkeeping_states_tell_nobody(self):
         order = self.submit()
+        CateringOrder.objects.filter(pk=order.pk).update(
+            status=CateringOrder.Status.APPROVED
+        )
         mail.outbox = []
-        for status in ("delivered", "invoiced", "cancelled"):
+        for status in ("delivered", "invoiced"):
             with self.captureOnCommitCallbacks(execute=True):
                 self.client.post(
                     reverse("catering_order", args=[order.pk]),
@@ -1009,6 +1025,8 @@ class CateringBoardThreadTestCase(TestCase):
                         "handled_by_name": "Kalle Karlsson",
                     },
                 )
+        order.refresh_from_db()
+        self.assertEqual(order.status, CateringOrder.Status.INVOICED)
         self.assertEqual(mail.outbox, [])
 
     def test_a_pending_order_is_not_reported(self):
@@ -1091,6 +1109,7 @@ class CateringCalendarTestCase(TestCase):
         order = make_order()
         self.board_client()
         self.decide(order, "approve")
+        let_cooldown_pass(order)
         self.decide(order, "approve")
 
         self.assertEqual(self.upsert.call_count, 2)
@@ -1120,6 +1139,7 @@ class CateringCalendarTestCase(TestCase):
         order = make_order()
         self.board_client()
         self.decide(order, "approve")
+        let_cooldown_pass(order)
         order = self.decide(order, "deny")
 
         self.delete.assert_called_once_with(settings.GOOGLE_CALENDAR_ID, "evt-1")
@@ -1802,3 +1822,888 @@ class CateringStatusHistoryTestCase(TestCase):
         self.assertContains(response, "Bo B")
         # The header answers the question the feature exists for.
         self.assertContains(response, "beslutad av Anna A")
+
+
+class ThermosPlanTestCase(TestCase):
+    """Splitting an order across thermoses."""
+
+    def plan(self, cups, drink="numberOfCoffee"):
+        return plan_thermoses(cups, THERMOS_SIZES[drink])
+
+    def test_an_exact_fit_is_preferred(self):
+        self.assertEqual(self.plan(50), [(45, 1), (5, 1)])
+
+    def test_it_never_serves_fewer_cups_than_ordered(self):
+        for cups in range(1, 160):
+            with self.subTest(cups=cups):
+                plan = self.plan(cups)
+                served = sum(size * count for size, count in plan)
+                self.assertGreaterEqual(served, cups)
+
+    def test_a_small_order_still_means_the_smallest_thermos(self):
+        self.assertEqual(self.plan(3), [(5, 1)])
+
+    def test_it_wastes_as_little_as_possible(self):
+        self.assertEqual(self.plan(30), [(15, 2)])
+
+    def test_fewest_thermoses_breaks_a_tie(self):
+        self.assertEqual(self.plan(44), [(22, 2)])
+
+    def test_tea_uses_its_own_sizes(self):
+        plan = self.plan(25, "numberOfTea")
+        self.assertEqual(plan, [(15, 1), (10, 1)])
+
+    def test_nothing_ordered_means_no_thermoses(self):
+        self.assertEqual(self.plan(0), [])
+        self.assertEqual(self.plan(-5), [])
+
+    def test_the_order_reports_a_plan_per_drink(self):
+        order = make_order(
+            items=[
+                {
+                    "field": "numberOfCoffee",
+                    "label": "kaffe",
+                    "count": 50,
+                    "group": None,
+                },
+                {"field": "numberOfTea", "label": "te", "count": 25, "group": None},
+            ]
+        )
+        self.assertEqual(
+            [(p["label"], p["cups"], p["capacity"]) for p in order.thermos_plan()],
+            [("kaffe", 50, 50), ("te", 25, 25)],
+        )
+
+    def test_a_drink_nobody_ordered_is_left_out(self):
+        order = make_order(
+            items=[
+                {
+                    "field": "numberOfCoffee",
+                    "label": "kaffe",
+                    "count": 20,
+                    "group": None,
+                },
+                {"field": "numberOfTea", "label": "te", "count": 0, "group": None},
+            ]
+        )
+        self.assertEqual([p["label"] for p in order.thermos_plan()], ["kaffe"])
+
+    def coffee_order(self, cups):
+        return make_order(
+            items=[
+                {
+                    "field": "numberOfCoffee",
+                    "label": "kaffe",
+                    "count": cups,
+                    "group": None,
+                }
+            ]
+        )
+
+    def test_one_oatly_up_to_a_full_big_thermos(self):
+        for cups in (1, 20, 44, 45):
+            with self.subTest(cups=cups):
+                self.assertEqual(self.coffee_order(cups).oatly_cartons, 1)
+
+    def test_two_oatly_above_that(self):
+        for cups in (46, 90, 137, 500):
+            with self.subTest(cups=cups):
+                self.assertEqual(self.coffee_order(cups).oatly_cartons, 2)
+
+    def test_no_coffee_means_no_oatly(self):
+        order = make_order(
+            items=[{"field": "numberOfTea", "label": "te", "count": 30, "group": None}]
+        )
+        self.assertEqual(order.oatly_cartons, 0)
+
+    def test_the_capacity_shows_when_the_number_was_rounded_up(self):
+        order = make_order(
+            items=[
+                {"field": "numberOfCoffee", "label": "kaffe", "count": 3, "group": None}
+            ]
+        )
+        plan = order.thermos_plan()[0]
+        self.assertEqual((plan["cups"], plan["capacity"]), (3, 5))
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class JourInfoTestCase(TestCase):
+    """Jour card on the pickup day."""
+
+    @classmethod
+    def setUpTestData(cls):
+        today = timezone.localdate()
+        Semester.objects.create(
+            name="HT26",
+            start=today - timedelta(days=60),
+            end=today + timedelta(days=200),
+        )
+        cls.permission = Permission.objects.get(codename="manage_catering_orders")
+
+    def setUp(self):
+        user = User.objects.create(username="styrelsen")
+        group, _ = Group.objects.get_or_create(name=settings.BOARD_GROUP)
+        group.permissions.add(self.permission)
+        user.groups.add(group)
+        profile = user.profile
+        profile.has_seen_consent = True
+        profile.save()
+        self.client.force_login(user)
+
+    def page(self, order):
+        return self.client.get(reverse("catering_order", args=[order.pk]))
+
+    def today_order(self, **kwargs):
+        kwargs.setdefault("date", timezone.localdate())
+        kwargs.setdefault("status", CateringOrder.Status.APPROVED)
+        return make_order(**kwargs)
+
+    def test_it_shows_on_the_pickup_day(self):
+        self.assertContains(self.page(self.today_order()), "Info för Jour")
+
+    def test_it_stays_hidden_before_the_pickup_day(self):
+        order = self.today_order(date=timezone.localdate() + timedelta(days=1))
+        self.assertNotContains(self.page(order), "Info för Jour")
+
+    def test_it_stays_hidden_after_the_pickup_day(self):
+        order = self.today_order(date=timezone.localdate() - timedelta(days=1))
+        self.assertNotContains(self.page(order), "Info för Jour")
+
+    def test_an_undecided_order_gets_no_card(self):
+        order = self.today_order(status=CateringOrder.Status.PENDING)
+        self.assertNotContains(self.page(order), "Info för Jour")
+
+    def test_a_cancelled_order_gets_no_card(self):
+        order = self.today_order(status=CateringOrder.Status.CANCELLED)
+        self.assertNotContains(self.page(order), "Info för Jour")
+
+    def test_a_delivered_order_still_gets_it(self):
+        order = self.today_order(status=CateringOrder.Status.DELIVERED)
+        self.assertContains(self.page(order), "Info för Jour")
+
+    def test_it_spells_out_the_thermoses(self):
+        order = self.today_order(
+            items=[
+                {
+                    "field": "numberOfCoffee",
+                    "label": "kaffe",
+                    "count": 50,
+                    "group": None,
+                }
+            ]
+        )
+        response = self.page(order)
+        self.assertContains(response, "Termosar")
+        self.assertContains(response, "1 &times; 45")
+        self.assertContains(response, "1 &times; 5")
+
+    def test_it_says_what_goes_with_the_coffee(self):
+        order = self.today_order(
+            items=[
+                {
+                    "field": "numberOfCoffee",
+                    "label": "kaffe",
+                    "count": 20,
+                    "group": None,
+                }
+            ]
+        )
+        response = self.page(order)
+        self.assertContains(response, "muggar och 1")
+        self.assertContains(response, "Oatly")
+
+    def test_a_big_coffee_order_gets_two_oatly(self):
+        order = self.today_order(
+            items=[
+                {
+                    "field": "numberOfCoffee",
+                    "label": "kaffe",
+                    "count": 60,
+                    "group": None,
+                }
+            ]
+        )
+        self.assertContains(self.page(order), "muggar och 2")
+
+    def test_tea_alone_gets_no_oatly(self):
+        order = self.today_order(
+            items=[{"field": "numberOfTea", "label": "te", "count": 20, "group": None}]
+        )
+        response = self.page(order)
+        self.assertContains(response, "Termosar")
+        self.assertNotContains(response, "Oatly")
+
+    def test_a_drinkless_order_gets_no_thermos_section(self):
+        order = self.today_order(
+            items=[
+                {
+                    "field": "numberOfSoda",
+                    "label": "läsk/vatten",
+                    "count": 20,
+                    "group": None,
+                }
+            ]
+        )
+        response = self.page(order)
+        self.assertContains(response, "Info för Jour")
+        self.assertNotContains(response, "Termosar")
+        self.assertNotContains(response, "varmvatten")
+
+    def test_it_carries_the_loan_rules(self):
+        response = self.page(self.today_order())
+        self.assertContains(response, "enbart varmvatten")
+        self.assertContains(response, "ett dygn")
+        self.assertContains(response, "16:15")
+
+    def test_jochen_is_placed_for_jour(self):
+        order = self.today_order(
+            items=[
+                {
+                    "field": "numberOfJochen",
+                    "label": "Jochen",
+                    "count": 10,
+                    "group": None,
+                }
+            ]
+        )
+        response = self.page(order)
+        self.assertContains(response, "kläggkylen")
+        self.assertContains(response, "Gråback")
+
+    def test_an_order_without_jochen_says_nothing_about_it(self):
+        order = self.today_order(
+            items=[
+                {
+                    "field": "numberOfCoffee",
+                    "label": "kaffe",
+                    "count": 20,
+                    "group": None,
+                }
+            ]
+        )
+        self.assertNotContains(self.page(order), "Gråback")
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class ExtraSupplierOrderTestCase(TestCase):
+    """Jochen and pasta salad for the extra order."""
+
+    @classmethod
+    def setUpTestData(cls):
+        today = timezone.localdate()
+        Semester.objects.create(
+            name="HT26",
+            start=today - timedelta(days=60),
+            end=today + timedelta(days=200),
+        )
+        cls.permission = Permission.objects.get(codename="manage_catering_orders")
+
+    def setUp(self):
+        user = User.objects.create(username="styrelsen")
+        group, _ = Group.objects.get_or_create(name=settings.BOARD_GROUP)
+        group.permissions.add(self.permission)
+        user.groups.add(group)
+        profile = user.profile
+        profile.has_seen_consent = True
+        profile.save()
+        self.client.force_login(user)
+
+    def page(self, order):
+        return self.client.get(reverse("catering_order", args=[order.pk]))
+
+    def test_it_names_what_has_to_be_ordered(self):
+        order = make_order(
+            items=[
+                {
+                    "field": "numberOfJochen",
+                    "label": "Jochen",
+                    "count": 30,
+                    "group": None,
+                },
+                {
+                    "field": "numberOfPastasalad",
+                    "label": "pastasallad",
+                    "count": 10,
+                    "group": None,
+                },
+            ]
+        )
+        response = self.page(order)
+        self.assertContains(response, "Läggs in i extra beställningen")
+        self.assertContains(response, "Jochen 30")
+        self.assertContains(response, "pastasallad 10")
+
+    def test_it_shows_long_before_the_pickup_day(self):
+        order = make_order(
+            date=timezone.localdate() + timedelta(days=14),
+            items=[
+                {
+                    "field": "numberOfJochen",
+                    "label": "Jochen",
+                    "count": 30,
+                    "group": None,
+                }
+            ],
+        )
+        self.assertContains(self.page(order), "Läggs in i extra beställningen")
+
+    def test_mini_jochen_counts_too(self):
+        order = make_order(
+            items=[
+                {
+                    "field": "numberOfMinijochen",
+                    "label": "Mini Jochen",
+                    "count": 12,
+                    "group": None,
+                }
+            ]
+        )
+        self.assertContains(self.page(order), "Mini Jochen 12")
+
+    def test_coffee_alone_needs_no_extra_order(self):
+        order = make_order(
+            items=[
+                {
+                    "field": "numberOfCoffee",
+                    "label": "kaffe",
+                    "count": 50,
+                    "group": None,
+                }
+            ]
+        )
+        self.assertNotContains(self.page(order), "extra beställningen")
+
+    def test_an_empty_line_is_not_an_order(self):
+        order = make_order(
+            items=[
+                {
+                    "field": "numberOfJochen",
+                    "label": "Jochen",
+                    "count": 0,
+                    "group": None,
+                }
+            ]
+        )
+        self.assertEqual(order.extra_order_items(), [])
+
+
+class OrderFormSubTypeTestCase(TestCase):
+    """Sub-type quantities inside the Jochen and pasta salad modals."""
+
+    @classmethod
+    def setUpTestData(cls):
+        today = timezone.localdate()
+        Semester.objects.create(
+            name="HT26",
+            start=today - timedelta(days=60),
+            end=today + timedelta(days=200),
+        )
+
+    def test_a_zero_is_accepted_like_a_blank(self):
+        payload = order_payload(
+            numberOfPastasalad=10,
+            numberOfKycklingsallad=10,
+            numberOfGrekisksallad=0,
+            numberOfTonfisksallad=0,
+        )
+        response = self.client.post(reverse("order_from_us"), payload)
+        self.assertEqual(response.status_code, 302)
+
+    def test_a_zero_is_not_an_ordered_item(self):
+        self.client.post(
+            reverse("order_from_us"),
+            order_payload(
+                numberOfPastasalad=10,
+                numberOfKycklingsallad=10,
+                numberOfGrekisksallad=0,
+            ),
+        )
+        order = CateringOrder.objects.get()
+        self.assertNotIn("grekisk", [item["label"] for item in order.ordered_items()])
+
+    def test_a_negative_quantity_is_still_refused(self):
+        response = self.client.post(
+            reverse("order_from_us"),
+            order_payload(numberOfPastasalad=10, numberOfKycklingsallad=-1),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("numberOfKycklingsallad", response.context["form"].errors)
+
+    def test_a_pasta_salad_order_is_stored_with_its_sub_types(self):
+        self.client.post(
+            reverse("order_from_us"),
+            order_payload(
+                numberOfPastasalad=15,
+                numberOfKycklingsallad=10,
+                numberOfGrekisksallad=5,
+            ),
+        )
+        order = CateringOrder.objects.get()
+        salads = next(g for g in order.grouped_items() if g["label"] == "pastasallad")
+        self.assertEqual(salads["count"], 15)
+        self.assertEqual(
+            [(c["label"], c["count"]) for c in salads["children"]],
+            [("kyckling", 10), ("grekisk", 5)],
+        )
+
+
+class SupplierLeadTimeTestCase(TestCase):
+    """Deadline for the Smorgasfiket order."""
+
+    def at(self, when):
+        stockholm = ZoneInfo(settings.TIME_ZONE)
+        return datetime.strptime(when, "%Y-%m-%d %H:%M").replace(tzinfo=stockholm)
+
+    def test_the_deadline_is_wednesday_quarter_past_four(self):
+        cases = {
+            "2026-09-28 09:00": date(2026, 10, 5),  # Monday
+            "2026-09-30 16:15": date(2026, 10, 5),  # Wednesday, on the dot
+            "2026-09-30 16:16": date(2026, 10, 12),  # a minute late
+            "2026-10-01 09:00": date(2026, 10, 12),  # Thursday
+            "2026-10-04 23:00": date(2026, 10, 12),  # Sunday
+        }
+        for when, expected in cases.items():
+            with self.subTest(when=when):
+                self.assertEqual(earliest_supplier_order_date(self.at(when)), expected)
+
+    def test_it_holds_across_the_turn_of_the_year(self):
+        """2026 has 53 weeks."""
+        self.assertEqual(
+            earliest_supplier_order_date(self.at("2026-12-28 09:00")),
+            date(2027, 1, 4),
+        )
+        self.assertEqual(
+            earliest_supplier_order_date(self.at("2026-12-31 09:00")),
+            date(2027, 1, 11),
+        )
+
+    def test_a_leap_day_is_an_ordinary_tuesday(self):
+        self.assertEqual(
+            earliest_supplier_order_date(self.at("2028-02-29 09:00")),
+            date(2028, 3, 6),
+        )
+
+    def test_it_always_lands_on_a_monday_one_or_two_weeks_out(self):
+        start = date(2026, 12, 1)
+        for offset in range(0, 460):
+            day = start + timedelta(days=offset)
+            when = datetime.combine(day, time(12, 0), ZoneInfo(settings.TIME_ZONE))
+            earliest = earliest_supplier_order_date(when)
+            with self.subTest(day=day):
+                self.assertEqual(earliest.weekday(), 0)
+                self.assertIn((earliest - day).days, range(1, 21))
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class OrderLeadTimeTestCase(TestCase):
+    """Deadline enforced on submit."""
+
+    @classmethod
+    def setUpTestData(cls):
+        today = timezone.localdate()
+        Semester.objects.create(
+            name="HT26",
+            start=today - timedelta(days=90),
+            end=today + timedelta(days=300),
+        )
+        cls.permission = Permission.objects.get(codename="manage_catering_orders")
+
+    def setUp(self):
+        self.earliest = earliest_supplier_order_date()
+
+    def post(self, **over):
+        return self.client.post(reverse("order_from_us"), order_payload(**over))
+
+    def test_food_too_close_is_refused(self):
+        response = self.post(
+            date=(self.earliest - timedelta(days=7)).isoformat(),
+            numberOfPastasalad=10,
+            numberOfKycklingsallad=10,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("onsdagen veckan innan", str(response.context["form"].errors))
+        self.assertFalse(CateringOrder.objects.exists())
+
+    def test_food_far_enough_ahead_goes_through(self):
+        response = self.post(
+            date=self.earliest.isoformat(),
+            numberOfPastasalad=10,
+            numberOfKycklingsallad=10,
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_coffee_at_short_notice_is_fine(self):
+        response = self.post(date=next_weekday(1).isoformat(), numberOfCoffee=20)
+        self.assertEqual(response.status_code, 302)
+
+    def test_the_board_can_still_edit_an_old_order(self):
+        # clean_date refuses weekends.
+        past = timezone.localdate() - timedelta(days=30)
+        while past.weekday() in (5, 6):
+            past -= timedelta(days=1)
+        order = make_order(
+            date=past,
+            items=[
+                {
+                    "field": "numberOfPastasalad",
+                    "label": "pastasallad",
+                    "count": 10,
+                    "group": None,
+                }
+            ],
+        )
+        user = User.objects.create(username="styrelsen")
+        group, _ = Group.objects.get_or_create(name=settings.BOARD_GROUP)
+        group.permissions.add(self.permission)
+        user.groups.add(group)
+        profile = user.profile
+        profile.has_seen_consent = True
+        profile.save()
+        self.client.force_login(user)
+
+        payload = order_payload(
+            task="save",
+            date=order.date.isoformat(),
+            numberOfPastasalad=12,
+            numberOfKycklingsallad=12,
+        )
+        response = self.client.post(reverse("catering_order", args=[order.pk]), payload)
+        self.assertEqual(response.status_code, 302)
+        order.refresh_from_db()
+        self.assertEqual(order.item_count("numberOfPastasalad"), 12)
+
+    def test_the_page_carries_the_deadline_instead_of_computing_it(self):
+        response = self.client.get(reverse("order_from_us"))
+        self.assertContains(
+            response, 'data-earliest-food-date="%s"' % self.earliest.isoformat()
+        )
+
+    def test_the_date_picker_is_not_frozen_at_import_time(self):
+        response = self.client.get(reverse("order_from_us"))
+        self.assertContains(response, 'min="%s"' % timezone.localdate().isoformat())
+
+
+class BoardClientMixin:
+    @classmethod
+    def setUpTestData(cls):
+        today = timezone.localdate()
+        Semester.objects.create(
+            name="HT26",
+            start=today - timedelta(days=60),
+            end=today + timedelta(days=200),
+        )
+        cls.permission = Permission.objects.get(codename="manage_catering_orders")
+
+    def setUp(self):
+        celery_app.conf.task_always_eager = True
+        self.addCleanup(setattr, celery_app.conf, "task_always_eager", False)
+        user = User.objects.create(username="styrelsen")
+        group, _ = Group.objects.get_or_create(name=settings.BOARD_GROUP)
+        group.permissions.add(self.permission)
+        user.groups.add(group)
+        profile = user.profile
+        profile.has_seen_consent = True
+        profile.save()
+        self.client.force_login(user)
+
+    def post(self, order, **data):
+        data.setdefault("handled_by_name", "Kalle Karlsson")
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(
+                reverse("catering_order", args=[order.pk]), data
+            )
+        order.refresh_from_db()
+        return response
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class CateringDecisionGuardTestCase(BoardClientMixin, TestCase):
+    def test_a_second_decision_within_the_cooldown_is_refused(self):
+        order = make_order()
+        self.post(order, task="approve")
+        mail.outbox = []
+
+        response = self.post(order, task="deny")
+
+        self.assertEqual(order.status, CateringOrder.Status.APPROVED)
+        self.assertEqual(mail.outbox, [])
+        self.assertContains(response, "Ett besked skickades nyss")
+
+    def test_a_decision_after_the_cooldown_goes_through(self):
+        order = make_order()
+        self.post(order, task="approve")
+        let_cooldown_pass(order)
+
+        self.post(order, task="deny")
+
+        self.assertEqual(order.status, CateringOrder.Status.DENIED)
+
+    def test_the_buttons_are_disabled_during_the_cooldown(self):
+        order = make_order()
+        self.post(order, task="approve")
+        response = self.client.get(reverse("catering_order", args=[order.pk]))
+        self.assertContains(response, "Nästa kan skickas om 10 min")
+
+    def test_a_delivered_order_cannot_be_decided_again(self):
+        order = make_order(status=CateringOrder.Status.DELIVERED)
+        mail.outbox = []
+
+        response = self.post(order, task="deny")
+
+        self.assertEqual(order.status, CateringOrder.Status.DELIVERED)
+        self.assertEqual(mail.outbox, [])
+        self.assertContains(response, "kan inte få ett nytt besked")
+
+    def test_a_status_outside_the_transitions_is_refused(self):
+        order = make_order()
+
+        response = self.post(order, task="status", status="invoiced")
+
+        self.assertEqual(order.status, CateringOrder.Status.PENDING)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "kan inte bli fakturerad")
+
+    def test_approved_and_denied_are_never_offered_by_hand(self):
+        for status, _label in CateringOrder.Status.choices:
+            allowed = CateringOrder.STATUS_TRANSITIONS[status]
+            self.assertNotIn(CateringOrder.Status.APPROVED, allowed)
+            self.assertNotIn(CateringOrder.Status.DENIED, allowed)
+
+    def test_the_status_select_only_lists_allowed_statuses(self):
+        order = make_order(status=CateringOrder.Status.APPROVED)
+        response = self.client.get(reverse("catering_order", args=[order.pk]))
+        self.assertEqual(
+            [value for value, _label in response.context["statuses"]],
+            ["delivered", "cancelled"],
+        )
+
+    def test_editing_an_approved_order_warns_that_nobody_was_told(self):
+        order = make_order(status=CateringOrder.Status.APPROVED)
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(
+                reverse("catering_order", args=[order.pk]),
+                order_payload(task="save", date=next_weekday(14).isoformat()),
+                follow=True,
+            )
+        self.assertContains(response, "Beställaren har inte fått veta om ändringen")
+
+    def test_a_status_change_returns_to_next(self):
+        order = make_order(status=CateringOrder.Status.APPROVED)
+        response = self.post(
+            order, task="status", status="delivered", next=reverse("catering_today")
+        )
+        self.assertRedirects(response, reverse("catering_today"))
+
+    def test_a_foreign_next_is_ignored(self):
+        order = make_order(status=CateringOrder.Status.APPROVED)
+        response = self.post(
+            order, task="status", status="delivered", next="https://evil.example/"
+        )
+        self.assertRedirects(response, order.get_absolute_url())
+
+
+class CateringTodayTestCase(BoardClientMixin, TestCase):
+    def page(self):
+        return self.client.get(reverse("catering_today"))
+
+    def test_it_is_closed_to_outsiders(self):
+        self.client.force_login(User.objects.create(username="utomstaende"))
+        self.assertIn(self.page().status_code, (302, 403))
+
+    def test_it_lists_todays_approved_orders(self):
+        make_order(
+            date=timezone.localdate(),
+            status=CateringOrder.Status.APPROVED,
+            association="Idagsektionen",
+        )
+        make_order(
+            date=timezone.localdate() + timedelta(days=1),
+            status=CateringOrder.Status.APPROVED,
+            association="Imorgonsektionen",
+        )
+        make_order(
+            date=timezone.localdate(),
+            status=CateringOrder.Status.CANCELLED,
+            association="Avbokadsektionen",
+        )
+        response = self.page()
+        self.assertContains(response, "Idagsektionen")
+        self.assertContains(response, "Info för Jour", count=0)
+        self.assertContains(response, "Markera som utlämnad")
+        self.assertNotContains(response, "Imorgonsektionen")
+        self.assertNotContains(response, "Avbokadsektionen")
+
+    def test_orders_are_grouped_by_pickup_window(self):
+        make_order(
+            date=timezone.localdate(),
+            status=CateringOrder.Status.APPROVED,
+            pickup=CateringOrder.MORNING,
+        )
+        windows = self.page().context["windows"]
+        self.assertEqual(len(windows[0]["orders"]), 1)
+        self.assertEqual(windows[1]["orders"], [])
+
+    def test_undecided_orders_for_today_are_flagged(self):
+        order = make_order(date=timezone.localdate(), association="Glömdsektionen")
+        response = self.page()
+        self.assertContains(response, "Obesvarade beställningar för idag")
+        self.assertEqual(response.context["pending"], [order])
+        self.assertNotContains(response, "Markera som utlämnad")
+
+    def test_the_button_marks_it_delivered(self):
+        order = make_order(
+            date=timezone.localdate(), status=CateringOrder.Status.APPROVED
+        )
+        response = self.post(
+            order, task="status", status="delivered", next=reverse("catering_today")
+        )
+        self.assertRedirects(response, reverse("catering_today"))
+        self.assertEqual(order.status, CateringOrder.Status.DELIVERED)
+        self.assertEqual(order.handled_by_name, "Kalle Karlsson")
+        self.assertContains(self.page(), "Utlämnad.")
+
+
+class CateringExtraOrderTestCase(BoardClientMixin, TestCase):
+    def jochen(self, count, filling_count=None, pasta=0):
+        items = [
+            {
+                "field": "numberOfJochen",
+                "label": "Jochen",
+                "count": count,
+                "group": None,
+            },
+            {
+                "field": "numberOfKebabjochen",
+                "label": "kebab (ljust bröd)",
+                "count": count if filling_count is None else filling_count,
+                "group": "Jochen",
+            },
+            {"field": "numberOfCoffee", "label": "kaffe", "count": 10, "group": None},
+        ]
+        if pasta:
+            items.append(
+                {
+                    "field": "numberOfPastasalad",
+                    "label": "pastasallad",
+                    "count": pasta,
+                    "group": None,
+                }
+            )
+        return items
+
+    def page(self, week=None):
+        url = reverse("catering_extra_order")
+        return self.client.get(url, {"vecka": week.isoformat()} if week else {})
+
+    def monday(self):
+        today = timezone.localdate()
+        return today - timedelta(days=today.weekday()) + timedelta(weeks=2)
+
+    def test_it_sums_the_week_with_sub_types(self):
+        monday = self.monday()
+        make_order(
+            date=monday, status=CateringOrder.Status.APPROVED, items=self.jochen(10)
+        )
+        make_order(
+            date=monday + timedelta(days=2),
+            status=CateringOrder.Status.APPROVED,
+            items=self.jochen(5, pasta=3),
+        )
+        response = self.page(monday)
+        totals = {line["field"]: line for line in response.context["week_totals"]}
+        self.assertEqual(totals["numberOfJochen"]["count"], 15)
+        self.assertEqual(totals["numberOfJochen"]["children"][0]["count"], 15)
+        self.assertEqual(totals["numberOfPastasalad"]["count"], 3)
+        self.assertNotIn("numberOfCoffee", totals)
+        self.assertEqual(len(response.context["days"]), 2)
+
+    def test_pending_orders_are_listed_apart(self):
+        monday = self.monday()
+        make_order(date=monday, items=self.jochen(4), association="Väntsektionen")
+        response = self.page(monday)
+        self.assertEqual(response.context["week_totals"], [])
+        self.assertContains(response, "Väntsektionen")
+        self.assertContains(response, "Obesvarade beställningar med extravaror")
+
+    def test_other_weeks_and_dead_orders_are_left_out(self):
+        monday = self.monday()
+        make_order(
+            date=monday + timedelta(days=7),
+            status=CateringOrder.Status.APPROVED,
+            items=self.jochen(9),
+        )
+        make_order(
+            date=monday, status=CateringOrder.Status.DENIED, items=self.jochen(9)
+        )
+        self.assertEqual(self.page(monday).context["days"], [])
+
+    def test_any_day_snaps_to_its_monday(self):
+        monday = self.monday()
+        response = self.page(monday + timedelta(days=3))
+        self.assertEqual(response.context["start"], monday)
+
+    def test_the_deadline_is_the_wednesday_before(self):
+        monday = self.monday()
+        deadline = timezone.localtime(self.page(monday).context["deadline"])
+        self.assertEqual(deadline.date(), monday - timedelta(days=5))
+        self.assertEqual(deadline.time(), time(16, 15))
+
+    def test_it_defaults_to_the_next_week_to_order(self):
+        response = self.page()
+        self.assertEqual(response.context["start"], earliest_supplier_order_date())
+
+    def test_a_bad_week_falls_back_to_the_default(self):
+        response = self.client.get(reverse("catering_extra_order"), {"vecka": "nej"})
+        self.assertEqual(response.context["start"], earliest_supplier_order_date())
+
+
+class CateringOverviewTestCase(BoardClientMixin, TestCase):
+    def page(self, **params):
+        return self.client.get(reverse("catering_orders"), params)
+
+    def test_todays_orders_show_on_every_tab(self):
+        make_order(
+            date=timezone.localdate(),
+            status=CateringOrder.Status.APPROVED,
+            association="Idagsektionen",
+        )
+        make_order(
+            date=timezone.localdate(),
+            status=CateringOrder.Status.CANCELLED,
+            association="Avbokadsektionen",
+        )
+        response = self.page(tab="historik")
+        self.assertEqual(
+            [o.association for o in response.context["today_orders"]],
+            ["Idagsektionen"],
+        )
+        self.assertContains(response, "Idagsektionen")
+        self.assertContains(response, "Hantera dagens utlämningar")
+
+    def test_new_orders_are_newest_first_and_capped(self):
+        from cafesys.baljan.views import CATERING_NEW_SHOWN
+
+        orders = [make_order() for _ in range(CATERING_NEW_SHOWN + 1)]
+        make_order(status=CateringOrder.Status.APPROVED)
+        response = self.page()
+        shown = list(response.context["new_orders"])
+        self.assertEqual(shown, orders[::-1][:CATERING_NEW_SHOWN])
+        self.assertContains(response, "Visa alla")
+
+    def test_it_says_so_when_nothing_waits(self):
+        self.assertContains(self.page(), "Inget väntar på besked.")
+        self.assertContains(self.page(), "Inget hämtas idag.")
+        self.assertNotContains(self.page(), "Hantera dagens utlämningar")
+
+
+class CateringMenuTestCase(BoardClientMixin, TestCase):
+    def test_sub_pages_light_up_bestallningar(self):
+        order = make_order()
+        for url in (
+            reverse("catering_today"),
+            reverse("catering_extra_order"),
+            reverse("catering_order", args=[order.pk]),
+        ):
+            pages = self.client.get(url).context["pages"]
+            active = [p.path for p in pages if p.active]
+            self.assertEqual(active, ["catering_orders"], url)

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django import forms
 from .models import Semester
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.models import User
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from . import models
@@ -143,8 +143,22 @@ class OrderForm(forms.Form):
         (3, "Eftermiddag 16:15-17:00"),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, enforce_lead_time=True, **kwargs):
+        """`enforce_lead_time=False` lets the board edit orders past the deadline."""
         super(OrderForm, self).__init__(*args, **kwargs)
+
+        self.enforce_lead_time = enforce_lead_time
+
+        # Set per instance so the dates don't freeze at import time.
+        today = timezone.localdate()
+        self.earliest_food_date = models.earliest_supplier_order_date()
+        self.fields["date"].widget.attrs.update(
+            {
+                "min": today.isoformat(),
+                "max": (today + relativedelta(months=2)).isoformat(),
+                "data-earliest-food-date": self.earliest_food_date.isoformat(),
+            }
+        )
 
         # Iteratively add subforms
         for sub_form_data in [
@@ -153,8 +167,9 @@ class OrderForm(forms.Form):
             self.PASTA_SALAD_TYPES,
         ]:
             for field_name, label in sub_form_data:
+                # The page sends 0 for a cleared sub-type.
                 self.fields["numberOf%s" % field_name.title()] = forms.IntegerField(
-                    min_value=1, required=False, label="Antal %s:" % label
+                    min_value=0, required=False, label="Antal %s:" % label
                 )
 
     def clean_date(self):
@@ -171,6 +186,24 @@ class OrderForm(forms.Form):
                 "Baljan har stängt det valda datumet. Vänligen välj en annan dag."
             )
         return date
+
+    def clean(self):
+        """Refuse goods that cannot reach the supplier order in time."""
+        cleaned = super().clean()
+        date = cleaned.get("date")
+        if not self.enforce_lead_time or date is None:
+            return cleaned
+
+        wants_food = any(
+            cleaned.get(field) for field in models.CATERING_EXTRA_ORDER_FIELDS
+        )
+        if wants_food and date < self.earliest_food_date:
+            raise forms.ValidationError(
+                "Jochen och pastasallad måste beställas senast 16:15 på "
+                "onsdagen veckan innan. Tidigaste datum är nu %s."
+                % self.earliest_food_date.isoformat()
+            )
+        return cleaned
 
     def clean_pickup(self):
         pickup = self.cleaned_data["pickup"]
@@ -255,10 +288,7 @@ class OrderForm(forms.Form):
     date = forms.DateField(
         widget=forms.DateInput(
             attrs={
-                "min": datetime.now().strftime("%Y-%m-%d"),  # TODO: timezone
-                "max": (datetime.now() + relativedelta(months=2)).strftime(
-                    "%Y-%m-%d"
-                ),  # TODO: timezone
+                # min and max are set in __init__.
                 "type": "date",
             }
         ),

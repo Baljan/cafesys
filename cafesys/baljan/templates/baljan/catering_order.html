@@ -31,6 +31,15 @@
   </p>
 </div>
 
+{% if order.is_being_handed_out %}
+  <div class="card border-primary border-2 mb-4">
+    <div class="card-body">
+      <h3 class="h5 card-title">Info för Jour</h3>
+      {% include "baljan/_catering_jour_info.html" %}
+    </div>
+  </div>
+{% endif %}
+
 <div class="row g-4">
   <div class="col-12 col-lg-7">
     <div class="card mb-4">
@@ -48,6 +57,17 @@
           </dd>
         </dl>
       </div>
+
+      {% with extras=order.extra_order_items %}
+        {% if extras %}
+          <div class="card-body border-top pb-3">
+            <div class="alert alert-warning mb-0">
+              <strong>Läggs in i extra beställningen:</strong>
+              {% for extra in extras %}{{ extra.label }} {{ extra.count }}{% if not forloop.last %}, {% endif %}{% endfor %}.
+            </div>
+          </div>
+        {% endif %}
+      {% endwith %}
 
       <div class="card-body border-top py-2 d-flex align-items-baseline justify-content-between">
         <h4 class="h6 text-uppercase dark-blue mb-0" style="letter-spacing:.06em">Varor</h4>
@@ -118,7 +138,17 @@
     <div class="card mb-4">
       <div class="card-body">
         <h3 class="h5 card-title">Besked till beställaren</h3>
-        {% if order.is_decided %}
+        {% if not order.can_decide %}
+          <p class="text-muted mb-0">
+            Beställningen är {{ order.get_status_display|lower }} och kan inte få
+            ett nytt besked.
+          </p>
+        {% else %}
+        {% if cooldown_minutes %}
+          <div class="alert alert-info">
+            Ett besked skickades nyss. Nästa kan skickas om {{ cooldown_minutes }} min.
+          </div>
+        {% elif order.is_decided %}
           <p class="text-muted">
             Beskedet är redan skickat. Du kan skicka ett nytt genom att välja igen.
           </p>
@@ -144,15 +174,16 @@
           </div>
           <div class="d-flex gap-2">
             <button type="submit" name="task" value="approve" id="catering-approve"
-                    class="btn btn-green-approve flex-grow-1">
+                    class="btn btn-green-approve flex-grow-1"{% if cooldown_minutes %} disabled{% endif %}>
               Godkänn
             </button>
             <button type="submit" name="task" value="deny" id="catering-deny"
-                    class="btn btn-outline-danger flex-grow-1">
+                    class="btn btn-outline-danger flex-grow-1"{% if cooldown_minutes %} disabled{% endif %}>
               Neka
             </button>
           </div>
         </form>
+        {% endif %}
       </div>
     </div>
 
@@ -214,9 +245,9 @@
           {% csrf_token %}
           <input type="hidden" name="task" value="status">
           <div class="d-flex gap-2 mb-2">
-            <select name="status" class="form-select">
+            <select name="status" class="form-select" aria-label="Ny status">
               {% for value, label in statuses %}
-                <option value="{{ value }}" {% if value == order.status %}selected{% endif %}>{{ label }}</option>
+                <option value="{{ value }}">{{ label }}</option>
               {% endfor %}
             </select>
             <button type="submit" id="catering-status-submit"
@@ -257,10 +288,17 @@
 <hr class="my-5">
 
 <h3 class="h5">Redigera beställningen</h3>
-<p class="text-muted">
-  Ändringar sparas utan att beställaren meddelas. Skicka ett nytt besked ovan om
-  de behöver veta.
-</p>
+{% if order.status == "approved" %}
+  <div class="alert alert-warning">
+    Beställningen är redan godkänd. Ändringar sparas utan att beställaren
+    meddelas; skicka ett nytt besked ovan om de behöver veta.
+  </div>
+{% else %}
+  <p class="text-muted">
+    Ändringar sparas utan att beställaren meddelas. Skicka ett nytt besked ovan om
+    de behöver veta.
+  </p>
+{% endif %}
 <form method="POST" action="">
   {% csrf_token %}
   <input type="hidden" name="task" value="save">

@@ -42,6 +42,9 @@
                     {% order_group form 'Jochen' 'Antal jochen' form.JOCHEN_TYPES 39 %}
                     {% order_group form 'Minijochen' 'Antal mini jochen' form.MINI_JOCHEN_TYPES 18 %}
                     {% order_group form 'Pastasalad' 'Antal pastasallad' form.PASTA_SALAD_TYPES 53 %}
+                    <div id="food_note" class="alert alert-warning small py-2 my-2" hidden>
+                        <i class="fa fa-info-circle" aria-hidden="true"></i> <span></span>
+                    </div>
 
                     <div class="row">
                         <div class="col-9">
@@ -199,20 +202,17 @@
                     <div class="col">
                          <b>Kaffe</b>
                         <ul>
-                            <li>45 koppar</li>
-                            <li>22 koppar</li>
-                            <li>15 koppar</li>
-                            <li>6 koppar</li>
-                            <li>5 koppar</li>
+                            {% for size in thermos_sizes.numberOfCoffee %}
+                            <li>{{ size }} koppar</li>
+                            {% endfor %}
                         </ul>
                     </div>
                     <div class="col">
                         <b>Te</b>
                         <ul>
-                            <li>15 koppar</li>
-                            <li>10 koppar</li>
-                            <li>6 koppar</li>
-                            <li>5 koppar</li>
+                            {% for size in thermos_sizes.numberOfTea %}
+                            <li>{{ size }} koppar</li>
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>

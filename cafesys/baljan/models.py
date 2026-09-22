@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import secrets
-from datetime import date, datetime, time
+from collections import Counter
+from datetime import date, datetime, time, timedelta
 from django.utils import timezone
 from logging import getLogger
 
@@ -28,6 +29,73 @@ from . import notifications, util
 from .util import week_dates, year_and_week, random_string
 
 logger = getLogger(__name__)
+
+
+#: Baljan's thermoses per drink, biggest first.
+THERMOS_SIZES = {
+    "numberOfCoffee": (45, 22, 15, 6, 5),
+    "numberOfTea": (15, 10, 6, 5),
+}
+
+#: Coffee up to this many cups gets one carton of Oatly, more gets two.
+OATLY_THRESHOLD = 45
+
+#: Not stock; ordered extra from Smorgasfiket.
+CATERING_EXTRA_ORDER_FIELDS = (
+    "numberOfJochen",
+    "numberOfMinijochen",
+    "numberOfPastasalad",
+)
+
+
+#: Smorgasfiket is ordered Wednesday 16:15 the week before pickup.
+SUPPLIER_ORDER_WEEKDAY = 2
+SUPPLIER_ORDER_TIME = time(16, 15)
+
+
+def earliest_supplier_order_date(now=None):
+    """First pickup date jochen and pasta salad can still be ordered for."""
+    local = timezone.localtime(now)
+    today = local.date()
+
+    this_week = week_dates(*year_and_week(today))
+    deadline = this_week[SUPPLIER_ORDER_WEEKDAY]
+    in_time = (today, local.time()) <= (deadline, SUPPLIER_ORDER_TIME)
+
+    target = today + relativedelta(weeks=1 if in_time else 2)
+    return week_dates(*year_and_week(target))[0]
+
+
+def plan_thermoses(cups, sizes):
+    """Thermoses for `cups` as [(size, count), ...]: least overshoot, then fewest."""
+    if cups <= 0 or not sizes:
+        return []
+
+    ceiling = cups + max(sizes)
+    # fewest[c] = fewest thermoses whose capacities sum to exactly c.
+    fewest = [None] * (ceiling + 1)
+    last_used = [0] * (ceiling + 1)
+    fewest[0] = 0
+    for capacity in range(1, ceiling + 1):
+        for size in sizes:
+            if size > capacity or fewest[capacity - size] is None:
+                continue
+            candidate = fewest[capacity - size] + 1
+            if fewest[capacity] is None or candidate < fewest[capacity]:
+                fewest[capacity] = candidate
+                last_used[capacity] = size
+
+    reachable = [c for c in range(cups, ceiling + 1) if fewest[c] is not None]
+    if not reachable:
+        return []
+    total = min(reachable, key=lambda c: (c - cups, fewest[c]))
+
+    counted = Counter()
+    while total:
+        size = last_used[total]
+        counted[size] += 1
+        total -= size
+    return sorted(counted.items(), reverse=True)
 
 
 def validate_no_control_characters(value):
@@ -1539,6 +1607,23 @@ class CateringOrder(Made):
         AFTERNOON: (time(16, 15), time(17, 0)),
     }
 
+    #: Where each status may go by hand, without a mail. Approved and denied
+    #: are never targets: a row with either status reads as a decision.
+    STATUS_TRANSITIONS = {
+        Status.PENDING: (Status.CANCELLED,),
+        Status.APPROVED: (Status.DELIVERED, Status.CANCELLED),
+        Status.DENIED: (Status.PENDING,),
+        Status.CANCELLED: (Status.PENDING,),
+        Status.DELIVERED: (Status.INVOICED,),
+        Status.INVOICED: (Status.DELIVERED,),
+    }
+
+    #: Statuses a new decision may replace. Re-deciding resends the mail.
+    DECIDABLE_STATUSES = (Status.PENDING, Status.APPROVED, Status.DENIED)
+
+    #: Minimum time between two decision mails to the same orderer.
+    DECISION_MAIL_COOLDOWN = timedelta(minutes=10)
+
     orderer = models.CharField(_("orderer"), max_length=100)
     orderer_email = models.EmailField(_("orderer email"))
     orderer_phone = models.CharField(_("orderer phone number"), max_length=11)
@@ -1711,6 +1796,105 @@ class CateringOrder(Made):
             .first()
         )
         return decision.by_label if decision else ""
+
+    @property
+    def is_being_handed_out(self):
+        """Approved and picked up today."""
+        return self.days_until_pickup == 0 and self.status in (
+            self.Status.APPROVED,
+            self.Status.DELIVERED,
+            self.Status.INVOICED,
+        )
+
+    def item_count(self, field):
+        """Ordered count for a form field, 0 if missing."""
+        for item in self.items:
+            if item.get("field") == field:
+                return item.get("count") or 0
+        return 0
+
+    def thermos_plan(self):
+        """Thermoses per ordered drink."""
+        plans = []
+        for field, sizes in THERMOS_SIZES.items():
+            cups = self.item_count(field)
+            thermoses = plan_thermoses(cups, sizes)
+            if not thermoses:
+                continue
+            label = next(
+                (i["label"] for i in self.items if i.get("field") == field), field
+            )
+            plans.append(
+                {
+                    "label": label,
+                    "cups": cups,
+                    "thermoses": thermoses,
+                    "capacity": sum(size * count for size, count in thermoses),
+                }
+            )
+        return plans
+
+    @property
+    def oatly_cartons(self):
+        """Oatly cartons to go with the coffee."""
+        cups = self.item_count("numberOfCoffee")
+        if cups <= 0:
+            return 0
+        return 1 if cups <= OATLY_THRESHOLD else 2
+
+    def extra_order_items(self):
+        """Goods for the extra Smorgasfiket order."""
+        return [
+            {"label": item["label"], "count": item["count"]}
+            for item in self.items
+            if item.get("field") in CATERING_EXTRA_ORDER_FIELDS and item.get("count")
+        ]
+
+    def extra_order_lines(self):
+        """Extra-order goods with their sub-types, as {field, label, count, children}."""
+        lines = []
+        for item in self.items:
+            if item.get("field") not in CATERING_EXTRA_ORDER_FIELDS:
+                continue
+            if not item.get("count"):
+                continue
+            children = [
+                {"field": c["field"], "label": c["label"], "count": c["count"]}
+                for c in self.items
+                if c.get("group") == item["label"] and c.get("count")
+            ]
+            lines.append(
+                {
+                    "field": item["field"],
+                    "label": item["label"],
+                    "count": item["count"],
+                    "children": children,
+                }
+            )
+        return lines
+
+    def allowed_statuses(self):
+        """Statuses this order may be moved to by hand."""
+        return self.STATUS_TRANSITIONS.get(self.status, ())
+
+    @property
+    def can_decide(self):
+        return self.status in self.DECIDABLE_STATUSES
+
+    def decision_cooldown_left(self, now=None):
+        """Time left before another decision mail may go out, or None."""
+        last = (
+            self.status_changes.filter(
+                status__in=(self.Status.APPROVED, self.Status.DENIED)
+            )
+            .order_by("-made")
+            .values_list("made", flat=True)
+            .first()
+        )
+        if last is None:
+            return None
+        left = last + self.DECISION_MAIL_COOLDOWN - (now or timezone.now())
+        return left if left > timedelta(0) else None
 
     @property
     def days_until_pickup(self):

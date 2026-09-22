@@ -1,0 +1,8 @@
+<ul class="list-unstyled mb-0">
+  {% for line in lines %}
+    <li><strong>{{ line.count }}</strong> {{ line.label }}</li>
+    {% for child in line.children %}
+      <li class="ps-3 small text-muted">&rsaquo; {{ child.count }} {{ child.label }}</li>
+    {% endfor %}
+  {% endfor %}
+</ul>
