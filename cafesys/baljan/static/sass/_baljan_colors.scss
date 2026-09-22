@@ -32,6 +32,14 @@ $baljan-red: rgb(251, 44, 0);
 
 // Other
 
+// A quieter green for the approve action. $baljan-green is the neon
+// complementary-to-pink tone; on a button that gets pressed on every single
+// order it shouts. Same hue (114deg), far less saturation and much lighter,
+// so it still reads as Baljan green.
+$baljan-green-soft: hsl(114, 45%, 78%);
+$baljan-green-soft-border: hsl(114, 40%, 45%);
+$baljan-green-soft-hover: hsl(114, 45%, 70%);
+
 // ===================================================================
 // Theme colors
 // ===================================================================

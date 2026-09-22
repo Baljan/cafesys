@@ -7,22 +7,123 @@
 {% block page_title %}Beställningar{% endblock %}
 
 {% block staff_info %}
-<div class="d-flex flex-wrap align-items-baseline justify-content-between mb-3">
+<div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-3">
   <h2 class="mb-0">Beställningar</h2>
-  <p class="text-muted mb-0">
-    {% if pending_count %}
-      <strong>{{ pending_count }}</strong> väntar på besked
-    {% else %}
-      Inga obehandlade beställningar
-    {% endif %}
-  </p>
+  <span class="d-flex align-items-baseline gap-3">
+    <a href="{% url 'catering_invoicing' %}" class="small text-muted">Fakturering</a>
+    <a href="{% url 'catering_extra_order' %}" class="btn btn-sm btn-outline-primary">Extrabeställning</a>
+  </span>
 </div>
 
-<form method="get" class="row g-3 align-items-end mb-4">
-  <div class="col-12 col-sm-6 col-lg-2">
-    <label for="id_status" class="form-label mb-1">Status</label>
-    {{ filter.form.status }}
+<div class="row g-4 mb-5">
+  <div class="col-12 col-lg-6">
+    <div class="card h-100 border-primary border-2">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-baseline">
+        <h3 class="h5 mb-0">
+          Idag <span class="text-muted fw-normal small">{{ today|date:"l j F" }}</span>
+        </h3>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for order in today_orders %}
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+            <div>
+              <div class="small text-muted">{{ order.get_pickup_display }}</div>
+              <a href="{% url 'catering_order' order.pk %}" class="fw-semibold text-decoration-none">{{ order.association }}</a>
+              <span class="text-muted small">&middot; {{ order.total_items }} st</span>
+            </div>
+            {% catering_status_badge order %}
+          </li>
+        {% empty %}
+          <li class="list-group-item text-muted">Inget hämtas idag.</li>
+        {% endfor %}
+      </ul>
+      {% if today_orders %}
+        <div class="card-footer bg-transparent p-3 mt-auto">
+          <a href="{% url 'catering_today' %}" class="btn btn-primary w-100">
+            Hantera dagens utlämningar &raquo;
+          </a>
+        </div>
+      {% endif %}
+    </div>
   </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card h-100 {% if pending_count %}border-warning border-2{% endif %}">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-baseline">
+        <h3 class="h5 mb-0">
+          Nya beställningar
+          {% if pending_count %}<span class="badge bg-warning text-dark ms-1">{{ pending_count }}</span>{% endif %}
+        </h3>
+        {% if pending_count > new_orders|length %}
+          <a href="?tab=att-behandla" class="small text-decoration-none">Visa alla &raquo;</a>
+        {% endif %}
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for order in new_orders %}
+          <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+            <div>
+              <a href="{% url 'catering_order' order.pk %}" class="fw-semibold text-decoration-none">{{ order.association }}</a>
+              <span class="text-muted small">&middot; {{ order.orderer }}</span>
+              <div class="small text-muted">
+                Hämtas {{ order.date|date:"D j M" }} {% catering_urgency order %}
+              </div>
+            </div>
+            <small class="text-muted text-nowrap">
+              <time datetime="{{ order.made|date:'c' }}">{{ order.made|naturaltime }}</time>
+            </small>
+          </li>
+        {% empty %}
+          <li class="list-group-item text-muted">Inget väntar på besked.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-5">
+  <div class="card-header bg-transparent">
+    <h3 class="h5 mb-0">
+      Inväntar återlämning
+      {% if to_return %}<span class="badge bg-info text-dark ms-1">{{ to_return|length }}</span>{% endif %}
+    </h3>
+  </div>
+  <ul class="list-group list-group-flush">
+    {% include "baljan/_catering_to_return.html" %}
+    {% if not to_return %}
+      <li class="list-group-item text-muted">Inget väntar på återlämning.</li>
+    {% endif %}
+  </ul>
+</div>
+
+<h3 class="h5 mb-3" id="alla" style="scroll-margin-top:6rem">Alla beställningar</h3>
+
+{% comment %}
+The tabs overlap on purpose: an undecided order due this week is in both
+"Att behandla" and "Denna vecka", so the counts do not sum to the total.
+Filters travel between tabs; the status filter does not, because it fights
+the three work tabs and is only offered on Historik.
+{% endcomment %}
+<nav>
+  <div class="nav nav-tabs mb-3" role="tablist">
+    {% for t in tabs %}
+      <a class="nav-item nav-link {% if t.active %}active{% endif %}"
+         href="{% querystring tab=t.key page=None status=None %}#alla"
+         role="tab" aria-selected="{% if t.active %}true{% else %}false{% endif %}">
+        {{ t.label }}
+        <span class="badge {% if t.active %}bg-dark{% else %}bg-secondary{% endif %} ms-1">{{ t.count }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</nav>
+
+<form method="get" action="#alla" class="row g-3 align-items-end mb-4">
+  <input type="hidden" name="tab" value="{{ tab }}">
+  {% if tab == "historik" %}
+    <div class="col-12 col-sm-6 col-lg-2">
+      <label for="id_status" class="form-label mb-1">Status</label>
+      {{ filter.form.status }}
+    </div>
+  {% endif %}
   <div class="col-6 col-sm-3 col-lg-2">
     <label for="id_date__gte" class="form-label mb-1">Från och med</label>
     {{ filter.form.date__gte }}
@@ -37,7 +138,7 @@
   </div>
   <div class="col-12 col-sm-6 col-lg-3 d-flex gap-2">
     <button type="submit" class="btn btn-primary flex-grow-1">Filtrera</button>
-    <a href="{% url 'catering_orders' %}" class="btn btn-outline-secondary">Rensa</a>
+    <a href="{% url 'catering_orders' %}?tab={{ tab }}#alla" class="btn btn-outline-secondary">Rensa</a>
   </div>
 </form>
 
@@ -50,6 +151,7 @@
         <th>Beställare</th>
         <th>Förening</th>
         <th>Status</th>
+        <th>Behandlad av</th>
         <th>Inkom</th>
         <th></th>
       </tr>
@@ -57,11 +159,15 @@
     <tbody>
       {% for order in orders %}
         <tr>
-          <td>{{ order.date|date:"Y-m-d" }}</td>
+          <td>
+            {{ order.date|date:"Y-m-d" }}
+            {% catering_urgency order %}
+          </td>
           <td>{{ order.get_pickup_display }}</td>
           <td>{{ order.orderer }}</td>
           <td>{{ order.association }}</td>
           <td>{% catering_status_badge order %}</td>
+          <td>{{ order.handled_by_label|default:"—" }}</td>
           <td><time datetime="{{ order.made|date:'c' }}">{{ order.made|naturalday }}</time></td>
           <td class="text-end">
             <a href="{% url 'catering_order' order.pk %}" class="btn btn-sm btn-outline-dark">Öppna</a>
@@ -69,8 +175,12 @@
         </tr>
       {% empty %}
         <tr>
-          <td colspan="7" class="text-center text-muted py-4">
-            Inga beställningar matchar filtret.
+          <td colspan="8" class="text-center text-muted py-4">
+            {% if tab == "att-behandla" %}
+              Inget väntar på besked.
+            {% else %}
+              Inga beställningar matchar filtret.
+            {% endif %}
           </td>
         </tr>
       {% endfor %}

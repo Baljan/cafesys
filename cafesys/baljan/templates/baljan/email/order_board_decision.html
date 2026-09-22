@@ -13,7 +13,8 @@
 
   <p>
     {% if approved %}Godkänd{% else %}Nekad{% endif %} av
-    <strong>{{ order.handled_by|default:"okänd" }}</strong>
+    <strong>{{ order.handled_by_label|default:"okänd" }}</strong>
+    {% if order.handled_by %}(konto: {{ order.handled_by }}){% endif %}
     {{ order.handled_at|date:"Y-m-d H:i" }}. Beställaren har fått besked.
   </p>
 

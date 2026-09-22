@@ -18,11 +18,37 @@
   <p class="text-muted mb-0">
     Inkom <time datetime="{{ order.made|date:'c' }}">{{ order.made|date:"Y-m-d H:i" }}</time>
     {% if order.handled_at %}
-      &middot; behandlad av {{ order.handled_by|default:"okänd" }}
+      &middot; {% if order.decided_by_label %}
+        beslutad av {{ order.decided_by_label }}
+      {% else %}
+        behandlad av {{ order.handled_by_label|default:"okänd" }}
+      {% endif %}
+      {% if order.handled_by %}
+        <span class="text-muted small">(konto: {{ order.handled_by }})</span>
+      {% endif %}
       <time datetime="{{ order.handled_at|date:'c' }}">{{ order.handled_at|date:"Y-m-d H:i" }}</time>
     {% endif %}
   </p>
 </div>
+
+{% if order.is_being_handed_out %}
+  <div class="card border-primary border-2 mb-4">
+    <div class="card-body">
+      <h3 class="h5 card-title">Info för Jour</h3>
+      {% include "baljan/_catering_jour_info.html" %}
+    </div>
+  </div>
+{% endif %}
+
+{% if order.handout %}
+  <div class="alert alert-light border d-flex flex-wrap gap-3 align-items-center mb-4">
+    <span>Fakturaunderlag ifyllt, totalt <strong>{{ order.handout.total }} kr</strong>.</span>
+    <a href="{% url 'catering_invoice_basis' order.pk %}">Visa</a>
+    {% if not order.handout.is_returned %}
+      <a href="{% url 'catering_return' order.pk %}">Registrera återlämning</a>
+    {% endif %}
+  </div>
+{% endif %}
 
 <div class="row g-4">
   <div class="col-12 col-lg-7">
@@ -41,6 +67,17 @@
           </dd>
         </dl>
       </div>
+
+      {% with extras=order.extra_order_items %}
+        {% if extras %}
+          <div class="card-body border-top pb-3">
+            <div class="alert alert-warning mb-0">
+              <strong>Läggs in i extra beställningen:</strong>
+              {% for extra in extras %}{{ extra.label }} {{ extra.count }}{% if not forloop.last %}, {% endif %}{% endfor %}.
+            </div>
+          </div>
+        {% endif %}
+      {% endwith %}
 
       <div class="card-body border-top py-2 d-flex align-items-baseline justify-content-between">
         <h4 class="h6 text-uppercase dark-blue mb-0" style="letter-spacing:.06em">Varor</h4>
@@ -111,28 +148,76 @@
     <div class="card mb-4">
       <div class="card-body">
         <h3 class="h5 card-title">Besked till beställaren</h3>
-        {% if order.is_decided %}
+        {% if not order.can_decide %}
+          <p class="text-muted mb-0">
+            Beställningen är {{ order.get_status_display|lower }} och kan inte få
+            ett nytt besked.
+          </p>
+        {% else %}
+        {% if cooldown_minutes %}
+          <div class="alert alert-info">
+            Ett besked skickades nyss. Nästa kan skickas om {{ cooldown_minutes }} min.
+          </div>
+        {% elif order.is_decided %}
           <p class="text-muted">
             Beskedet är redan skickat. Du kan skicka ett nytt genom att välja igen.
           </p>
         {% endif %}
-        <form method="POST" action="">
+        <form method="POST" action="" id="catering-decision-form">
           {% csrf_token %}
           <div class="mb-3">
             <label for="staff_message" class="form-label">Meddelande (följer med i mailet)</label>
             <textarea class="form-control" id="staff_message" name="staff_message"
                       rows="3">{{ order.staff_message }}</textarea>
           </div>
+          <div class="mb-3">
+            <label for="catering-handled-by-name" class="form-label">
+              {{ decision_form.handled_by_name.label }}
+            </label>
+            {{ decision_form.handled_by_name }}
+            <div class="invalid-feedback">
+              Skriv ditt namn innan du godkänner eller nekar.
+            </div>
+            {% for error in decision_form.handled_by_name.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
           <div class="d-flex gap-2">
-            <button type="submit" name="task" value="approve" class="btn btn-success flex-grow-1">
+            <button type="submit" name="task" value="approve" id="catering-approve"
+                    class="btn btn-green-approve flex-grow-1"{% if cooldown_minutes %} disabled{% endif %}>
               Godkänn
             </button>
-            <button type="submit" name="task" value="deny" class="btn btn-outline-danger flex-grow-1">
+            <button type="submit" name="task" value="deny" id="catering-deny"
+                    class="btn btn-outline-danger flex-grow-1"{% if cooldown_minutes %} disabled{% endif %}>
               Neka
             </button>
           </div>
         </form>
+        {% endif %}
       </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body pb-2">
+        <h3 class="h5 card-title">Händelser</h3>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for change in order.status_changes.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-baseline">
+            <span>
+              {% catering_status_badge change %}
+              {{ change.by_label|default:"okänd" }}
+            </span>
+            <small class="text-muted ms-3">
+              <time datetime="{{ change.made|date:'c' }}">{{ change.made|date:"j M H:i" }}</time>
+            </small>
+          </li>
+        {% empty %}
+          <li class="list-group-item text-muted small">
+            Inget har hänt med beställningen än.
+          </li>
+        {% endfor %}
+      </ul>
     </div>
 
     <div class="card mb-4">
@@ -166,15 +251,28 @@
     <div class="card mb-4">
       <div class="card-body">
         <h3 class="h5 card-title">Status</h3>
-        <form method="POST" action="" class="d-flex gap-2">
+        <form method="POST" action="" id="catering-status-form">
           {% csrf_token %}
           <input type="hidden" name="task" value="status">
-          <select name="status" class="form-select">
-            {% for value, label in statuses %}
-              <option value="{{ value }}" {% if value == order.status %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-          <button type="submit" class="btn btn-outline-secondary">Sätt</button>
+          <div class="d-flex gap-2 mb-2">
+            <select name="status" class="form-select" aria-label="Ny status">
+              {% for value, label in statuses %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" id="catering-status-submit"
+                    class="btn btn-outline-secondary">Sätt</button>
+          </div>
+          <label for="catering-status-handled-by-name" class="form-label">
+            {{ status_form.handled_by_name.label }}
+          </label>
+          {{ status_form.handled_by_name }}
+          <div class="invalid-feedback">
+            Skriv ditt namn innan du ändrar statusen.
+          </div>
+          {% for error in status_form.handled_by_name.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+          {% endfor %}
         </form>
         <small class="text-muted d-block mt-2">
           Ändrar bara statusen internt. Inget mail skickas.
@@ -200,14 +298,56 @@
 <hr class="my-5">
 
 <h3 class="h5">Redigera beställningen</h3>
-<p class="text-muted">
-  Ändringar sparas utan att beställaren meddelas. Skicka ett nytt besked ovan om
-  de behöver veta.
-</p>
+{% if order.status == "approved" %}
+  <div class="alert alert-warning">
+    Beställningen är redan godkänd. Ändringar sparas utan att beställaren
+    meddelas; skicka ett nytt besked ovan om de behöver veta.
+  </div>
+{% else %}
+  <p class="text-muted">
+    Ändringar sparas utan att beställaren meddelas. Skicka ett nytt besked ovan om
+    de behöver veta.
+  </p>
+{% endif %}
 <form method="POST" action="">
   {% csrf_token %}
   <input type="hidden" name="task" value="save">
   {{ form | crispy }}
   <button type="submit" class="btn btn-primary">Spara ändringar</button>
 </form>
+{% endblock %}
+
+{% block extra_body %}
+<script>
+  // The buttons stay clickable. Pressing one without a name is the moment the
+  // reminder is wanted, and a button that simply refuses to respond explains
+  // nothing. Without JavaScript the `required` attribute stops the submit and
+  // the view checks again on the way in, so nothing gets through unsigned.
+  (function () {
+    function wire(formId, inputId) {
+      var form = document.getElementById(formId);
+      var input = form && document.getElementById(inputId);
+      if (!input) { return; }
+
+      // Take the browser's own bubble out of the way, so the reminder can be
+      // phrased properly and sit next to the field it is about.
+      form.setAttribute("novalidate", "novalidate");
+
+      form.addEventListener("submit", function (event) {
+        if (input.value.trim().length > 0) { return; }
+        event.preventDefault();
+        input.classList.add("is-invalid");
+        input.focus();
+      });
+
+      input.addEventListener("input", function () {
+        if (input.value.trim().length > 0) {
+          input.classList.remove("is-invalid");
+        }
+      });
+    }
+    wire("catering-decision-form", "catering-handled-by-name");
+    wire("catering-status-form", "catering-status-handled-by-name");
+  })();
+</script>
 {% endblock %}

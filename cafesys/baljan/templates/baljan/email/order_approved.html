@@ -16,6 +16,11 @@
 
   {% include "baljan/email/_order_summary.html" %}
 
+  <p>Fakturan skickas till {{ order.orderer_email }}.</p>
+  {% if order.thermos_plan or order.extra_order_items %}
+    <p>{% include "baljan/_catering_return_rule.html" %}</p>
+  {% endif %}
+
   <p>
     En kalenderinbjudan med tiden är bifogad. Behöver något ändras, hör av dig så
     snart som möjligt.

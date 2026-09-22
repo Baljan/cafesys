@@ -1,0 +1,99 @@
+{% extends "baljan/staff.html" %}
+
+{% block page_title %}Fakturaunderlag #{{ order.pk }}{% endblock %}
+
+{% block staff_info %}
+<style>
+  @media print {
+    body * { visibility: hidden; }
+    #invoice-basis, #invoice-basis * { visibility: visible; }
+    #invoice-basis { position: absolute; inset: 0; }
+  }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3 d-print-none">
+  <a href="{% url 'catering_invoicing' %}" class="text-decoration-none">&laquo; Fakturering</a>
+  <span class="d-flex gap-2">
+    {% if order.status == "approved" or order.status == "delivered" %}
+      <a href="{% url 'catering_handout' order.pk %}?next={{ request.path|urlencode }}" class="btn btn-sm btn-outline-dark">Ändra</a>
+    {% endif %}
+    <a href="{% url 'catering_return' order.pk %}?next={{ request.path|urlencode }}" class="btn btn-sm btn-outline-dark">Återlämning</a>
+    <button type="button" class="btn btn-sm btn-primary" onclick="window.print()">Skriv ut</button>
+  </span>
+</div>
+
+<div id="invoice-basis">
+  <h2 class="mb-4">Fakturaunderlag <span class="text-muted h5">#{{ order.pk }}</span></h2>
+
+  <div class="row g-5">
+    <div class="col-12 col-lg-6">
+      <table class="table table-sm">
+        <thead>
+          <tr><th>Antal</th><th>Produkt</th><th class="text-end">À-pris</th><th class="text-end">Summa</th></tr>
+        </thead>
+        <tbody>
+          {% for line in lines %}
+            <tr>
+              <td>{{ line.count }}</td>
+              <td>{{ line.label }}</td>
+              <td class="text-end">{{ line.unit_price }} kr</td>
+              <td class="text-end">{{ line.sum }} kr</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr><th colspan="3" class="text-end">Totalt</th><th class="text-end">{{ handout.total }} kr</th></tr>
+        </tfoot>
+      </table>
+
+      <dl class="row mb-0">
+        <dt class="col-5">Datum</dt><dd class="col-7">{{ order.date|date:"Y-m-d" }}</dd>
+        <dt class="col-5">Sektion/förening</dt><dd class="col-7">{{ order.association }}</dd>
+        <dt class="col-5">Organisationsnr</dt><dd class="col-7">{{ order.org_number|default:"—" }}</dd>
+        <dt class="col-5">Fakturan skickas till</dt><dd class="col-7">{{ order.orderer_email }}</dd>
+        <dt class="col-5">Utskott/referens</dt><dd class="col-7">{{ handout.reference|default:"—" }}</dd>
+        <dt class="col-5">Uthämtad av</dt><dd class="col-7">{{ handout.picked_up_by }}</dd>
+        <dt class="col-5">Telefonnummer</dt><dd class="col-7">{{ handout.picked_up_phone|default:"—" }}</dd>
+      </dl>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <h3 class="h6 fw-bold">Antal jochenlådor</h3>
+      <dl class="row">
+        <dt class="col-5">Utlämnade</dt><dd class="col-7">{{ handout.jochen_boxes_out }}</dd>
+        <dt class="col-5">Återlämnade</dt><dd class="col-7">{{ handout.jochen_boxes_returned|default_if_none:"—" }}</dd>
+      </dl>
+
+      <h3 class="h6 fw-bold">Lånade termosar</h3>
+      <table class="table table-sm">
+        <thead><tr><th>Termos</th><th>Återlämnad</th><th>Mottagande jour</th></tr></thead>
+        <tbody>
+          {% for thermos in handout.thermoses %}
+            <tr>
+              <td>{{ thermos.name|default:"—" }} ({% if thermos.size == "large" %}stor{% else %}liten{% endif %})</td>
+              <td>{{ thermos.returned_on|default:"—" }}</td>
+              <td>{{ thermos.received_by|default:"—" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3" class="text-muted">Inga termosar.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <dl class="row">
+        <dt class="col-5">Återlämnas senast</dt><dd class="col-7">{{ handout.return_by|date:"Y-m-d"|default:"—" }}</dd>
+        <dt class="col-5">Utlämnande jour</dt><dd class="col-7">{{ handout.handed_out_by }}</dd>
+      </dl>
+
+      {% if handout.return_note %}
+        <h3 class="h6 fw-bold">Jourens anmärkning vid återlämning</h3>
+        <p>{{ handout.return_note|linebreaksbr }}</p>
+      {% endif %}
+      {% if handout.other_info %}
+        <h3 class="h6 fw-bold">Övrig info</h3>
+        <p>{{ handout.other_info|linebreaksbr }}</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

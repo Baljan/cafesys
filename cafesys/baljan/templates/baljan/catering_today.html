@@ -1,0 +1,79 @@
+{% extends "baljan/staff.html" %}
+{% load baljan_extras %}
+
+{% block page_title %}Dagens utlämningar{% endblock %}
+
+{% block staff_info %}
+<div class="mb-3">
+  <a href="{% url 'catering_orders' %}" class="text-decoration-none">&laquo; Alla beställningar</a>
+</div>
+
+<h2 class="mb-4">Dagens utlämningar <span class="text-muted h5">{{ today|date:"l j F" }}</span></h2>
+
+{% if pending %}
+  <div class="alert alert-danger">
+    <strong>Obesvarade beställningar för idag:</strong>
+    {% for order in pending %}
+      <a href="{% url 'catering_order' order.pk %}" class="alert-link">#{{ order.pk }} {{ order.association }}</a>{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% for window in windows %}
+  {% if window.orders %}
+  <h3 class="h5 mt-4">{{ window.label }}</h3>
+  {% endif %}
+  {% for order in window.orders %}
+    <div class="card mb-3 {% if order.status == 'approved' %}border-primary border-2{% endif %}">
+      <div class="card-header d-flex flex-wrap justify-content-between align-items-baseline gap-2">
+        <span>
+          <a href="{% url 'catering_order' order.pk %}">#{{ order.pk }}</a>
+          <strong>{{ order.association }}</strong>
+          {% catering_status_badge order %}
+        </span>
+        <span class="text-muted small">{{ order.total_items }} st totalt</span>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          <div class="col-12 col-md-5">
+            <h4 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Varor</h4>
+            <ul class="list-unstyled mb-0">
+              {% for group in order.grouped_items %}
+                <li><strong>{{ group.count }}</strong> {{ group.label }}</li>
+                {% for child in group.children %}
+                  <li class="ps-3 small text-muted">&rsaquo; {{ child.count }} {{ child.label }}</li>
+                {% endfor %}
+              {% empty %}
+                <li class="text-muted">Inga varor angivna.</li>
+              {% endfor %}
+            </ul>
+            {% if order.other %}
+              <div class="alert alert-warning mt-3 mb-0 small">
+                <strong>Övrigt och allergier:</strong><br>{{ order.other|linebreaksbr }}
+              </div>
+            {% endif %}
+            {% if order.staff_note %}
+              <p class="small text-muted mt-3 mb-0">
+                <strong>Intern anteckning:</strong> {{ order.staff_note|linebreaksbr }}
+              </p>
+            {% endif %}
+          </div>
+          <div class="col-12 col-md-7">
+            {% include "baljan/_catering_jour_info.html" with next=request.path %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+{% endfor %}
+{% if not has_orders %}
+  <p class="text-muted">Inget hämtas idag.</p>
+{% endif %}
+
+{% if to_return %}
+  <h3 class="h5 mt-5">Inväntar återlämning</h3>
+  <ul class="list-group mb-3">
+    {% include "baljan/_catering_to_return.html" %}
+  </ul>
+{% endif %}
+{% endblock %}

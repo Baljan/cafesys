@@ -1,27 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django import forms
 from .models import Semester
 from django.forms.widgets import HiddenInput
 from django.contrib.auth.models import User
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from . import models
 
 
-def no_control_characters(value):
-    """Reject line breaks and other control characters.
-
-    `orderer` and `association` are interpolated into the subject of the mail to
-    the board. A newline there makes Django raise BadHeaderError deep inside
-    send(), which is a 500 for the visitor and an order row already written to
-    the database. Django stops the actual header injection; this stops the
-    crafted submission from getting that far at all.
-    """
-    if any(ch in value for ch in "\r\n") or any(ord(ch) < 32 for ch in value):
-        raise forms.ValidationError("Fältet får inte innehålla radbrytningar.")
+#: `orderer` and `association` are interpolated into the subject of the mail to
+#: the board, and `handled_by_name` into the calendar description. One rule for
+#: all three, defined beside the model field that enforces it at every layer.
+no_control_characters = models.validate_no_control_characters
 
 
 class UserForm(forms.ModelForm):
@@ -60,6 +53,180 @@ class ProfileCardIdForm(forms.ModelForm):
     class Meta:
         model = models.Profile
         fields = ("card_id",)
+
+
+def _handler_name_field(error_message, field_id):
+    """The "who is doing this" field the board must fill in by hand.
+
+    Deliberately not a ModelForm field and deliberately never given an
+    `initial`: the board shares one account across shifts, so prefilling it
+    from `request.user` would put the account's name on a decision somebody
+    else took. CharField strips whitespace before validating, so a field
+    holding only spaces fails `required` on its own.
+    """
+    return forms.CharField(
+        label="Vem behandlar beställningen?",
+        max_length=100,
+        required=True,
+        error_messages={"required": error_message},
+        validators=[no_control_characters],
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "autocomplete": "off",
+                "placeholder": "Ditt namn",
+                "required": True,
+                "id": field_id,
+            }
+        ),
+    )
+
+
+class CateringDecisionForm(forms.Form):
+    """The name that goes with an approve or deny."""
+
+    handled_by_name = _handler_name_field(
+        "Skriv ditt namn innan du godkänner eller nekar.",
+        "catering-handled-by-name",
+    )
+
+
+class CateringStatusForm(forms.Form):
+    """The name that goes with a later status change.
+
+    `set_status` overwrites `handled_by` whatever the reason, so a nameless
+    status change would wipe out the record of who approved the order.
+    """
+
+    handled_by_name = _handler_name_field(
+        "Skriv ditt namn innan du ändrar statusen.",
+        "catering-status-handled-by-name",
+    )
+
+
+def _text(max_length, required=False, **attrs):
+    return forms.CharField(
+        max_length=max_length,
+        required=required,
+        validators=[no_control_characters],
+        widget=forms.TextInput(attrs={"class": "form-control", **attrs}),
+    )
+
+
+def _count(max_value, **attrs):
+    return forms.IntegerField(
+        min_value=0,
+        max_value=max_value,
+        required=False,
+        widget=forms.NumberInput(attrs={"class": "form-control", **attrs}),
+    )
+
+
+def _date(required=False):
+    return forms.DateField(
+        required=required,
+        widget=forms.DateInput(
+            attrs={"class": "form-control", "type": "date"}, format="%Y-%m-%d"
+        ),
+    )
+
+
+class CateringHandoutForm(forms.ModelForm):
+    """What the person on jour writes down at the counter."""
+
+    handed_out_by = _text(100, required=True, autocomplete="off")
+    picked_up_by = _text(100, required=True)
+    picked_up_phone = _text(20)
+    reference = _text(100)
+    jochen_boxes_out = _count(999)
+    return_by = _date()
+
+    class Meta:
+        model = models.CateringHandout
+        fields = (
+            "handed_out_by",
+            "picked_up_by",
+            "picked_up_phone",
+            "reference",
+            "jochen_boxes_out",
+            "return_by",
+            "other_info",
+        )
+        widgets = {
+            "other_info": forms.Textarea(attrs={"class": "form-control", "rows": 3})
+        }
+
+    def __init__(self, *args, boxes_required=False, **kwargs):
+        """`boxes_required` when jochen or salad goes out, so the count is not forgotten."""
+        super().__init__(*args, **kwargs)
+        self.boxes_required = boxes_required
+        if boxes_required:
+            self.fields["jochen_boxes_out"].widget.attrs["required"] = True
+
+    def clean_jochen_boxes_out(self):
+        boxes = self.cleaned_data["jochen_boxes_out"]
+        if boxes is None and self.boxes_required:
+            raise forms.ValidationError(
+                "Fyll i hur många jochenlådor som lämnas ut, 0 om inga."
+            )
+        return boxes or 0
+
+
+class CateringReturnForm(forms.ModelForm):
+    jochen_boxes_returned = _count(999)
+    handled_by_name = _text(100, required=True, autocomplete="off")
+
+    class Meta:
+        model = models.CateringHandout
+        fields = ("jochen_boxes_returned", "return_note")
+        widgets = {
+            "return_note": forms.Textarea(attrs={"class": "form-control", "rows": 3})
+        }
+
+
+class CateringLineForm(forms.Form):
+    label = _text(100)
+    count = _count(9999, **{"data-count": ""})
+    unit_price = _count(99999, **{"data-price": ""})
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("count") and not cleaned.get("label"):
+            raise forms.ValidationError("Ange vilken produkt raden gäller.")
+        cleaned["unit_price"] = cleaned.get("unit_price") or 0
+        return cleaned
+
+
+class CateringThermosForm(forms.Form):
+    SIZE_CHOICES = (("", "—"), ("large", "Stor"), ("small", "Liten"))
+
+    size = forms.ChoiceField(
+        choices=SIZE_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+    name = _text(50, placeholder="Termosnamn")
+    returned_on = _date()
+    received_by = _text(100, placeholder="Mottagande jour")
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("name") and not cleaned.get("size"):
+            raise forms.ValidationError("Välj storlek på termosen.")
+        if cleaned.get("returned_on") and not cleaned.get("received_by"):
+            raise forms.ValidationError("Skriv vem som tog emot termosen.")
+        return cleaned
+
+
+CateringLineFormSet = forms.formset_factory(
+    CateringLineForm, extra=2, max_num=30, validate_max=True
+)
+CateringThermosFormSet = forms.formset_factory(
+    CateringThermosForm, extra=2, max_num=30, validate_max=True
+)
+CateringThermosReturnFormSet = forms.formset_factory(
+    CateringThermosForm, extra=0, max_num=30, validate_max=True
+)
 
 
 class OrderForm(forms.Form):
@@ -101,8 +268,22 @@ class OrderForm(forms.Form):
         (3, "Eftermiddag 16:15-17:00"),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, enforce_lead_time=True, **kwargs):
+        """`enforce_lead_time=False` lets the board edit orders past the deadline."""
         super(OrderForm, self).__init__(*args, **kwargs)
+
+        self.enforce_lead_time = enforce_lead_time
+
+        # Set per instance so the dates don't freeze at import time.
+        today = timezone.localdate()
+        self.earliest_food_date = models.earliest_supplier_order_date()
+        self.fields["date"].widget.attrs.update(
+            {
+                "min": today.isoformat(),
+                "max": (today + relativedelta(months=2)).isoformat(),
+                "data-earliest-food-date": self.earliest_food_date.isoformat(),
+            }
+        )
 
         # Iteratively add subforms
         for sub_form_data in [
@@ -111,8 +292,9 @@ class OrderForm(forms.Form):
             self.PASTA_SALAD_TYPES,
         ]:
             for field_name, label in sub_form_data:
+                # The page sends 0 for a cleared sub-type.
                 self.fields["numberOf%s" % field_name.title()] = forms.IntegerField(
-                    min_value=1, required=False, label="Antal %s:" % label
+                    min_value=0, required=False, label="Antal %s:" % label
                 )
 
     def clean_date(self):
@@ -129,6 +311,24 @@ class OrderForm(forms.Form):
                 "Baljan har stängt det valda datumet. Vänligen välj en annan dag."
             )
         return date
+
+    def clean(self):
+        """Refuse goods that cannot reach the supplier order in time."""
+        cleaned = super().clean()
+        date = cleaned.get("date")
+        if not self.enforce_lead_time or date is None:
+            return cleaned
+
+        wants_food = any(
+            cleaned.get(field) for field in models.CATERING_EXTRA_ORDER_FIELDS
+        )
+        if wants_food and date < self.earliest_food_date:
+            raise forms.ValidationError(
+                "Jochen och pastasallad måste beställas senast 16:15 på "
+                "onsdagen veckan innan. Tidigaste datum är nu %s."
+                % self.earliest_food_date.isoformat()
+            )
+        return cleaned
 
     def clean_pickup(self):
         pickup = self.cleaned_data["pickup"]
@@ -148,7 +348,12 @@ class OrderForm(forms.Form):
     )
     # max_length matches CateringOrder.orderer_email; EmailField would
     # otherwise allow 320 and fail on insert instead of in validation.
-    ordererEmail = forms.EmailField(max_length=254, required=True, label="Email:")
+    ordererEmail = forms.EmailField(
+        max_length=254,
+        required=True,
+        label="E-post (fakturan skickas hit):",
+        help_text="Fakturan för beställningen skickas till den här adressen.",
+    )
     phoneNumber = forms.RegexField(
         max_length=11, required=True, label="Telefon:", regex=r"[0-9]{6,11}"
     )
@@ -213,10 +418,7 @@ class OrderForm(forms.Form):
     date = forms.DateField(
         widget=forms.DateInput(
             attrs={
-                "min": datetime.now().strftime("%Y-%m-%d"),  # TODO: timezone
-                "max": (datetime.now() + relativedelta(months=2)).strftime(
-                    "%Y-%m-%d"
-                ),  # TODO: timezone
+                # min and max are set in __init__.
                 "type": "date",
             }
         ),

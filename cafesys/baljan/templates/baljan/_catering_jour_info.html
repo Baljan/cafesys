@@ -1,0 +1,50 @@
+{% comment %}
+What the person on jour needs at the counter. Expects `order`, and `next`
+for where the handout page returns to.
+{% endcomment %}
+<p>
+  Hämtas idag <strong>{{ order.get_pickup_display }}</strong> av
+  <strong>{{ order.pickup_name|default:order.orderer }}</strong>{% if order.pickup_phone %},
+  {{ order.pickup_phone }}{% elif order.orderer_phone %}, {{ order.orderer_phone }}{% endif %}.
+</p>
+
+{% with plans=order.thermos_plan extras=order.extra_order_items %}
+  {% if plans %}
+    <h4 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Termosar</h4>
+    <ul>
+      {% for plan in plans %}
+        <li>
+          {{ plan.label|capfirst }}, {{ plan.cups }} koppar:
+          {% for size, count in plan.thermoses %}{{ count }} &times; {{ size }}{% if not forloop.last %} + {% endif %}{% endfor %}
+          {% if plan.capacity != plan.cups %}
+            <span class="text-muted">&mdash; ger {{ plan.capacity }} koppar</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    {% if order.oatly_cartons %}
+      <p>
+        Till kaffet: muggar och {{ order.oatly_cartons }} Oatly. Socker och
+        skedar om de ber om det &mdash; det ingår.
+      </p>
+    {% endif %}
+  {% endif %}
+
+  {% if plans or extras %}
+    <h4 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Säg till beställaren</h4>
+    <p class="mb-0">{% include "baljan/_catering_return_rule.html" %}</p>
+  {% endif %}
+{% endwith %}
+
+{% if order.status == "approved" %}
+  <div class="mt-3 pt-3 border-top">
+    <a href="{% url 'catering_handout' order.pk %}?next={{ next|urlencode }}" class="btn btn-primary w-100">
+      Fyll i fakturaunderlag och lämna ut &raquo;
+    </a>
+  </div>
+{% elif order.status == "delivered" or order.status == "returned" or order.status == "invoiced" %}
+  <p class="mt-3 pt-3 border-top mb-0 text-muted">
+    Utlämnad{% if order.handout %} av {{ order.handout.handed_out_by }}.
+    <a href="{% url 'catering_invoice_basis' order.pk %}">Fakturaunderlag</a>{% else %}.{% endif %}
+  </p>
+{% endif %}

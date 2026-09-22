@@ -1,0 +1,72 @@
+{% extends "baljan/staff.html" %}
+
+{% block page_title %}Extrabeställning{% endblock %}
+
+{% block staff_info %}
+<div class="mb-3">
+  <a href="{% url 'catering_orders' %}" class="text-decoration-none">&laquo; Alla beställningar</a>
+</div>
+
+<div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-3">
+  <h2 class="mb-0">Extrabeställning vecka {{ week }}</h2>
+  <div class="btn-group">
+    <a href="?vecka={{ previous_week|date:'Y-m-d' }}" class="btn btn-sm btn-outline-secondary">&laquo; Föregående</a>
+    <a href="{% url 'catering_extra_order' %}" class="btn btn-sm btn-outline-secondary">Nästa att beställa</a>
+    <a href="?vecka={{ next_week|date:'Y-m-d' }}" class="btn btn-sm btn-outline-secondary">Nästa &raquo;</a>
+  </div>
+</div>
+
+<p class="{% if deadline_passed %}text-muted{% endif %}">
+  Upphämtning {{ start|date:"j M" }}&ndash;{{ end|date:"j M" }}.
+  {% if deadline_passed %}
+    Skulle beställas senast {{ deadline|date:"l j M H:i" }}.
+  {% else %}
+    Beställs från Smörgåsfiket senast <strong>{{ deadline|date:"l j M H:i" }}</strong>.
+  {% endif %}
+</p>
+
+{% if pending %}
+  <div class="alert alert-warning">
+    <strong>Obesvarade beställningar med extravaror:</strong>
+    kommer med först när de godkänns.
+    <ul class="mb-0 mt-1">
+      {% for entry in pending %}
+        <li>
+          <a href="{% url 'catering_order' entry.order.pk %}" class="alert-link">#{{ entry.order.pk }} {{ entry.order.association }}</a>
+          ({{ entry.order.date|date:"D j M" }}):
+          {% for line in entry.lines %}{{ line.count }} {{ line.label }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+{% if days %}
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3 class="h5 card-title">Totalt för veckan</h3>
+      {% include "baljan/_catering_extra_lines.html" with lines=week_totals %}
+    </div>
+  </div>
+
+  {% for day in days %}
+    <div class="card mb-3">
+      <div class="card-header"><strong>{{ day.date|date:"l j F" }}</strong></div>
+      <div class="card-body">
+        {% include "baljan/_catering_extra_lines.html" with lines=day.totals %}
+      </div>
+      <ul class="list-group list-group-flush small">
+        {% for entry in day.orders %}
+          <li class="list-group-item">
+            <a href="{% url 'catering_order' entry.order.pk %}">#{{ entry.order.pk }}</a>
+            {{ entry.order.association }}, {{ entry.order.get_pickup_display|lower }}:
+            {% for line in entry.lines %}{{ line.count }} {{ line.label }}{% if not forloop.last %}, {% endif %}{% endfor %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
+{% else %}
+  <p class="text-muted">Inga godkända beställningar med jochen eller pastasallad den här veckan.</p>
+{% endif %}
+{% endblock %}

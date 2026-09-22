@@ -38,8 +38,11 @@ history are internal and must stay out of it.
         Beställningen är avbeställd.
       {% elif order.status == 'delivered' %}
         Beställningen är utlämnad. Tack!
+        {% include "baljan/_catering_return_rule.html" %}
+      {% elif order.status == 'returned' %}
+        Beställningen är utlämnad och allt är återlämnat. Tack!
       {% elif order.status == 'invoiced' %}
-        Beställningen är utlämnad och fakturerad.
+        Beställningen är fakturerad. Fakturan skickas till {{ order.orderer_email }}.
       {% endif %}
     </div>
 
@@ -106,11 +109,13 @@ history are internal and must stay out of it.
       </p>
     {% endif %}
 
-    <p class="text-muted">
-      Behöver något ändras eller avbeställas, hör av dig till
-      <a href="mailto:{{ CATERING_EMAIL }}">{{ CATERING_EMAIL }}</a> och uppge
-      beställningsnummer #{{ order.pk }}.
-    </p>
+    {% if order.status == 'pending' or order.status == 'approved' %}
+      <p class="text-muted">
+        Behöver något ändras eller avbeställas, hör av dig till
+        <a href="mailto:{{ CATERING_EMAIL }}">{{ CATERING_EMAIL }}</a> och uppge
+        beställningsnummer #{{ order.pk }}.
+      </p>
+    {% endif %}
 
   </div>
 </div>

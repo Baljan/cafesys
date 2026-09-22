@@ -232,9 +232,14 @@ def shifts_table(
     }
 
 
-@register.inclusion_tag("baljan/_pagination.html")
-def pagination(page):
+@register.inclusion_tag("baljan/_pagination.html", takes_context=True)
+def pagination(context, page):
     return {
+        # {% querystring %} reads request.GET, and an inclusion tag gets a
+        # fresh context: the request context processor does not reach it.
+        # Without this the page links drop every other parameter, which is
+        # how filters used to be silently cleared on the way to page 2.
+        "request": context["request"],
         "is_paginated": page.paginator.num_pages > 1,
         "page": page,
         "paginator": page.paginator,
@@ -273,13 +278,52 @@ CATERING_STATUS_STYLES = {
     "denied": "danger",
     "cancelled": "secondary",
     "delivered": "info text-dark",
+    "returned": "primary",
     "invoiced": "dark",
 }
 
 
+#: How close a pickup has to be before the list starts nagging about it.
+CATERING_URGENT_DAYS = 3
+
+
+@register.simple_tag
+def catering_urgency(order):
+    """Flag an undecided order whose pickup is close, or already past.
+
+    Only undecided ones: once the board has answered, a near date is a plan
+    rather than a problem. Returns an empty string when there is nothing to
+    say, so the template can drop it in unguarded.
+    """
+    if not order.is_pending:
+        return ""
+
+    days = order.days_until_pickup
+    if days < 0:
+        style = "bg-danger"
+        text = "Försenad %s %s" % (abs(days), "dag" if abs(days) == 1 else "dagar")
+    elif days == 0:
+        style = "bg-danger"
+        text = "Hämtas idag"
+    elif days == 1:
+        style = "bg-warning text-dark"
+        text = "Hämtas imorgon"
+    elif days <= CATERING_URGENT_DAYS:
+        style = "bg-warning text-dark"
+        text = "Hämtas om %s dagar" % days
+    else:
+        return ""
+
+    return mark_safe('<span class="badge %s">%s</span>' % (style, escape(text)))
+
+
 @register.simple_tag
 def catering_status_badge(order):
-    """Render a catering order's status as a coloured badge."""
+    """Render a catering status as a coloured badge.
+
+    Takes anything carrying `status` and `get_status_display`: the order
+    itself, or a row from its status history.
+    """
     style = CATERING_STATUS_STYLES.get(order.status, "secondary")
     return mark_safe(
         '<span class="badge bg-%s">%s</span>'
