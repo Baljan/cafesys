@@ -20,7 +20,7 @@ from django.core.serializers import serialize
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.db import transaction
-from django.db.models import Sum, Count, IntegerField, Case, When, Value, Subquery, F
+from django.db.models import Sum, Count, IntegerField, Case, When, Value, Subquery, F, Q
 from django.db.models.functions import (
     ExtractHour,
     ExtractMinute,
@@ -45,6 +45,7 @@ from django import forms as django_forms
 from django.template.loader import render_to_string
 
 from django.contrib.auth.views import LoginView
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 
 
@@ -619,6 +620,80 @@ class OrderListView(LoginRequiredMixin, ListView):
         return super().get_queryset().filter(user_id=user.id).order_by("-put_at")
 
 
+#: The board's four views on the same table. Slugs, not indices, so a
+#: bookmarked link keeps meaning what it meant.
+CATERING_TAB_TODO = "att-behandla"
+CATERING_TAB_WEEK = "denna-vecka"
+CATERING_TAB_UPCOMING = "kommande"
+CATERING_TAB_HISTORY = "historik"
+
+CATERING_TABS = (
+    (CATERING_TAB_TODO, "Att behandla"),
+    (CATERING_TAB_WEEK, "Denna vecka"),
+    (CATERING_TAB_UPCOMING, "Kommande"),
+    (CATERING_TAB_HISTORY, "Historik"),
+)
+DEFAULT_CATERING_TAB = CATERING_TAB_TODO
+
+#: Statuses with nothing left to do. They drop straight to Historik whatever
+#: their date says, because nobody is going to make them.
+CATERING_DEAD_STATUSES = (
+    models.CateringOrder.Status.DENIED,
+    models.CateringOrder.Status.CANCELLED,
+)
+
+#: "Denna vecka" is the next seven days rather than the calendar week, which
+#: would shrink to a single day every Sunday.
+CATERING_WEEK_DAYS = 7
+
+CATERING_TAB_ORDERING = {
+    # Ascending, so an order whose date has already passed and which nobody
+    # ever answered sits at the very top where it belongs.
+    CATERING_TAB_TODO: ("date", "pickup", "made"),
+    CATERING_TAB_WEEK: ("date", "pickup"),
+    CATERING_TAB_UPCOMING: ("date", "pickup"),
+    CATERING_TAB_HISTORY: ("-date", "-pickup", "-made"),
+}
+
+
+def catering_tab_predicates(today):
+    """One Q per tab, all built from the same reference date.
+
+    The tabs deliberately overlap: an undecided order due on Thursday belongs
+    in both "Att behandla" and "Denna vecka", so the four counts do not sum to
+    the total. The first tab is a worklist, the other three are a schedule.
+    """
+    week_end = today + timedelta(days=CATERING_WEEK_DAYS)
+    dead = Q(status__in=CATERING_DEAD_STATUSES)
+    return {
+        # No date window: an undecided order is work whenever it is due.
+        CATERING_TAB_TODO: Q(status=models.CateringOrder.Status.PENDING),
+        CATERING_TAB_WEEK: Q(date__gte=today, date__lt=week_end) & ~dead,
+        CATERING_TAB_UPCOMING: Q(date__gte=week_end) & ~dead,
+        CATERING_TAB_HISTORY: Q(date__lt=today) | dead,
+    }
+
+
+def catering_tab_counts(today):
+    """How many orders each tab holds, in a single query.
+
+    Counted on the whole table and not on the filtered queryset: a badge that
+    moves as you type in the search box stops being a measure of the workload.
+    """
+    predicates = catering_tab_predicates(today)
+    return models.CateringOrder.objects.aggregate(
+        **{
+            _catering_count_key(tab): Count("pk", filter=predicate)
+            for tab, predicate in predicates.items()
+        }
+    )
+
+
+def _catering_count_key(tab):
+    """Slugs carry hyphens; aggregate keyword arguments cannot."""
+    return tab.replace("-", "_")
+
+
 class CateringOrderFilter(django_filters.FilterSet):
     """The board's filters.
 
@@ -675,17 +750,39 @@ class CateringOrderListView(PermissionRequiredMixin, ListView):
     paginate_orphans = 10
 
     def get_queryset(self):
-        self.filterset = CateringOrderFilter(
-            self.request.GET, queryset=super().get_queryset()
+        self.tab = self.request.GET.get("tab") or DEFAULT_CATERING_TAB
+        if self.tab not in dict(CATERING_TABS):
+            # A stale bookmark should land somewhere useful, not on a 404.
+            self.tab = DEFAULT_CATERING_TAB
+        self.today = timezone.localdate()
+
+        queryset = (
+            super()
+            .get_queryset()
+            # The list names who handled each order, and pre-migration rows
+            # answer that from the account rather than the stored name.
+            .select_related("handled_by")
+            .filter(catering_tab_predicates(self.today)[self.tab])
+            .order_by(*CATERING_TAB_ORDERING[self.tab])
         )
+        self.filterset = CateringOrderFilter(self.request.GET, queryset=queryset)
         return self.filterset.qs
 
     def get_context_data(self, **kwargs):
         tpl = super().get_context_data(**kwargs)
         tpl["filter"] = self.filterset
-        tpl["pending_count"] = models.CateringOrder.objects.filter(
-            status=models.CateringOrder.Status.PENDING
-        ).count()
+        tpl["tab"] = self.tab
+        counts = catering_tab_counts(self.today)
+        tpl["tabs"] = [
+            {
+                "key": key,
+                "label": label,
+                "count": counts[_catering_count_key(key)],
+                "active": key == self.tab,
+            }
+            for key, label in CATERING_TABS
+        ]
+        tpl["pending_count"] = counts[_catering_count_key(CATERING_TAB_TODO)]
         return tpl
 
 
@@ -694,6 +791,10 @@ def catering_order(request, pk):
     """Show one order, let the board edit it, and decide on it."""
     order = get_object_or_404(models.CateringOrder, pk=pk)
     form = forms.OrderForm(initial=_order_form_initial(order))
+    # Unbound, and never given an `initial`: the name must be typed afresh
+    # every time, because the account it would be prefilled from is shared.
+    decision_form = forms.CateringDecisionForm()
+    status_form = forms.CateringStatusForm()
 
     if request.method == "POST":
         task = request.POST.get("task", "")
@@ -720,25 +821,54 @@ def catering_order(request, pk):
 
         elif task in ("approve", "deny"):
             message = request.POST.get("staff_message", "")
-            if task == "approve":
-                order.approve(user=request.user, message=message)
-                text = "Beställningen godkändes. Beställaren får ett mail."
-            else:
-                order.deny(user=request.user, message=message)
-                text = "Beställningen nekades. Beställaren får ett mail."
-            messages.add_message(request, messages.SUCCESS, text)
-            return HttpResponseRedirect(order.get_absolute_url())
+            decision_form = forms.CateringDecisionForm(request.POST)
+            if decision_form.is_valid():
+                name = decision_form.cleaned_data["handled_by_name"]
+                if task == "approve":
+                    order.approve(
+                        user=request.user, handled_by_name=name, message=message
+                    )
+                    text = "Beställningen godkändes. Beställaren får ett mail."
+                else:
+                    order.deny(user=request.user, handled_by_name=name, message=message)
+                    text = "Beställningen nekades. Beställaren får ett mail."
+                messages.add_message(request, messages.SUCCESS, text)
+                return HttpResponseRedirect(order.get_absolute_url())
+            # Nothing decided and no mail sent. The typed message is put back
+            # on the instance, unsaved, so the page renders it again instead
+            # of making the board write it a second time.
+            order.staff_message = message
+            messages.add_message(
+                request,
+                messages.ERROR,
+                "Skriv ditt namn innan du godkänner eller nekar.",
+            )
 
         elif task == "status":
             status = request.POST.get("status", "")
             valid = {choice for choice, _label in models.CateringOrder.Status.choices}
+            # Checked before the name: an unknown status is a tampered
+            # request, a missing name is an ordinary mistake.
             if status not in valid:
                 raise BadRequest("unknown status")
-            # Only the approve/deny step mails the orderer; the later
-            # bookkeeping states are internal.
-            order.set_status(status, user=request.user)
-            messages.add_message(request, messages.SUCCESS, "Statusen uppdaterades.")
-            return HttpResponseRedirect(order.get_absolute_url())
+            status_form = forms.CateringStatusForm(request.POST)
+            if status_form.is_valid():
+                # Only the approve/deny step mails the orderer; the later
+                # bookkeeping states are internal.
+                order.set_status(
+                    status,
+                    user=request.user,
+                    handled_by_name=status_form.cleaned_data["handled_by_name"],
+                )
+                messages.add_message(
+                    request, messages.SUCCESS, "Statusen uppdaterades."
+                )
+                return HttpResponseRedirect(order.get_absolute_url())
+            messages.add_message(
+                request,
+                messages.ERROR,
+                "Skriv ditt namn innan du ändrar statusen.",
+            )
 
         else:
             raise BadRequest("unknown task")
@@ -749,6 +879,8 @@ def catering_order(request, pk):
         {
             "order": order,
             "form": form,
+            "decision_form": decision_form,
+            "status_form": status_form,
             "statuses": models.CateringOrder.Status.choices,
         },
     )

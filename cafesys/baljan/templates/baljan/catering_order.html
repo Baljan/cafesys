@@ -18,7 +18,10 @@
   <p class="text-muted mb-0">
     Inkom <time datetime="{{ order.made|date:'c' }}">{{ order.made|date:"Y-m-d H:i" }}</time>
     {% if order.handled_at %}
-      &middot; behandlad av {{ order.handled_by|default:"okänd" }}
+      &middot; behandlad av {{ order.handled_by_label|default:"okänd" }}
+      {% if order.handled_by %}
+        <span class="text-muted small">(konto: {{ order.handled_by }})</span>
+      {% endif %}
       <time datetime="{{ order.handled_at|date:'c' }}">{{ order.handled_at|date:"Y-m-d H:i" }}</time>
     {% endif %}
   </p>
@@ -116,18 +119,32 @@
             Beskedet är redan skickat. Du kan skicka ett nytt genom att välja igen.
           </p>
         {% endif %}
-        <form method="POST" action="">
+        <form method="POST" action="" id="catering-decision-form">
           {% csrf_token %}
           <div class="mb-3">
             <label for="staff_message" class="form-label">Meddelande (följer med i mailet)</label>
             <textarea class="form-control" id="staff_message" name="staff_message"
                       rows="3">{{ order.staff_message }}</textarea>
           </div>
+          <div class="mb-3">
+            <label for="catering-handled-by-name" class="form-label">
+              {{ decision_form.handled_by_name.label }}
+            </label>
+            {{ decision_form.handled_by_name }}
+            <div class="invalid-feedback">
+              Skriv ditt namn innan du godkänner eller nekar.
+            </div>
+            {% for error in decision_form.handled_by_name.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+            {% endfor %}
+          </div>
           <div class="d-flex gap-2">
-            <button type="submit" name="task" value="approve" class="btn btn-success flex-grow-1">
+            <button type="submit" name="task" value="approve" id="catering-approve"
+                    class="btn btn-green-approve flex-grow-1">
               Godkänn
             </button>
-            <button type="submit" name="task" value="deny" class="btn btn-outline-danger flex-grow-1">
+            <button type="submit" name="task" value="deny" id="catering-deny"
+                    class="btn btn-outline-danger flex-grow-1">
               Neka
             </button>
           </div>
@@ -166,15 +183,28 @@
     <div class="card mb-4">
       <div class="card-body">
         <h3 class="h5 card-title">Status</h3>
-        <form method="POST" action="" class="d-flex gap-2">
+        <form method="POST" action="" id="catering-status-form">
           {% csrf_token %}
           <input type="hidden" name="task" value="status">
-          <select name="status" class="form-select">
-            {% for value, label in statuses %}
-              <option value="{{ value }}" {% if value == order.status %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-          <button type="submit" class="btn btn-outline-secondary">Sätt</button>
+          <div class="d-flex gap-2 mb-2">
+            <select name="status" class="form-select">
+              {% for value, label in statuses %}
+                <option value="{{ value }}" {% if value == order.status %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" id="catering-status-submit"
+                    class="btn btn-outline-secondary">Sätt</button>
+          </div>
+          <label for="catering-status-handled-by-name" class="form-label">
+            {{ status_form.handled_by_name.label }}
+          </label>
+          {{ status_form.handled_by_name }}
+          <div class="invalid-feedback">
+            Skriv ditt namn innan du ändrar statusen.
+          </div>
+          {% for error in status_form.handled_by_name.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+          {% endfor %}
         </form>
         <small class="text-muted d-block mt-2">
           Ändrar bara statusen internt. Inget mail skickas.
@@ -210,4 +240,39 @@
   {{ form | crispy }}
   <button type="submit" class="btn btn-primary">Spara ändringar</button>
 </form>
+{% endblock %}
+
+{% block extra_body %}
+<script>
+  // The buttons stay clickable. Pressing one without a name is the moment the
+  // reminder is wanted, and a button that simply refuses to respond explains
+  // nothing. Without JavaScript the `required` attribute stops the submit and
+  // the view checks again on the way in, so nothing gets through unsigned.
+  (function () {
+    function wire(formId, inputId) {
+      var form = document.getElementById(formId);
+      var input = form && document.getElementById(inputId);
+      if (!input) { return; }
+
+      // Take the browser's own bubble out of the way, so the reminder can be
+      // phrased properly and sit next to the field it is about.
+      form.setAttribute("novalidate", "novalidate");
+
+      form.addEventListener("submit", function (event) {
+        if (input.value.trim().length > 0) { return; }
+        event.preventDefault();
+        input.classList.add("is-invalid");
+        input.focus();
+      });
+
+      input.addEventListener("input", function () {
+        if (input.value.trim().length > 0) {
+          input.classList.remove("is-invalid");
+        }
+      });
+    }
+    wire("catering-decision-form", "catering-handled-by-name");
+    wire("catering-status-form", "catering-status-handled-by-name");
+  })();
+</script>
 {% endblock %}

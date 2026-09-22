@@ -1590,6 +1590,14 @@ class CateringOrder(Made):
         related_name="handled_catering_orders",
         on_delete=models.SET_NULL,
     )
+    #: Who decided, by hand. `handled_by` only says which account was logged
+    #: in, and the board shares one account across shifts, so the account is
+    #: not an answer to "who approved this". Blank at the database level
+    #: because every row that predates the field has no name to give; the
+    #: requirement lives in the form, not in the schema.
+    handled_by_name = models.CharField(
+        _("name of the person who decided"), max_length=100, blank=True, default=""
+    )
     handled_at = models.DateTimeField(_("handled at"), null=True, blank=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
@@ -1654,6 +1662,23 @@ class CateringOrder(Made):
     def board_url(self):
         """`get_absolute_url` as an absolute URL, for the mail to the board."""
         return "https://%s%s" % (util.current_site(), self.get_absolute_url())
+
+    @property
+    def handled_by_label(self):
+        """Who decided, for display: the typed name, else the account.
+
+        Empty when nothing is known, so callers can leave the line out
+        entirely rather than printing "okänd" into a calendar event.
+        """
+        if self.handled_by_name:
+            return self.handled_by_name
+        # handled_by_id, not handled_by: no query just to find out there is none.
+        return str(self.handled_by) if self.handled_by_id else ""
+
+    @property
+    def days_until_pickup(self):
+        """Days from today to the pickup date. Negative once it has passed."""
+        return (self.date - timezone.localdate()).days
 
     @property
     def is_pending(self):
@@ -1725,14 +1750,20 @@ class CateringOrder(Made):
         """How many things were ordered, counting each group only once."""
         return sum(group["count"] for group in self.grouped_items())
 
-    def set_status(self, status, user=None, notify=False):
+    def set_status(self, status, user=None, handled_by_name=None, notify=False):
         """Move the order to `status`, recording who did it.
+
+        The account and the typed name are written together. `handled_by` is
+        overwritten on every call, so carrying an older name forward would
+        leave the pair describing two different events by two different
+        people.
 
         Passing `notify=True` queues a decision email to the orderer once the
         surrounding transaction has committed.
         """
         self.status = status
         self.handled_by = user
+        self.handled_by_name = (handled_by_name or "").strip()
         self.handled_at = timezone.now()
         self.save()
 
@@ -1744,15 +1775,25 @@ class CateringOrder(Made):
             self.notify_orderer()
             self.notify_board()
 
-    def approve(self, user=None, message=None, notify=True):
+    def approve(self, user=None, handled_by_name=None, message=None, notify=True):
         if message is not None:
             self.staff_message = message
-        self.set_status(self.Status.APPROVED, user=user, notify=notify)
+        self.set_status(
+            self.Status.APPROVED,
+            user=user,
+            handled_by_name=handled_by_name,
+            notify=notify,
+        )
 
-    def deny(self, user=None, message=None, notify=True):
+    def deny(self, user=None, handled_by_name=None, message=None, notify=True):
         if message is not None:
             self.staff_message = message
-        self.set_status(self.Status.DENIED, user=user, notify=notify)
+        self.set_status(
+            self.Status.DENIED,
+            user=user,
+            handled_by_name=handled_by_name,
+            notify=notify,
+        )
 
     def notify_orderer(self):
         """Queue the decision email.

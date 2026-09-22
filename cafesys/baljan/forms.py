@@ -62,6 +62,54 @@ class ProfileCardIdForm(forms.ModelForm):
         fields = ("card_id",)
 
 
+def _handler_name_field(error_message, field_id):
+    """The "who is doing this" field the board must fill in by hand.
+
+    Deliberately not a ModelForm field and deliberately never given an
+    `initial`: the board shares one account across shifts, so prefilling it
+    from `request.user` would put the account's name on a decision somebody
+    else took. CharField strips whitespace before validating, so a field
+    holding only spaces fails `required` on its own.
+    """
+    return forms.CharField(
+        label="Vem behandlar beställningen?",
+        max_length=100,
+        required=True,
+        error_messages={"required": error_message},
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "autocomplete": "off",
+                "placeholder": "Ditt namn",
+                "required": True,
+                "id": field_id,
+            }
+        ),
+    )
+
+
+class CateringDecisionForm(forms.Form):
+    """The name that goes with an approve or deny."""
+
+    handled_by_name = _handler_name_field(
+        "Skriv ditt namn innan du godkänner eller nekar.",
+        "catering-handled-by-name",
+    )
+
+
+class CateringStatusForm(forms.Form):
+    """The name that goes with a later status change.
+
+    `set_status` overwrites `handled_by` whatever the reason, so a nameless
+    status change would wipe out the record of who approved the order.
+    """
+
+    handled_by_name = _handler_name_field(
+        "Skriv ditt namn innan du ändrar statusen.",
+        "catering-status-handled-by-name",
+    )
+
+
 class OrderForm(forms.Form):
     # [(field name, jochen name), ... ]
 

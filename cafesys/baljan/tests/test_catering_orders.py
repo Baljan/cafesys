@@ -11,6 +11,7 @@ from cafesys.baljan.actions import categories_and_actions
 from cafesys.celery import app as celery_app
 from cafesys.baljan.models import CateringOrder, CateringOrderEmail, Semester
 from cafesys.baljan import google
+from cafesys.baljan.views import CATERING_TABS as TAB_KEYS
 from cafesys.baljan.tasks import (
     remove_old_catering_orders,
     send_catering_order_board_decision_email,
@@ -39,6 +40,7 @@ def make_order(**kwargs):
         "items": [
             {"field": "numberOfCoffee", "label": "kaffe", "count": 20, "group": None},
             {"field": "numberOfTea", "label": "te", "count": 0, "group": None},
+            {"field": "numberOfJochen", "label": "Jochen", "count": 3, "group": None},
             {
                 "field": "numberOfKebabjochen",
                 "label": "kebab (ljust bröd)",
@@ -91,7 +93,7 @@ class CateringOrderModelTestCase(TestCase):
         order = make_order()
         self.assertEqual(
             [(item["label"], item["count"]) for item in order.ordered_items()],
-            [("kaffe", 20), ("kebab (ljust bröd)", 3)],
+            [("kaffe", 20), ("Jochen", 3), ("kebab (ljust bröd)", 3)],
         )
 
     def test_new_orders_are_pending(self):
@@ -114,19 +116,28 @@ class CateringOrderModelTestCase(TestCase):
     def test_approve_records_who_decided(self):
         user = User.objects.create(username="board-member")
         order = make_order()
-        order.approve(user=user, message="Vi ses!", notify=False)
+        order.approve(
+            user=user, handled_by_name="Kalle K", message="Vi ses!", notify=False
+        )
         order.refresh_from_db()
         self.assertEqual(order.status, CateringOrder.Status.APPROVED)
         self.assertEqual(order.handled_by, user)
+        self.assertEqual(order.handled_by_name, "Kalle K")
         self.assertEqual(order.staff_message, "Vi ses!")
         self.assertIsNotNone(order.handled_at)
 
     def test_deny_records_who_decided(self):
         user = User.objects.create(username="board-member")
         order = make_order()
-        order.deny(user=user, message="Stängt den dagen", notify=False)
+        order.deny(
+            user=user,
+            handled_by_name="Kalle K",
+            message="Stängt den dagen",
+            notify=False,
+        )
         order.refresh_from_db()
         self.assertEqual(order.status, CateringOrder.Status.DENIED)
+        self.assertEqual(order.handled_by_name, "Kalle K")
         self.assertTrue(order.is_decided)
 
 
@@ -403,17 +414,35 @@ class CateringCentralTestCase(TestCase):
         self.assertEqual(response.context["pending_count"], 1)
         self.assertContains(response, order.orderer)
 
-    def test_the_list_can_be_filtered_by_status(self):
+    def test_a_tab_can_still_be_searched(self):
+        """The filters narrow the tab; they do not escape it."""
         make_order()
         make_order(orderer="Bertil B", status=CateringOrder.Status.APPROVED)
         client = self.board_client()
 
-        approved = client.get(reverse("catering_orders"), {"status": "approved"})
-        self.assertEqual(approved.context["paginator"].count, 1)
-        self.assertContains(approved, "Bertil B")
+        # next_weekday() is a week out, so the approved order is upcoming.
+        hit = client.get(
+            reverse("catering_orders"),
+            {"tab": "kommande", "association": "Testsektionen"},
+        )
+        self.assertEqual(hit.context["paginator"].count, 2)
+        self.assertContains(hit, "Bertil B")
 
-        pending = client.get(reverse("catering_orders"), {"status": "pending"})
-        self.assertEqual(pending.context["paginator"].count, 1)
+        miss = client.get(
+            reverse("catering_orders"), {"tab": "kommande", "association": "Ada"}
+        )
+        self.assertEqual(miss.context["paginator"].count, 0)
+
+    def test_the_history_tab_can_be_filtered_by_status(self):
+        make_order(orderer="Bertil B", status=CateringOrder.Status.DENIED)
+        make_order()
+        client = self.board_client()
+
+        denied = client.get(
+            reverse("catering_orders"), {"tab": "historik", "status": "denied"}
+        )
+        self.assertEqual(denied.context["paginator"].count, 1)
+        self.assertContains(denied, "Bertil B")
 
     def test_the_edit_form_is_filled_from_the_stored_order(self):
         order = make_order()
@@ -441,7 +470,11 @@ class CateringCentralTestCase(TestCase):
         with self.captureOnCommitCallbacks(execute=True):
             response = client.post(
                 reverse("catering_order", args=[order.pk]),
-                {"task": "approve", "staff_message": "Vi ses på fredag!"},
+                {
+                    "task": "approve",
+                    "staff_message": "Vi ses på fredag!",
+                    "handled_by_name": "Kalle Karlsson",
+                },
             )
         self.assertEqual(response.status_code, 302)
 
@@ -462,7 +495,11 @@ class CateringCentralTestCase(TestCase):
         with self.captureOnCommitCallbacks(execute=True):
             client.post(
                 reverse("catering_order", args=[order.pk]),
-                {"task": "deny", "staff_message": "Tyvärr stängt."},
+                {
+                    "task": "deny",
+                    "staff_message": "Tyvärr stängt.",
+                    "handled_by_name": "Kalle Karlsson",
+                },
             )
         order.refresh_from_db()
         self.assertEqual(order.status, CateringOrder.Status.DENIED)
@@ -535,7 +572,11 @@ class CateringCentralTestCase(TestCase):
         with self.captureOnCommitCallbacks(execute=True):
             client.post(
                 reverse("catering_order", args=[order.pk]),
-                {"task": "status", "status": "delivered"},
+                {
+                    "task": "status",
+                    "status": "delivered",
+                    "handled_by_name": "Kalle Karlsson",
+                },
             )
         order.refresh_from_db()
         self.assertEqual(order.status, CateringOrder.Status.DELIVERED)
@@ -550,7 +591,11 @@ class CateringCentralTestCase(TestCase):
         with self.captureOnCommitCallbacks(execute=True):
             client.post(
                 reverse("catering_order", args=[order.pk]),
-                {"task": "status", "status": "cancelled"},
+                {
+                    "task": "status",
+                    "status": "cancelled",
+                    "handled_by_name": "Kalle Karlsson",
+                },
             )
         order.refresh_from_db()
         self.assertEqual(order.status, CateringOrder.Status.CANCELLED)
@@ -564,7 +609,11 @@ class CateringCentralTestCase(TestCase):
         with self.captureOnCommitCallbacks(execute=True):
             client.post(
                 reverse("catering_order", args=[order.pk]),
-                {"task": "approve", "staff_message": "Vi ses på fredag!"},
+                {
+                    "task": "approve",
+                    "staff_message": "Vi ses på fredag!",
+                    "handled_by_name": "Kalle Karlsson",
+                },
             )
 
         response = client.get(reverse("catering_order", args=[order.pk]))
@@ -859,7 +908,11 @@ class CateringBoardThreadTestCase(TestCase):
 
     def decide(self, order, task, **extra):
         mail.outbox = []
-        data = {"task": task, "staff_message": "Vi ses på fredag!"}
+        data = {
+            "task": task,
+            "staff_message": "Vi ses på fredag!",
+            "handled_by_name": "Kalle Karlsson",
+        }
         data.update(extra)
         with self.captureOnCommitCallbacks(execute=True):
             self.client.post(reverse("catering_order", args=[order.pk]), data)
@@ -942,7 +995,11 @@ class CateringBoardThreadTestCase(TestCase):
             with self.captureOnCommitCallbacks(execute=True):
                 self.client.post(
                     reverse("catering_order", args=[order.pk]),
-                    {"task": "status", "status": status},
+                    {
+                        "task": "status",
+                        "status": status,
+                        "handled_by_name": "Kalle Karlsson",
+                    },
                 )
         self.assertEqual(mail.outbox, [])
 
@@ -998,7 +1055,7 @@ class CateringCalendarTestCase(TestCase):
         return self.client
 
     def decide(self, order, task, **extra):
-        data = {"task": task}
+        data = {"task": task, "handled_by_name": "Kalle Karlsson"}
         data.update(extra)
         with self.captureOnCommitCallbacks(execute=True):
             self.client.post(reverse("catering_order", args=[order.pk]), data)
@@ -1097,7 +1154,11 @@ class CateringCalendarTestCase(TestCase):
         with self.captureOnCommitCallbacks(execute=True):
             self.client.post(
                 reverse("catering_order", args=[order.pk]),
-                {"task": "approve", "staff_message": "Vi ses!"},
+                {
+                    "task": "approve",
+                    "staff_message": "Vi ses!",
+                    "handled_by_name": "Kalle Karlsson",
+                },
             )
 
         order.refresh_from_db()
@@ -1140,3 +1201,467 @@ class CateringCalendarOffTestCase(TestCase):
             order = make_order(status=CateringOrder.Status.APPROVED)
             sync_catering_order_calendar(order.pk)
         self.assertEqual(service.call_count, 0)
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class CateringHandlerNameTestCase(TestCase):
+    """A decision has to carry the name of the person who took it.
+
+    The board shares one account across shifts, so `handled_by` says which
+    login was used and nothing about who was standing there.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        today = date.today()
+        Semester.objects.create(
+            name="HT26",
+            start=today - timedelta(days=30),
+            end=today + timedelta(days=120),
+        )
+        cls.permission = Permission.objects.get(codename="manage_catering_orders")
+
+    def setUp(self):
+        celery_app.conf.task_always_eager = True
+        celery_app.conf.task_eager_propagates = True
+        self.addCleanup(setattr, celery_app.conf, "task_always_eager", False)
+        self.addCleanup(setattr, celery_app.conf, "task_eager_propagates", False)
+
+        user = User.objects.create(username="delat-styrelsekonto")
+        group, _ = Group.objects.get_or_create(name=settings.BOARD_GROUP)
+        group.permissions.add(self.permission)
+        user.groups.add(group)
+        profile = user.profile
+        profile.has_seen_consent = True
+        profile.save()
+        self.user = user
+        self.client.force_login(user)
+
+    def decide(self, order, data):
+        with self.captureOnCommitCallbacks(execute=True):
+            return self.client.post(reverse("catering_order", args=[order.pk]), data)
+
+    def test_the_typed_name_is_stored_beside_the_account(self):
+        order = make_order()
+        self.decide(
+            order, {"task": "approve", "staff_message": "", "handled_by_name": "Anna A"}
+        )
+        order.refresh_from_db()
+        self.assertEqual(order.handled_by_name, "Anna A")
+        self.assertEqual(order.handled_by, self.user)
+        self.assertEqual(order.handled_by_label, "Anna A")
+
+    def test_the_buttons_are_not_disabled(self):
+        """Pressing one is how the reminder is asked for."""
+        order = make_order()
+        response = self.client.get(reverse("catering_order", args=[order.pk]))
+        self.assertNotContains(response, "disabled")
+
+    def test_a_decision_without_a_name_is_refused(self):
+        order = make_order()
+        response = self.decide(order, {"task": "approve", "staff_message": ""})
+        self.assertEqual(response.status_code, 200)
+        order.refresh_from_db()
+        self.assertTrue(order.is_pending)
+        self.assertEqual(mail.outbox, [])
+        self.assertContains(response, "Skriv ditt namn")
+
+    def test_a_name_of_only_spaces_is_refused(self):
+        order = make_order()
+        self.decide(
+            order, {"task": "approve", "staff_message": "", "handled_by_name": "   "}
+        )
+        order.refresh_from_db()
+        self.assertTrue(order.is_pending)
+
+    def test_the_typed_message_survives_a_missing_name(self):
+        """Nobody should have to write their message twice."""
+        order = make_order()
+        response = self.decide(
+            order, {"task": "approve", "staff_message": "Vi ses på fredag!"}
+        )
+        self.assertContains(response, "Vi ses på fredag!")
+
+    def test_the_name_is_never_prefilled(self):
+        """The whole point: a shared account must not sign for a person."""
+        order = make_order(handled_by_name="Anna A")
+        response = self.client.get(reverse("catering_order", args=[order.pk]))
+        field = response.context["decision_form"]["handled_by_name"]
+        self.assertFalse(field.value())
+
+    def test_the_page_carries_the_hooks_behind_the_reminder(self):
+        """The reminder itself is JavaScript and out of reach of this client.
+
+        What can be pinned is that the ids it hangs off, the `required`
+        attribute that stands in for it without JavaScript, and the text it
+        reveals are all actually rendered.
+        """
+        order = make_order()
+        response = self.client.get(reverse("catering_order", args=[order.pk]))
+        for hook in (
+            'id="catering-handled-by-name"',
+            'id="catering-approve"',
+            'id="catering-deny"',
+            'id="catering-status-handled-by-name"',
+            'id="catering-status-submit"',
+            'name="handled_by_name"',
+            "required",
+            "invalid-feedback",
+            "Skriv ditt namn innan du godkänner eller nekar.",
+            "Skriv ditt namn innan du ändrar statusen.",
+        ):
+            with self.subTest(hook=hook):
+                self.assertContains(response, hook)
+
+    def test_a_status_change_needs_a_name_too(self):
+        order = make_order(status=CateringOrder.Status.APPROVED)
+        self.decide(order, {"task": "status", "status": "delivered"})
+        order.refresh_from_db()
+        self.assertEqual(order.status, CateringOrder.Status.APPROVED)
+
+    def test_a_status_change_overwrites_the_name_with_the_new_one(self):
+        """`handled_by` is overwritten either way, so the name must follow.
+
+        Keeping the older name would leave the pair describing two different
+        people doing two different things.
+        """
+        order = make_order()
+        self.decide(
+            order, {"task": "approve", "staff_message": "", "handled_by_name": "Anna A"}
+        )
+        self.decide(
+            order,
+            {"task": "status", "status": "delivered", "handled_by_name": "Bo B"},
+        )
+        order.refresh_from_db()
+        self.assertEqual(order.handled_by_name, "Bo B")
+
+    def test_an_unknown_status_is_refused_before_the_name_is_checked(self):
+        """A tampered request is a 400, a forgotten name is not."""
+        order = make_order()
+        response = self.client.post(
+            reverse("catering_order", args=[order.pk]),
+            {"task": "status", "status": "nonsense"},
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_the_page_names_the_person_and_keeps_the_account(self):
+        order = make_order()
+        self.decide(
+            order, {"task": "approve", "staff_message": "", "handled_by_name": "Anna A"}
+        )
+        response = self.client.get(reverse("catering_order", args=[order.pk]))
+        self.assertContains(response, "Anna A")
+        self.assertContains(response, "konto: delat-styrelsekonto")
+
+    def test_the_board_mail_names_the_person(self):
+        order = make_order()
+        self.decide(
+            order, {"task": "approve", "staff_message": "", "handled_by_name": "Anna A"}
+        )
+        html = only_to(settings.CATERING_EMAIL).alternatives[0][0]
+        self.assertIn("Anna A", html)
+
+    def test_an_order_from_before_the_field_still_shows_the_account(self):
+        order = make_order(handled_by=self.user, handled_by_name="")
+        self.assertEqual(order.handled_by_label, "delat-styrelsekonto")
+        response = self.client.get(reverse("catering_order", args=[order.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_an_undecided_order_names_nobody(self):
+        self.assertEqual(make_order().handled_by_label, "")
+
+    def test_the_public_page_never_shows_who_decided(self):
+        order = make_order()
+        self.decide(
+            order, {"task": "approve", "staff_message": "", "handled_by_name": "Anna A"}
+        )
+        order.refresh_from_db()
+        # Logged out: the orderer reads this page with a token, not an account,
+        # and the navbar would otherwise print the staff username back at us.
+        self.client.logout()
+        page = self.client.get(order.get_public_url())
+        self.assertNotContains(page, "Anna A")
+        self.assertNotContains(page, "delat-styrelsekonto")
+
+
+class CateringCalendarDescriptionTestCase(TestCase):
+    """What a calendar entry says about an order.
+
+    One function feeds all four consumers: the Google event, the invite on the
+    board's mail, the invite on the approval mail, and the public .ics.
+    """
+
+    def description(self, order):
+        from cafesys.baljan import ical
+
+        return ical.catering_order_description(order)
+
+    def test_sub_types_are_nested_under_their_group(self):
+        text = self.description(make_order())
+        self.assertIn("Antal Jochen: 3", text)
+        self.assertIn("  - kebab (ljust bröd): 3", text)
+
+    def test_a_sub_type_never_looks_like_a_separate_item(self):
+        """The bug: "Antal pastasallad: 50" beside "Antal grekisk: 10"."""
+        self.assertNotIn("Antal kebab (ljust bröd)", self.description(make_order()))
+
+    def test_the_nesting_survives_stripped_leading_whitespace(self):
+        """Why the dash is there and not just the indent.
+
+        Google's mobile clients and some iCal unfolders eat leading spaces, so
+        a line that only says "kebab: 3" once de-indented would read as its own
+        item again.
+        """
+        lines = [line.lstrip() for line in self.description(make_order()).splitlines()]
+        self.assertIn("- kebab (ljust bröd): 3", lines)
+
+    def test_a_group_with_no_count_still_lists_its_children(self):
+        """No invented total: the orderer never typed one."""
+        order = make_order(
+            items=[
+                {
+                    "field": "numberOfPastasalad",
+                    "label": "pastasallad",
+                    "count": 0,
+                    "group": None,
+                },
+                {
+                    "field": "numberOfGrekisk",
+                    "label": "grekisk",
+                    "count": 5,
+                    "group": "pastasallad",
+                },
+            ]
+        )
+        text = self.description(order)
+        self.assertIn("pastasallad:", text)
+        self.assertIn("  - grekisk: 5", text)
+        self.assertNotIn("Antal pastasallad", text)
+
+    def test_empty_groups_are_left_out(self):
+        self.assertNotIn("te", self.description(make_order()).splitlines()[4])
+
+    def test_it_names_who_approved(self):
+        order = make_order(
+            status=CateringOrder.Status.APPROVED, handled_by_name="Anna A"
+        )
+        self.assertIn("Godkänd av: Anna A", self.description(order))
+
+    def test_an_undecided_order_names_nobody(self):
+        """The board's invite is built before anyone has decided anything."""
+        self.assertNotIn("Godkänd av", self.description(make_order()))
+
+    def test_the_fixture_matches_what_the_form_really_stores(self):
+        """Every sub-type needs its parent row, or grouped_items drops it.
+
+        `_catering_items()` always writes the parent. A fixture that does not
+        would make the nesting tests above pass while proving nothing.
+        """
+        items = make_order().items
+        parents = {item["label"] for item in items if not item["group"]}
+        for item in items:
+            if item["group"]:
+                self.assertIn(item["group"], parents)
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class CateringOrderTabsTestCase(TestCase):
+    """The board's list, once there are more orders than fit on a screen."""
+
+    @classmethod
+    def setUpTestData(cls):
+        today = date.today()
+        Semester.objects.create(
+            name="HT26",
+            start=today - timedelta(days=30),
+            end=today + timedelta(days=200),
+        )
+        cls.permission = Permission.objects.get(codename="manage_catering_orders")
+
+    def setUp(self):
+        user = User.objects.create(username="styrelsen")
+        group, _ = Group.objects.get_or_create(name=settings.BOARD_GROUP)
+        group.permissions.add(self.permission)
+        user.groups.add(group)
+        profile = user.profile
+        profile.has_seen_consent = True
+        profile.save()
+        self.client.force_login(user)
+
+    def listing(self, **params):
+        return self.client.get(reverse("catering_orders"), params)
+
+    def orderers(self, response):
+        return [order.orderer for order in response.context["orders"]]
+
+    def test_the_default_tab_is_the_one_that_needs_work(self):
+        make_order(orderer="Väntar")
+        make_order(orderer="Klar", status=CateringOrder.Status.APPROVED)
+        response = self.listing()
+        self.assertEqual(response.context["tab"], "att-behandla")
+        self.assertEqual(self.orderers(response), ["Väntar"])
+
+    def test_an_overdue_order_comes_first(self):
+        """Nobody answered it. That is the most urgent thing on the page."""
+        make_order(orderer="Nästa månad", date=date.today() + timedelta(days=30))
+        make_order(orderer="Förra veckan", date=date.today() - timedelta(days=7))
+        self.assertEqual(
+            self.orderers(self.listing())[0],
+            "Förra veckan",
+        )
+
+    def test_the_week_tab_holds_only_the_next_seven_days(self):
+        today = date.today()
+        make_order(orderer="Idag", date=today)
+        make_order(orderer="Om sex dagar", date=today + timedelta(days=6))
+        make_order(orderer="Om sju dagar", date=today + timedelta(days=7))
+        self.assertEqual(
+            self.orderers(self.listing(tab="denna-vecka")),
+            ["Idag", "Om sex dagar"],
+        )
+
+    def test_the_upcoming_tab_starts_where_the_week_ends(self):
+        today = date.today()
+        make_order(orderer="Om sex dagar", date=today + timedelta(days=6))
+        make_order(orderer="Om sju dagar", date=today + timedelta(days=7))
+        make_order(orderer="Om en månad", date=today + timedelta(days=30))
+        self.assertEqual(
+            self.orderers(self.listing(tab="kommande")),
+            ["Om sju dagar", "Om en månad"],
+        )
+
+    def test_the_history_tab_holds_the_past_and_the_dead(self):
+        today = date.today()
+        make_order(orderer="Igår", date=today - timedelta(days=1))
+        make_order(
+            orderer="Nekad",
+            date=today + timedelta(days=3),
+            status=CateringOrder.Status.DENIED,
+        )
+        make_order(orderer="Kommande", date=today + timedelta(days=3))
+        self.assertCountEqual(
+            self.orderers(self.listing(tab="historik")), ["Igår", "Nekad"]
+        )
+
+    def test_a_dead_order_never_shows_up_as_work(self):
+        make_order(
+            orderer="Avbeställd",
+            date=date.today() + timedelta(days=2),
+            status=CateringOrder.Status.CANCELLED,
+        )
+        self.assertEqual(self.orderers(self.listing(tab="denna-vecka")), [])
+        self.assertEqual(self.orderers(self.listing(tab="kommande")), [])
+
+    def test_the_tabs_may_overlap(self):
+        """Not a partition: the counts are not meant to sum to the total."""
+        make_order(date=date.today() + timedelta(days=1))
+        counts = self.listing().context["tabs"]
+        by_key = {tab["key"]: tab["count"] for tab in counts}
+        self.assertEqual(by_key["att-behandla"], 1)
+        self.assertEqual(by_key["denna-vecka"], 1)
+
+    def test_every_tab_carries_all_four_counts(self):
+        make_order()
+        tabs = self.listing(tab="historik").context["tabs"]
+        self.assertEqual([tab["key"] for tab in tabs], [key for key, _ in TAB_KEYS])
+        self.assertTrue(any(tab["active"] for tab in tabs))
+
+    def test_the_counts_take_one_query(self):
+        from cafesys.baljan.views import catering_tab_counts
+
+        make_order()
+        with self.assertNumQueries(1):
+            catering_tab_counts(date.today())
+
+    def test_the_counts_ignore_the_search_box(self):
+        """A badge that moves as you type stops measuring the workload."""
+        make_order()
+        response = self.listing(association="finns-inte")
+        self.assertEqual(response.context["paginator"].count, 0)
+        by_key = {tab["key"]: tab["count"] for tab in response.context["tabs"]}
+        self.assertEqual(by_key["att-behandla"], 1)
+
+    def test_an_unknown_tab_falls_back_to_the_default(self):
+        """A stale bookmark should land somewhere useful, not on a 404."""
+        response = self.listing(tab="nonsens")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["tab"], "att-behandla")
+
+    def test_filtering_stays_on_the_tab(self):
+        response = self.listing(tab="historik")
+        self.assertContains(response, 'name="tab" value="historik"')
+
+    def test_the_tab_links_keep_the_search(self):
+        response = self.listing(tab="historik", association="Testsektionen")
+        self.assertContains(response, "association=Testsektionen")
+
+    def test_the_list_names_who_handled_each_order(self):
+        make_order(
+            status=CateringOrder.Status.APPROVED,
+            handled_by_name="Anna A",
+            date=date.today() - timedelta(days=1),
+        )
+        self.assertContains(self.listing(tab="historik"), "Anna A")
+
+    def test_a_pickup_two_days_out_is_flagged(self):
+        make_order(date=date.today() + timedelta(days=2))
+        self.assertContains(self.listing(), "Hämtas om 2 dagar")
+
+    def test_a_far_off_pickup_is_not_flagged(self):
+        make_order(date=date.today() + timedelta(days=30))
+        self.assertNotContains(self.listing(), "Hämtas om")
+
+    def test_an_overdue_order_is_flagged_as_late(self):
+        make_order(date=date.today() - timedelta(days=3))
+        self.assertContains(self.listing(), "Försenad 3 dagar")
+
+    def test_a_decided_order_is_never_flagged(self):
+        """A near date is a plan once it has been answered, not a problem."""
+        make_order(
+            date=date.today() + timedelta(days=1), status=CateringOrder.Status.APPROVED
+        )
+        self.assertNotContains(self.listing(tab="denna-vecka"), "Hämtas")
+
+    def test_days_until_pickup_counts_from_today(self):
+        order = make_order(date=date.today() + timedelta(days=4))
+        self.assertEqual(order.days_until_pickup, 4)
+
+    def test_days_until_pickup_is_negative_for_the_past(self):
+        order = make_order(date=date.today() - timedelta(days=2))
+        self.assertEqual(order.days_until_pickup, -2)
+
+    def test_paging_keeps_the_tab_and_the_search(self):
+        """The old pagination links dropped every parameter but the page."""
+        # paginate_by=50 with paginate_orphans=10, so 60 rows still fit on
+        # one page and would prove nothing.
+        for index in range(65):
+            make_order(orderer="Best %s" % index, date=date.today() - timedelta(days=1))
+        response = self.listing(tab="historik", association="Testsektionen")
+        self.assertContains(response, "tab=historik")
+        self.assertContains(response, "association=Testsektionen")
+        self.assertContains(response, "page=2")
+
+
+class PaginationTagTestCase(TestCase):
+    """The page links are shared with the user's own order history.
+
+    They were changed so the catering tabs and filters survive a page turn;
+    this is here so the other consumer is not quietly broken by that.
+    """
+
+    def test_the_users_own_orders_still_page(self):
+        from cafesys.baljan.models import Order
+
+        user = User.objects.create(username="blippare")
+        profile = user.profile
+        profile.has_seen_consent = True
+        profile.save()
+        self.client.force_login(user)
+
+        # paginate_by=50 with paginate_orphans=10.
+        Order.objects.bulk_create([Order(user=user, paid=10) for _ in range(65)])
+
+        response = self.client.get(reverse("orders"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "page=2")

@@ -110,10 +110,31 @@ def catering_order_description(order):
         f"Email: {order.orderer_email}",
         "",
     ]
-    lines += [
-        f"Antal {item['label']}: {item['count']}" for item in order.ordered_items()
-    ]
+    # Grouped, not flat: a sub-type listed beside its own group reads as a
+    # second, separate item ("Antal pastasallad: 50" then "Antal grekisk: 10").
+    # The indent alone cannot carry the nesting, because Google's mobile apps
+    # and some iCal unfolders eat leading spaces, so the "- " prefix does the
+    # work and the indent is only there to help where it survives.
+    for group in order.grouped_items():
+        if group["count"]:
+            lines.append(f"Antal {group['label']}: {group['count']}")
+        else:
+            # Only sub-types were ordered. Printing a total here would invent
+            # a number nobody typed.
+            lines.append(f"{group['label']}:")
+        lines += [
+            f"  - {child['label']}: {child['count']}" for child in group["children"]
+        ]
+
     lines += ["", f"Övrigt info och allergier: {order.other}"]
+
+    # Which account was logged in says nothing: the board shares one. Left out
+    # entirely when nobody has decided yet, which is the case for the invite
+    # attached to the mail that announces the order.
+    handler = order.handled_by_label
+    if handler:
+        lines += ["", f"Godkänd av: {handler}"]
+
     lines += ["", "Mer detaljerad information hittas i mailet."]
     return "\n".join(lines)
 
