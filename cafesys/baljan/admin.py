@@ -745,3 +745,23 @@ class CateringOrderEmailAdmin(admin.ModelAdmin):
 
 
 custom_admin_site.register(models.CateringOrderEmail, CateringOrderEmailAdmin)
+
+
+class CateringOrderStatusChangeAdmin(admin.ModelAdmin):
+    """Read-only: the point of the log is that it is not rewritten."""
+
+    list_display = ("order", "status", "by_name", "by_user", "made")
+    list_filter = ("status", "made")
+    search_fields = ("by_name", "order__orderer", "order__association")
+    readonly_fields = ("order", "status", "by_user", "by_name", "made")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+custom_admin_site.register(
+    models.CateringOrderStatusChange, CateringOrderStatusChangeAdmin
+)

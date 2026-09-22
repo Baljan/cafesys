@@ -18,7 +18,11 @@
   <p class="text-muted mb-0">
     Inkom <time datetime="{{ order.made|date:'c' }}">{{ order.made|date:"Y-m-d H:i" }}</time>
     {% if order.handled_at %}
-      &middot; behandlad av {{ order.handled_by_label|default:"okänd" }}
+      &middot; {% if order.decided_by_label %}
+        beslutad av {{ order.decided_by_label }}
+      {% else %}
+        behandlad av {{ order.handled_by_label|default:"okänd" }}
+      {% endif %}
       {% if order.handled_by %}
         <span class="text-muted small">(konto: {{ order.handled_by }})</span>
       {% endif %}
@@ -150,6 +154,29 @@
           </div>
         </form>
       </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body pb-2">
+        <h3 class="h5 card-title">Händelser</h3>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for change in order.status_changes.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-baseline">
+            <span>
+              {% catering_status_badge change %}
+              {{ change.by_label|default:"okänd" }}
+            </span>
+            <small class="text-muted ms-3">
+              <time datetime="{{ change.made|date:'c' }}">{{ change.made|date:"j M H:i" }}</time>
+            </small>
+          </li>
+        {% empty %}
+          <li class="list-group-item text-muted small">
+            Inget har hänt med beställningen än.
+          </li>
+        {% endfor %}
+      </ul>
     </div>
 
     <div class="card mb-4">

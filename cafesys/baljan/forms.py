@@ -11,17 +11,10 @@ from django.utils.translation import gettext as _
 from . import models
 
 
-def no_control_characters(value):
-    """Reject line breaks and other control characters.
-
-    `orderer` and `association` are interpolated into the subject of the mail to
-    the board. A newline there makes Django raise BadHeaderError deep inside
-    send(), which is a 500 for the visitor and an order row already written to
-    the database. Django stops the actual header injection; this stops the
-    crafted submission from getting that far at all.
-    """
-    if any(ch in value for ch in "\r\n") or any(ord(ch) < 32 for ch in value):
-        raise forms.ValidationError("Fältet får inte innehålla radbrytningar.")
+#: `orderer` and `association` are interpolated into the subject of the mail to
+#: the board, and `handled_by_name` into the calendar description. One rule for
+#: all three, defined beside the model field that enforces it at every layer.
+no_control_characters = models.validate_no_control_characters
 
 
 class UserForm(forms.ModelForm):
@@ -76,6 +69,7 @@ def _handler_name_field(error_message, field_id):
         max_length=100,
         required=True,
         error_messages={"required": error_message},
+        validators=[no_control_characters],
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",

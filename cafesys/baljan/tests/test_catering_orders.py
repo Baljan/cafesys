@@ -4,12 +4,20 @@ from unittest import mock
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission, User
 from django.core import mail
+from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django.urls import resolve, reverse
+from django.utils import timezone
 
 from cafesys.baljan.actions import categories_and_actions
 from cafesys.celery import app as celery_app
-from cafesys.baljan.models import CateringOrder, CateringOrderEmail, Semester
+from dateutil.relativedelta import relativedelta
+from cafesys.baljan.models import (
+    CateringOrder,
+    CateringOrderEmail,
+    CateringOrderStatusChange,
+    Semester,
+)
 from cafesys.baljan import google
 from cafesys.baljan.views import CATERING_TABS as TAB_KEYS
 from cafesys.baljan.tasks import (
@@ -22,7 +30,7 @@ from cafesys.baljan.tasks import (
 
 
 def next_weekday(days_ahead=7):
-    day = date.today() + timedelta(days=days_ahead)
+    day = timezone.localdate() + timedelta(days=days_ahead)
     while day.weekday() in (5, 6):
         day += timedelta(days=1)
     return day
@@ -1471,7 +1479,7 @@ class CateringOrderTabsTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        today = date.today()
+        today = timezone.localdate()
         Semester.objects.create(
             name="HT26",
             start=today - timedelta(days=30),
@@ -1504,15 +1512,19 @@ class CateringOrderTabsTestCase(TestCase):
 
     def test_an_overdue_order_comes_first(self):
         """Nobody answered it. That is the most urgent thing on the page."""
-        make_order(orderer="Nästa månad", date=date.today() + timedelta(days=30))
-        make_order(orderer="Förra veckan", date=date.today() - timedelta(days=7))
+        make_order(
+            orderer="Nästa månad", date=timezone.localdate() + timedelta(days=30)
+        )
+        make_order(
+            orderer="Förra veckan", date=timezone.localdate() - timedelta(days=7)
+        )
         self.assertEqual(
             self.orderers(self.listing())[0],
             "Förra veckan",
         )
 
     def test_the_week_tab_holds_only_the_next_seven_days(self):
-        today = date.today()
+        today = timezone.localdate()
         make_order(orderer="Idag", date=today)
         make_order(orderer="Om sex dagar", date=today + timedelta(days=6))
         make_order(orderer="Om sju dagar", date=today + timedelta(days=7))
@@ -1522,7 +1534,7 @@ class CateringOrderTabsTestCase(TestCase):
         )
 
     def test_the_upcoming_tab_starts_where_the_week_ends(self):
-        today = date.today()
+        today = timezone.localdate()
         make_order(orderer="Om sex dagar", date=today + timedelta(days=6))
         make_order(orderer="Om sju dagar", date=today + timedelta(days=7))
         make_order(orderer="Om en månad", date=today + timedelta(days=30))
@@ -1532,7 +1544,7 @@ class CateringOrderTabsTestCase(TestCase):
         )
 
     def test_the_history_tab_holds_the_past_and_the_dead(self):
-        today = date.today()
+        today = timezone.localdate()
         make_order(orderer="Igår", date=today - timedelta(days=1))
         make_order(
             orderer="Nekad",
@@ -1547,7 +1559,7 @@ class CateringOrderTabsTestCase(TestCase):
     def test_a_dead_order_never_shows_up_as_work(self):
         make_order(
             orderer="Avbeställd",
-            date=date.today() + timedelta(days=2),
+            date=timezone.localdate() + timedelta(days=2),
             status=CateringOrder.Status.CANCELLED,
         )
         self.assertEqual(self.orderers(self.listing(tab="denna-vecka")), [])
@@ -1555,7 +1567,7 @@ class CateringOrderTabsTestCase(TestCase):
 
     def test_the_tabs_may_overlap(self):
         """Not a partition: the counts are not meant to sum to the total."""
-        make_order(date=date.today() + timedelta(days=1))
+        make_order(date=timezone.localdate() + timedelta(days=1))
         counts = self.listing().context["tabs"]
         by_key = {tab["key"]: tab["count"] for tab in counts}
         self.assertEqual(by_key["att-behandla"], 1)
@@ -1572,7 +1584,7 @@ class CateringOrderTabsTestCase(TestCase):
 
         make_order()
         with self.assertNumQueries(1):
-            catering_tab_counts(date.today())
+            catering_tab_counts(timezone.localdate())
 
     def test_the_counts_ignore_the_search_box(self):
         """A badge that moves as you type stops measuring the workload."""
@@ -1600,35 +1612,36 @@ class CateringOrderTabsTestCase(TestCase):
         make_order(
             status=CateringOrder.Status.APPROVED,
             handled_by_name="Anna A",
-            date=date.today() - timedelta(days=1),
+            date=timezone.localdate() - timedelta(days=1),
         )
         self.assertContains(self.listing(tab="historik"), "Anna A")
 
     def test_a_pickup_two_days_out_is_flagged(self):
-        make_order(date=date.today() + timedelta(days=2))
+        make_order(date=timezone.localdate() + timedelta(days=2))
         self.assertContains(self.listing(), "Hämtas om 2 dagar")
 
     def test_a_far_off_pickup_is_not_flagged(self):
-        make_order(date=date.today() + timedelta(days=30))
+        make_order(date=timezone.localdate() + timedelta(days=30))
         self.assertNotContains(self.listing(), "Hämtas om")
 
     def test_an_overdue_order_is_flagged_as_late(self):
-        make_order(date=date.today() - timedelta(days=3))
+        make_order(date=timezone.localdate() - timedelta(days=3))
         self.assertContains(self.listing(), "Försenad 3 dagar")
 
     def test_a_decided_order_is_never_flagged(self):
         """A near date is a plan once it has been answered, not a problem."""
         make_order(
-            date=date.today() + timedelta(days=1), status=CateringOrder.Status.APPROVED
+            date=timezone.localdate() + timedelta(days=1),
+            status=CateringOrder.Status.APPROVED,
         )
         self.assertNotContains(self.listing(tab="denna-vecka"), "Hämtas")
 
     def test_days_until_pickup_counts_from_today(self):
-        order = make_order(date=date.today() + timedelta(days=4))
+        order = make_order(date=timezone.localdate() + timedelta(days=4))
         self.assertEqual(order.days_until_pickup, 4)
 
     def test_days_until_pickup_is_negative_for_the_past(self):
-        order = make_order(date=date.today() - timedelta(days=2))
+        order = make_order(date=timezone.localdate() - timedelta(days=2))
         self.assertEqual(order.days_until_pickup, -2)
 
     def test_paging_keeps_the_tab_and_the_search(self):
@@ -1636,7 +1649,9 @@ class CateringOrderTabsTestCase(TestCase):
         # paginate_by=50 with paginate_orphans=10, so 60 rows still fit on
         # one page and would prove nothing.
         for index in range(65):
-            make_order(orderer="Best %s" % index, date=date.today() - timedelta(days=1))
+            make_order(
+                orderer="Best %s" % index, date=timezone.localdate() - timedelta(days=1)
+            )
         response = self.listing(tab="historik", association="Testsektionen")
         self.assertContains(response, "tab=historik")
         self.assertContains(response, "association=Testsektionen")
@@ -1665,3 +1680,125 @@ class PaginationTagTestCase(TestCase):
         response = self.client.get(reverse("orders"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "page=2")
+
+
+class HandlerNameValidationTestCase(TestCase):
+    """The name reaches the calendar description, a generated document."""
+
+    def test_a_newline_cannot_forge_a_line_in_the_calendar(self):
+        from cafesys.baljan.forms import CateringDecisionForm
+
+        form = CateringDecisionForm(
+            {"handled_by_name": "Kalle\nÖvrigt info och allergier: INGET"}
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("radbrytningar", str(form.errors))
+
+    def test_the_model_refuses_it_too(self):
+        """Not only the form: the admin edits this field directly."""
+        order = make_order()
+        order.handled_by_name = "Kalle\nSUMMARY:x"
+        with self.assertRaises(ValidationError):
+            order.full_clean(exclude=["access_token"])
+
+    def test_an_ordinary_name_is_fine(self):
+        from cafesys.baljan.forms import CateringDecisionForm
+
+        form = CateringDecisionForm({"handled_by_name": "Åsa Öberg-Ekström"})
+        self.assertTrue(form.is_valid())
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class CateringStatusHistoryTestCase(TestCase):
+    """Who approved an order has to survive everything that comes after."""
+
+    def test_the_decision_survives_a_later_status_change(self):
+        """The bug this history exists to fix."""
+        order = make_order()
+        order.approve(user=None, handled_by_name="Anna A", notify=False)
+        order.set_status(
+            CateringOrder.Status.DELIVERED, user=None, handled_by_name="Bo B"
+        )
+        order.refresh_from_db()
+        self.assertEqual(order.handled_by_name, "Bo B")
+        self.assertEqual(order.decided_by_label, "Anna A")
+
+    def test_every_change_gets_its_own_row(self):
+        order = make_order()
+        order.approve(user=None, handled_by_name="Anna A", notify=False)
+        order.set_status(
+            CateringOrder.Status.DELIVERED, user=None, handled_by_name="Bo B"
+        )
+        order.set_status(
+            CateringOrder.Status.INVOICED, user=None, handled_by_name="Cecilia C"
+        )
+        self.assertEqual(
+            [(c.status, c.by_name) for c in order.status_changes.all()],
+            [
+                (CateringOrder.Status.APPROVED, "Anna A"),
+                (CateringOrder.Status.DELIVERED, "Bo B"),
+                (CateringOrder.Status.INVOICED, "Cecilia C"),
+            ],
+        )
+
+    def test_the_rows_are_never_rewritten(self):
+        order = make_order()
+        order.approve(user=None, handled_by_name="Anna A", notify=False)
+        first = order.status_changes.get()
+        order.set_status(
+            CateringOrder.Status.DELIVERED, user=None, handled_by_name="Bo B"
+        )
+        first.refresh_from_db()
+        self.assertEqual(first.by_name, "Anna A")
+        self.assertEqual(first.status, CateringOrder.Status.APPROVED)
+
+    def test_a_denial_counts_as_the_decision(self):
+        order = make_order()
+        order.deny(user=None, handled_by_name="Anna A", notify=False)
+        self.assertEqual(order.decided_by_label, "Anna A")
+
+    def test_a_retired_account_does_not_take_the_history_with_it(self):
+        user = User.objects.create(username="avgangen")
+        order = make_order()
+        order.approve(user=user, handled_by_name="Anna A", notify=False)
+        user.delete()
+        order.refresh_from_db()
+        self.assertEqual(order.decided_by_label, "Anna A")
+
+    def test_an_order_decided_before_the_history_existed_says_nothing(self):
+        """An empty history means "not recorded", not "never touched"."""
+        order = make_order(status=CateringOrder.Status.APPROVED)
+        self.assertEqual(order.decided_by_label, "")
+
+    def test_the_history_is_purged_with_the_order(self):
+        order = make_order()
+        order.approve(user=None, handled_by_name="Anna A", notify=False)
+        CateringOrder.objects.filter(pk=order.pk).update(
+            made=timezone.now() - relativedelta(years=3)
+        )
+        remove_old_catering_orders()
+        self.assertFalse(CateringOrderStatusChange.objects.exists())
+
+    def test_the_page_shows_the_history(self):
+        permission = Permission.objects.get(codename="manage_catering_orders")
+        user = User.objects.create(username="styrelsen")
+        group, _ = Group.objects.get_or_create(name=settings.BOARD_GROUP)
+        group.permissions.add(permission)
+        user.groups.add(group)
+        profile = user.profile
+        profile.has_seen_consent = True
+        profile.save()
+        self.client.force_login(user)
+
+        order = make_order()
+        order.approve(user=user, handled_by_name="Anna A", notify=False)
+        order.set_status(
+            CateringOrder.Status.DELIVERED, user=user, handled_by_name="Bo B"
+        )
+
+        response = self.client.get(reverse("catering_order", args=[order.pk]))
+        self.assertContains(response, "Händelser")
+        self.assertContains(response, "Anna A")
+        self.assertContains(response, "Bo B")
+        # The header answers the question the feature exists for.
+        self.assertContains(response, "beslutad av Anna A")

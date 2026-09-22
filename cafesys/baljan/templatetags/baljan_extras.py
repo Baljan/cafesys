@@ -318,7 +318,11 @@ def catering_urgency(order):
 
 @register.simple_tag
 def catering_status_badge(order):
-    """Render a catering order's status as a coloured badge."""
+    """Render a catering status as a coloured badge.
+
+    Takes anything carrying `status` and `get_status_display`: the order
+    itself, or a row from its status history.
+    """
     style = CATERING_STATUS_STYLES.get(order.status, "secondary")
     return mark_safe(
         '<span class="badge bg-%s">%s</span>'

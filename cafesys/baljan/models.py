@@ -19,7 +19,6 @@ from django.utils.text import format_lazy
 from django.utils.translation import gettext as _nl
 from django.utils.translation import gettext_lazy as _
 
-
 from functools import partial
 
 import stripe
@@ -29,6 +28,18 @@ from . import notifications, util
 from .util import week_dates, year_and_week, random_string
 
 logger = getLogger(__name__)
+
+
+def validate_no_control_characters(value):
+    """Reject line breaks and other control characters.
+
+    Values carrying this reach a generated document -- the mail subject, the
+    calendar description -- where a newline forges a line nobody wrote. Django
+    stops the real header injection; this stops the crafted value getting that
+    far at all.
+    """
+    if any(ch in value for ch in "\r\n") or any(ord(ch) < 32 for ch in value):
+        raise ValidationError("Fältet får inte innehålla radbrytningar.")
 
 
 class Made(models.Model):
@@ -1596,7 +1607,16 @@ class CateringOrder(Made):
     #: because every row that predates the field has no name to give; the
     #: requirement lives in the form, not in the schema.
     handled_by_name = models.CharField(
-        _("name of the person who decided"), max_length=100, blank=True, default=""
+        _("name of the person who decided"),
+        max_length=100,
+        blank=True,
+        default="",
+        # The name is interpolated into the calendar description, which is a
+        # generated document: a newline in it forges a line the board never
+        # wrote. Same reason `orderer` and `association` carry this validator
+        # (they reach the mail subject). On the model rather than only the
+        # form, so the admin and any later code path are covered too.
+        validators=[validate_no_control_characters],
     )
     handled_at = models.DateTimeField(_("handled at"), null=True, blank=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
@@ -1674,6 +1694,23 @@ class CateringOrder(Made):
             return self.handled_by_name
         # handled_by_id, not handled_by: no query just to find out there is none.
         return str(self.handled_by) if self.handled_by_id else ""
+
+    @property
+    def decided_by_label(self):
+        """Who approved or denied it, whatever happened to it afterwards.
+
+        Read from the history rather than from `handled_by_name`, which a
+        later status change overwrites. Empty when the decision predates the
+        history or has not been taken.
+        """
+        decision = (
+            self.status_changes.filter(
+                status__in=(self.Status.APPROVED, self.Status.DENIED)
+            )
+            .order_by("-made")
+            .first()
+        )
+        return decision.by_label if decision else ""
 
     @property
     def days_until_pickup(self):
@@ -1767,6 +1804,15 @@ class CateringOrder(Made):
         self.handled_at = timezone.now()
         self.save()
 
+        # Append-only, so the name on the order can go on meaning "latest"
+        # without that costing the record of who approved it.
+        CateringOrderStatusChange.objects.create(
+            order=self,
+            status=status,
+            by_user=user,
+            by_name=self.handled_by_name,
+        )
+
         # Unconditional: the calendar follows every status, not just the two
         # that mail anyone.
         self.sync_calendar()
@@ -1837,6 +1883,67 @@ class CateringOrder(Made):
         from .tasks import sync_catering_order_calendar
 
         transaction.on_commit(lambda: sync_catering_order_calendar.delay(self.pk))
+
+
+class CateringOrderStatusChange(Made):
+    """One row per status a catering order was moved to, and by whom.
+
+    `CateringOrder.handled_by_name` only ever holds the latest name, so marking
+    an order delivered used to erase who approved it. These rows are written
+    once and never updated, which is what makes "vem godkände" an answerable
+    question a month later.
+
+    Orders decided before this model existed have no rows, so an empty history
+    means "not recorded", not "never touched".
+    """
+
+    order = models.ForeignKey(
+        CateringOrder,
+        verbose_name=_("catering order"),
+        related_name="status_changes",
+        on_delete=models.CASCADE,
+    )
+    status = models.CharField(
+        _("status"), max_length=16, choices=CateringOrder.Status.choices
+    )
+    #: The account, which the board shares between shifts, and the name the
+    #: person typed. Kept as a pair for the same reason the order does: the
+    #: account says which login, the name says who. SET_NULL so a retired
+    #: account does not take the history with it.
+    by_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        verbose_name=_("by account"),
+        related_name="catering_status_changes",
+        on_delete=models.SET_NULL,
+    )
+    by_name = models.CharField(
+        _("by"),
+        max_length=100,
+        blank=True,
+        default="",
+        validators=[validate_no_control_characters],
+    )
+
+    class Meta:
+        verbose_name = _("catering order status change")
+        verbose_name_plural = _("catering order status changes")
+        # Oldest first: the history reads top to bottom, like the mail log.
+        ordering = ["made"]
+
+    def __str__(self):
+        return "%(status)s av %(by)s" % {
+            "status": self.get_status_display(),
+            "by": self.by_name or self.by_user or "okänd",
+        }
+
+    @property
+    def by_label(self):
+        """Who did it: the typed name, else the account, else nothing."""
+        if self.by_name:
+            return self.by_name
+        return str(self.by_user) if self.by_user_id else ""
 
 
 class CateringOrderEmail(Made):
