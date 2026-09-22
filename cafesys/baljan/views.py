@@ -358,6 +358,9 @@ def orderFromUs(request):
                 {
                     "data": form.cleaned_data,
                     "order_fields": order_fields,
+                    # The row is already saved, so the board can be handed the
+                    # link to it instead of having to look the order up.
+                    "order": order,
                 },
             )
 

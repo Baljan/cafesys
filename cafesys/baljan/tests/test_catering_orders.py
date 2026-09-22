@@ -284,6 +284,14 @@ class OrderFormTestCase(TestCase):
         kinds = [content_type for _name, _c, content_type in message.attachments]
         self.assertIn("text/calendar", kinds)
 
+    def test_the_board_mail_links_to_the_order(self):
+        """Straight into the page the decision is taken on."""
+        self.client.post(reverse("order_from_us"), self.payload())
+        order = CateringOrder.objects.get()
+        html = mail.outbox[0].alternatives[0][0]
+        self.assertIn(order.board_url(), html)
+        self.assertIn(order.get_absolute_url(), html)
+
     def test_values_too_wide_for_their_column_are_rejected_as_form_errors(self):
         """Not as a DataError from Postgres halfway through the view.
 
