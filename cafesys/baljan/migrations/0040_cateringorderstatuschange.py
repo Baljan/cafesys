@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('baljan', '0039_alter_cateringorder_handled_by_name'),
+        ('baljan', '0038_cateringorder_handled_by_name'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
