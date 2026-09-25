@@ -7,7 +7,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("baljan", "0031_alter_legalconsent_user"),
+        ("baljan", "0041_catering_handout_and_returned"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
