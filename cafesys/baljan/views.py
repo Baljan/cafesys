@@ -46,7 +46,10 @@ from django.template.loader import render_to_string
 
 from django.contrib.auth.views import LoginView
 from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import (
+    content_disposition_header,
+    url_has_allowed_host_and_scheme,
+)
 
 
 import django_filters
@@ -71,6 +74,7 @@ from . import (
     forms,
     ical,
     models,
+    pdf,
     planning,
     pseudogroups,
     search,
@@ -1285,43 +1289,69 @@ def _extra_totals_list(totals):
     ]
 
 
-@permission_required("baljan.manage_catering_orders")
-def catering_extra_order(request):
-    """What to put in the Smörgåsfiket order for one pickup week."""
+def _extra_order_week(week):
+    """Approved and pending orders with extra goods for the pickup week of `week`."""
     try:
-        start = date.fromisoformat(request.GET.get("vecka", ""))
+        start = date.fromisoformat(week or "")
     except ValueError:
         start = models.earliest_supplier_order_date()
     start -= timedelta(days=start.weekday())
     end = start + timedelta(days=7)
-
-    deadline_day = start - timedelta(days=7 - models.SUPPLIER_ORDER_WEEKDAY)
-    deadline = timezone.make_aware(
-        datetime.combine(deadline_day, models.SUPPLIER_ORDER_TIME)
-    )
 
     orders = (
         models.CateringOrder.objects.filter(date__gte=start, date__lt=end)
         .exclude(status__in=CATERING_DEAD_STATUSES)
         .order_by("date", "pickup", "made")
     )
-
-    days = {}
-    week_totals = {}
+    approved = []
     pending = []
     for order in orders:
         lines = order.extra_order_lines()
-        if not lines:
-            continue
-        if order.is_pending:
-            pending.append({"order": order, "lines": lines})
-            continue
+        if lines:
+            entry = {"order": order, "lines": lines}
+            (pending if order.is_pending else approved).append(entry)
+    return start, end, approved, pending
+
+
+def _allergy_prefill(order):
+    """What the jour starts from in the allergy box, or None if nothing to write."""
+    others = [
+        {"label": f"{item['group']} ({item['label']})", "count": item["count"]}
+        for item in order.items
+        if item.get("field") in models.EXTRA_ORDER_OTHER_FIELDS and item.get("count")
+    ]
+    if not others and not order.other.strip():
+        return None
+    return {
+        "text": f"{order.association} {order.date:%d/%m}: {order.other.strip()}".strip(),
+        "others": others,
+    }
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_extra_order(request):
+    """What to put in the Smörgåsfiket order for one pickup week."""
+    start, end, approved, pending = _extra_order_week(request.GET.get("vecka"))
+
+    deadline_day = start - timedelta(days=7 - models.SUPPLIER_ORDER_WEEKDAY)
+    deadline = timezone.make_aware(
+        datetime.combine(deadline_day, models.SUPPLIER_ORDER_TIME)
+    )
+
+    days = {}
+    week_totals = {}
+    allergies = []
+    for entry in approved:
+        order, lines = entry["order"], entry["lines"]
         day = days.setdefault(
             order.date, {"date": order.date, "orders": [], "totals": {}}
         )
-        day["orders"].append({"order": order, "lines": lines})
+        day["orders"].append(entry)
         _add_extra_lines(day["totals"], lines)
         _add_extra_lines(week_totals, lines)
+        prefill = _allergy_prefill(order)
+        if prefill:
+            allergies.append({"order": order, **prefill})
 
     for day in days.values():
         day["totals"] = _extra_totals_list(day["totals"])
@@ -1338,10 +1368,30 @@ def catering_extra_order(request):
             "days": list(days.values()),
             "week_totals": _extra_totals_list(week_totals),
             "pending": pending,
+            "allergies": allergies,
             "previous_week": start - timedelta(days=7),
             "next_week": end,
         },
     )
+
+
+@require_POST
+@permission_required("baljan.manage_catering_orders")
+def catering_extra_order_pdf(request):
+    """The week's extra order as the PDF mailed to Smörgåsfiket."""
+    start, _end, approved, _pending = _extra_order_week(request.POST.get("vecka"))
+    orders = [entry["order"] for entry in approved]
+    allergies = {
+        order.pk: request.POST.get(f"allergy_{order.pk}", "") for order in orders
+    }
+    week = year_and_week(start)[1]
+
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = content_disposition_header(
+        True, f"Extrabeställning v.{week}.pdf"
+    )
+    pdf.extra_order_week(response, week, orders, allergies, display_name(request.user))
+    return response
 
 
 def _order_by_token(token):

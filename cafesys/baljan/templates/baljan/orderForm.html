@@ -26,6 +26,11 @@
             <form method="post">
 
                 {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div id="form_errors" class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+                    </div>
+                {% endif %}
                 <div class="wrapper">
                     <h2> Uthämtning </h2>
                     {% field form.date %}
@@ -123,6 +128,8 @@
             <h2 class="alert-heading"> Observera! </h2>
 
             Jobbare i Baljan har inte möjlighet att lämna ut beställningar, det är enbart Baljans styrelsemedlemmar som lämnar ut beställningar.
+            <br><br>
+            Beställningar till morgon och lunch måste vara inne <b>senast kl. 16:00 vardagen innan</b> (fredag för måndag), till eftermiddag <b>senast kl. 12:00 samma dag</b>.
             <br><br>
             Beställningar går endast att hämta ut i Baljan i Kårallen under våra jourtider:
             <ul>

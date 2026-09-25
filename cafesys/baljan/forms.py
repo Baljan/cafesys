@@ -276,10 +276,11 @@ class OrderForm(forms.Form):
 
         # Set per instance so the dates don't freeze at import time.
         today = timezone.localdate()
+        self.earliest_date = models.earliest_order_date()
         self.earliest_food_date = models.earliest_supplier_order_date()
         self.fields["date"].widget.attrs.update(
             {
-                "min": today.isoformat(),
+                "min": (self.earliest_date if enforce_lead_time else today).isoformat(),
                 "max": (today + relativedelta(months=2)).isoformat(),
                 "data-earliest-food-date": self.earliest_food_date.isoformat(),
             }
@@ -313,11 +314,19 @@ class OrderForm(forms.Form):
         return date
 
     def clean(self):
-        """Refuse goods that cannot reach the supplier order in time."""
+        """Refuse orders placed too late for the chosen date."""
         cleaned = super().clean()
         date = cleaned.get("date")
         if not self.enforce_lead_time or date is None:
             return cleaned
+
+        pickup = cleaned.get("pickup")
+        if pickup and not models.order_in_time(date, pickup):
+            raise forms.ValidationError(
+                "Beställningar till morgon och lunch måste vara inne senast "
+                "16:00 vardagen innan (fredag för måndag), till eftermiddag "
+                "senast 12:00 samma dag."
+            )
 
         wants_food = any(
             cleaned.get(field) for field in models.CATERING_EXTRA_ORDER_FIELDS

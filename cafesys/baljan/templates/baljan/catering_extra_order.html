@@ -66,6 +66,38 @@
       </ul>
     </div>
   {% endfor %}
+
+  <form method="post" action="{% url 'catering_extra_order_pdf' %}" class="card mb-4">
+    {% csrf_token %}
+    <input type="hidden" name="vecka" value="{{ start|date:'Y-m-d' }}">
+    <div class="card-body">
+      <h3 class="h5 card-title">Allergier och övrigt till Smörgåsfiket</h3>
+      {% if allergies %}
+        <p class="small text-muted">
+          Skriv exakt vad Smörgåsfiket ska göra, t.ex. &rdquo;1 laktosfri grekisk sallad&rdquo;.
+          Texten hamnar i allergirutan i PDF:en och sparas inte.
+        </p>
+        {% for entry in allergies %}
+          <div class="mb-3">
+            <label for="allergy_{{ entry.order.pk }}" class="form-label mb-1">
+              <a href="{% url 'catering_order' entry.order.pk %}">#{{ entry.order.pk }}</a>
+              {{ entry.order.association }}, {{ entry.order.date|date:"D j M" }}
+            </label>
+            {% if entry.others %}
+              <div class="small text-warning-emphasis mb-1">
+                Övrigt beställt:
+                {% for other in entry.others %}{{ other.count }} {{ other.label }}{% if not forloop.last %}, {% endif %}{% endfor %}
+              </div>
+            {% endif %}
+            <textarea id="allergy_{{ entry.order.pk }}" name="allergy_{{ entry.order.pk }}" rows="2" class="form-control">{{ entry.text }}</textarea>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="small text-muted">Inga allergier eller övriga varor den här veckan.</p>
+      {% endif %}
+      <button type="submit" class="btn btn-primary">Ladda ner PDF</button>
+    </div>
+  </form>
 {% else %}
   <p class="text-muted">Inga godkända beställningar med jochen eller pastasallad den här veckan.</p>
 {% endif %}

@@ -84,6 +84,11 @@ urlpatterns = (
         name="catering_extra_order",
     ),
     path(
+        "bestallningar/extrabestallning/pdf",
+        views.catering_extra_order_pdf,
+        name="catering_extra_order_pdf",
+    ),
+    path(
         "bestallningar/fakturering",
         views.catering_invoicing,
         name="catering_invoicing",
