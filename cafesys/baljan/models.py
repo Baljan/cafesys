@@ -798,6 +798,63 @@ class OnCallDuty(Made):
         }
 
 
+class OnCallWeek(Made):
+    """The board members who have on call duty a week, and a note about the
+    week, e.g. "tentaP" or "Stängt".
+
+    Deliberately not connected to `OnCallDuty`: who has the week says nothing
+    about who ends up on call for each shift, and changing one never changes
+    the other.
+    """
+
+    JOUR_FIELDS = ("jour_1", "jour_2", "jour_3")
+
+    year = models.PositiveSmallIntegerField("år")
+    week = models.PositiveSmallIntegerField("vecka")
+    info = models.CharField("info", max_length=100, blank=True)
+    jour_1 = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="jour 1",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+    jour_2 = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="jour 2",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+    jour_3 = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="jour 3",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
+    class Meta:
+        verbose_name = "jourvecka"
+        verbose_name_plural = "jourveckor"
+        ordering = ("-year", "-week")
+        constraints = [
+            models.UniqueConstraint(fields=("year", "week"), name="unique_oncallweek")
+        ]
+
+    def jour(self):
+        return [getattr(self, f) for f in self.JOUR_FIELDS]
+
+    def is_empty(self):
+        return not self.info and not any(self.jour())
+
+    def __str__(self):
+        return "Vecka %d %d" % (self.week, self.year)
+
+
 def oncallduty_post_bulk_save(users):
     for user, shifts in users.items():
         notifications.send(

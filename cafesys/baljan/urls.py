@@ -53,7 +53,17 @@ urlpatterns = (
     path(
         "call-duty/<int:year>/<int:week>", views.call_duty_week, name="call_duty_week"
     ),
-    path("call-duty", views.call_duty_week, name="call_duty_week"),
+    path("call-duty", views.call_duty_overview, name="call_duty_overview"),
+    path(
+        "call-duty/semester/<slug:name>",
+        views.call_duty_overview,
+        name="call_duty_overview",
+    ),
+    path(
+        "call-duty/update-week",
+        views.call_duty_update_week,
+        name="call_duty_update_week",
+    ),
     path(
         "ical/user/<slug:private_key>/baljan.ics",
         views.user_calendar,

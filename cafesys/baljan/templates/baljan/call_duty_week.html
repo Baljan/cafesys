@@ -9,6 +9,9 @@
 
 {% block body_class %}board-week{% endblock %}
 {% block staff_info %}
+<p>
+    <a href="{% if semester %}{% url 'call_duty_overview' semester.name %}#v{{year}}-{{week}}{% else %}{% url 'call_duty_overview' %}{% endif %}">&laquo; Alla veckor</a>
+</p>
 <div class="chalkboard row">
     <div class="col-lg-7">
     <table class="table table-baljan">

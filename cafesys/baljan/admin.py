@@ -263,6 +263,15 @@ class OnCallDutyAdmin(admin.ModelAdmin):
 custom_admin_site.register(models.OnCallDuty, OnCallDutyAdmin)
 
 
+class OnCallWeekAdmin(admin.ModelAdmin):
+    search_fields = ("info",)
+    list_display = ("year", "week", "jour_1", "jour_2", "jour_3", "info")
+    list_filter = ("year",)
+
+
+custom_admin_site.register(models.OnCallWeek, OnCallWeekAdmin)
+
+
 class OnCallDutyInline(admin.TabularInline):
     model = models.OnCallDuty
     max_num = 1

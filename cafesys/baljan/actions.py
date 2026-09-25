@@ -112,7 +112,8 @@ def categories_and_actions(request):
         (
             settings.BOARD_GROUP,
             "Styrelsen",
-            (Action("Veckoplanering", "call_duty_week"),) + tuple(upcoming_sem_actions),
+            (Action("Veckoplanering", "call_duty_overview"),)
+            + tuple(upcoming_sem_actions),
         ),
         (
             settings.WORKER_GROUP,
@@ -138,8 +139,13 @@ def categories_and_actions(request):
     links = [item for cat, _, ita in all_links if cat in categories for item in ita]
     pages = [item for cat, _, ita in all_pages if cat in categories for item in ita]
 
+    # Sub pages that should highlight the tab of their parent page
+    parent_pages = {"call_duty_week": "call_duty_overview"}
+    url_name = request.resolver_match.url_name
+    url_name = parent_pages.get(url_name, url_name)
+
     for action in links + pages:
-        if request.resolver_match.url_name == action.path:
+        if url_name == action.path:
             action.active = True
 
     links.reverse()
