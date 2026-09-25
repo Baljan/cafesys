@@ -24,6 +24,7 @@
     .jour-slot.drop-hover { background-color: rgba(13, 110, 253, .15); }
     .jour-chip { display: inline-block; padding: .05rem .3rem; white-space: nowrap; cursor: grab; border-radius: .25rem; }
     .jour-chip:hover { background-color: rgba(0, 0, 0, .06); }
+    .jour-chip.highlight { background-color: rgba(255, 193, 7, .5); }
     .jour-chip .remove { visibility: hidden; margin-left: .15rem; color: #888; cursor: pointer; }
     .jour-chip:hover .remove { visibility: visible; }
     .jour-chip.dragging { display: inline-block !important; width: auto !important; background-color: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); z-index: 1000; }
@@ -128,6 +129,14 @@
     });
 
     var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+
+    // Hovering a name highlights that person in every week and in Styrelsen
+    $(document).on('mouseenter', '.jour-chip', function() {
+        $('.jour-chip[data-user="' + $(this).data('user') + '"]').addClass('highlight');
+    });
+    $(document).on('mouseleave', '.jour-chip', function() {
+        $('.jour-chip.highlight').removeClass('highlight');
+    });
 
     function spotOf(slot) {
         var row = $(slot).closest('tr');
