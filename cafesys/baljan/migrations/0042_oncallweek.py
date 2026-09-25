@@ -35,10 +35,6 @@ class Migration(migrations.Migration):
                 ("year", models.PositiveSmallIntegerField(verbose_name="år")),
                 ("week", models.PositiveSmallIntegerField(verbose_name="vecka")),
                 (
-                    "info",
-                    models.CharField(blank=True, max_length=100, verbose_name="info"),
-                ),
-                (
                     "jour_1",
                     models.ForeignKey(
                         blank=True,
