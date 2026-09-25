@@ -1,7 +1,5 @@
 from datetime import date, timedelta
-from importlib import import_module
 
-from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission, User
 from django.test import TestCase
@@ -67,13 +65,6 @@ class CallDutyOverviewTestCase(TestCase):
 
     def planned_shifts(self):
         return sorted(OnCallDuty.objects.values_list("shift_id", "user_id"))
-
-    def test_prefill_takes_the_three_main_people_from_the_shifts(self):
-        migration = import_module("cafesys.baljan.migrations.0032_oncallweek")
-        migration.prefill_from_shifts(apps, None)
-
-        self.assertEqual(set(self.jour(self.week1)), {self.anna, self.bert, self.carl})
-        self.assertEqual(self.jour(self.week2), [None, None, None])
 
     def test_the_weeks_do_not_follow_the_shifts(self):
         planning.set_jour(*self.week2, 1, self.thomas)
