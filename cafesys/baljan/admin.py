@@ -264,8 +264,7 @@ custom_admin_site.register(models.OnCallDuty, OnCallDutyAdmin)
 
 
 class OnCallWeekAdmin(admin.ModelAdmin):
-    search_fields = ("info",)
-    list_display = ("year", "week", "jour_1", "jour_2", "jour_3", "info")
+    list_display = ("year", "week", "jour_1", "jour_2", "jour_3")
     list_filter = ("year",)
 
 

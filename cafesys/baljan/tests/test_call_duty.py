@@ -90,7 +90,7 @@ class CallDutyOverviewTestCase(TestCase):
 
         planning.move_jour((*self.week1, 1), (*self.week2, 3))
         self.assertEqual(self.jour(self.week2), [None, None, self.anna])
-        # A week with nobody and no info is removed
+        # A week with nobody left is removed
         self.assertFalse(OnCallWeek.objects.filter(week=self.week1[1]).exists())
 
         planning.move_jour((*self.week2, 3), (*self.week2, 1))
@@ -107,13 +107,6 @@ class CallDutyOverviewTestCase(TestCase):
 
         self.assertEqual(self.jour(self.week1), [self.anna, None, None])
         self.assertEqual(self.jour(self.week2), [self.anna, None, None])
-
-    def test_info(self):
-        planning.set_week_info(*self.week2, "  tentaP ")
-        self.assertEqual(planning.semester_weeks(self.semester)[1]["info"], "tentaP")
-
-        planning.set_week_info(*self.week2, "")
-        self.assertFalse(OnCallWeek.objects.exists())
 
     def test_views(self):
         self.client.force_login(self.anna)
@@ -156,13 +149,6 @@ class CallDutyOverviewTestCase(TestCase):
         self.assertEqual(self.jour(self.week2), [None, self.thomas, None])
         self.assertEqual(self.planned_shifts(), before)
 
-        response = update(
-            action="info", year=self.week2[0], week=self.week2[1], info="Stängt"
-        )
-        self.assertEqual(
-            response.json()["weeks"]["%d-%d" % self.week2]["info"], "Stängt"
-        )
-
         # Same person twice, someone outside the board and a bad spot
         response = update(
             action="set",
@@ -190,6 +176,7 @@ class CallDutyOverviewTestCase(TestCase):
             user=self.bert.pk,
         )
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(update(action="info", year=2026, week=1).status_code, 400)
 
     def test_requires_permission(self):
         outsider = User.objects.create(username="outsider")
@@ -200,10 +187,11 @@ class CallDutyOverviewTestCase(TestCase):
         response = self.client.post(
             "/call-duty/update-week",
             {
-                "action": "info",
+                "action": "set",
                 "year": self.week2[0],
                 "week": self.week2[1],
-                "info": "hej",
+                "slot": 1,
+                "user": outsider.pk,
             },
         )
         self.assertEqual(response.status_code, 302)

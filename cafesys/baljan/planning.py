@@ -56,8 +56,8 @@ class BoardWeek(object):
 
 
 def semester_weeks(semester):
-    """Every week of `semester` with who has the on call week, its info text
-    and how many of the week's shifts have someone on call.
+    """Every week of `semester` with who has the on call week and how many of
+    the week's shifts have someone on call.
     """
     weeks_range = semester.week_range()
     shifts = list(Shift.objects.filter(semester=semester, enabled=True))
@@ -91,7 +91,6 @@ def semester_weeks(semester):
                 "end": dates[4],
                 "current": yw == current,
                 "past": yw < current,
-                "info": ocw.info,
                 "jour": ocw.jour(),
                 "shifts": shift_count[yw],
                 "staffed": staffed[yw],
@@ -159,10 +158,3 @@ def move_jour(source, target):
             raise OnCallWeekError(
                 "%s står redan på vecka %d." % (display_name(user), ocw.week)
             )
-
-
-def set_week_info(year, week, info):
-    """Sets the info text of a week. An empty text removes it."""
-    ocw = _get_week(year, week)
-    ocw.info = info.strip()
-    _save_week(ocw)

@@ -1878,15 +1878,11 @@ def call_duty_overview(request, name=None):
     else:
         sem = get_object_or_404(models.Semester, name__exact=name)
 
-    weeks = planning.semester_weeks(sem) if sem else []
-    suggestions = {"tentaP", "Stängt"} | {w["info"] for w in weeks if w["info"]}
-
     tpl = {
         "semesters": semesters,
         "selected_semester": sem,
-        "weeks": weeks,
+        "weeks": planning.semester_weeks(sem) if sem else [],
         "board": available_for_call_duty(),
-        "info_suggestions": sorted(suggestions),
     }
     return render(request, "baljan/call_duty_overview.html", tpl)
 
@@ -1896,7 +1892,7 @@ def call_duty_overview(request, name=None):
 @permission_required("baljan.change_oncallduty")
 @require_POST
 def call_duty_update_week(request):
-    """Changes who has an on call week or its info. Never touches the shifts.
+    """Changes who has an on call week. Never touches the shifts.
 
     Answers with the changed weeks so that the page can redraw them.
     """
@@ -1918,10 +1914,6 @@ def call_duty_update_week(request):
         elif action == "move":
             source, target = spot("from_"), spot("")
             changed = [source, target]
-        elif action == "info":
-            target = spot("")
-            info = request.POST["info"][:100]
-            changed = [target]
         else:
             raise ValueError(action)
         if not all(1 <= s[2] <= len(models.OnCallWeek.JOUR_FIELDS) for s in changed):
@@ -1932,10 +1924,8 @@ def call_duty_update_week(request):
     try:
         if action == "set":
             planning.set_jour(*target, user)
-        elif action == "move":
-            planning.move_jour(source, target)
         else:
-            planning.set_week_info(*target[:2], info)
+            planning.move_jour(source, target)
     except planning.OnCallWeekError as e:
         return JsonResponse({"error": str(e)}, status=400)
 
@@ -1944,7 +1934,6 @@ def call_duty_update_week(request):
         ocw = models.OnCallWeek.objects.filter(year=year, week=week).first()
         jour = ocw.jour() if ocw else [None] * len(models.OnCallWeek.JOUR_FIELDS)
         weeks["%d-%d" % (year, week)] = {
-            "info": ocw.info if ocw else "",
             "jour": [u and {"id": u.pk, "name": display_name(u)} for u in jour],
         }
     return JsonResponse({"weeks": weeks})

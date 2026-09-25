@@ -14,10 +14,11 @@
     .call-duty-weeks .week-num { font-weight: bold; white-space: nowrap; }
     .call-duty-weeks td.jour-col { cursor: default; }
 
-    .jour-slot {
-        display: inline-block; vertical-align: middle; min-width: 2rem; min-height: 1.6rem;
-        margin: 0 .35rem .2rem 0; border-radius: .25rem; border: 1px dashed transparent;
-    }
+    /* Three equal columns, so the names line up from week to week */
+    .jour-slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; }
+    .jour-slot { min-width: 0; min-height: 1.6rem; border-radius: .25rem; border: 1px dashed transparent; }
+    .jour-slot .jour-chip { display: flex; max-width: 100%; }
+    .jour-slot .jour-chip .name { overflow: hidden; text-overflow: ellipsis; }
     .jour-slot.empty { border-color: rgba(0, 0, 0, .12); }
     .jour-slot.drop-active { border-color: rgba(13, 110, 253, .5); }
     .jour-slot.drop-hover { background-color: rgba(13, 110, 253, .15); }
@@ -39,17 +40,6 @@
         .board-palette .jour-chip { display: block; margin: 0 0 .25rem 0; }
     }
     .board-palette.drop-hover { background-color: rgba(220, 53, 69, .1); }
-
-    .call-duty-weeks th.info-col, .call-duty-weeks td.info-col { width: 7rem; }
-    .call-duty-weeks .info-input {
-        width: 7rem; padding: .1rem .3rem; font-size: .8rem;
-        border-color: transparent; background-color: transparent;
-        transition: background-color .3s;
-    }
-    .call-duty-weeks .info-input:hover { border-color: #ced4da; }
-    .call-duty-weeks .info-input:focus { background-color: #fff; }
-    .call-duty-weeks .info-input.saved { background-color: rgba(25, 135, 84, .2); }
-    .call-duty-weeks .info-input.failed { background-color: rgba(220, 53, 69, .2); }
 </style>
 
 <div class="d-flex justify-content-between align-items-center">
@@ -82,18 +72,14 @@
 </div>
 <div class="col-lg-9 order-lg-1">
 
-<datalist id="info-suggestions">
-    {% for s in info_suggestions %}<option value="{{ s }}">{% endfor %}
-</datalist>
 {% csrf_token %}
 <table class="table table-baljan call-duty-weeks align-middle">
     <thead>
         <tr>
             <th>Vecka</th>
             <th>Datum</th>
-            <th class="info-col">Info</th>
             <th>Jour</th>
-            <th>Bemannade pass</th>
+            <th title="Bemannade pass">Pass</th>
         </tr>
     </thead>
     <tbody>
@@ -107,13 +93,10 @@
                 {% if w.current %}<span class="badge bg-primary">Nu</span>{% endif %}
             </td>
             <td class="text-nowrap">{{ w.start|date:"j M" }} – {{ w.end|date:"j M" }}</td>
-            <td class="info-col no-nav">
-                <input type="text" value="{{ w.info }}" maxlength="100"
-                       list="info-suggestions" class="form-control form-control-sm info-input"
-                       placeholder="–" aria-label="Info vecka {{ w.week }}">
-            </td>
             <td class="jour-col no-nav">
-                {% for person in w.jour %}<span class="jour-slot{% if not person %} empty{% endif %}" data-slot="{{ forloop.counter }}">{% if person %}<span class="jour-chip in-week" data-user="{{ person.pk }}">{{ person|display_name }}<span class="remove" title="Ta bort">&times;</span></span>{% endif %}</span>{% endfor %}
+                <div class="jour-slots">
+                {% for person in w.jour %}<div class="jour-slot{% if not person %} empty{% endif %}" data-slot="{{ forloop.counter }}">{% if person %}<span class="jour-chip in-week" data-user="{{ person.pk }}" title="{{ person|display_name }}"><span class="name">{{ person|display_name }}</span><span class="remove" title="Ta bort">&times;</span></span>{% endif %}</div>{% endfor %}
+                </div>
             </td>
             <td class="text-nowrap">
                 {% if w.shifts %}
@@ -176,8 +159,8 @@
             slot.empty().toggleClass('empty', !person);
             if (person) {
                 var chip = $('<span class="jour-chip in-week"></span>')
-                    .attr('data-user', person.id)
-                    .text(person.name)
+                    .attr({'data-user': person.id, title: person.name})
+                    .append($('<span class="name"></span>').text(person.name))
                     .append('<span class="remove" title="Ta bort">&times;</span>');
                 slot.append(chip);
                 initChip(chip);
@@ -242,37 +225,6 @@
             var spot = spotOf(ui.draggable.closest('.jour-slot'));
             update({action: 'set', year: spot.year, week: spot.week, slot: spot.slot, user: ''});
         }
-    });
-
-    // Save the info text in the background on Enter or when leaving the field
-    $('.info-input').each(function() {
-        var input = $(this),
-            row = input.closest('tr'),
-            saved = input.val();
-
-        function save() {
-            if (input.val() === saved) return;
-            var previous = saved;
-            saved = input.val();
-            update({action: 'info', year: row.data('year'), week: row.data('week'), info: input.val()},
-                function(result) {
-                    saved = result.weeks[row.data('year') + '-' + row.data('week')].info;
-                    input.val(saved).removeClass('failed').addClass('saved');
-                    setTimeout(function() { input.removeClass('saved'); }, 1000);
-                }
-            ).fail(function() {
-                saved = previous;
-                input.addClass('failed');
-            });
-        }
-
-        input.on('change', save);
-        input.on('keydown', function(ev) {
-            if (ev.key === 'Enter') {
-                ev.preventDefault();
-                input.blur();
-            }
-        });
     });
 
     // Start at the current week unless linking to a specific one
