@@ -8,3 +8,34 @@
   --bs-btn-border-color: hsl(231, 100%, 72%);
   --bs-btn-hover-bg: hsl(231, 88%, 73%);
 }
+
+// The approve button on a catering order. Same shape as the two above: only
+// --bs-btn-* variables, no new base rules.
+//
+// Contrast against $baljan-black text, measured, not guessed:
+//   fill    hsl(114,45%,78%)  12.9:1   (AA needs 4.5)
+//   hover   hsl(114,45%,70%)  11.2:1
+//   border  hsl(114,40%,45%)   3.2:1 against the page  (1.4.11 needs 3.0)
+// The dark border is load-bearing: the pale fill alone is 1.45:1 against
+// $baljan-white, so without it the button has no discernible edge.
+//
+// The disabled state is not decoration here. The button ships disabled until
+// the board member has typed their name, so it is a state people look at;
+// --bs-btn-disabled-opacity is pinned to 1 because Bootstrap would otherwise
+// lay .65 opacity on top and drag the numbers above back down.
+.btn-green-approve {
+  --bs-btn-color: #{$baljan-black};
+  --bs-btn-bg: #{$baljan-green-soft};
+  --bs-btn-border-color: #{$baljan-green-soft-border};
+  --bs-btn-hover-color: #{$baljan-black};
+  --bs-btn-hover-bg: #{$baljan-green-soft-hover};
+  --bs-btn-hover-border-color: hsl(114, 40%, 38%);
+  --bs-btn-active-color: #{$baljan-black};
+  --bs-btn-active-bg: hsl(114, 45%, 66%);
+  --bs-btn-active-border-color: hsl(114, 40%, 38%);
+  --bs-btn-focus-shadow-rgb: 116, 189, 96;
+  --bs-btn-disabled-color: hsl(0, 0%, 35%);
+  --bs-btn-disabled-bg: hsl(114, 20%, 86%);
+  --bs-btn-disabled-border-color: hsl(114, 15%, 70%);
+  --bs-btn-disabled-opacity: 1;
+}

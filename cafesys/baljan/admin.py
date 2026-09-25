@@ -724,3 +724,63 @@ class Wrapped(admin.ModelAdmin):
 
 
 custom_admin_site.register(models.Wrapped, Wrapped)
+
+
+class CateringOrderAdmin(admin.ModelAdmin):
+    list_display = (
+        "pk",
+        "date",
+        "orderer",
+        "association",
+        "pickup",
+        "status",
+        "handled_by",
+        "made",
+    )
+    list_filter = ("status", "date", "pickup")
+    search_fields = ("orderer", "orderer_email", "association", "org_number")
+    readonly_fields = ("made", "updated_at", "handled_at")
+    date_hierarchy = "date"
+
+
+custom_admin_site.register(models.CateringOrder, CateringOrderAdmin)
+
+
+class CateringOrderEmailAdmin(admin.ModelAdmin):
+    list_display = ("order", "kind", "to_email", "made")
+    list_filter = ("kind", "made")
+    search_fields = ("to_email", "subject", "order__orderer", "order__association")
+    readonly_fields = ("made",)
+
+
+custom_admin_site.register(models.CateringOrderEmail, CateringOrderEmailAdmin)
+
+
+class CateringOrderStatusChangeAdmin(admin.ModelAdmin):
+    """Read-only: the point of the log is that it is not rewritten."""
+
+    list_display = ("order", "status", "by_name", "by_user", "made")
+    list_filter = ("status", "made")
+    search_fields = ("by_name", "order__orderer", "order__association")
+    readonly_fields = ("order", "status", "by_user", "by_name", "made")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+custom_admin_site.register(
+    models.CateringOrderStatusChange, CateringOrderStatusChangeAdmin
+)
+
+
+class CateringHandoutAdmin(admin.ModelAdmin):
+    list_display = ("order", "picked_up_by", "handed_out_by", "made")
+    search_fields = ("order__association", "picked_up_by", "reference")
+    readonly_fields = ("made", "updated_at")
+    raw_id_fields = ("order",)
+
+
+custom_admin_site.register(models.CateringHandout, CateringHandoutAdmin)

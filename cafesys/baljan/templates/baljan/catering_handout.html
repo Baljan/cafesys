@@ -1,0 +1,137 @@
+{% extends "baljan/staff.html" %}
+
+{% block page_title %}Utlämning #{{ order.pk }}{% endblock %}
+
+{% block staff_info %}
+<div class="mb-3">
+  <a href="{% url 'catering_order' order.pk %}" class="text-decoration-none">&laquo; Beställning #{{ order.pk }}</a>
+</div>
+
+<h2 class="mb-1">Fakturaunderlag</h2>
+<p class="text-muted mb-4">
+  {{ order.association }} &middot; {{ order.date|date:"l j F" }}, {{ order.get_pickup_display }}
+</p>
+
+{% if order.other %}
+  <div class="alert alert-warning small">
+    <strong>Övrigt och allergier:</strong><br>{{ order.other|linebreaksbr }}
+  </div>
+{% endif %}
+
+<form method="POST">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ next }}">
+  {{ line_formset.management_form }}
+  {{ thermos_formset.management_form }}
+  {{ form.non_field_errors }}
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-7">
+      <h3 class="h5">Varor</h3>
+      {{ line_formset.non_form_errors }}
+      <div class="table-responsive">
+        <table class="table table-sm align-middle" id="handout-lines">
+          <thead>
+            <tr>
+              <th style="width:6rem">Antal</th>
+              <th>Produkt</th>
+              <th style="width:6rem">À-pris</th>
+              <th class="text-end" style="width:5rem">Summa</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in line_formset %}
+              <tr data-line>
+                <td>{{ f.count }}</td>
+                <td>{{ f.label }}{% for e in f.non_field_errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</td>
+                <td>{{ f.unit_price }}</td>
+                <td class="text-end"><span data-sum>0</span> kr</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="3" class="text-end">Totalt</th>
+              <th class="text-end"><span id="handout-total">0</span> kr</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="small text-muted">Termoshyra tas bara när kunden hyr termos utan kaffe eller te.</p>
+
+      <h3 class="h5 mt-4">Kund</h3>
+      <div class="row g-3">
+        <div class="col-12 col-sm-6">
+          <label for="{{ form.picked_up_by.id_for_label }}" class="form-label mb-1">Uthämtad av (signatur)</label>
+          {{ form.picked_up_by }}{{ form.picked_up_by.errors }}
+        </div>
+        <div class="col-12 col-sm-6">
+          <label for="{{ form.picked_up_phone.id_for_label }}" class="form-label mb-1">Telefonnummer</label>
+          {{ form.picked_up_phone }}{{ form.picked_up_phone.errors }}
+        </div>
+        <div class="col-12">
+          <label for="{{ form.reference.id_for_label }}" class="form-label mb-1">Utskott (eller annan referens)</label>
+          {{ form.reference }}{{ form.reference.errors }}
+        </div>
+      </div>
+      <p class="small text-muted mt-2 mb-0">
+        Fakturan skickas till {{ order.orderer_email }}. Kunden kontrollerar beställningen vid uthämtning.
+      </p>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <h3 class="h5">Utlånat</h3>
+      <div class="row g-3 mb-3">
+        <div class="col-6">
+          <label for="{{ form.jochen_boxes_out.id_for_label }}" class="form-label mb-1">Jochenlådor ut</label>
+          {{ form.jochen_boxes_out }}{{ form.jochen_boxes_out.errors }}
+        </div>
+        <div class="col-6">
+          <label for="{{ form.return_by.id_for_label }}" class="form-label mb-1">Återlämnas senast</label>
+          {{ form.return_by }}{{ form.return_by.errors }}
+        </div>
+      </div>
+
+      <h4 class="h6">Termosar</h4>
+      {{ thermos_formset.non_form_errors }}
+      {% for f in thermos_formset %}
+        <div class="d-flex gap-2 mb-2">
+          <div style="width:7rem">{{ f.size }}</div>
+          <div class="flex-grow-1">{{ f.name }}</div>
+          {{ f.returned_on.as_hidden }}{{ f.received_by.as_hidden }}
+        </div>
+        {% for e in f.non_field_errors %}<div class="text-danger small mb-2">{{ e }}</div>{% endfor %}
+      {% endfor %}
+
+      <label for="{{ form.other_info.id_for_label }}" class="form-label mb-1 mt-3">Övrig info</label>
+      {{ form.other_info }}
+
+      <div class="mt-4 pt-3 border-top">
+        <label for="{{ form.handed_out_by.id_for_label }}" class="form-label mb-1">Utlämnande jour (ditt namn)</label>
+        {{ form.handed_out_by }}{{ form.handed_out_by.errors }}
+        <button type="submit" class="btn btn-primary w-100 mt-3">
+          {% if order.status == "approved" %}Spara och markera som utlämnad{% else %}Spara underlaget{% endif %}
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+  (function () {
+    const rows = document.querySelectorAll("#handout-lines [data-line]");
+    function update() {
+      let total = 0;
+      rows.forEach((row) => {
+        const sum = (parseInt(row.querySelector("[data-count]").value) || 0) *
+          (parseInt(row.querySelector("[data-price]").value) || 0);
+        row.querySelector("[data-sum]").textContent = sum;
+        total += sum;
+      });
+      document.getElementById("handout-total").textContent = total;
+    }
+    document.getElementById("handout-lines").addEventListener("input", update);
+    update();
+  })();
+</script>
+{% endblock %}

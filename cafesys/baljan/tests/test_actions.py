@@ -76,6 +76,7 @@ class StaffPagesTestCase(TestCase):
                 "Jobbplanering",
                 "Personer och grupper",
                 "Jobbsläpp VT2027",
+                "Beställningar",
                 "Veckoplanering",
             ],
         )

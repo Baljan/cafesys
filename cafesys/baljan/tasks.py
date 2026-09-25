@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from celery import shared_task
+from googleapiclient.errors import HttpError
 from ..celery import app
 from django.conf import settings
 
@@ -77,3 +78,299 @@ def remove_old_users():
             ]
         ):
             user.delete()
+
+
+@app.task
+def send_catering_order_decision_email(order_id):
+    """Tell the orderer that the board has decided on their catering order.
+
+    Only the primary key travels through the broker: the task serialiser is JSON,
+    so the calendar attachment cannot be passed as an argument. It is rebuilt here
+    from the stored order instead.
+    """
+    from django.core.mail import EmailMultiAlternatives
+    from django.template.loader import render_to_string
+
+    from . import ical
+    from .models import CateringOrder, CateringOrderEmail
+
+    order = CateringOrder.objects.filter(pk=order_id).first()
+    if order is None:
+        logger.warning("catering order %s is gone, no email sent", order_id)
+        return
+
+    templates = {
+        CateringOrder.Status.APPROVED: "baljan/email/order_approved.html",
+        CateringOrder.Status.DENIED: "baljan/email/order_denied.html",
+    }
+    template = templates.get(order.status)
+    if template is None:
+        logger.warning(
+            "catering order %s has status %r, no decision email to send",
+            order_id,
+            order.status,
+        )
+        return
+
+    approved = order.status == CateringOrder.Status.APPROVED
+    verb = "godkänd" if approved else "nekad"
+    subject = (
+        f"[Beställning {order.date.strftime('%Y-%m-%d')} "
+        f"| {order.association} | #{order.pk}] Din beställning är {verb}"
+    )
+
+    html_content = render_to_string(
+        template,
+        {
+            "order": order,
+            "order_fields": order.ordered_items(),
+            "CATERING_EMAIL": settings.CATERING_EMAIL,
+        },
+    )
+
+    msg = EmailMultiAlternatives(
+        subject,
+        "",
+        f"Baljan <{settings.DEFAULT_FROM_EMAIL}>",
+        [order.orderer_email],
+        reply_to=[settings.CATERING_EMAIL],
+    )
+    msg.attach_alternative(html_content, "text/html")
+
+    if approved:
+        msg.attach("event.ics", ical.for_catering_order(order), "text/calendar")
+
+    msg.send()
+
+    # Only now, once the message has left: a row means it was sent.
+    CateringOrderEmail.objects.create(
+        order=order,
+        kind=(
+            CateringOrderEmail.Kind.APPROVED
+            if approved
+            else CateringOrderEmail.Kind.DENIED
+        ),
+        subject=subject,
+        to_email=order.orderer_email,
+        body=order.staff_message or "",
+    )
+    logger.info("decision email for catering order %s sent", order_id)
+
+
+@app.task
+def send_catering_order_receipt_email(order_id):
+    """Confirm to the orderer that their order arrived.
+
+    This is the only mail that goes out before the board has decided anything,
+    and it is where the orderer gets the link to their own status page: the
+    token is never shown anywhere else.
+    """
+    from django.core.mail import EmailMultiAlternatives
+    from django.template.loader import render_to_string
+
+    from .models import CateringOrder, CateringOrderEmail
+
+    order = CateringOrder.objects.filter(pk=order_id).first()
+    if order is None:
+        logger.warning("catering order %s is gone, no receipt sent", order_id)
+        return
+
+    subject = (
+        f"[Beställning {order.date.strftime('%Y-%m-%d')} "
+        f"| {order.association} | #{order.pk}] Vi har tagit emot din beställning"
+    )
+
+    html_content = render_to_string(
+        "baljan/email/order_received.html",
+        {
+            "order": order,
+            "CATERING_EMAIL": settings.CATERING_EMAIL,
+        },
+    )
+
+    msg = EmailMultiAlternatives(
+        subject,
+        "",
+        f"Baljan <{settings.DEFAULT_FROM_EMAIL}>",
+        [order.orderer_email],
+        reply_to=[settings.CATERING_EMAIL],
+    )
+    msg.attach_alternative(html_content, "text/html")
+    # No invite yet: nothing is booked until the board says yes.
+    msg.send()
+
+    CateringOrderEmail.objects.create(
+        order=order,
+        kind=CateringOrderEmail.Kind.RECEIVED,
+        subject=subject,
+        to_email=order.orderer_email,
+    )
+    logger.info("receipt for catering order %s sent", order_id)
+
+
+@app.task
+def send_catering_order_board_decision_email(order_id):
+    """Answer in the board's own mail thread that the order has been decided.
+
+    The order arrived as a mail to the catering address, and a decision taken on
+    the website would otherwise leave that thread looking untouched. Replying to
+    it keeps the inbox honest about what is still open.
+
+    Not written to `CateringOrderEmail`: that model is the orderer's history, and
+    the board's page lists it under "Skickade mail".
+    """
+    from django.core.mail import EmailMultiAlternatives
+    from django.template.loader import render_to_string
+
+    from .models import CateringOrder
+
+    order = CateringOrder.objects.filter(pk=order_id).first()
+    if order is None:
+        logger.warning("catering order %s is gone, board not told", order_id)
+        return
+
+    if order.status not in (
+        CateringOrder.Status.APPROVED,
+        CateringOrder.Status.DENIED,
+    ):
+        logger.warning(
+            "catering order %s has status %r, nothing to tell the board",
+            order_id,
+            order.status,
+        )
+        return
+
+    approved = order.status == CateringOrder.Status.APPROVED
+
+    if order.board_subject:
+        subject = "Re: %s" % order.board_subject
+    else:
+        # Orders placed before the subject was stored, or whose original mail
+        # never left. Threading is lost; the message itself still is not.
+        logger.warning(
+            "catering order %s has no stored board subject, sending untailed",
+            order_id,
+        )
+        subject = (
+            f"[Beställning {order.date.strftime('%Y-%m-%d')} "
+            f"| {order.association} | #{order.pk}] "
+            f"{'Godkänd' if approved else 'Nekad'} från hemsidan"
+        )
+
+    headers = {}
+    if order.board_message_id:
+        headers["In-Reply-To"] = order.board_message_id
+        headers["References"] = order.board_message_id
+
+    html_content = render_to_string(
+        "baljan/email/order_board_decision.html",
+        # No contact address: this mail is already in the orders inbox.
+        {"order": order, "approved": approved},
+    )
+
+    msg = EmailMultiAlternatives(
+        subject,
+        "",
+        f"Baljan <{settings.DEFAULT_FROM_EMAIL}>",
+        [settings.CATERING_EMAIL],
+        headers=headers,
+        # Same as the original mail, so a reply from the thread reaches the
+        # person who ordered.
+        reply_to=[order.orderer_email],
+    )
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
+    logger.info("board told about the decision on catering order %s", order_id)
+
+
+@app.task(
+    # Google answers 503 often enough that giving up on the first one would
+    # leave the calendar quietly wrong. Failures are logged and nothing else:
+    # the board finds out by looking, not by being told.
+    autoretry_for=(HttpError,),
+    retry_backoff=True,
+    max_retries=3,
+)
+def sync_catering_order_calendar(order_id):
+    """Make the orders calendar agree with the order's current status.
+
+    Approved, delivered and invoiced orders belong in the calendar; pending,
+    denied and cancelled ones do not. The task reads the status and makes that
+    true, so it can run twice without creating a second event and it does not
+    care which button was pressed.
+    """
+    from . import google, ical
+    from .models import CateringOrder
+
+    calendar_id = settings.GOOGLE_CALENDAR_ID
+    if not calendar_id:
+        return
+
+    order = CateringOrder.objects.filter(pk=order_id).first()
+    if order is None:
+        # The retention task removes the event before it removes the row.
+        logger.warning("catering order %s is gone, calendar left alone", order_id)
+        return
+
+    if not order.calendar_event_wanted:
+        if order.calendar_event_id:
+            google.delete_event(calendar_id, order.calendar_event_id)
+            order.calendar_event_id = ""
+            order.save(update_fields=["calendar_event_id", "updated_at"])
+            logger.info("calendar event for catering order %s removed", order_id)
+        return
+
+    start, end = order.pickup_window()
+    body = {
+        "summary": "[Beställning %s] %s - %s"
+        % (order.date.strftime("%Y-%m-%d"), order.orderer, order.association),
+        "description": ical.catering_order_description(order),
+        "location": "Baljan",
+        "start": {"dateTime": start.isoformat(), "timeZone": settings.TIME_ZONE},
+        "end": {"dateTime": end.isoformat(), "timeZone": settings.TIME_ZONE},
+    }
+
+    event_id = google.upsert_event(calendar_id, order.calendar_event_id, body)
+    if event_id != order.calendar_event_id:
+        order.calendar_event_id = event_id
+        order.save(update_fields=["calendar_event_id", "updated_at"])
+    logger.info("calendar event for catering order %s written", order_id)
+
+
+@shared_task
+def remove_old_catering_orders():
+    """Drop catering orders older than two years.
+
+    The order form is public and collects the name, email address and phone
+    number of people who are not members, so the rows are personal data with no
+    owning account. Nothing else prunes them.
+    """
+    from django.utils import timezone
+
+    from dateutil.relativedelta import relativedelta
+
+    from .models import CateringOrder
+
+    from . import google
+
+    cutoff = timezone.now() - relativedelta(years=2)
+    doomed = CateringOrder.objects.filter(made__lt=cutoff)
+
+    # Before the rows go: the event description carries the orderer's name,
+    # phone number, address and allergies, so leaving the events behind would
+    # make this purge only half a purge.
+    calendar_id = settings.GOOGLE_CALENDAR_ID
+    if calendar_id:
+        for event_id in doomed.exclude(calendar_event_id="").values_list(
+            "calendar_event_id", flat=True
+        ):
+            try:
+                google.delete_event(calendar_id, event_id)
+            except Exception:
+                # One stubborn event must not stop the rest being deleted.
+                logger.exception("could not remove calendar event %s", event_id)
+
+    deleted, _ = doomed.delete()
+    if deleted:
+        logger.info("removed %s old catering order(s)", deleted)
+    return deleted

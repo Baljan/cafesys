@@ -1,0 +1,44 @@
+{% comment %}
+Shared summary of a stored CateringOrder, used by the decision emails.
+Expects `order` in the context.
+{% endcomment %}
+<h2>Din beställning</h2>
+<p>
+  Datum: {{ order.date|date:"l j F Y" }}<br>
+  Tid: {{ order.get_pickup_display }}<br>
+  Förening/Sektion: {{ order.association }}
+  {% if order.org_number %}<br>Organisationsnummer: {{ order.org_number }}{% endif %}
+</p>
+
+<table>
+  {% for group in order.grouped_items %}
+    <tr>
+      <td><strong>{{ group.label }}</strong></td>
+      <td align="right"><strong>{{ group.count }}</strong></td>
+    </tr>
+    {% for child in group.children %}
+      <tr>
+        <td style="padding-left:1.5rem; color:#555;">{{ child.label }}</td>
+        <td align="right" style="color:#555;">{{ child.count }}</td>
+      </tr>
+    {% endfor %}
+  {% empty %}
+    <tr><td colspan="2">Inga varor angivna.</td></tr>
+  {% endfor %}
+</table>
+
+{% if order.other %}
+  <h2>Övrigt och allergier</h2>
+  {{ order.other|linebreaks }}
+{% endif %}
+
+{% if order.access_token %}
+  <p>
+    Du kan alltid se din beställning och hur det går med den här:<br>
+    <a href="{{ order.public_url }}">{{ order.public_url }}</a>
+  </p>
+  <p style="font-size:0.85rem; color:#555;">
+    Länken är personlig &mdash; den som har den kan se beställningen, så skicka
+    den bara vidare till någon som ska kunna det.
+  </p>
+{% endif %}

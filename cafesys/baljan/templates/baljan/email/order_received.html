@@ -1,0 +1,26 @@
+{% extends "baljan/email/_base.html" %}
+
+{% block content %}
+  <h1>Vi har tagit emot din beställning</h1>
+
+  <p>Hej {{ order.orderer }}!</p>
+
+  <p>
+    Din beställning har kommit fram och ligger nu hos styrelsen. Du får ett mail
+    så snart den är behandlad. Beställningen har nummer
+    <strong>#{{ order.pk }}</strong> &mdash; ha det till hands om du hör av dig
+    till oss.
+  </p>
+
+  <p>
+    Observera att beställningen inte är bekräftad förrän styrelsen har godkänt
+    den. Kalenderinbjudan kommer i det mailet.
+  </p>
+
+  {% include "baljan/email/_order_summary.html" %}
+
+  <p>
+    Behöver något ändras eller avbeställas, svara på det här mailet så snart som
+    möjligt.
+  </p>
+{% endblock %}

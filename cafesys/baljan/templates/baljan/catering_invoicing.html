@@ -1,0 +1,77 @@
+{% extends "baljan/staff.html" %}
+{% load baljan_extras %}
+
+{% block page_title %}Fakturering{% endblock %}
+
+{% block staff_info %}
+<div class="mb-3">
+  <a href="{% url 'catering_orders' %}" class="text-decoration-none">&laquo; Alla beställningar</a>
+</div>
+
+<h2 class="mb-4">Att fakturera</h2>
+
+{% for order in orders %}
+  {% with handout=order.handout %}
+  <div class="card mb-3">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-baseline gap-2">
+      <span>
+        <a href="{% url 'catering_order' order.pk %}">#{{ order.pk }}</a>
+        <strong>{{ order.association }}</strong>
+        {% catering_status_badge order %}
+      </span>
+      <span class="text-muted small">{{ order.date|date:"Y-m-d" }}</span>
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-5 col-sm-3">Fakturan skickas till</dt>
+        <dd class="col-7 col-sm-9">{{ order.orderer_email }}</dd>
+        <dt class="col-5 col-sm-3">Organisationsnr</dt>
+        <dd class="col-7 col-sm-9">{{ order.org_number|default:"—" }}</dd>
+        {% if handout %}
+          <dt class="col-5 col-sm-3">Referens</dt>
+          <dd class="col-7 col-sm-9">{{ handout.reference|default:"—" }}</dd>
+          <dt class="col-5 col-sm-3">Totalt</dt>
+          <dd class="col-7 col-sm-9">
+            <strong>{{ handout.total }} kr</strong>
+            {% if order.displayed_sum %}<span class="text-muted small">(vid beställning {{ order.displayed_sum }} kr)</span>{% endif %}
+          </dd>
+        {% endif %}
+      </dl>
+
+      {% if not handout %}
+        <div class="alert alert-warning mt-3 mb-0">
+          Inget fakturaunderlag är ifyllt.
+          {% if order.status == "approved" or order.status == "delivered" %}
+            <a href="{% url 'catering_handout' order.pk %}?next={{ request.path|urlencode }}" class="alert-link">Fyll i i efterhand &raquo;</a>
+          {% endif %}
+        </div>
+      {% elif not handout.is_returned %}
+        <div class="alert alert-warning mt-3 mb-0">
+          Termosar eller jochenlådor är inte återlämnade.
+          <a href="{% url 'catering_return' order.pk %}?next={{ request.path|urlencode }}" class="alert-link">Registrera återlämning &raquo;</a>
+        </div>
+      {% endif %}
+    </div>
+    <div class="card-footer bg-transparent d-flex flex-wrap gap-2 align-items-end">
+      {% if handout %}
+        <a href="{% url 'catering_invoice_basis' order.pk %}" class="btn btn-outline-dark">Fakturaunderlag</a>
+      {% endif %}
+      {% if order.status == "delivered" or order.status == "returned" %}
+        <form method="POST" action="{% url 'catering_order' order.pk %}" class="d-flex flex-wrap gap-2 align-items-end ms-auto">
+          {% csrf_token %}
+          <input type="hidden" name="task" value="status">
+          <input type="hidden" name="status" value="invoiced">
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <input type="text" name="handled_by_name" class="form-control" style="width:auto"
+                 maxlength="100" autocomplete="off" placeholder="Ditt namn" required
+                 aria-label="Ditt namn">
+          <button type="submit" class="btn btn-primary">Markera som fakturerad</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+  {% endwith %}
+{% empty %}
+  <p class="text-muted">Inget att fakturera.</p>
+{% endfor %}
+{% endblock %}

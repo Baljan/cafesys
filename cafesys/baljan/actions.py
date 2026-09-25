@@ -17,6 +17,15 @@ class Action(object):
             self.link = resolve_func(path, args=args, kwargs=kwargs)
 
 
+#: Sub-pages that should light up their parent in the staff menu.
+PARENT_PAGES = {
+    "call_duty_week": "call_duty_overview",
+    "catering_order": "catering_orders",
+    "catering_today": "catering_orders",
+    "catering_extra_order": "catering_orders",
+}
+
+
 def _worker_links():
     """Guides and documents shared by workers and substitutes.
 
@@ -112,7 +121,10 @@ def categories_and_actions(request):
         (
             settings.BOARD_GROUP,
             "Styrelsen",
-            (Action("Veckoplanering", "call_duty_overview"),)
+            (
+                Action("Veckoplanering", "call_duty_overview"),
+                Action("Beställningar", "catering_orders"),
+            )
             + tuple(upcoming_sem_actions),
         ),
         (
@@ -139,13 +151,10 @@ def categories_and_actions(request):
     links = [item for cat, _, ita in all_links if cat in categories for item in ita]
     pages = [item for cat, _, ita in all_pages if cat in categories for item in ita]
 
-    # Sub pages that should highlight the tab of their parent page
-    parent_pages = {"call_duty_week": "call_duty_overview"}
-    url_name = request.resolver_match.url_name
-    url_name = parent_pages.get(url_name, url_name)
-
+    current = request.resolver_match.url_name
+    current = PARENT_PAGES.get(current, current)
     for action in links + pages:
-        if url_name == action.path:
+        if current == action.path:
             action.active = True
 
     links.reverse()

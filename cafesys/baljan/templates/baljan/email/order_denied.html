@@ -1,0 +1,22 @@
+{% extends "baljan/email/_base.html" %}
+
+{% block content %}
+  <h1>Din beställning kan tyvärr inte genomföras</h1>
+
+  <p>Hej {{ order.orderer }}!</p>
+
+  <p>
+    Styrelsen har behandlat din beställning för
+    <strong>{{ order.date|date:"l j F Y" }}</strong>, men vi kan tyvärr inte ta emot den.
+  </p>
+
+  {% if order.staff_message %}
+    <div class="message">{{ order.staff_message|linebreaks }}</div>
+  {% endif %}
+
+  {% include "baljan/email/_order_summary.html" %}
+
+  <p>
+    Vill du beställa en annan dag är du varmt välkommen att lägga en ny beställning.
+  </p>
+{% endblock %}

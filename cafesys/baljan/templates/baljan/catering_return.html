@@ -1,0 +1,63 @@
+{% extends "baljan/staff.html" %}
+
+{% block page_title %}Återlämning #{{ order.pk }}{% endblock %}
+
+{% block staff_info %}
+<div class="mb-3">
+  <a href="{% url 'catering_order' order.pk %}" class="text-decoration-none">&laquo; Beställning #{{ order.pk }}</a>
+</div>
+
+<h2 class="mb-1">Återlämning</h2>
+<p class="text-muted mb-4">
+  {{ order.association }} &middot; utlämnad {{ order.date|date:"l j F" }}
+  {% if order.handout.return_by %}&middot; tillbaka senast {{ order.handout.return_by|date:"j F" }}{% endif %}
+</p>
+
+<form method="POST" style="max-width:40rem">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ next }}">
+  {{ thermos_formset.management_form }}
+  {{ form.non_field_errors }}
+
+  {% if order.handout.jochen_boxes_out %}
+    <h3 class="h5">Jochenlådor</h3>
+    <div class="row g-3 mb-4 align-items-end">
+      <div class="col-6">
+        <label class="form-label mb-1">Utlämnade</label>
+        <input type="text" class="form-control" value="{{ order.handout.jochen_boxes_out }}" disabled>
+      </div>
+      <div class="col-6">
+        <label for="{{ form.jochen_boxes_returned.id_for_label }}" class="form-label mb-1">Återlämnade</label>
+        {{ form.jochen_boxes_returned }}{{ form.jochen_boxes_returned.errors }}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if thermos_formset.forms %}
+    <h3 class="h5">Termosar</h3>
+    {% for f in thermos_formset %}
+      <div class="border rounded p-2 mb-2">
+        {{ f.size.as_hidden }}{{ f.name.as_hidden }}
+        <div class="fw-semibold mb-2">
+          {{ f.name.value|default:"Termos" }}
+          <span class="text-muted fw-normal">({% if f.size.value == "large" %}stor{% else %}liten{% endif %})</span>
+        </div>
+        <div class="row g-2">
+          <div class="col-5">{{ f.returned_on }}</div>
+          <div class="col-7">{{ f.received_by }}</div>
+        </div>
+        {% for e in f.non_field_errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <p class="small text-muted">Termosar ska vara ursköljda med enbart varmvatten.</p>
+  {% endif %}
+
+  <label for="{{ form.return_note.id_for_label }}" class="form-label mb-1 mt-2">Jourens anmärkning vid återlämning</label>
+  {{ form.return_note }}
+
+  <label for="{{ form.handled_by_name.id_for_label }}" class="form-label mb-1 mt-3">Ditt namn</label>
+  {{ form.handled_by_name }}{{ form.handled_by_name.errors }}
+
+  <button type="submit" class="btn btn-primary w-100 mt-3">Spara återlämning</button>
+</form>
+{% endblock %}
