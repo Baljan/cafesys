@@ -15,11 +15,17 @@ ACTION_PROFILE_SAVED = "action_profile_saved"
 POLICIES = {
     AUTOMATIC_LIU_DETAILS: {
         "name": "Automatisk hämtning av LiU-ID",
-        "versions": [static("Integritetspolicy.pdf")],
+        "versions": [
+            # static("Integritetspolicy.pdf"), // TODO: this shit cant be right
+            static("Integritetspolicy-v2.0.pdf"),
+        ],
     },
     AUTOMATIC_FULLNAME: {
         "name": "Automatisk hämtning av för- och efternamn",
-        "versions": [static("Integritetspolicy.pdf")],
+        "versions": [
+            # static("Integritetspolicy.pdf"),
+            static("Integritetspolicy-v2.0.pdf"),
+        ],
     },
 }
 
