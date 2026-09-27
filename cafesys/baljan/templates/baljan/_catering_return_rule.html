@@ -1,0 +1,6 @@
+{% comment %}
+What goes back, by when and where, in one sentence. Shared by the jour info,
+the approval mail and the status page so they cannot drift apart. Expects
+`order`; say nothing when nothing is lent.
+{% endcomment %}
+{% with plans=order.thermos_plan extras=order.extra_order_items %}{% if plans or extras %}{% if plans %}Termosar{% if extras %} och Gråback{% endif %}{% else %}Gråback{% endif %} lämnas tillbaka senast <strong>{{ order.return_by|date:"l j F" }}</strong>{% if plans %}, ursköljda med enbart varmvatten,{% endif %} till styrelsen i Nollberga under jourtid: 07:30&ndash;08:00, 12:15&ndash;13:00 eller 16:15&ndash;17:00.{% endif %}{% endwith %}

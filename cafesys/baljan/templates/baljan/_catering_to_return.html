@@ -1,0 +1,27 @@
+{% comment %}
+List items for orders handed out and not yet returned. Expects `to_return`
+and `today`.
+{% endcomment %}
+{% for order in to_return %}
+  <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <a href="{% url 'catering_order' order.pk %}" class="fw-semibold text-decoration-none">{{ order.association }}</a>
+      <span class="text-muted small">&middot; utlämnad {{ order.date|date:"j/n" }}{% if order.handout.return_by %}, senast {{ order.handout.return_by|date:"j/n" }}{% endif %}</span>
+      {% if order.handout.return_by and order.handout.return_by < today %}<span class="badge bg-danger">Försenad</span>{% endif %}
+      <div class="small text-muted">
+        {% with n=order.handout.thermoses|length %}{% if n %}{{ n }} termos{{ n|pluralize:"ar" }}{% endif %}{% endwith %}
+        {% if order.handout.jochen_boxes_out %}&middot; {{ order.handout.jochen_boxes_out }} jochenlådor{% endif %}
+      </div>
+    </div>
+    <form method="POST" action="{% url 'catering_return_all' order.pk %}" class="d-flex gap-2 align-items-center">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <input type="text" name="handled_by_name" class="form-control form-control-sm" style="width:9rem"
+             maxlength="100" autocomplete="off" placeholder="Ditt namn" required aria-label="Ditt namn">
+      <button type="submit" class="btn btn-sm btn-primary text-nowrap">Allt tillbaka</button>
+    </form>
+    {% if order.handout %}
+      <a href="{% url 'catering_return' order.pk %}?next={{ request.path|urlencode }}" class="small w-100 text-end">Bara en del tillbaka eller något att anmärka?</a>
+    {% endif %}
+  </li>
+{% endfor %}

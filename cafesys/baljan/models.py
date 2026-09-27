@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from datetime import date, datetime
+import secrets
+from collections import Counter
+from datetime import date, datetime, time, timedelta
 from django.utils import timezone
 from logging import getLogger
 
@@ -18,7 +20,6 @@ from django.utils.text import format_lazy
 from django.utils.translation import gettext as _nl
 from django.utils.translation import gettext_lazy as _
 
-
 from functools import partial
 
 import stripe
@@ -28,6 +29,103 @@ from . import notifications, util
 from .util import week_dates, year_and_week, random_string
 
 logger = getLogger(__name__)
+
+
+#: Baljan's thermoses per drink, biggest first.
+THERMOS_SIZES = {
+    "numberOfCoffee": (45, 22, 15, 6, 5),
+    "numberOfTea": (15, 10, 6, 5),
+}
+
+#: Rows of the invoice basis, in the order of the paper form, with price in kr.
+CATERING_PRODUCTS = (
+    ("numberOfCoffee", "Kaffe", 9),
+    ("numberOfTea", "Te", 9),
+    ("numberOfSoda", "Läsk (inkl. pant)", 10),
+    ("numberOfKlagg", "Klägg", 9),
+    ("numberOfMinijochen", "MiniJochen", 18),
+    ("numberOfJochen", "Jochen", 39),
+    ("numberOfPastasalad", "Pastasallad", 53),
+    # Rent is only charged for thermoses borrowed without coffee or tea.
+    ("", "Stor termoshyra/dygn", 50),
+    ("", "Liten termoshyra/dygn", 10),
+)
+CATERING_PRICES = {field: price for field, _label, price in CATERING_PRODUCTS if field}
+
+#: Thermoses of at least this many cups are large.
+LARGE_THERMOS_CUPS = 22
+
+#: Coffee up to this many cups gets one carton of Oatly, more gets two.
+OATLY_THRESHOLD = 45
+
+#: Not stock; ordered extra from Smorgasfiket.
+CATERING_EXTRA_ORDER_FIELDS = (
+    "numberOfJochen",
+    "numberOfMinijochen",
+    "numberOfPastasalad",
+)
+
+
+#: Smorgasfiket is ordered Wednesday 16:15 the week before pickup.
+SUPPLIER_ORDER_WEEKDAY = 2
+SUPPLIER_ORDER_TIME = time(16, 15)
+
+
+def earliest_supplier_order_date(now=None):
+    """First pickup date jochen and pasta salad can still be ordered for."""
+    local = timezone.localtime(now)
+    today = local.date()
+
+    this_week = week_dates(*year_and_week(today))
+    deadline = this_week[SUPPLIER_ORDER_WEEKDAY]
+    in_time = (today, local.time()) <= (deadline, SUPPLIER_ORDER_TIME)
+
+    target = today + relativedelta(weeks=1 if in_time else 2)
+    return week_dates(*year_and_week(target))[0]
+
+
+def plan_thermoses(cups, sizes):
+    """Thermoses for `cups` as [(size, count), ...]: least overshoot, then fewest."""
+    if cups <= 0 or not sizes:
+        return []
+
+    ceiling = cups + max(sizes)
+    # fewest[c] = fewest thermoses whose capacities sum to exactly c.
+    fewest = [None] * (ceiling + 1)
+    last_used = [0] * (ceiling + 1)
+    fewest[0] = 0
+    for capacity in range(1, ceiling + 1):
+        for size in sizes:
+            if size > capacity or fewest[capacity - size] is None:
+                continue
+            candidate = fewest[capacity - size] + 1
+            if fewest[capacity] is None or candidate < fewest[capacity]:
+                fewest[capacity] = candidate
+                last_used[capacity] = size
+
+    reachable = [c for c in range(cups, ceiling + 1) if fewest[c] is not None]
+    if not reachable:
+        return []
+    total = min(reachable, key=lambda c: (c - cups, fewest[c]))
+
+    counted = Counter()
+    while total:
+        size = last_used[total]
+        counted[size] += 1
+        total -= size
+    return sorted(counted.items(), reverse=True)
+
+
+def validate_no_control_characters(value):
+    """Reject line breaks and other control characters.
+
+    Values carrying this reach a generated document -- the mail subject, the
+    calendar description -- where a newline forges a line nobody wrote. Django
+    stops the real header injection; this stops the crafted value getting that
+    far at all.
+    """
+    if any(ch in value for ch in "\r\n") or any(ord(ch) < 32 for ch in value):
+        raise ValidationError("Fältet får inte innehålla radbrytningar.")
 
 
 class Made(models.Model):
@@ -67,6 +165,17 @@ def generate_private_key():
     while len(Profile.objects.filter(private_key=private_key)) != 0:
         private_key = random_string(PRIVATE_KEY_LENGTH)
     return private_key
+
+
+def generate_catering_access_token():
+    """A secret that stands in for a login on the public order page.
+
+    `random_string` is seeded from `random` and is not safe for something that
+    guards personal data, so this goes through `secrets` instead. Anyone holding
+    the token can read the order, which is the point: the link in the email is
+    the only key the orderer ever gets.
+    """
+    return secrets.token_urlsafe(32)
 
 
 class Profile(Made):
@@ -1473,3 +1582,700 @@ class Wrapped(Made):
             "user": self.user,
             "semester": self.semester,
         }
+
+
+class CateringOrder(Made):
+    """An order placed through the public order form ("beställning").
+
+    This is not the same thing as `Order`, which records a single purchase paid
+    for with a coffee card. A catering order is a request from an association to
+    have Baljan prepare food and drink for a given day. It is submitted by an
+    anonymous visitor and then handled by the board.
+
+    The ordered goods are stored as a snapshot in `items` rather than as rows
+    pointing at a catalogue. The assortment lives in `OrderForm` as plain Python
+    tuples and is changed between semesters, so a snapshot is the only way an old
+    order keeps meaning what it meant when it was placed.
+    """
+
+    # Labels are plain Swedish, like PICKUP_CHOICES below: they are shown to the
+    # board as-is and there is no other language to switch to.
+    class Status(models.TextChoices):
+        PENDING = "pending", "Väntar"
+        APPROVED = "approved", "Godkänd"
+        DENIED = "denied", "Nekad"
+        CANCELLED = "cancelled", "Avbeställd"
+        DELIVERED = "delivered", "Utlämnad"
+        RETURNED = "returned", "Återlämnad"
+        INVOICED = "invoiced", "Fakturerad"
+
+    MORNING = 1
+    LUNCH = 2
+    AFTERNOON = 3
+
+    PICKUP_CHOICES = (
+        (MORNING, "Morgon 07:30-08:00"),
+        (LUNCH, "Lunch 12:15-13:00"),
+        (AFTERNOON, "Eftermiddag 16:15-17:00"),
+    )
+
+    #: Start and end of each pickup window, used when building calendar invites.
+    PICKUP_TIMES = {
+        MORNING: (time(7, 30), time(8, 0)),
+        LUNCH: (time(12, 15), time(13, 0)),
+        AFTERNOON: (time(16, 15), time(17, 0)),
+    }
+
+    #: Where each status may go by hand, without a mail. Approved and denied
+    #: are never targets: a row with either status reads as a decision.
+    STATUS_TRANSITIONS = {
+        Status.PENDING: (Status.CANCELLED,),
+        Status.APPROVED: (Status.DELIVERED, Status.CANCELLED),
+        Status.DENIED: (Status.PENDING,),
+        Status.CANCELLED: (Status.PENDING,),
+        # Invoicing before the return is allowed: a thermos may never come back.
+        Status.DELIVERED: (Status.RETURNED, Status.INVOICED),
+        Status.RETURNED: (Status.DELIVERED, Status.INVOICED),
+        Status.INVOICED: (Status.DELIVERED, Status.RETURNED),
+    }
+
+    #: Statuses a new decision may replace. Re-deciding resends the mail.
+    DECIDABLE_STATUSES = (Status.PENDING, Status.APPROVED, Status.DENIED)
+
+    #: Minimum time between two decision mails to the same orderer.
+    DECISION_MAIL_COOLDOWN = timedelta(minutes=10)
+
+    orderer = models.CharField(_("orderer"), max_length=100)
+    orderer_email = models.EmailField(_("orderer email"))
+    orderer_phone = models.CharField(_("orderer phone number"), max_length=11)
+
+    association = models.CharField(_("association"), max_length=100)
+    org_number = models.CharField(
+        _("organisation number"), max_length=20, blank=True, default=""
+    )
+
+    pickup_name = models.CharField(
+        _("name of person picking up"), max_length=100, blank=True, default=""
+    )
+    pickup_email = models.EmailField(
+        _("email of person picking up"), blank=True, default=""
+    )
+    pickup_phone = models.CharField(
+        _("phone number of person picking up"), max_length=11, blank=True, default=""
+    )
+
+    date = models.DateField(_("date"))
+    pickup = models.PositiveSmallIntegerField(_("pickup time"), choices=PICKUP_CHOICES)
+    other = models.TextField(
+        _("other information and allergies"), blank=True, default=""
+    )
+
+    #: The sum shown in the browser when the order was placed. Computed by
+    #: JavaScript and therefore not to be trusted; kept only for reference.
+    displayed_sum = models.CharField(
+        _("sum shown to the orderer"), max_length=32, blank=True, default=""
+    )
+
+    #: Snapshot of the ordered goods: a list of {"key", "label", "count"} dicts.
+    items = models.JSONField(_("items"), encoder=DjangoJSONEncoder, default=list)
+
+    status = models.CharField(
+        _("status"),
+        max_length=16,
+        choices=Status.choices,
+        default=Status.PENDING,
+        db_index=True,
+    )
+    staff_note = models.TextField(
+        _("internal note"),
+        blank=True,
+        default="",
+        help_text=_("only visible to the board, never sent to the orderer"),
+    )
+    staff_message = models.TextField(
+        _("message to the orderer"),
+        blank=True,
+        default="",
+        help_text=_("included in the email sent when the order is decided"),
+    )
+
+    handled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        verbose_name=_("handled by"),
+        related_name="handled_catering_orders",
+        on_delete=models.SET_NULL,
+    )
+    #: Who decided, by hand. `handled_by` only says which account was logged
+    #: in, and the board shares one account across shifts, so the account is
+    #: not an answer to "who approved this". Blank at the database level
+    #: because every row that predates the field has no name to give; the
+    #: requirement lives in the form, not in the schema.
+    handled_by_name = models.CharField(
+        _("name of the person who decided"),
+        max_length=100,
+        blank=True,
+        default="",
+        # The name is interpolated into the calendar description, which is a
+        # generated document: a newline in it forges a line the board never
+        # wrote. Same reason `orderer` and `association` carry this validator
+        # (they reach the mail subject). On the model rather than only the
+        # form, so the admin and any later code path are covered too.
+        validators=[validate_no_control_characters],
+    )
+    handled_at = models.DateTimeField(_("handled at"), null=True, blank=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    #: Stands in for a login on the public status page. The primary key cannot
+    #: do that job: it runs 1, 2, 3, and the page carries a name, an email
+    #: address, a phone number and the allergies written into `other`.
+    access_token = models.CharField(
+        _("access token"),
+        max_length=64,
+        unique=True,
+        default=generate_catering_access_token,
+    )
+
+    #: The `Message-ID` of the mail sent to the board when the order came in,
+    #: kept so the decision can answer in that same thread.
+    board_message_id = models.CharField(
+        _("board message id"), max_length=255, blank=True, default=""
+    )
+    #: That mail's subject, stored rather than recomputed: the board may edit
+    #: the order afterwards, and Gmail splits a thread whose subject changed
+    #: even when `References` still lines up.
+    board_subject = models.CharField(
+        _("board subject"), max_length=255, blank=True, default=""
+    )
+
+    #: The event in the shared orders calendar, once there is one. Google
+    #: documents event ids as 5-1024 characters, so the column is sized to the
+    #: documented maximum rather than to what ids happen to look like today.
+    calendar_event_id = models.CharField(
+        _("calendar event id"), max_length=1024, blank=True, default=""
+    )
+
+    class Meta:
+        verbose_name = _("catering order")
+        verbose_name_plural = _("catering orders")
+        ordering = ["-made"]
+        permissions = (("manage_catering_orders", _nl("Can manage catering orders")),)
+
+    def __str__(self):
+        return "%(orderer)s - %(association)s (%(date)s)" % {
+            "orderer": self.orderer,
+            "association": self.association,
+            "date": self.date,
+        }
+
+    def get_absolute_url(self):
+        return reverse("catering_order", kwargs={"pk": self.pk})
+
+    def get_public_url(self):
+        """Where the orderer reads their own order, no login involved."""
+        return reverse("catering_order_status", kwargs={"token": self.access_token})
+
+    def public_url(self):
+        """`get_public_url` as an absolute URL, for the emails.
+
+        The decision mails are rendered in a Celery task, where there is no
+        request to build one from; the current `Site` is what the rest of the
+        code uses in the same spot (see `ical.make_event`).
+        """
+        return "https://%s%s" % (util.current_site(), self.get_public_url())
+
+    def board_url(self):
+        """`get_absolute_url` as an absolute URL, for the mail to the board."""
+        return "https://%s%s" % (util.current_site(), self.get_absolute_url())
+
+    @property
+    def handled_by_label(self):
+        """Who decided, for display: the typed name, else the account.
+
+        Empty when nothing is known, so callers can leave the line out
+        entirely rather than printing "okänd" into a calendar event.
+        """
+        if self.handled_by_name:
+            return self.handled_by_name
+        # handled_by_id, not handled_by: no query just to find out there is none.
+        return str(self.handled_by) if self.handled_by_id else ""
+
+    @property
+    def decided_by_label(self):
+        """Who approved or denied it, whatever happened to it afterwards.
+
+        Read from the history rather than from `handled_by_name`, which a
+        later status change overwrites. Empty when the decision predates the
+        history or has not been taken.
+        """
+        decision = (
+            self.status_changes.filter(
+                status__in=(self.Status.APPROVED, self.Status.DENIED)
+            )
+            .order_by("-made")
+            .first()
+        )
+        return decision.by_label if decision else ""
+
+    @property
+    def return_by(self):
+        """When lent thermoses and boxes are due: as agreed, else next weekday."""
+        handout = getattr(self, "handout", None)
+        if handout is not None and handout.return_by:
+            return handout.return_by
+        day = self.date + timedelta(days=1)
+        while day.weekday() >= 5:
+            day += timedelta(days=1)
+        return day
+
+    @property
+    def is_being_handed_out(self):
+        """Approved and picked up today."""
+        return self.days_until_pickup == 0 and self.status in (
+            self.Status.APPROVED,
+            self.Status.DELIVERED,
+            self.Status.RETURNED,
+            self.Status.INVOICED,
+        )
+
+    def item_count(self, field):
+        """Ordered count for a form field, 0 if missing."""
+        for item in self.items:
+            if item.get("field") == field:
+                return item.get("count") or 0
+        return 0
+
+    def thermos_plan(self):
+        """Thermoses per ordered drink."""
+        plans = []
+        for field, sizes in THERMOS_SIZES.items():
+            cups = self.item_count(field)
+            thermoses = plan_thermoses(cups, sizes)
+            if not thermoses:
+                continue
+            label = next(
+                (i["label"] for i in self.items if i.get("field") == field), field
+            )
+            plans.append(
+                {
+                    "label": label,
+                    "cups": cups,
+                    "thermoses": thermoses,
+                    "capacity": sum(size * count for size, count in thermoses),
+                }
+            )
+        return plans
+
+    @property
+    def oatly_cartons(self):
+        """Oatly cartons to go with the coffee."""
+        cups = self.item_count("numberOfCoffee")
+        if cups <= 0:
+            return 0
+        return 1 if cups <= OATLY_THRESHOLD else 2
+
+    def extra_order_items(self):
+        """Goods for the extra Smorgasfiket order."""
+        return [
+            {"label": item["label"], "count": item["count"]}
+            for item in self.items
+            if item.get("field") in CATERING_EXTRA_ORDER_FIELDS and item.get("count")
+        ]
+
+    def extra_order_lines(self):
+        """Extra-order goods with their sub-types, as {field, label, count, children}."""
+        lines = []
+        for item in self.items:
+            if item.get("field") not in CATERING_EXTRA_ORDER_FIELDS:
+                continue
+            if not item.get("count"):
+                continue
+            children = [
+                {"field": c["field"], "label": c["label"], "count": c["count"]}
+                for c in self.items
+                if c.get("group") == item["label"] and c.get("count")
+            ]
+            lines.append(
+                {
+                    "field": item["field"],
+                    "label": item["label"],
+                    "count": item["count"],
+                    "children": children,
+                }
+            )
+        return lines
+
+    def allowed_statuses(self):
+        """Statuses this order may be moved to by hand."""
+        return self.STATUS_TRANSITIONS.get(self.status, ())
+
+    @property
+    def can_decide(self):
+        return self.status in self.DECIDABLE_STATUSES
+
+    def decision_cooldown_left(self, now=None):
+        """Time left before another decision mail may go out, or None."""
+        last = (
+            self.status_changes.filter(
+                status__in=(self.Status.APPROVED, self.Status.DENIED)
+            )
+            .order_by("-made")
+            .values_list("made", flat=True)
+            .first()
+        )
+        if last is None:
+            return None
+        left = last + self.DECISION_MAIL_COOLDOWN - (now or timezone.now())
+        return left if left > timedelta(0) else None
+
+    @property
+    def days_until_pickup(self):
+        """Days from today to the pickup date. Negative once it has passed."""
+        return (self.date - timezone.localdate()).days
+
+    @property
+    def is_pending(self):
+        return self.status == self.Status.PENDING
+
+    @property
+    def is_decided(self):
+        return self.status != self.Status.PENDING
+
+    @property
+    def calendar_event_wanted(self):
+        """Whether this order belongs in the orders calendar as it stands.
+
+        Driven by the current status rather than by which button was pressed,
+        which is what makes the sync idempotent: approving twice moves the same
+        event instead of creating a second one.
+        """
+        return self.status in (
+            self.Status.APPROVED,
+            self.Status.DELIVERED,
+            self.Status.RETURNED,
+            self.Status.INVOICED,
+        )
+
+    def pickup_window(self):
+        """Return the pickup window as two aware datetimes."""
+        start, end = self.PICKUP_TIMES[self.pickup]
+        tz = timezone.get_current_timezone()
+        return (
+            datetime.combine(self.date, start, tz),
+            datetime.combine(self.date, end, tz),
+        )
+
+    def ordered_items(self):
+        """The snapshot, with empty lines dropped."""
+        return [item for item in self.items if item.get("count")]
+
+    def grouped_items(self):
+        """Ordered goods as groups, each with its sub-types nested underneath.
+
+        The snapshot is flat: a Jochen line and then one line per filling, each
+        tagged with the group it belongs to. Listing those side by side reads as
+        if the fillings were extra items, so they are nested here instead.
+
+        Groups with nothing ordered are left out entirely.
+        """
+        groups = []
+        by_label = {}
+
+        for item in self.items:
+            if item.get("group"):
+                continue
+            group = {
+                "label": item["label"],
+                "count": item.get("count") or 0,
+                "children": [],
+            }
+            groups.append(group)
+            by_label[item["label"]] = group
+
+        for item in self.items:
+            parent = by_label.get(item.get("group"))
+            if parent is None or not item.get("count"):
+                continue
+            parent["children"].append({"label": item["label"], "count": item["count"]})
+
+        return [g for g in groups if g["count"] or g["children"]]
+
+    def total_items(self):
+        """How many things were ordered, counting each group only once."""
+        return sum(group["count"] for group in self.grouped_items())
+
+    def set_status(self, status, user=None, handled_by_name=None, notify=False):
+        """Move the order to `status`, recording who did it.
+
+        The account and the typed name are written together. `handled_by` is
+        overwritten on every call, so carrying an older name forward would
+        leave the pair describing two different events by two different
+        people.
+
+        Passing `notify=True` queues a decision email to the orderer once the
+        surrounding transaction has committed.
+        """
+        self.status = status
+        self.handled_by = user
+        self.handled_by_name = (handled_by_name or "").strip()
+        self.handled_at = timezone.now()
+        self.save()
+
+        # Append-only, so the name on the order can go on meaning "latest"
+        # without that costing the record of who approved it.
+        CateringOrderStatusChange.objects.create(
+            order=self,
+            status=status,
+            by_user=user,
+            by_name=self.handled_by_name,
+        )
+
+        # Unconditional: the calendar follows every status, not just the two
+        # that mail anyone.
+        self.sync_calendar()
+
+        if notify:
+            self.notify_orderer()
+            self.notify_board()
+
+    def approve(self, user=None, handled_by_name=None, message=None, notify=True):
+        if message is not None:
+            self.staff_message = message
+        self.set_status(
+            self.Status.APPROVED,
+            user=user,
+            handled_by_name=handled_by_name,
+            notify=notify,
+        )
+
+    def deny(self, user=None, handled_by_name=None, message=None, notify=True):
+        if message is not None:
+            self.staff_message = message
+        self.set_status(
+            self.Status.DENIED,
+            user=user,
+            handled_by_name=handled_by_name,
+            notify=notify,
+        )
+
+    def notify_orderer(self):
+        """Queue the decision email.
+
+        Only the primary key is handed to the task. Celery is configured with a
+        JSON serialiser, so the calendar attachment cannot travel as an argument;
+        the task rebuilds it from the stored order instead.
+        """
+        from .tasks import send_catering_order_decision_email
+
+        transaction.on_commit(lambda: send_catering_order_decision_email.delay(self.pk))
+
+    def notify_receipt(self):
+        """Queue the "we have your order" mail sent right after it was placed.
+
+        It carries the link to the public status page, which is the only way the
+        orderer ever learns their own token.
+        """
+        from .tasks import send_catering_order_receipt_email
+
+        transaction.on_commit(lambda: send_catering_order_receipt_email.delay(self.pk))
+
+    def notify_board(self):
+        """Queue the answer in the board's own mail thread for this order.
+
+        A decision taken on the website is otherwise invisible in the inbox that
+        received the order, so the thread reads as if nothing had happened.
+        """
+        from .tasks import send_catering_order_board_decision_email
+
+        transaction.on_commit(
+            lambda: send_catering_order_board_decision_email.delay(self.pk)
+        )
+
+    def sync_calendar(self):
+        """Queue the orders-calendar sync.
+
+        A no-op unless GOOGLE_CALENDAR_ID is set, so nothing reaches Google in
+        development or in the tests.
+        """
+        from .tasks import sync_catering_order_calendar
+
+        transaction.on_commit(lambda: sync_catering_order_calendar.delay(self.pk))
+
+
+class CateringOrderStatusChange(Made):
+    """One row per status a catering order was moved to, and by whom.
+
+    `CateringOrder.handled_by_name` only ever holds the latest name, so marking
+    an order delivered used to erase who approved it. These rows are written
+    once and never updated, which is what makes "vem godkände" an answerable
+    question a month later.
+
+    Orders decided before this model existed have no rows, so an empty history
+    means "not recorded", not "never touched".
+    """
+
+    order = models.ForeignKey(
+        CateringOrder,
+        verbose_name=_("catering order"),
+        related_name="status_changes",
+        on_delete=models.CASCADE,
+    )
+    status = models.CharField(
+        _("status"), max_length=16, choices=CateringOrder.Status.choices
+    )
+    #: The account, which the board shares between shifts, and the name the
+    #: person typed. Kept as a pair for the same reason the order does: the
+    #: account says which login, the name says who. SET_NULL so a retired
+    #: account does not take the history with it.
+    by_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        verbose_name=_("by account"),
+        related_name="catering_status_changes",
+        on_delete=models.SET_NULL,
+    )
+    by_name = models.CharField(
+        _("by"),
+        max_length=100,
+        blank=True,
+        default="",
+        validators=[validate_no_control_characters],
+    )
+
+    class Meta:
+        verbose_name = _("catering order status change")
+        verbose_name_plural = _("catering order status changes")
+        # Oldest first: the history reads top to bottom, like the mail log.
+        ordering = ["made"]
+
+    def __str__(self):
+        return "%(status)s av %(by)s" % {
+            "status": self.get_status_display(),
+            "by": self.by_name or self.by_user or "okänd",
+        }
+
+    @property
+    def by_label(self):
+        """Who did it: the typed name, else the account, else nothing."""
+        if self.by_name:
+            return self.by_name
+        return str(self.by_user) if self.by_user_id else ""
+
+
+class CateringOrderEmail(Made):
+    """A record of one email sent to the person who placed a catering order.
+
+    Written after the message has actually left, so a row means it was sent. It
+    says nothing about whether it arrived: there is no delivery tracking.
+
+    Orders placed before this model existed have no rows at all, so an empty
+    history means "not known", not "nothing was sent".
+    """
+
+    class Kind(models.TextChoices):
+        RECEIVED = "received", "Kvittens"
+        APPROVED = "approved", "Godkännande"
+        DENIED = "denied", "Nekande"
+
+    order = models.ForeignKey(
+        CateringOrder,
+        verbose_name=_("catering order"),
+        related_name="emails",
+        on_delete=models.CASCADE,
+    )
+    kind = models.CharField(_("kind"), max_length=16, choices=Kind.choices)
+    subject = models.CharField(_("subject"), max_length=255)
+    to_email = models.EmailField(_("recipient"))
+    body = models.TextField(
+        _("message"),
+        blank=True,
+        default="",
+        help_text=_("what the board wrote, not the full rendered email"),
+    )
+
+    class Meta:
+        verbose_name = _("sent catering order email")
+        verbose_name_plural = _("sent catering order emails")
+        # Oldest first: the history reads top to bottom.
+        ordering = ["made"]
+
+    def __str__(self):
+        return "%(kind)s till %(to)s" % {
+            "kind": self.get_kind_display(),
+            "to": self.to_email,
+        }
+
+
+class CateringHandout(Made):
+    """The invoice basis ("fakturaunderlag") written when an order is handed out.
+
+    The lines are a snapshot, like `CateringOrder.items`: prices change between
+    semesters and an old basis must keep the sum it was invoiced for. The
+    thermoses are only tracked so they come back; any rent is a line.
+    """
+
+    order = models.OneToOneField(
+        CateringOrder,
+        verbose_name=_("catering order"),
+        related_name="handout",
+        on_delete=models.CASCADE,
+    )
+    #: [{"label", "count", "unit_price"}, ...]
+    lines = models.JSONField(_("lines"), encoder=DjangoJSONEncoder, default=list)
+    #: [{"name", "size", "returned_on", "received_by"}, ...]
+    thermoses = models.JSONField(
+        _("thermoses"), encoder=DjangoJSONEncoder, default=list
+    )
+    reference = models.CharField(
+        _("committee or other reference"), max_length=100, blank=True, default=""
+    )
+    picked_up_by = models.CharField(
+        _("picked up by"), max_length=100, validators=[validate_no_control_characters]
+    )
+    picked_up_phone = models.CharField(
+        _("phone number"), max_length=20, blank=True, default=""
+    )
+    jochen_boxes_out = models.PositiveSmallIntegerField(
+        _("jochen boxes handed out"), default=0
+    )
+    jochen_boxes_returned = models.PositiveSmallIntegerField(
+        _("jochen boxes returned"), null=True, blank=True
+    )
+    return_by = models.DateField(_("return by"), null=True, blank=True)
+    handed_out_by = models.CharField(
+        _("handed out by"), max_length=100, validators=[validate_no_control_characters]
+    )
+    other_info = models.TextField(_("other information"), blank=True, default="")
+    return_note = models.TextField(_("note on return"), blank=True, default="")
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("catering handout")
+        verbose_name_plural = _("catering handouts")
+
+    def __str__(self):
+        return "Fakturaunderlag för %s" % self.order
+
+    def line_rows(self):
+        return [
+            {**line, "sum": line["count"] * line["unit_price"]} for line in self.lines
+        ]
+
+    def total(self):
+        return sum(row["sum"] for row in self.line_rows())
+
+    @property
+    def is_returned(self):
+        boxes_back = not self.jochen_boxes_out or self.jochen_boxes_returned is not None
+        return boxes_back and all(t.get("returned_on") for t in self.thermoses)
+
+    def return_everything(self, received_by, on):
+        """Mark whatever is still out as back, keeping earlier partial returns."""
+        for thermos in self.thermoses:
+            if not thermos.get("returned_on"):
+                thermos.update(returned_on=on, received_by=received_by)
+        if self.jochen_boxes_returned is None:
+            self.jochen_boxes_returned = self.jochen_boxes_out
+        self.save()

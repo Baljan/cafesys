@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 import base64
-import uuid
 import json
 import itertools
 import copy
 from datetime import date, datetime, time, timedelta
+from email.utils import make_msgid
 from io import BytesIO
 from logging import getLogger
-from icalendar import Calendar, Event
 
 from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import BadRequest
 from django.core.cache import cache
@@ -21,7 +20,7 @@ from django.core.serializers import serialize
 from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 from django.urls import reverse
 from django.db import transaction
-from django.db.models import Sum, Count, IntegerField, Case, When, Value, Subquery, F
+from django.db.models import Sum, Count, IntegerField, Case, When, Value, Subquery, F, Q
 from django.db.models.functions import (
     ExtractHour,
     ExtractMinute,
@@ -39,12 +38,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.translation import gettext as _
 from django.views.generic import ListView
 from django.views.generic.dates import WeekArchiveView
+from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 from django import forms as django_forms
 from django.template.loader import render_to_string
 
 from django.contrib.auth.views import LoginView
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 
 
@@ -209,6 +210,95 @@ cafe_baljan = CafeWeekView.as_view(template_name="baljan/cafe_baljan.html", loca
 cafe_byttan = CafeWeekView.as_view(template_name="baljan/cafe_byttan.html", location=1)
 
 
+#: The top level of the order form: form field, label, and the sub-type tuples
+#: that belong under it. Used both when an order is placed and when the board
+#: edits one, so the two always agree on what a stored item looks like.
+CATERING_ITEM_GROUPS = (
+    ("numberOfCoffee", "kaffe", None),
+    ("numberOfTea", "te", None),
+    ("numberOfSoda", "läsk/vatten", None),
+    ("numberOfKlagg", "klägg", None),
+    ("numberOfJochen", "Jochen", "JOCHEN_TYPES"),
+    ("numberOfMinijochen", "Mini Jochen", "MINI_JOCHEN_TYPES"),
+    ("numberOfPastasalad", "pastasallad", "PASTA_SALAD_TYPES"),
+)
+
+
+def _catering_items(form):
+    """Build the stored snapshot of ordered goods from a validated OrderForm.
+
+    Each entry keeps the form field it came from, so the snapshot can be loaded
+    back into the form when the board edits the order.
+    """
+    items = []
+    for field, label, sub_types_attr in CATERING_ITEM_GROUPS:
+        items.append(
+            {
+                "field": field,
+                "label": label,
+                "count": form.cleaned_data.get(field) or 0,
+                "group": None,
+            }
+        )
+        sub_types = getattr(form, sub_types_attr, ()) if sub_types_attr else ()
+        for sub_field, sub_label in sub_types:
+            form_field = "numberOf%s" % sub_field.title()
+            items.append(
+                {
+                    "field": form_field,
+                    "label": sub_label,
+                    "count": form.cleaned_data.get(form_field) or 0,
+                    "group": label,
+                }
+            )
+    return items
+
+
+def _apply_order_form(order, form):
+    """Copy a validated OrderForm onto a CateringOrder and save it."""
+    data = form.cleaned_data
+    order.orderer = data["orderer"]
+    order.orderer_email = data["ordererEmail"]
+    order.orderer_phone = data["phoneNumber"]
+    order.association = data["association"]
+    order.org_number = data.get("org") or ""
+    order.pickup_name = data.get("pickupName") or ""
+    order.pickup_email = data.get("pickupEmail") or ""
+    order.pickup_phone = data.get("pickupNumber") or ""
+    order.date = data["date"]
+    order.pickup = int(data["pickup"])
+    order.other = data.get("other") or ""
+    order.displayed_sum = data.get("orderSum") or ""
+    order.items = _catering_items(form)
+    order.save()
+    # Edits move the event when the order already has one, and do nothing
+    # otherwise.
+    order.sync_calendar()
+    return order
+
+
+def _order_form_initial(order):
+    """Turn a stored CateringOrder back into OrderForm initial data."""
+    initial = {
+        "orderer": order.orderer,
+        "ordererEmail": order.orderer_email,
+        "phoneNumber": order.orderer_phone,
+        "association": order.association,
+        "org": order.org_number,
+        "pickupName": order.pickup_name,
+        "pickupEmail": order.pickup_email,
+        "pickupNumber": order.pickup_phone,
+        "date": order.date,
+        "pickup": str(order.pickup),
+        "other": order.other,
+        "orderSum": order.displayed_sum,
+    }
+    for item in order.items:
+        if item.get("count"):
+            initial[item["field"]] = item["count"]
+    return initial
+
+
 def orderFromUs(request):
     if request.method == "POST":
         form = OrderForm(request.POST)
@@ -216,7 +306,6 @@ def orderFromUs(request):
         if form.is_valid():
             orderer = form.cleaned_data["orderer"]
             ordererEmail = form.cleaned_data["ordererEmail"]
-            phoneNumber = form.cleaned_data["phoneNumber"]
             association = form.cleaned_data["association"]
             # org = form.cleaned_data["org"]  # FIXME: Can this be removed?
             numberOfCoffee = form.cleaned_data["numberOfCoffee"]
@@ -226,9 +315,7 @@ def orderFromUs(request):
             numberOfJochen = form.cleaned_data["numberOfJochen"]
             numberOfMinijochen = form.cleaned_data["numberOfMinijochen"]
             numberOfPastasalad = form.cleaned_data["numberOfPastasalad"]
-            pickup = form.cleaned_data["pickup"]
             date = form.cleaned_data["date"]
-            other = form.cleaned_data["other"]
 
             def extend_sub_types(sub_types):
                 return [
@@ -258,72 +345,61 @@ def orderFromUs(request):
                 ),
             )
 
-            uid = uuid.uuid4()
+            order = _apply_order_form(models.CateringOrder(), form)
 
-            email_subject = f"[Beställning {date.strftime('%Y-%m-%d')} | {orderer} - {association} | #{str(uid).split('-')[0]}]"
+            email_subject = f"[Beställning {date.strftime('%Y-%m-%d')} | {orderer} - {association} | #{order.pk}]"
             calendar_subject = (
                 f"[Beställning {date.strftime('%Y-%m-%d')} | {orderer} - {association}]"
             )
             from_email = f"Baljan <{settings.DEFAULT_FROM_EMAIL}>"
-            to = "bestallning@baljan.org"
+            to = settings.CATERING_EMAIL
 
             html_content = render_to_string(
                 "baljan/email/order.html",
                 {
                     "data": form.cleaned_data,
                     "order_fields": order_fields,
+                    # The row is already saved, so the board can be handed the
+                    # link to it instead of having to look the order up.
+                    "order": order,
                 },
             )
 
+            # The id is generated here rather than left to Django, which makes
+            # one up inside send() and throws it away. Without it on hand there
+            # is nothing for the decision mail to answer.
+            message_id = make_msgid(domain="baljan.org")
+
             msg = EmailMultiAlternatives(
-                email_subject, "", from_email, [to], headers={"Reply-To": ordererEmail}
+                email_subject,
+                "",
+                from_email,
+                [to],
+                headers={"Reply-To": ordererEmail, "Message-ID": message_id},
             )
 
-            msg.attach_alternative(html_content.encode("utf-8"), "text/html")
+            msg.attach_alternative(html_content, "text/html")
 
-            description_lines = (
-                [
-                    f"Namn: {orderer}",
-                    f"Telefon: {phoneNumber}",
-                    f"Email: {ordererEmail}",
-                    "",
-                ]
-                + [f"Antal {name}: {count}" for name, count, _ in order_fields if count]
-                + ["", f"Övrigt info och allergier: {other}"]
-                + ["", "Mer detaljerad information hittas i mailet."]
+            msg.attach(
+                "event.ics",
+                ical.for_catering_order(order, summary=calendar_subject),
+                "text/calendar",
             )
-            calendar_description = "\n".join(description_lines)
-
-            start, end = time(0, 0), time(0, 0)
-            if pickup == "1":  # Morgon
-                start, end = time(7, 30), time(8, 0)
-            if pickup == "2":  # Lunch
-                start, end = time(12, 15), time(13, 0)
-            if pickup == "3":  # Eftermiddag
-                start, end = time(16, 15), time(17, 0)
-
-            tz = pytz.timezone(settings.TIME_ZONE)
-
-            cal = Calendar()
-            cal.add("prodid", "-//Baljan Cafesys//baljan.org//")
-            cal.add("version", "2.0")
-            cal.add("calscale", "GREGORIAN")
-            cal.add("method", "REQUEST")
-
-            event = Event()
-            event.add("summary", calendar_subject)
-            event.add("dtstart", datetime.combine(date, start, tz))
-            event.add("dtend", datetime.combine(date, end, tz))
-            event.add("dtstamp", datetime.now(tz))
-            event.add("uid", f"{uid}@baljan.org")
-            event.add("description", calendar_description)
-            event.add("location", "Baljan")
-            event.add("status", "CONFIRMED")
-
-            cal.add_component(event)
-
-            msg.attach("event.ics", cal.to_ical(), "text/calendar")
             msg.send()
+
+            # Only once it has left: a thread we could not start is not one the
+            # decision should claim to answer.
+            order.board_message_id = message_id
+            order.board_subject = email_subject
+            order.save(
+                update_fields=["board_message_id", "board_subject", "updated_at"]
+            )
+
+            # After the board's mail, not before: if that one fails the visitor
+            # gets an error page, and promising "we have your order" while the
+            # board never heard about it is worse than staying quiet.
+            order.notify_receipt()
+
             messages.add_message(
                 request,
                 messages.SUCCESS,
@@ -338,6 +414,8 @@ def orderFromUs(request):
         "baljan/orderForm.html",
         {
             "form": form,
+            "thermos_sizes": models.THERMOS_SIZES,
+            "prices": models.CATERING_PRICES,
         },
     )
 
@@ -539,6 +617,766 @@ class OrderListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
         return super().get_queryset().filter(user_id=user.id).order_by("-put_at")
+
+
+#: The board's four views on the same table. Slugs, not indices, so a
+#: bookmarked link keeps meaning what it meant.
+CATERING_TAB_TODO = "att-behandla"
+CATERING_TAB_WEEK = "denna-vecka"
+CATERING_TAB_UPCOMING = "kommande"
+CATERING_TAB_HISTORY = "historik"
+
+CATERING_TABS = (
+    (CATERING_TAB_TODO, "Att behandla"),
+    (CATERING_TAB_WEEK, "Denna vecka"),
+    (CATERING_TAB_UPCOMING, "Kommande"),
+    (CATERING_TAB_HISTORY, "Historik"),
+)
+DEFAULT_CATERING_TAB = CATERING_TAB_TODO
+
+#: Statuses with nothing left to do. They drop straight to Historik whatever
+#: their date says, because nobody is going to make them.
+CATERING_DEAD_STATUSES = (
+    models.CateringOrder.Status.DENIED,
+    models.CateringOrder.Status.CANCELLED,
+)
+
+#: "Denna vecka" is the next seven days rather than the calendar week, which
+#: would shrink to a single day every Sunday.
+CATERING_WEEK_DAYS = 7
+
+#: How many undecided orders the overview shows before linking to the tab.
+CATERING_NEW_SHOWN = 5
+
+
+def catering_today_orders(today):
+    """Orders picked up today that are still going ahead."""
+    return (
+        models.CateringOrder.objects.filter(date=today)
+        .exclude(status__in=CATERING_DEAD_STATUSES)
+        .select_related("handout")
+        .order_by("pickup", "made")
+    )
+
+
+CATERING_TAB_ORDERING = {
+    # Ascending, so an order whose date has already passed and which nobody
+    # ever answered sits at the very top where it belongs.
+    CATERING_TAB_TODO: ("date", "pickup", "made"),
+    CATERING_TAB_WEEK: ("date", "pickup"),
+    CATERING_TAB_UPCOMING: ("date", "pickup"),
+    CATERING_TAB_HISTORY: ("-date", "-pickup", "-made"),
+}
+
+
+def catering_tab_predicates(today):
+    """One Q per tab, all built from the same reference date.
+
+    The tabs deliberately overlap: an undecided order due on Thursday belongs
+    in both "Att behandla" and "Denna vecka", so the four counts do not sum to
+    the total. The first tab is a worklist, the other three are a schedule.
+    """
+    week_end = today + timedelta(days=CATERING_WEEK_DAYS)
+    dead = Q(status__in=CATERING_DEAD_STATUSES)
+    return {
+        # No date window: an undecided order is work whenever it is due.
+        CATERING_TAB_TODO: Q(status=models.CateringOrder.Status.PENDING),
+        CATERING_TAB_WEEK: Q(date__gte=today, date__lt=week_end) & ~dead,
+        CATERING_TAB_UPCOMING: Q(date__gte=week_end) & ~dead,
+        CATERING_TAB_HISTORY: Q(date__lt=today) | dead,
+    }
+
+
+def catering_tab_counts(today):
+    """How many orders each tab holds, in a single query.
+
+    Counted on the whole table and not on the filtered queryset: a badge that
+    moves as you type in the search box stops being a measure of the workload.
+    """
+    predicates = catering_tab_predicates(today)
+    return models.CateringOrder.objects.aggregate(
+        **{
+            _catering_count_key(tab): Count("pk", filter=predicate)
+            for tab, predicate in predicates.items()
+        }
+    )
+
+
+def _catering_count_key(tab):
+    """Slugs carry hyphens; aggregate keyword arguments cannot."""
+    return tab.replace("-", "_")
+
+
+class CateringOrderFilter(django_filters.FilterSet):
+    """The board's filters.
+
+    django-filter renders bare widgets with no classes at all, which leaves the
+    select at its intrinsic width beside its label while the text inputs stretch
+    edge to edge and run together. The widgets are spelled out here so they get
+    the same Bootstrap classes as the rest of the staff pages.
+    """
+
+    status = django_filters.ChoiceFilter(
+        choices=models.CateringOrder.Status.choices,
+        label="Status",
+        empty_label="Alla",
+        widget=django_forms.Select(attrs={"class": "form-select"}),
+    )
+    date__gte = django_filters.DateFilter(
+        field_name="date",
+        lookup_expr="gte",
+        label="Från och med",
+        # type=date gives the native picker, as on the public order form.
+        widget=django_forms.DateInput(
+            attrs={"class": "form-control", "type": "date"}, format="%Y-%m-%d"
+        ),
+    )
+    date__lte = django_filters.DateFilter(
+        field_name="date",
+        lookup_expr="lte",
+        label="Till och med",
+        widget=django_forms.DateInput(
+            attrs={"class": "form-control", "type": "date"}, format="%Y-%m-%d"
+        ),
+    )
+    association = django_filters.CharFilter(
+        lookup_expr="icontains",
+        label="Förening",
+        widget=django_forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Sök förening"}
+        ),
+    )
+
+    class Meta:
+        model = models.CateringOrder
+        fields = []
+
+
+class CateringOrderListView(PermissionRequiredMixin, ListView):
+    """The board's overview of incoming orders."""
+
+    model = models.CateringOrder
+    permission_required = "baljan.manage_catering_orders"
+    context_object_name = "orders"
+    template_name = "baljan/catering_orders.html"
+    paginate_by = 50
+    paginate_orphans = 10
+
+    def get_queryset(self):
+        self.tab = self.request.GET.get("tab") or DEFAULT_CATERING_TAB
+        if self.tab not in dict(CATERING_TABS):
+            # A stale bookmark should land somewhere useful, not on a 404.
+            self.tab = DEFAULT_CATERING_TAB
+        self.today = timezone.localdate()
+
+        queryset = (
+            super()
+            .get_queryset()
+            # The list names who handled each order, and pre-migration rows
+            # answer that from the account rather than the stored name.
+            .select_related("handled_by")
+            .filter(catering_tab_predicates(self.today)[self.tab])
+            .order_by(*CATERING_TAB_ORDERING[self.tab])
+        )
+        self.filterset = CateringOrderFilter(self.request.GET, queryset=queryset)
+        return self.filterset.qs
+
+    def get_context_data(self, **kwargs):
+        tpl = super().get_context_data(**kwargs)
+        tpl["filter"] = self.filterset
+        tpl["tab"] = self.tab
+        counts = catering_tab_counts(self.today)
+        tpl["tabs"] = [
+            {
+                "key": key,
+                "label": label,
+                "count": counts[_catering_count_key(key)],
+                "active": key == self.tab,
+            }
+            for key, label in CATERING_TABS
+        ]
+        tpl["pending_count"] = counts[_catering_count_key(CATERING_TAB_TODO)]
+        tpl["today"] = self.today
+        tpl["today_orders"] = catering_today_orders(self.today)
+        tpl["to_return"] = catering_orders_to_return()
+        tpl["new_orders"] = models.CateringOrder.objects.filter(
+            status=models.CateringOrder.Status.PENDING
+        ).order_by("-made")[:CATERING_NEW_SHOWN]
+        return tpl
+
+
+def _catering_redirect(request, order):
+    """Back to `next` when it is ours, else to the order."""
+    target = request.POST.get("next", "")
+    if url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()}):
+        return HttpResponseRedirect(target)
+    return HttpResponseRedirect(order.get_absolute_url())
+
+
+def _minutes_left(delta):
+    return -(-int(delta.total_seconds()) // 60)
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_order(request, pk):
+    """Show one order, let the board edit it, and decide on it."""
+    order = get_object_or_404(models.CateringOrder, pk=pk)
+    form = forms.OrderForm(initial=_order_form_initial(order))
+    # Unbound, and never given an `initial`: the name must be typed afresh
+    # every time, because the account it would be prefilled from is shared.
+    decision_form = forms.CateringDecisionForm()
+    status_form = forms.CateringStatusForm()
+
+    if request.method == "POST":
+        task = request.POST.get("task", "")
+
+        if task == "save":
+            form = forms.OrderForm(request.POST, enforce_lead_time=False)
+            if form.is_valid():
+                _apply_order_form(order, form)
+                messages.add_message(
+                    request, messages.SUCCESS, "Beställningen uppdaterades."
+                )
+                if order.status == models.CateringOrder.Status.APPROVED:
+                    messages.add_message(
+                        request,
+                        messages.WARNING,
+                        "Beställaren har inte fått veta om ändringen. "
+                        "Skicka ett nytt besked om de behöver veta.",
+                    )
+                return HttpResponseRedirect(order.get_absolute_url())
+            messages.add_message(
+                request,
+                messages.ERROR,
+                "Beställningen kunde inte sparas. Se felen nedan.",
+            )
+
+        elif task == "note":
+            order.staff_note = request.POST.get("staff_note", "")
+            order.save()
+            messages.add_message(request, messages.SUCCESS, "Anteckningen sparades.")
+            return HttpResponseRedirect(order.get_absolute_url())
+
+        elif task in ("approve", "deny"):
+            message = request.POST.get("staff_message", "")
+            decision_form = forms.CateringDecisionForm(request.POST)
+            if decision_form.is_valid():
+                name = decision_form.cleaned_data["handled_by_name"]
+                # Locked so two people deciding at once cannot both mail.
+                with transaction.atomic():
+                    order = models.CateringOrder.objects.select_for_update().get(
+                        pk=order.pk
+                    )
+                    cooldown = order.decision_cooldown_left()
+                    if not order.can_decide:
+                        error = (
+                            "Beställningen är %s och kan inte få ett nytt besked."
+                            % (order.get_status_display().lower())
+                        )
+                    elif cooldown:
+                        error = (
+                            "Ett besked skickades nyss. Vänta %s min innan du "
+                            "skickar ett nytt." % _minutes_left(cooldown)
+                        )
+                    else:
+                        error = None
+                        if task == "approve":
+                            order.approve(
+                                user=request.user, handled_by_name=name, message=message
+                            )
+                            text = "Beställningen godkändes. Beställaren får ett mail."
+                        else:
+                            order.deny(
+                                user=request.user, handled_by_name=name, message=message
+                            )
+                            text = "Beställningen nekades. Beställaren får ett mail."
+                if error is None:
+                    messages.add_message(request, messages.SUCCESS, text)
+                    return HttpResponseRedirect(order.get_absolute_url())
+                messages.add_message(request, messages.ERROR, error)
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "Skriv ditt namn innan du godkänner eller nekar.",
+                )
+            # Nothing decided and no mail sent. The typed message is put back
+            # on the instance, unsaved, so the page renders it again instead
+            # of making the board write it a second time.
+            order.staff_message = message
+
+        elif task == "status":
+            status = request.POST.get("status", "")
+            valid = {choice for choice, _label in models.CateringOrder.Status.choices}
+            # Checked before the name: an unknown status is a tampered
+            # request, a missing name is an ordinary mistake.
+            if status not in valid:
+                raise BadRequest("unknown status")
+            status_form = forms.CateringStatusForm(request.POST)
+            if status_form.is_valid():
+                with transaction.atomic():
+                    order = models.CateringOrder.objects.select_for_update().get(
+                        pk=order.pk
+                    )
+                    # A stale page, not tampering: someone else got there first.
+                    allowed = status in order.allowed_statuses()
+                    if allowed:
+                        # Only the approve/deny step mails the orderer; the
+                        # later bookkeeping states are internal.
+                        order.set_status(
+                            status,
+                            user=request.user,
+                            handled_by_name=status_form.cleaned_data["handled_by_name"],
+                        )
+                if allowed:
+                    messages.add_message(
+                        request, messages.SUCCESS, "Statusen uppdaterades."
+                    )
+                    return _catering_redirect(request, order)
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "Beställningen är %s och kan inte bli %s."
+                    % (
+                        order.get_status_display().lower(),
+                        models.CateringOrder.Status(status).label.lower(),
+                    ),
+                )
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    "Skriv ditt namn innan du ändrar statusen.",
+                )
+
+        else:
+            raise BadRequest("unknown task")
+
+    cooldown = order.decision_cooldown_left()
+    return render(
+        request,
+        "baljan/catering_order.html",
+        {
+            "order": order,
+            "form": form,
+            "decision_form": decision_form,
+            "status_form": status_form,
+            "statuses": [
+                (s, models.CateringOrder.Status(s).label)
+                for s in order.allowed_statuses()
+            ],
+            "cooldown_minutes": _minutes_left(cooldown) if cooldown else None,
+        },
+    )
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_today(request):
+    """Today's pickups for the person on jour, one section per pickup window."""
+    today = timezone.localdate()
+    orders = catering_today_orders(today)
+    pending = [o for o in orders if o.is_pending]
+    windows = [
+        {
+            "label": label,
+            "orders": [o for o in orders if o.pickup == key and not o.is_pending],
+        }
+        for key, label in models.CateringOrder.PICKUP_CHOICES
+    ]
+    return render(
+        request,
+        "baljan/catering_today.html",
+        {
+            "today": today,
+            "windows": windows,
+            "pending": pending,
+            "has_orders": any(w["orders"] for w in windows),
+            "to_return": catering_orders_to_return(),
+        },
+    )
+
+
+def catering_orders_to_return():
+    """Handed-out orders waiting for thermoses and jochen boxes to come back."""
+    return (
+        models.CateringOrder.objects.filter(
+            status=models.CateringOrder.Status.DELIVERED
+        )
+        .select_related("handout")
+        .order_by("date", "pickup")
+    )
+
+
+def _mark_returned_if_done(order, handout, user, name):
+    """Move a delivered order on once nothing lent is still out."""
+    if order.status == models.CateringOrder.Status.DELIVERED and handout.is_returned:
+        order.set_status(
+            models.CateringOrder.Status.RETURNED, user=user, handled_by_name=name
+        )
+
+
+def _handout_initial(order):
+    """A new invoice basis, filled in from what was ordered."""
+    lines = [
+        {"label": label, "count": order.item_count(field), "unit_price": price}
+        for field, label, price in models.CATERING_PRODUCTS
+    ]
+    thermoses = [
+        {
+            "size": "large" if size >= models.LARGE_THERMOS_CUPS else "small",
+            "name": "",
+        }
+        for plan in order.thermos_plan()
+        for size, count in plan["thermoses"]
+        for _ in range(count)
+    ]
+    handout = models.CateringHandout(
+        order=order,
+        picked_up_by=order.pickup_name or order.orderer,
+        picked_up_phone=order.pickup_phone or order.orderer_phone,
+        return_by=order.return_by,
+        # Blank rather than 0, so a forgotten count is caught, not recorded.
+        jochen_boxes_out=None,
+    )
+    return handout, lines, thermoses
+
+
+def _formset_rows(formset, keep):
+    """Cleaned rows of a valid formset, skipping blanks and rows `keep` drops."""
+    return [row for row in formset.cleaned_data if row and keep(row)]
+
+
+def _can_hand_out(order):
+    return order.status in (
+        models.CateringOrder.Status.APPROVED,
+        models.CateringOrder.Status.DELIVERED,
+    )
+
+
+def _refuse_handout(request, order):
+    messages.add_message(
+        request,
+        messages.ERROR,
+        "Beställningen är %s och kan inte lämnas ut."
+        % order.get_status_display().lower(),
+    )
+    return HttpResponseRedirect(order.get_absolute_url())
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_handout(request, pk):
+    """Write the invoice basis and hand the order out."""
+    order = get_object_or_404(models.CateringOrder, pk=pk)
+    if not _can_hand_out(order):
+        return _refuse_handout(request, order)
+
+    handout = getattr(order, "handout", None)
+    if handout is None:
+        handout, lines, thermoses = _handout_initial(order)
+    else:
+        lines, thermoses = handout.lines, handout.thermoses
+
+    data = request.POST if request.method == "POST" else None
+    form = forms.CateringHandoutForm(
+        data, instance=handout, boxes_required=bool(order.extra_order_items())
+    )
+    line_formset = forms.CateringLineFormSet(data, initial=lines, prefix="lines")
+    thermos_formset = forms.CateringThermosFormSet(
+        data, initial=thermoses, prefix="thermoses"
+    )
+
+    if data is not None:
+        if form.is_valid() and line_formset.is_valid() and thermos_formset.is_valid():
+            with transaction.atomic():
+                order = models.CateringOrder.objects.select_for_update().get(pk=pk)
+                if not _can_hand_out(order):
+                    return _refuse_handout(request, order)
+                # Two people on the same order: the second must not insert a
+                # second basis and trip the unique constraint.
+                if handout.pk is None and hasattr(order, "handout"):
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        "Någon annan fyllde nyss i underlaget. Kontrollera det här.",
+                    )
+                    return HttpResponseRedirect(request.path)
+                handout = form.save(commit=False)
+                handout.order = order
+                handout.lines = _formset_rows(line_formset, lambda r: r["count"])
+                handout.thermoses = _formset_rows(thermos_formset, lambda r: r["size"])
+                handout.save()
+                if order.status == models.CateringOrder.Status.APPROVED:
+                    order.set_status(
+                        models.CateringOrder.Status.DELIVERED,
+                        user=request.user,
+                        handled_by_name=handout.handed_out_by,
+                    )
+                # Nothing lent means nothing to wait for.
+                _mark_returned_if_done(
+                    order, handout, request.user, handout.handed_out_by
+                )
+            messages.add_message(
+                request, messages.SUCCESS, "Fakturaunderlaget sparades."
+            )
+            return _catering_redirect(request, order)
+        messages.add_message(
+            request, messages.ERROR, "Underlaget kunde inte sparas. Se felen nedan."
+        )
+
+    return render(
+        request,
+        "baljan/catering_handout.html",
+        {
+            "order": order,
+            "form": form,
+            "line_formset": line_formset,
+            "thermos_formset": thermos_formset,
+            "next": request.GET.get("next") or request.POST.get("next", ""),
+        },
+    )
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_return(request, pk):
+    """Record thermoses and jochen boxes coming back."""
+    handout = get_object_or_404(
+        models.CateringHandout.objects.select_related("order"), order__pk=pk
+    )
+    data = request.POST if request.method == "POST" else None
+    form = forms.CateringReturnForm(data, instance=handout)
+    thermos_formset = forms.CateringThermosReturnFormSet(
+        data, initial=handout.thermoses, prefix="thermoses"
+    )
+
+    if data is not None:
+        if form.is_valid() and thermos_formset.is_valid():
+            with transaction.atomic():
+                order = models.CateringOrder.objects.select_for_update().get(pk=pk)
+                handout = form.save(commit=False)
+                handout.thermoses = _formset_rows(thermos_formset, lambda r: r["size"])
+                handout.save()
+                _mark_returned_if_done(
+                    order, handout, request.user, form.cleaned_data["handled_by_name"]
+                )
+            messages.add_message(request, messages.SUCCESS, "Återlämningen sparades.")
+            return _catering_redirect(request, handout.order)
+        messages.add_message(
+            request, messages.ERROR, "Återlämningen kunde inte sparas. Se felen nedan."
+        )
+
+    return render(
+        request,
+        "baljan/catering_return.html",
+        {
+            "order": handout.order,
+            "form": form,
+            "thermos_formset": thermos_formset,
+            "next": request.GET.get("next") or request.POST.get("next", ""),
+        },
+    )
+
+
+@require_POST
+@permission_required("baljan.manage_catering_orders")
+def catering_return_all(request, pk):
+    """Everything back in one click, from the lists of what is still out."""
+    order = get_object_or_404(models.CateringOrder, pk=pk)
+    form = forms.CateringStatusForm(request.POST)
+    if not form.is_valid():
+        messages.add_message(
+            request, messages.ERROR, "Skriv ditt namn innan du registrerar."
+        )
+        return _catering_redirect(request, order)
+
+    name = form.cleaned_data["handled_by_name"]
+    with transaction.atomic():
+        order = models.CateringOrder.objects.select_for_update().get(pk=pk)
+        done = order.status == models.CateringOrder.Status.DELIVERED
+        if done:
+            handout = getattr(order, "handout", None)
+            if handout is not None:
+                handout.return_everything(name, timezone.localdate())
+            order.set_status(
+                models.CateringOrder.Status.RETURNED,
+                user=request.user,
+                handled_by_name=name,
+            )
+    if done:
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "Beställning #%s från %s är återlämnad." % (order.pk, order.association),
+        )
+    else:
+        # A stale page: someone else got there first.
+        messages.add_message(
+            request,
+            messages.INFO,
+            "Beställning #%s är redan %s."
+            % (order.pk, order.get_status_display().lower()),
+        )
+    return _catering_redirect(request, order)
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_invoicing(request):
+    """Handed-out orders still to invoice, for the vice chair."""
+    today = timezone.localdate()
+    status = models.CateringOrder.Status
+    orders = (
+        models.CateringOrder.objects.filter(
+            Q(status__in=(status.DELIVERED, status.RETURNED))
+            | Q(status=status.APPROVED, date__lt=today)
+        )
+        .select_related("handout")
+        .order_by("date", "pickup")
+    )
+    return render(
+        request,
+        "baljan/catering_invoicing.html",
+        {"orders": orders},
+    )
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_invoice_basis(request, pk):
+    """The invoice basis laid out like the paper form, for reading and printing."""
+    handout = get_object_or_404(
+        models.CateringHandout.objects.select_related("order"), order__pk=pk
+    )
+    return render(
+        request,
+        "baljan/catering_invoice_basis.html",
+        {
+            "order": handout.order,
+            "handout": handout,
+            "lines": handout.line_rows(),
+        },
+    )
+
+
+def _add_extra_lines(totals, lines):
+    """Sum extra-order lines into `totals`, keyed by field, children included."""
+    for line in lines:
+        entry = totals.setdefault(
+            line["field"],
+            {
+                "field": line["field"],
+                "label": line["label"],
+                "count": 0,
+                "children": {},
+            },
+        )
+        entry["count"] += line["count"]
+        for child in line["children"]:
+            sub = entry["children"].setdefault(
+                child["field"], {"label": child["label"], "count": 0}
+            )
+            sub["count"] += child["count"]
+
+
+def _extra_totals_list(totals):
+    return [
+        {**entry, "children": list(entry["children"].values())}
+        for entry in totals.values()
+    ]
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_extra_order(request):
+    """What to put in the Smörgåsfiket order for one pickup week."""
+    try:
+        start = date.fromisoformat(request.GET.get("vecka", ""))
+    except ValueError:
+        start = models.earliest_supplier_order_date()
+    start -= timedelta(days=start.weekday())
+    end = start + timedelta(days=7)
+
+    deadline_day = start - timedelta(days=7 - models.SUPPLIER_ORDER_WEEKDAY)
+    deadline = timezone.make_aware(
+        datetime.combine(deadline_day, models.SUPPLIER_ORDER_TIME)
+    )
+
+    orders = (
+        models.CateringOrder.objects.filter(date__gte=start, date__lt=end)
+        .exclude(status__in=CATERING_DEAD_STATUSES)
+        .order_by("date", "pickup", "made")
+    )
+
+    days = {}
+    week_totals = {}
+    pending = []
+    for order in orders:
+        lines = order.extra_order_lines()
+        if not lines:
+            continue
+        if order.is_pending:
+            pending.append({"order": order, "lines": lines})
+            continue
+        day = days.setdefault(
+            order.date, {"date": order.date, "orders": [], "totals": {}}
+        )
+        day["orders"].append({"order": order, "lines": lines})
+        _add_extra_lines(day["totals"], lines)
+        _add_extra_lines(week_totals, lines)
+
+    for day in days.values():
+        day["totals"] = _extra_totals_list(day["totals"])
+
+    return render(
+        request,
+        "baljan/catering_extra_order.html",
+        {
+            "start": start,
+            "end": end - timedelta(days=1),
+            "week": year_and_week(start)[1],
+            "deadline": deadline,
+            "deadline_passed": timezone.now() > deadline,
+            "days": list(days.values()),
+            "week_totals": _extra_totals_list(week_totals),
+            "pending": pending,
+            "previous_week": start - timedelta(days=7),
+            "next_week": end,
+        },
+    )
+
+
+def _order_by_token(token):
+    return get_object_or_404(models.CateringOrder, access_token=token)
+
+
+@never_cache
+def catering_order_status(request, token):
+    """The orderer's own view of their order, reached from the link we mailed.
+
+    Deliberately open: the token in the URL is the credential. Nothing here is
+    for the board, so `staff_note`, `handled_by` and the mail history stay out
+    of the template.
+    """
+    order = _order_by_token(token)
+    response = render(
+        request,
+        "baljan/catering_order_status.html",
+        {"order": order, "CATERING_EMAIL": settings.CATERING_EMAIL},
+    )
+    # A forwarded link should not end up in a search index, and the token must
+    # not ride along in the Referer when someone clicks a link on the page.
+    response["X-Robots-Tag"] = "noindex, nofollow"
+    response["Referrer-Policy"] = "no-referrer"
+    return response
+
+
+@never_cache
+def catering_order_calendar(request, token):
+    order = _order_by_token(token)
+    response = HttpResponse(
+        ical.for_catering_order(order), content_type="text/calendar"
+    )
+    response["Content-Disposition"] = (
+        'attachment; filename="bestallning-%s.ics"' % order.pk
+    )
+    response["X-Robots-Tag"] = "noindex, nofollow"
+    return response
 
 
 @login_required

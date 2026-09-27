@@ -238,6 +238,8 @@ CORS_ALLOW_CREDENTIALS = True
 EMAIL_CONFIRMATION_DAYS = 2
 EMAIL_DEBUG = True
 CONTACT_EMAIL = "styrelsen@baljan.org"
+# Where catering orders land, and where the decision answers in the same thread.
+CATERING_EMAIL = "bestallning@baljan.org"
 ADMIN_EMAIL = "1337@baljan.org"
 CONTACT_PHONE = "0766860043"
 USER_EMAIL_DOMAIN = "student.liu.se"
@@ -315,6 +317,12 @@ GOOGLE_CLIENT_EMAIL = env.str("GOOGLE_CLIENT_EMAIL", default="")
 GOOGLE_TOKEN_URI = env.str("GOOGLE_TOKEN_URI", default="")
 GOOGLE_PUBSUB_TOPIC = env.str("GOOGLE_PUBSUB_TOPIC", default="")
 GOOGLE_CACHE_KEY = "google_watch_config"
+
+# The calendar approved catering orders are written to. Empty switches the
+# whole sync off, which is what dev and the tests run with: nothing reaches
+# Google until this is set. The calendar has to be shared with
+# GOOGLE_CLIENT_EMAIL, with "make changes to events".
+GOOGLE_CALENDAR_ID = env.str("GOOGLE_CALENDAR_ID", default="")
 
 GOOGLE_SERVICE_ACCOUNT_INFO = {
     "project_id": GOOGLE_PROJECT_ID,

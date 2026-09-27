@@ -44,19 +44,6 @@ function calcGroupAmnt(groupName) {
     return groupAmnt;
 }
 
-function getWeekNumber(date) {
-    var d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    // Set to nearest Thursday: current date + 4 - current day number
-    // Make Sunday's day number 7
-    d.setDate(d.getDate() + 4 - (d.getDay()||7));
-    // Get first day of year
-    var yearStart = new Date(d.getFullYear(),0,1);
-    // Calculate full weeks to nearest Thursday
-    var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
-    return weekNo;
-}
-
 function disablePickupFields(disable) {
     var pickupName = $('#id_pickupName');
     var pickupEmail = $('#id_pickupEmail');
@@ -85,21 +72,69 @@ function changeLimit(name, limit, error_msg){
         }
 }
 
+// Deadline for jochen and pasta salad comes from the server.
 function validDate(){
-    var selectedDate = new Date($("#id_date").val());
-    var now = new Date();
-        
-    var selectedWeek = getWeekNumber(selectedDate);
-    var currentWeek = getWeekNumber(now);
-    
-    var nextWeek = currentWeek + 1; 
-    var nextWeekInvalid = (selectedWeek == nextWeek && (now.getDay() > 4 || now.getDay() == 0));
+    var field = $("#id_date");
+    var selected = field.val();
+    var earliest = field.attr("data-earliest-food-date");
 
-    if (selectedWeek == currentWeek || nextWeekInvalid) {
-        return false
-    }else {
-        return true
-    } 
+    if (!selected || !earliest) {
+        return false;
+    }
+    return selected >= earliest;
+}
+
+// Greys out a product; returns true if anything was cleared.
+function setAvailable(name, available){
+    var cleared = !available && $('#id_numberOf' + name).val() != "";
+
+    $('#' + name).toggleClass('text-muted', !available)
+        .find('input, button').prop('disabled', !available);
+    if (!available) {
+        clearWindowField(name);
+    }
+    return cleared;
+}
+
+function tooManyJochenForPickup(){
+    var pickup = $('#id_pickup').val();
+    return (pickup == 2 || pickup == 3) && parseInt($('#id_numberOfJochen').val()) > 100;
+}
+
+// Clears jochen if there are too many for the chosen pickup; returns true if it did.
+function dropExcessJochen(){
+    var drop = tooManyJochenForPickup();
+    if (drop) {
+        clearWindowField('Jochen');
+    }
+    return drop;
+}
+
+function updateFoodAvailability(droppedJochen){
+    var earliest = $("#id_date").attr("data-earliest-food-date");
+    var tooLate = $("#id_date").val() && !validDate();
+    var pickup = $('#id_pickup').val();
+    var morningOnly = pickup == 2 || pickup == 3;
+
+    var note = "";
+    if (tooLate) {
+        var parts = earliest.split("-");
+        var day = new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString(
+            "sv-SE", {weekday: "long", day: "numeric", month: "long"});
+        note = "Om du vill beställa Jochen och/eller pastasallad måste det beställas senast onsdag 16:15 veckan innan. Välj " + day + " eller senare.";
+    } else if (morningOnly) {
+        note = "Om du vill beställa pastasallad och/eller fler än 100 jochen måste det hämtas på morgonen (07:30-08:00), då vi inte kan förvara dessa i våra kylar. Vänligen välj morgon som tid för upphämtning om du vill beställa dessa produkter.";
+    }
+
+    var cleared = setAvailable('Jochen', !tooLate) || !!droppedJochen;
+    cleared = setAvailable('Minijochen', !tooLate) || cleared;
+    cleared = setAvailable('Pastasalad', !tooLate && !morningOnly) || cleared;
+    if (cleared) {
+        note += " Det du hade fyllt i har tagits bort.";
+    }
+    $('#food_note').prop('hidden', !note).find('span').text(note);
+    $('#Jochen_error').html(tooManyJochenForPickup()
+        ? "<p class='text-danger mb-0'>Fler än 100 jochen måste hämtas på morgonen (07:30-08:00). Stänger du rutan tas jochen bort.</p>" : "");
 }
 
 function clearWindowField(name){
@@ -165,6 +200,7 @@ $(function () {
         $(subItemClass).on("input", function() {
             let groupAmnt = calcGroupAmnt(groupId);
             groupSumElem.text(groupAmnt*groupCost);
+            updateFoodAvailability();
         });
     });
 
@@ -190,87 +226,26 @@ $(function () {
 
         }else if(value == 1){
             changeLimit('id_numberOfCoffee', 45,'Det går inte beställa mer än 45 koppar kaffe till ' + $('#id_pickup option:selected').text()+ '.');
-            if(validDate()){
-                $('#Pastasalad').show();
-            }else{
-                $('#Pastasalad').hide();
-                clearWindowField('Pastasalad');
-            }
 
         }else if(value == 2){
             changeLimit('id_numberOfCoffee', 90,'Det går inte beställa mer än 90 koppar kaffe till ' + $('#id_pickup option:selected').text()+'.');
-
-            $('#Pastasalad').hide();
-            clearWindowField('Pastasalad');
-            
-            if($('#id_numberOfJochen').val() > 100){
-                clearWindowField('Jochen')
-                var error_msg = "Det går inte beställa mer än 100st jochen till " + $('#id_pickup option:selected').text()+ ".";
-                setErrorMsg(error_msg, "order_error");
-            }
         }else if(value == 3){
             changeLimit('id_numberOfCoffee', 135,'Det går inte beställa mer än 135 koppar kaffe till ' + $('#id_pickup option:selected').text()+ '.');
-            
-            $('#Pastasalad').hide();
-            clearWindowField('Pastasalad');
+        }
+        updateFoodAvailability(dropExcessJochen());
+    });
 
-            if($('#id_numberOfJochen').val() > 100){
-                clearWindowField('Jochen')
-                var error_msg = "Det går inte beställa mer än 100st jochen till " + $('#id_pickup option:selected').text()+ ".";
-                setErrorMsg(error_msg, "order_error");
-            }
+    $('#JochenModal').on('hidden.bs.modal', function() {
+        if (dropExcessJochen()) {
+            updateFoodAvailability(true);
         }
     });
 
-    // Sets max limit on Jochen for afternoon and evening
-    const inputs = $('#JochenModal').find("input[type='number']");
-    const buttons = $('#JochenModal').find("button");
-    var value = $('#id_pickup').val();
-    const amount = 100;
-    
-    inputs.on("input", function() {
-        if($('#id_pickup').val()== 2 || $('#id_pickup').val() == 3){
-            let sum = 0;
-            inputs.each(function() {
-                sum += parseInt($(this).val()) || 0; 
-            });
-            if(sum > amount){
-                buttons.prop("disabled", true);
-                var error_msg = "Det går inte beställa mer än 100st jochen till " + $('#id_pickup option:selected').text()+ ".";
-                $("#Jochen_error").html("<p class='text-danger'>" + error_msg + "</p>");
-            } else {
-                buttons.prop("disabled", false);
-                $("#Jochen_error").html("");
-            }
-        }
+    $('#id_date').on("change", function() {
+        $("#order_error").html("");
+        updateFoodAvailability();
     });
-
-    //disable booking food such as sallad and jochen for same week or next week if after thursday
-    $('#id_date').on("change", function() { 
-        if(validDate()){
-            if($('#id_pickup').val() == 1){
-                $('#Pastasalad').show();
-            }else{
-                $('#Pastasalad').hide();
-                clearWindowField('Pastasalad');
-            }
-            $("#Jochen").show();
-            $('#Minijochen').show();
-            $("#order_error").html("");
-        }else{
-            $('#Pastasalad').hide();
-            $('#Jochen').hide();
-            $('#Minijochen').hide();
-            
-            if($('#id_numberOfPastasalad').val() != "" || $('#id_numberOfJochen').val() != "" || $('#id_numberOfMinijochen').val() != ""){
-                var error_msg = "Orderdatumet är för nära inpå för att kunna beställa pastasallad, jochen eller minijochen.";
-                setErrorMsg(error_msg, "order_error")
-                clearWindowField('Jochen');
-                clearWindowField('Minijochen');
-                clearWindowField('Pastasalad');
-            }
-        }
-    });
+    updateFoodAvailability();
 
     $("form").on("submit", function() {
         window.onbeforeunload = null;

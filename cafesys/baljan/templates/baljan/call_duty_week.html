@@ -61,28 +61,30 @@
                     </thead>
                     <tbody id="shuffle-table-body"></tbody>
                 </table>
-                <div class="row mb-2 ml-1">
+                <div class="row mb-2 justify-content-center">
                     <div class="form-check col-auto">
                         <input type="checkbox" class="form-check-input" id="shufflePreferWholeDays" />
                         <label class="form-check-label" for="shufflePreferWholeDays">Föredra heldagar</label>
                     </div>
-                    <div class="from-check col-auto ml-1">
+                    <div class="form-check col-auto ms-1">
                         <input type="checkbox" class="form-check-input" id="shufflePreferOneCafe" disabled />
                         <label class="form-check-label" for="shufflePreferOneCafe">Föredra ett café under dagen</label>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-9">
-                        <div class="card my-1">
-                                <div class="shuffle-drop card-body py-3">
-                                    Släpp här
-                                </div>
-                        </div>
-                    </div>
-                    <div class="col-3 my-auto">
-                        <button class="btn btn-primary my-auto" id="random-shifts">Slumpa</button>
+                <div class="card my-1">
+                    <div class="shuffle-drop card-body py-3">
+                        Släpp här
                     </div>
                 </div>
+                <div class="row gx-2 mt-2">
+                    <div class="col-6">
+                        <button class="btn btn-primary w-100" id="random-shifts">Slumpa</button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-secondary w-100" id="clear-shifts">Rensa schema</button>
+                    </div>
+                </div>
+                <div class="text-danger small mt-1" id="shuffle-error"></div>
             </div>
         </div>
         <div>
@@ -118,9 +120,72 @@
     }
     availUsers.html(names.join(', '));
 
+    /* Alla pass-rutor som faktiskt finns både i veckan och i DOM:en. */
+    var onCallKeys = Object.keys(ON_CALL).sort();
+    var openCellIds = onCallKeys.filter(function(id) { return $('#' + id).length > 0; });
+
+    /* Vilka initialer slumpen har placerat i vilken ruta. Manuellt indragna
+     * personer och de som redan låg sparade hamnar aldrig här, vilket är
+     * precis vad "Rensa schema" ska gå på. */
+    var shufflePlaced = {};
+
+    function markUnsaved() {
+        if (window.onbeforeunload === null) {
+            window.onbeforeunload = function() {
+                return "";
+            }
+        }
+    }
+
+    function markShufflePlaced(cellId, initials) {
+        if (!shufflePlaced[cellId]) {
+            shufflePlaced[cellId] = [];
+        }
+        if (shufflePlaced[cellId].indexOf(initials) === -1) {
+            shufflePlaced[cellId].push(initials);
+        }
+    }
+
+    function unmarkShufflePlaced(cellId, initials) {
+        if (!shufflePlaced[cellId]) {
+            return;
+        }
+        shufflePlaced[cellId] = shufflePlaced[cellId].filter(e => e !== initials);
+        if (shufflePlaced[cellId].length === 0) {
+            delete shufflePlaced[cellId];
+        }
+    }
+
+    function cellInits(cellId) {
+        return $('#' + cellId).data('initials') || [];
+    }
+
+    function setCellInits(cellId, inits) {
+        var cell = $('#' + cellId);
+        cell.data('initials', inits);
+        redrawContained(cell[0]);
+    }
+
+    function emptyCellIds() {
+        return openCellIds.filter(id => cellInits(id).length === 0);
+    }
+
+    function placedCount(initials) {
+        return openCellIds.reduce((acc, id) =>
+                acc + (cellInits(id).indexOf(initials) !== -1 ? 1 : 0), 0);
+    }
+
+    /* Ett pass identifieras av dag och tid, oavsett café: shift-<dag>-<pass>-<café>.
+     * Två rutor med samma nyckel är samtidiga och får inte dela person. */
+    function slotKey(cellId) {
+        var parts = cellId.split('-');
+        return parts.slice(0, parts.length - 1).join('-');
+    }
+
     var redrawContained = function(cell) {
         var listed = [],
-            containedInits = $(cell).data('initials');
+            cellId = $(cell).attr('id'),
+            containedInits = $(cell).data('initials') || [];
         for (i in containedInits) {
             listed.push([
                 '<span class="drag-',containedInits[i],'">',
@@ -130,22 +195,15 @@
         $(cell).html(listed.join(', '));
         $(cell).children().each(function() {
             $(this).click(function() {
+                markUnsaved();
 
-                if(window.onbeforeunload === null) {
-                    window.onbeforeunload = function() {
-                        return "";
-                    }
-                }
-
-                var newContained = [];
-                for (j in containedInits) {
-                    if (containedInits[j] != $(this).text()) {
-                        newContained.push(containedInits[j]);
-                    }
-                    $(cell).data('initials', newContained);
-                }
+                var removed = $(this).text();
+                $(cell).data('initials',
+                        ($(cell).data('initials') || []).filter(e => e != removed));
+                unmarkShufflePlaced(cellId, removed);
                 $(this).trigger('mouseleave').remove();
                 redrawContained(cell);
+                updateShuffleStatus();
             });
         });
 
@@ -279,29 +337,189 @@
         return true;
     });
 
-    var onCallKeys = Object.keys(ON_CALL).sort();
     function applyShifts(shifts) {
         if (shifts.length !== onCallKeys.length) {
             throw new Error(`To many shifts to apply: ${shifts.length}, should be ${onCallKeys.length}`);
         }
 
         for (let i = 0; i < onCallKeys.length; ++i) {
-            ON_CALL[onCallKeys[i]] = [shifts[i]];
+            let inits = INITIALS[shifts[i]];
+            setCellInits(onCallKeys[i], [inits]);
+            markShufflePlaced(onCallKeys[i], inits);
         }
+    }
 
-        $('.shift-droppable').each(function() {
-            var id = $(this).attr('id');
-            if (!REAL_IDS[id]) {
-                $(this).addClass('disabled');
+    /**
+     * Fyll bara de tomma rutorna och lämna redan placerade personer i fred.
+     * Heldags- och cafépreferenserna gäller inte här, bara kravet att ingen
+     * står på två caféer samtidigt.
+     */
+    function fillEmptyCells(emptyIds, toPlace) {
+        // En post per pass som ska delas ut
+        let pool = [];
+        toPlace.forEach(function(e) {
+            for (let i = 0; i < e.value; ++i) {
+                pool.push(e.initials);
+            }
+        });
+
+        // Vilka som redan står på respektive pass, oavsett café
+        let occupied = {};
+        openCellIds.forEach(function(id) {
+            let key = slotKey(id);
+            if (!occupied[key]) {
+                occupied[key] = [];
+            }
+            cellInits(id).forEach(init => occupied[key].push(init));
+        });
+
+        // Ren chans: blanda potten, lägg ut den rakt av och släng lottningen om
+        // någon hamnar på två caféer samtidigt. Eftersom vi aldrig lappar ihop
+        // en lottning som inte går ihop blir varje giltig fördelning lika
+        // sannolik. Det är det här som gör utfallet oförutsägbart när du
+        // klickar bort några personer och slumpar om.
+        for (let attempt = 0; attempt < 2000; ++attempt) {
+            if (pool.length > 1) {
+                shuffle(pool, 0, pool.length, 1);
+            }
+            let drawn = assignStraight(emptyIds, pool, occupied);
+            if (drawn !== null) {
+                applyAssignment(drawn);
                 return;
             }
-            var onCallUids = ON_CALL[id], inits = [];
-            for (i in onCallUids) {
-                inits.push(INITIALS[onCallUids[i]]);
+        }
+
+        // Nödlösning när krockarna är så hårda att rena lottningar nästan aldrig
+        // går ihop, t.ex. två personer som ska dela på hela veckan. Då bygger vi
+        // en giltig fördelning lucka för lucka i stället.
+        let assignment = null;
+        for (let attempt = 0; attempt < 50 && assignment === null; ++attempt) {
+            if (pool.length > 1) {
+                shuffle(pool, 0, pool.length, 1);
             }
-            $(this).data('initials', inits);
-            redrawContained(this);
+            assignment = tryAssign(emptyIds, pool.slice(), occupied);
+        }
+
+        if (assignment === null) {
+            throw new Error('Luckorna gick inte att fylla utan att någon hamnar på ' +
+                            'två caféer samtidigt. Justera antalet pass eller rensa ' +
+                            'schemat och slumpa om.');
+        }
+
+        applyAssignment(assignment);
+    }
+
+    /**
+     * Para ihop potten med luckorna rakt av, en i taget. Returnerar null så
+     * fort lottningen ställer någon på två caféer samtidigt – den rättas
+     * medvetet inte, för det är just oförmågan att rätta som håller
+     * utlottningen jämn.
+     */
+    function assignStraight(emptyIds, pool, occupied) {
+        let taken = {};
+        let result = {};
+
+        for (let i = 0; i < emptyIds.length; ++i) {
+            let cellId = emptyIds[i];
+            let key = slotKey(cellId);
+            let init = pool[i];
+
+            if ((occupied[key] || []).indexOf(init) !== -1) {
+                return null;
+            }
+            if (taken[key] && taken[key].indexOf(init) !== -1) {
+                return null;
+            }
+
+            taken[key] = (taken[key] || []).concat(init);
+            result[cellId] = init;
+        }
+
+        return result;
+    }
+
+    function applyAssignment(assignment) {
+        Object.keys(assignment).forEach(function(cellId) {
+            setCellInits(cellId, [assignment[cellId]]);
+            markShufflePlaced(cellId, assignment[cellId]);
         });
+    }
+
+    /**
+     * Försök dela ut potten över luckorna. Returnerar en mappning från ruta
+     * till initialer, eller null om det inte gick ihop.
+     */
+    function tryAssign(emptyIds, pool, occupiedBase) {
+        let occupied = {};
+        Object.keys(occupiedBase).forEach(k => occupied[k] = occupiedBase[k].slice());
+
+        // Ta de hårdast begränsade luckorna först, dvs de där någon redan står
+        // på det andra caféet
+        let order = emptyIds.slice().sort((a, b) =>
+                (occupiedBase[slotKey(b)] || []).length - (occupiedBase[slotKey(a)] || []).length);
+
+        let result = {};
+        let assigned = [];
+        for (let i = 0; i < order.length; ++i) {
+            let cellId = order[i];
+            let key = slotKey(cellId);
+            let fitting = [];
+            pool.forEach(function(init, i) {
+                if ((occupied[key] || []).indexOf(init) === -1) {
+                    fitting.push(i);
+                }
+            });
+            let idx = fitting.length === 0 ? -1 : fitting[randint(0, fitting.length)];
+
+            if (idx === -1) {
+                // Ingen i potten passar. Se om ett byte med en redan fylld lucka
+                // löser upp det innan vi ger upp på hela försöket.
+                if (!repairAssign(cellId, pool, result, assigned, occupied)) {
+                    return null;
+                }
+            } else {
+                let init = pool.splice(idx, 1)[0];
+                result[cellId] = init;
+                assigned.push(cellId);
+                occupied[key] = (occupied[key] || []).concat(init);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Byt ut en redan utdelad person mot någon ur potten, så att den utbytta
+     * kan ta luckan vi fastnat på.
+     */
+    function repairAssign(cellId, pool, result, assigned, occupied) {
+        let key = slotKey(cellId);
+        for (let i = 0; i < assigned.length; ++i) {
+            let other = assigned[i];
+            let otherInit = result[other];
+            if ((occupied[key] || []).indexOf(otherInit) !== -1) {
+                continue;
+            }
+
+            let otherSlot = occupied[slotKey(other)];
+            let pos = otherSlot.indexOf(otherInit);
+            otherSlot.splice(pos, 1);
+
+            let idx = pool.findIndex(init => otherSlot.indexOf(init) === -1);
+            if (idx !== -1) {
+                let init = pool.splice(idx, 1)[0];
+                result[other] = init;
+                otherSlot.push(init);
+                result[cellId] = otherInit;
+                assigned.push(cellId);
+                occupied[key] = (occupied[key] || []).concat(otherInit);
+                return true;
+            }
+
+            otherSlot.splice(pos, 0, otherInit);
+        }
+
+        return false;
     }
 
     $('.shuffle-drop').droppable({
@@ -326,7 +544,6 @@
     var shuffles = [];
     var lastShuffleId = 0;
     const numShifts = onCallKeys.length;
-    var shiftsToDistribute = 0;
     const numCafes = Object.keys(REAL_IDS).reduce((acc, cur) => {
         let idSplit = cur.split('-');
         let cafeId = parseInt(idSplit[idSplit.length-1]);
@@ -338,8 +555,20 @@
         return Math.max(acc, cafeId+1);
     }, 0);
 
+    /**
+     * Antal pass personen fortfarande saknar. "Antal pass" i listan är målet
+     * för hela veckan, så redan placerade rutor räknas av.
+     */
+    function remainingFor(shuffleObj) {
+        return Math.max(0, shuffleObj.value - placedCount(shuffleObj.initials));
+    }
+
+    function totalRemaining() {
+        return shuffles.reduce((acc, cur) => acc + remainingFor(cur), 0);
+    }
+
     function removeShuffle(id) {
-        shuffles = shuffles.filter(e => e.id === id);
+        shuffles = shuffles.filter(e => e.id !== id);
         redrawShuffles();
     }
 
@@ -347,7 +576,7 @@
         return `<tr id="shuffle-list-row-${shuffleObj.id}">` +
                     `<td class="align-middle">${shuffleObj.initials}</td>` +
                     `<td class="align-middle">` +
-                        `<input type="number" class="form-control w-50 mx-auto" id="shuffle-input-${shuffleObj.id}" value="${shuffleObj.value}" min="0", max="${numShifts/numCafes}"/>` +
+                        `<input type="number" class="form-control w-50 mx-auto" id="shuffle-input-${shuffleObj.id}" value="${shuffleObj.value}" min="0" max="${numShifts/numCafes}"/>` +
                     `</td>` +
                     `<td class="align-middle">` +
                             `<button class="btn btn-sm btn-danger" id="shuffle-remove-btn-${shuffleObj.id}"><i class="fa fa-times"></i></button>` +
@@ -368,21 +597,21 @@
             } else if (!val) {
                 val = 0;
             }
-            shiftsToDistribute += val - shuffleObj.value;
             shuffleObj.value = val;
             updateShuffleStatus();
         });
         $(`#shuffle-remove-btn-${shuffleObj.id}`).click(function() {
-            shiftsToDistribute -= shuffleObj.value;
-            shuffles = shuffles.filter(e => e.id !== shuffleObj.id);
-            redrawShuffles();
+            removeShuffle(shuffleObj.id);
         });
     }
 
     function updateShuffleStatus() {
-        $('#shuffle-status').html(`(${shiftsToDistribute}/${numShifts}) ` +
-                `<i class="fa ${shiftsToDistribute === numShifts ? 'fa-check-circle text-success' : 'fa-times-circle text-danger'}"></i>`);
-        $('#random-shifts').attr('disabled', shiftsToDistribute !== numShifts);
+        let empty = emptyCellIds().length;
+        let remaining = totalRemaining();
+        $('#shuffle-status').html(`(${remaining}/${empty}) ` +
+                `<i class="fa ${remaining === empty ? 'fa-check-circle text-success' : 'fa-times-circle text-danger'}"></i>`);
+        $('#random-shifts').attr('disabled', remaining !== empty || empty === 0);
+        $('#clear-shifts').attr('disabled', Object.keys(shufflePlaced).length === 0);
     }
 
     function redrawShuffles() {
@@ -402,9 +631,8 @@
             id: lastShuffleId,
             key: userId,
             initials: INITIALS[userId],
-            value: Math.min(10, numShifts - shiftsToDistribute)
+            value: Math.max(0, Math.min(10, emptyCellIds().length - totalRemaining()))
         };
-        shiftsToDistribute += shuffleObj.value;
         shuffles.push(shuffleObj);
         ++lastShuffleId;
         redrawShuffles();
@@ -413,17 +641,44 @@
     updateShuffleStatus();
 
     $('#random-shifts').click(function() {
-        let numToDistribute = shuffles.reduce((acc, cur) => acc + cur.value, 0);
-        if (numToDistribute !== numShifts) {
-            throw new Error(`Shifts have to be ${numShifts}, not ${numToDistribute}`);
+        $('#shuffle-error').html('');
+        try {
+            let emptyIds = emptyCellIds();
+            let toPlace = shuffles.map(e => {return {key: e.key, initials: e.initials, value: remainingFor(e)};})
+                                  .filter(e => e.value > 0);
+            let numToDistribute = toPlace.reduce((acc, cur) => acc + cur.value, 0);
+            if (numToDistribute !== emptyIds.length) {
+                throw new Error(`Antalet pass att dela ut måste vara ${emptyIds.length}, inte ${numToDistribute}`);
+            }
+
+            if (emptyIds.length === openCellIds.length) {
+                // Helt tomt schema: slumpa hela veckan som tidigare, med
+                // heldags- och cafépreferenserna intakta
+                applyShifts(distribute(toPlace, numCafes, shiftsPerDayAndCafe,
+                        $('#shufflePreferWholeDays')[0].checked,
+                        $('#shufflePreferOneCafe')[0].checked));
+            } else {
+                // Delvis fyllt schema: rör inte de som redan står där
+                fillEmptyCells(emptyIds, toPlace);
+            }
+            markUnsaved();
+        } catch (e) {
+            $('#shuffle-error').html(e.message);
         }
+        updateShuffleStatus();
+    });
 
-        let shifts = distribute(shuffles, numCafes, shiftsPerDayAndCafe,
-                $('#shufflePreferWholeDays')[0].checked,
-                $('#shufflePreferOneCafe')[0].checked
-            );
+    $('#clear-shifts').click(function() {
+        $('#shuffle-error').html('');
+        markUnsaved();
 
-        applyShifts(shifts);
+        Object.keys(shufflePlaced).forEach(function(cellId) {
+            let placed = shufflePlaced[cellId];
+            setCellInits(cellId, cellInits(cellId).filter(e => placed.indexOf(e) === -1));
+        });
+        shufflePlaced = {};
+
+        updateShuffleStatus();
     });
 </script>
 {% endblock %}
