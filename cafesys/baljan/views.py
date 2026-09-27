@@ -602,10 +602,7 @@ def credits(request, code=None):
         itertools.chain(phys_qs, dig_qs), key=lambda obj: obj.date, reverse=True
     )
 
-    if request.user.profile.can_refill_online():
-        tpl["products"] = (
-            models.Product.objects.filter(active=True).order_by("price").all()
-        )
+    tpl["products"] = models.Product.objects.filter(active=True).order_by("price").all()
 
     return render(request, "baljan/credits.html", tpl)
 
@@ -2513,8 +2510,10 @@ class Stripe:
 
         args = {}
 
-        if request.user.email:
-            args["customer_email"] = request.user.email
+        # Automatically providing an email adress would mean we have to explain
+        # in out policy why we share it.
+        # if request.user.email:
+        #     args["customer_email"] = request.user.email
 
         checkout_session = stripe.checkout.Session.create(
             line_items=[

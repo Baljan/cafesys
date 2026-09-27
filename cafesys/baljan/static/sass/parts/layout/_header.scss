@@ -15,7 +15,7 @@
 
 body.about #content {
   #header-image {
-    background: darken(#352723, 4) url("/static/img/splash.jpeg"); // #352723 is average color of splash image.
+    // background: darken(#352723, 4) url("/static/img/splash.jpeg"); // #352723 is average color of splash image.
     background-size: cover;
     background-position: center 0;
     background-repeat: no-repeat;
@@ -23,6 +23,14 @@ body.about #content {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
+    // Coffee but like on the web
+    background-image: url("/static/img/coffee-but-like-on-the-web-splash.jpg"); // #352723 is average color of splash image.
+    @media screen and (max-width: 800px) {
+      background-image: url("/static/img/coffee-but-like-on-the-web-splash-mobile.jpg"); // #352723 is average color of splash image.
+      background-size: cover;
+      background-position: center 0;
+    }
 
     h1 {
       display: inline-block;
@@ -35,6 +43,10 @@ body.about #content {
       text-shadow: 0 0 25px #000;
       margin-bottom: 25vh;
       margin-top: 3rem;
+
+      // Coffee but like on the web
+      color: transparent;
+      text-shadow: unset;
 
       @media screen and (max-width: 800px) {
         font-size: 42px;
