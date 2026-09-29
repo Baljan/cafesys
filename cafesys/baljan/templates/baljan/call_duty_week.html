@@ -10,7 +10,7 @@
 {% block body_class %}board-week{% endblock %}
 {% block staff_info %}
 <p>
-    <a href="{% if semester %}{% url 'call_duty_overview' semester.name %}#v{{year}}-{{week}}{% else %}{% url 'call_duty_overview' %}{% endif %}">&laquo; Alla veckor</a>
+    <a href="{% url 'call_duty_overview' %}">&laquo; Alla veckor</a>
 </p>
 <div class="chalkboard row">
     <div class="col-lg-7">
@@ -123,13 +123,9 @@
     }
     availUsers.html(names.join(', '));
 
-    /* Alla pass-rutor som faktiskt finns både i veckan och i DOM:en. */
     var onCallKeys = Object.keys(ON_CALL).sort();
     var openCellIds = onCallKeys.filter(function(id) { return $('#' + id).length > 0; });
 
-    /* Vilka initialer slumpen har placerat i vilken ruta. Manuellt indragna
-     * personer och de som redan låg sparade hamnar aldrig här, vilket är
-     * precis vad "Rensa schema" ska gå på. */
     var shufflePlaced = {};
 
     function markUnsaved() {
@@ -178,8 +174,6 @@
                 acc + (cellInits(id).indexOf(initials) !== -1 ? 1 : 0), 0);
     }
 
-    /* Ett pass identifieras av dag och tid, oavsett café: shift-<dag>-<pass>-<café>.
-     * Två rutor med samma nyckel är samtidiga och får inte dela person. */
     function slotKey(cellId) {
         var parts = cellId.split('-');
         return parts.slice(0, parts.length - 1).join('-');
@@ -352,13 +346,7 @@
         }
     }
 
-    /**
-     * Fyll bara de tomma rutorna och lämna redan placerade personer i fred.
-     * Heldags- och cafépreferenserna gäller inte här, bara kravet att ingen
-     * står på två caféer samtidigt.
-     */
     function fillEmptyCells(emptyIds, toPlace) {
-        // En post per pass som ska delas ut
         let pool = [];
         toPlace.forEach(function(e) {
             for (let i = 0; i < e.value; ++i) {
@@ -366,7 +354,6 @@
             }
         });
 
-        // Vilka som redan står på respektive pass, oavsett café
         let occupied = {};
         openCellIds.forEach(function(id) {
             let key = slotKey(id);
@@ -376,11 +363,6 @@
             cellInits(id).forEach(init => occupied[key].push(init));
         });
 
-        // Ren chans: blanda potten, lägg ut den rakt av och släng lottningen om
-        // någon hamnar på två caféer samtidigt. Eftersom vi aldrig lappar ihop
-        // en lottning som inte går ihop blir varje giltig fördelning lika
-        // sannolik. Det är det här som gör utfallet oförutsägbart när du
-        // klickar bort några personer och slumpar om.
         for (let attempt = 0; attempt < 2000; ++attempt) {
             if (pool.length > 1) {
                 shuffle(pool, 0, pool.length, 1);
@@ -392,9 +374,6 @@
             }
         }
 
-        // Nödlösning när krockarna är så hårda att rena lottningar nästan aldrig
-        // går ihop, t.ex. två personer som ska dela på hela veckan. Då bygger vi
-        // en giltig fördelning lucka för lucka i stället.
         let assignment = null;
         for (let attempt = 0; attempt < 50 && assignment === null; ++attempt) {
             if (pool.length > 1) {
@@ -412,12 +391,6 @@
         applyAssignment(assignment);
     }
 
-    /**
-     * Para ihop potten med luckorna rakt av, en i taget. Returnerar null så
-     * fort lottningen ställer någon på två caféer samtidigt – den rättas
-     * medvetet inte, för det är just oförmågan att rätta som håller
-     * utlottningen jämn.
-     */
     function assignStraight(emptyIds, pool, occupied) {
         let taken = {};
         let result = {};
@@ -448,16 +421,10 @@
         });
     }
 
-    /**
-     * Försök dela ut potten över luckorna. Returnerar en mappning från ruta
-     * till initialer, eller null om det inte gick ihop.
-     */
     function tryAssign(emptyIds, pool, occupiedBase) {
         let occupied = {};
         Object.keys(occupiedBase).forEach(k => occupied[k] = occupiedBase[k].slice());
 
-        // Ta de hårdast begränsade luckorna först, dvs de där någon redan står
-        // på det andra caféet
         let order = emptyIds.slice().sort((a, b) =>
                 (occupiedBase[slotKey(b)] || []).length - (occupiedBase[slotKey(a)] || []).length);
 
@@ -475,8 +442,6 @@
             let idx = fitting.length === 0 ? -1 : fitting[randint(0, fitting.length)];
 
             if (idx === -1) {
-                // Ingen i potten passar. Se om ett byte med en redan fylld lucka
-                // löser upp det innan vi ger upp på hela försöket.
                 if (!repairAssign(cellId, pool, result, assigned, occupied)) {
                     return null;
                 }
@@ -491,10 +456,6 @@
         return result;
     }
 
-    /**
-     * Byt ut en redan utdelad person mot någon ur potten, så att den utbytta
-     * kan ta luckan vi fastnat på.
-     */
     function repairAssign(cellId, pool, result, assigned, occupied) {
         let key = slotKey(cellId);
         for (let i = 0; i < assigned.length; ++i) {
@@ -558,10 +519,6 @@
         return Math.max(acc, cafeId+1);
     }, 0);
 
-    /**
-     * Antal pass personen fortfarande saknar. "Antal pass" i listan är målet
-     * för hela veckan, så redan placerade rutor räknas av.
-     */
     function remainingFor(shuffleObj) {
         return Math.max(0, shuffleObj.value - placedCount(shuffleObj.initials));
     }
@@ -655,13 +612,10 @@
             }
 
             if (emptyIds.length === openCellIds.length) {
-                // Helt tomt schema: slumpa hela veckan som tidigare, med
-                // heldags- och cafépreferenserna intakta
                 applyShifts(distribute(toPlace, numCafes, shiftsPerDayAndCafe,
                         $('#shufflePreferWholeDays')[0].checked,
                         $('#shufflePreferOneCafe')[0].checked));
             } else {
-                // Delvis fyllt schema: rör inte de som redan står där
                 fillEmptyCells(emptyIds, toPlace);
             }
             markUnsaved();

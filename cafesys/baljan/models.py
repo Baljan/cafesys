@@ -908,13 +908,6 @@ class OnCallDuty(Made):
 
 
 class OnCallWeek(Made):
-    """The board members who have on call duty a week.
-
-    Deliberately not connected to `OnCallDuty`: who has the week says nothing
-    about who ends up on call for each shift, and changing one never changes
-    the other.
-    """
-
     JOUR_FIELDS = ("jour_1", "jour_2", "jour_3")
 
     year = models.PositiveSmallIntegerField("år")

@@ -1867,16 +1867,18 @@ def call_duty_week(request, year=None, week=None):
 @permission_required("baljan.delete_oncallduty")
 @permission_required("baljan.add_oncallduty")
 @permission_required("baljan.change_oncallduty")
-def call_duty_overview(request, name=None):
+def call_duty_overview(request):
+    if "semester" in request.GET:
+        request.session["call_duty_semester"] = request.GET["semester"]
+        return redirect("call_duty_overview")
+
     semesters = models.Semester.objects.order_by("-start")
-    if name is None:
-        sem = (
-            models.Semester.objects.current()
-            or models.Semester.objects.upcoming().first()
-            or semesters.first()
-        )
-    else:
-        sem = get_object_or_404(models.Semester, name__exact=name)
+    sem = (
+        semesters.filter(name=request.session.get("call_duty_semester")).first()
+        or models.Semester.objects.current()
+        or models.Semester.objects.upcoming().first()
+        or semesters.first()
+    )
 
     tpl = {
         "semesters": semesters,
@@ -1892,17 +1894,12 @@ def call_duty_overview(request, name=None):
 @permission_required("baljan.change_oncallduty")
 @require_POST
 def call_duty_update_week(request):
-    """Changes who has an on call week. Never touches the shifts.
-
-    Answers with the changed weeks so that the page can redraw them.
-    """
-
     def spot(prefix):
-        return (
-            int(request.POST[prefix + "year"]),
-            int(request.POST[prefix + "week"]),
-            int(request.POST.get(prefix + "slot", 1)),
-        )
+        year = int(request.POST[prefix + "year"])
+        week = int(request.POST[prefix + "week"])
+        if year_and_week(week_dates(year, week)[0]) != (year, week):
+            raise ValueError("week")
+        return (year, week, int(request.POST.get(prefix + "slot", 1)))
 
     try:
         action = request.POST["action"]

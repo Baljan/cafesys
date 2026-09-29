@@ -10,9 +10,6 @@ from cafesys.baljan.util import week_dates, year_and_week
 
 
 class CallDutyOverviewTestCase(TestCase):
-    """The week overview, where who has the on call week is managed by hand,
-    apart from who is on call for the shifts."""
-
     @classmethod
     def setUpTestData(cls):
         monday = date.today() - timedelta(days=date.today().weekday())
@@ -117,7 +114,10 @@ class CallDutyOverviewTestCase(TestCase):
         self.assertContains(response, "Thomas T")
 
         response = self.client.get("/call-duty/%d/%d" % self.week1)
-        self.assertContains(response, "/call-duty/semester/HT2099#v%d-%d" % self.week1)
+        self.assertContains(response, 'href="/call-duty"')
+
+        response = self.client.get("/call-duty?semester=HT2099")
+        self.assertRedirects(response, "/call-duty")
 
         def update(**data):
             return self.client.post("/call-duty/update-week", data)
@@ -177,6 +177,14 @@ class CallDutyOverviewTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(update(action="info", year=2026, week=1).status_code, 400)
+
+        # Weeks that do not exist
+        for year, week in ((2025, 53), (2026, 0), (2026, 99), (40000, 1)):
+            response = update(
+                action="set", year=year, week=week, slot=1, user=self.bert.pk
+            )
+            self.assertEqual(response.status_code, 400)
+        self.assertFalse(OnCallWeek.objects.filter(jour_1=self.bert).exists())
 
     def test_requires_permission(self):
         outsider = User.objects.create(username="outsider")

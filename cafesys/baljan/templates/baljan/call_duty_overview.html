@@ -14,7 +14,6 @@
     .call-duty-weeks .week-num { font-weight: bold; white-space: nowrap; }
     .call-duty-weeks td.jour-col { cursor: default; }
 
-    /* Three equal columns, so the names line up from week to week */
     .jour-slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; }
     .jour-slot { min-width: 0; min-height: 1.6rem; border-radius: .25rem; border: 1px dashed transparent; }
     .jour-slot .jour-chip { display: flex; max-width: 100%; }
@@ -37,7 +36,6 @@
     }
     .board-palette .jour-chip { border: 1px solid rgba(0, 0, 0, .15); margin: 0 .25rem .25rem 0; font-size: .9rem; }
     @media (min-width: 992px) {
-        /* One name per row in the side column */
         .board-palette .jour-chip { display: block; margin: 0 0 .25rem 0; }
     }
     .board-palette.drop-hover { background-color: rgba(220, 53, 69, .1); }
@@ -48,7 +46,7 @@
     <div class="form-group">
         <select id="sem" class="form-control">
             {% for sem in semesters %}
-            <option value="{% url 'call_duty_overview' sem.name %}" {% if sem == selected_semester %}selected="selected"{% endif %}>{{ sem.name }}</option>
+            <option value="{% url 'call_duty_overview' %}?semester={{ sem.name|urlencode }}" {% if sem == selected_semester %}selected="selected"{% endif %}>{{ sem.name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -130,7 +128,6 @@
 
     var csrfToken = $('[name=csrfmiddlewaretoken]').val();
 
-    // Hovering a name highlights that person in every week and in Styrelsen
     $(document).on('mouseenter', '.jour-chip', function() {
         $('.jour-chip[data-user="' + $(this).data('user') + '"]').addClass('highlight');
     });
@@ -189,14 +186,15 @@
             revert: 'invalid',
             revertDuration: 150,
             cursorAt: {left: 10, top: 10},
-            start: function(ev, ui) { ui.helper.addClass('dragging'); }
+            start: function(ev, ui) { ui.helper.addClass('dragging'); },
+            stop: function() { $('.jour-chip.highlight').removeClass('highlight'); }
         });
     }
 
-    // Removing someone from a week
     $('.call-duty-weeks').on('click', '.jour-chip .remove', function() {
         var slot = $(this).closest('.jour-slot'),
             spot = spotOf(slot);
+        $('.jour-chip.highlight').removeClass('highlight');
         update({action: 'set', year: spot.year, week: spot.week, slot: spot.slot, user: ''});
     });
 
@@ -225,7 +223,6 @@
         }
     });
 
-    // Dropping a name back on the board list removes it from the week
     $('.board-palette').droppable({
         accept: '.jour-chip.in-week',
         tolerance: 'pointer',
@@ -236,10 +233,7 @@
         }
     });
 
-    // Start at the current week unless linking to a specific one
-    if (!location.hash) {
-        var current = $('.call-duty-weeks tr.current');
-        if (current.length) current[0].scrollIntoView({block: 'center'});
-    }
+    var current = $('.call-duty-weeks tr.current');
+    if (current.length) current[0].scrollIntoView({block: 'center'});
 </script>
 {% endblock %}

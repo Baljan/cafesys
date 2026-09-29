@@ -56,9 +56,6 @@ class BoardWeek(object):
 
 
 def semester_weeks(semester):
-    """Every week of `semester` with who has the on call week and how many of
-    the week's shifts have someone on call.
-    """
     weeks_range = semester.week_range()
     shifts = list(Shift.objects.filter(semester=semester, enabled=True))
     staffed_ids = set(
@@ -104,19 +101,15 @@ class OnCallWeekError(Exception):
 
 
 def _get_week(year, week):
-    return OnCallWeek.objects.filter(year=year, week=week).first() or OnCallWeek(
-        year=year, week=week
-    )
+    return OnCallWeek.objects.select_for_update().get_or_create(year=year, week=week)[0]
 
 
 def _save_week(ocw):
-    """Saves the week, or removes it when there is nothing left in it."""
     people = [u for u in ocw.jour() if u is not None]
     if len(people) != len(set(people)):
         raise OnCallWeekError("Samma person kan bara stå en gång per vecka.")
     if ocw.is_empty():
-        if ocw.pk:
-            ocw.delete()
+        ocw.delete()
     else:
         ocw.save()
 
@@ -125,8 +118,8 @@ def _field(slot):
     return OnCallWeek.JOUR_FIELDS[slot - 1]
 
 
+@transaction.atomic
 def set_jour(year, week, slot, user):
-    """Puts `user` (or nobody if None) in spot `slot` (1-3) of the week."""
     ocw = _get_week(year, week)
     setattr(ocw, _field(slot), user)
     _save_week(ocw)
@@ -134,9 +127,6 @@ def set_jour(year, week, slot, user):
 
 @transaction.atomic
 def move_jour(source, target):
-    """Swaps the people in two spots, each given as (year, week, slot). Moving
-    to an empty spot is just a swap with nobody.
-    """
     if source[:2] == target[:2]:
         ocw = _get_week(*source[:2])
         src, dst = _field(source[2]), _field(target[2])

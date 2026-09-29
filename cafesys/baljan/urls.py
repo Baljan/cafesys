@@ -55,11 +55,6 @@ urlpatterns = (
     ),
     path("call-duty", views.call_duty_overview, name="call_duty_overview"),
     path(
-        "call-duty/semester/<slug:name>",
-        views.call_duty_overview,
-        name="call_duty_overview",
-    ),
-    path(
         "call-duty/update-week",
         views.call_duty_update_week,
         name="call_duty_update_week",
