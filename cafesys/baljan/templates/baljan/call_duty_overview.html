@@ -7,6 +7,10 @@
 
 {% block staff_info %}
 <style>
+    .call-duty-weeks { table-layout: fixed; }
+    .call-duty-weeks col.week { width: 7rem; }
+    .call-duty-weeks col.dates { width: 10rem; }
+    .call-duty-weeks col.shifts { width: 5rem; }
     .call-duty-weeks tr.week-row { cursor: pointer; }
     .call-duty-weeks tr.week-row:hover > td { background-color: rgba(0, 0, 0, .04); }
     .call-duty-weeks tr.past > td { opacity: .55; }
@@ -73,6 +77,7 @@
 
 {% csrf_token %}
 <table class="table table-baljan call-duty-weeks align-middle">
+    <colgroup><col class="week"><col class="dates"><col><col class="shifts"></colgroup>
     <thead>
         <tr>
             <th>Vecka</th>
