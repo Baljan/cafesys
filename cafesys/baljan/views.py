@@ -1857,7 +1857,80 @@ def call_duty_week(request, year=None, week=None):
         zip(range(1, 6), ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"])
     )
     tpl["spans"] = list(range(3))
+    tpl["semester"] = models.Semester.objects.for_date(week_dates(year, week)[0])
     return render(request, "baljan/call_duty_week.html", tpl)
+
+
+@permission_required("baljan.delete_oncallduty")
+@permission_required("baljan.add_oncallduty")
+@permission_required("baljan.change_oncallduty")
+def call_duty_overview(request):
+    if "semester" in request.GET:
+        request.session["call_duty_semester"] = request.GET["semester"]
+        return redirect("call_duty_overview")
+
+    semesters = models.Semester.objects.order_by("-start")
+    sem = (
+        semesters.filter(name=request.session.get("call_duty_semester")).first()
+        or models.Semester.objects.current()
+        or models.Semester.objects.upcoming().first()
+        or semesters.first()
+    )
+
+    tpl = {
+        "semesters": semesters,
+        "selected_semester": sem,
+        "weeks": planning.semester_weeks(sem) if sem else [],
+        "board": available_for_call_duty(),
+    }
+    return render(request, "baljan/call_duty_overview.html", tpl)
+
+
+@permission_required("baljan.delete_oncallduty")
+@permission_required("baljan.add_oncallduty")
+@permission_required("baljan.change_oncallduty")
+@require_POST
+def call_duty_update_week(request):
+    def spot(prefix):
+        year = int(request.POST[prefix + "year"])
+        week = int(request.POST[prefix + "week"])
+        if year_and_week(week_dates(year, week)[0]) != (year, week):
+            raise ValueError("week")
+        return (year, week, int(request.POST.get(prefix + "slot", 1)))
+
+    try:
+        action = request.POST["action"]
+        if action == "set":
+            target = spot("")
+            user_id = request.POST.get("user")
+            user = available_for_call_duty().get(pk=user_id) if user_id else None
+            changed = [target]
+        elif action == "move":
+            source, target = spot("from_"), spot("")
+            changed = [source, target]
+        else:
+            raise ValueError(action)
+        if not all(1 <= s[2] <= len(models.OnCallWeek.JOUR_FIELDS) for s in changed):
+            raise ValueError("slot")
+    except (KeyError, ValueError, User.DoesNotExist):
+        raise BadRequest("Ogiltig förfrågan.")
+
+    try:
+        if action == "set":
+            planning.set_jour(*target, user)
+        else:
+            planning.move_jour(source, target)
+    except planning.OnCallWeekError as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+    weeks = {}
+    for year, week, _slot in changed:
+        ocw = models.OnCallWeek.objects.filter(year=year, week=week).first()
+        jour = ocw.jour() if ocw else [None] * len(models.OnCallWeek.JOUR_FIELDS)
+        weeks["%d-%d" % (year, week)] = {
+            "jour": [u and {"id": u.pk, "name": display_name(u)} for u in jour],
+        }
+    return JsonResponse({"weeks": weeks})
 
 
 @permission_required("baljan.add_semester")

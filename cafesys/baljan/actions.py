@@ -19,6 +19,7 @@ class Action(object):
 
 #: Sub-pages that should light up their parent in the staff menu.
 PARENT_PAGES = {
+    "call_duty_week": "call_duty_overview",
     "catering_order": "catering_orders",
     "catering_today": "catering_orders",
     "catering_extra_order": "catering_orders",
@@ -121,7 +122,7 @@ def categories_and_actions(request):
             settings.BOARD_GROUP,
             "Styrelsen",
             (
-                Action("Veckoplanering", "call_duty_week"),
+                Action("Veckoplanering", "call_duty_overview"),
                 Action("Beställningar", "catering_orders"),
             )
             + tuple(upcoming_sem_actions),

@@ -1,0 +1,239 @@
+{% extends "baljan/staff.html" %}
+{% load i18n %}
+{% load static %}
+{% load baljan_extras %}
+
+{% block page_title %}Veckoplanering{% endblock %}
+
+{% block staff_info %}
+<style>
+    .call-duty-weeks tr.week-row { cursor: pointer; }
+    .call-duty-weeks tr.week-row:hover > td { background-color: rgba(0, 0, 0, .04); }
+    .call-duty-weeks tr.past > td { opacity: .55; }
+    .call-duty-weeks tr.current > td { background-color: rgba(13, 110, 253, .08); }
+    .call-duty-weeks .week-num { font-weight: bold; white-space: nowrap; }
+    .call-duty-weeks td.jour-col { cursor: default; }
+
+    .jour-slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; }
+    .jour-slot { min-width: 0; min-height: 1.6rem; border-radius: .25rem; border: 1px dashed transparent; }
+    .jour-slot .jour-chip { display: flex; max-width: 100%; }
+    .jour-slot .jour-chip .name { overflow: hidden; text-overflow: ellipsis; }
+    .jour-slot.empty { border-color: rgba(0, 0, 0, .12); }
+    .jour-slot.drop-active { border-color: rgba(13, 110, 253, .5); }
+    .jour-slot.drop-hover { background-color: rgba(13, 110, 253, .15); }
+    .jour-chip { display: inline-block; padding: .05rem .3rem; white-space: nowrap; cursor: grab; border-radius: .25rem; }
+    .jour-chip:hover { background-color: rgba(0, 0, 0, .06); }
+    .jour-chip.highlight { background-color: rgba(255, 193, 7, .5); }
+    .jour-chip .remove { visibility: hidden; margin-left: .15rem; color: #888; cursor: pointer; }
+    .jour-chip:hover .remove { visibility: visible; }
+    .jour-chip.dragging { display: inline-block !important; width: auto !important; background-color: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); z-index: 1000; }
+    .jour-slot.saved .jour-chip { background-color: rgba(25, 135, 84, .2); }
+
+    .board-palette {
+        position: sticky; top: 1rem; z-index: 10; padding: .5rem .75rem; margin-bottom: 1rem;
+        max-height: calc(100vh - 2rem); overflow-y: auto;
+        background-color: #fff; border: 1px solid rgba(0, 0, 0, .1); border-radius: .375rem;
+    }
+    .board-palette .jour-chip { border: 1px solid rgba(0, 0, 0, .15); margin: 0 .25rem .25rem 0; font-size: .9rem; }
+    @media (min-width: 992px) {
+        .board-palette .jour-chip { display: block; margin: 0 0 .25rem 0; }
+    }
+    .board-palette.drop-hover { background-color: rgba(220, 53, 69, .1); }
+</style>
+
+<div class="d-flex justify-content-between align-items-center">
+    <h2>Veckoplanering</h2>
+    <div class="form-group">
+        <select id="sem" class="form-control">
+            {% for sem in semesters %}
+            <option value="{% url 'call_duty_overview' %}?semester={{ sem.name|urlencode }}" {% if sem == selected_semester %}selected="selected"{% endif %}>{{ sem.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+<p class="text-muted">
+    Klicka på en vecka för att se och ändra passen i detalj.
+    Jouren här är fristående från passen och ändrar dem inte.
+</p>
+
+{% if not selected_semester %}
+<p>Det finns inga terminer.</p>
+{% else %}
+<div class="row">
+<div class="col-lg-3 order-lg-2">
+<div class="board-palette">
+    <strong class="d-block">Styrelsen</strong>
+    <small class="text-muted d-block mb-2">
+        Dra en person till en vecka. Dra ett namn till ett namn i en annan vecka för att byta, eller hit för att ta bort.
+    </small>
+    {% for u in board %}<span class="jour-chip from-board" data-user="{{ u.pk }}">{{ u|display_name }}</span>{% endfor %}
+</div>
+</div>
+<div class="col-lg-9 order-lg-1">
+
+{% csrf_token %}
+<table class="table table-baljan call-duty-weeks align-middle">
+    <thead>
+        <tr>
+            <th>Vecka</th>
+            <th>Datum</th>
+            <th>Jour</th>
+            <th title="Bemannade pass">Pass</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for w in weeks %}
+        <tr id="v{{ w.year }}-{{ w.week }}"
+            class="week-row{% if w.past %} past{% endif %}{% if w.current %} current{% endif %}"
+            data-href="{% url 'call_duty_week' w.year w.week %}"
+            data-year="{{ w.year }}" data-week="{{ w.week }}">
+            <td class="week-num">
+                <a href="{% url 'call_duty_week' w.year w.week %}">v. {{ w.week }}</a>
+                {% if w.current %}<span class="badge bg-primary">Nu</span>{% endif %}
+            </td>
+            <td class="text-nowrap">{{ w.start|date:"j M" }} – {{ w.end|date:"j M" }}</td>
+            <td class="jour-col no-nav">
+                <div class="jour-slots">
+                {% for person in w.jour %}<div class="jour-slot{% if not person %} empty{% endif %}" data-slot="{{ forloop.counter }}">{% if person %}<span class="jour-chip in-week" data-user="{{ person.pk }}" title="{{ person|display_name }}"><span class="name">{{ person|display_name }}</span><span class="remove" title="Ta bort">&times;</span></span>{% endif %}</div>{% endfor %}
+                </div>
+            </td>
+            <td class="text-nowrap">
+                {% if w.shifts %}
+                <span class="{% if w.staffed == w.shifts %}text-success{% elif w.staffed %}text-warning{% else %}text-danger{% endif %}">{{ w.staffed }}/{{ w.shifts }}</span>
+                {% else %}
+                <span class="text-muted">Stängt</span>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_body %}
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{% static 'js/jquery.ui.touch-punch.min.js' %}"></script>
+<script type="text/javascript">
+    $('#sem').change(function() {
+        location.href = $(this).val();
+    });
+
+    $('.call-duty-weeks tr.week-row').click(function(ev) {
+        if ($(ev.target).closest('a, button, .no-nav').length) return;
+        location.href = $(this).data('href');
+    });
+
+    var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+
+    $(document).on('mouseenter', '.jour-chip', function() {
+        $('.jour-chip[data-user="' + $(this).data('user') + '"]').addClass('highlight');
+    });
+    $(document).on('mouseleave', '.jour-chip', function() {
+        $('.jour-chip.highlight').removeClass('highlight');
+    });
+
+    function spotOf(slot) {
+        var row = $(slot).closest('tr');
+        return {year: row.data('year'), week: row.data('week'), slot: $(slot).data('slot')};
+    }
+
+    function update(data, onSuccess) {
+        data.csrfmiddlewaretoken = csrfToken;
+        return $.ajax({
+            url: '{% url "call_duty_update_week" %}',
+            type: 'post',
+            data: data,
+            dataType: 'json',
+            success: function(result) {
+                $.each(result.weeks, function(key, week) { redrawWeek(key, week); });
+                if (onSuccess) onSuccess(result);
+            },
+            error: function(xhr) {
+                var msg = xhr.responseJSON && xhr.responseJSON.error;
+                alert(msg || 'Det gick inte att spara.');
+            }
+        });
+    }
+
+    function redrawWeek(key, week) {
+        var row = $('#v' + key);
+        row.find('.jour-slot').each(function(i) {
+            var slot = $(this), person = week.jour[i];
+            slot.empty().toggleClass('empty', !person);
+            if (person) {
+                var chip = $('<span class="jour-chip in-week"></span>')
+                    .attr({'data-user': person.id, title: person.name})
+                    .append($('<span class="name"></span>').text(person.name))
+                    .append('<span class="remove" title="Ta bort">&times;</span>');
+                slot.append(chip);
+                initChip(chip);
+            }
+        });
+    }
+
+    function flashSlot(slot) {
+        $(slot).addClass('saved');
+        setTimeout(function() { $(slot).removeClass('saved'); }, 800);
+    }
+
+    function initChip(chip) {
+        chip.draggable({
+            helper: 'clone',
+            appendTo: 'body',
+            revert: 'invalid',
+            revertDuration: 150,
+            cursorAt: {left: 10, top: 10},
+            start: function(ev, ui) { ui.helper.addClass('dragging'); },
+            stop: function() { $('.jour-chip.highlight').removeClass('highlight'); }
+        });
+    }
+
+    $('.call-duty-weeks').on('click', '.jour-chip .remove', function() {
+        var slot = $(this).closest('.jour-slot'),
+            spot = spotOf(slot);
+        $('.jour-chip.highlight').removeClass('highlight');
+        update({action: 'set', year: spot.year, week: spot.week, slot: spot.slot, user: ''});
+    });
+
+    $('.jour-chip').each(function() { initChip($(this)); });
+
+    $('.jour-slot').droppable({
+        accept: '.jour-chip',
+        tolerance: 'pointer',
+        activeClass: 'drop-active',
+        hoverClass: 'drop-hover',
+        drop: function(ev, ui) {
+            var chip = ui.draggable,
+                target = spotOf(this),
+                slot = this;
+            if (chip.hasClass('from-board')) {
+                update({action: 'set', year: target.year, week: target.week, slot: target.slot,
+                        user: chip.data('user')}, function() { flashSlot(slot); });
+                return;
+            }
+            var sourceSlot = chip.closest('.jour-slot')[0];
+            if (sourceSlot === this) return;
+            var source = spotOf(sourceSlot);
+            update({action: 'move', year: target.year, week: target.week, slot: target.slot,
+                    from_year: source.year, from_week: source.week, from_slot: source.slot},
+                   function() { flashSlot(slot); });
+        }
+    });
+
+    $('.board-palette').droppable({
+        accept: '.jour-chip.in-week',
+        tolerance: 'pointer',
+        hoverClass: 'drop-hover',
+        drop: function(ev, ui) {
+            var spot = spotOf(ui.draggable.closest('.jour-slot'));
+            update({action: 'set', year: spot.year, week: spot.week, slot: spot.slot, user: ''});
+        }
+    });
+
+    var current = $('.call-duty-weeks tr.current');
+    if (current.length) current[0].scrollIntoView({block: 'center'});
+</script>
+{% endblock %}

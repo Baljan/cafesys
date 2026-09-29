@@ -907,6 +907,54 @@ class OnCallDuty(Made):
         }
 
 
+class OnCallWeek(Made):
+    JOUR_FIELDS = ("jour_1", "jour_2", "jour_3")
+
+    year = models.PositiveSmallIntegerField("år")
+    week = models.PositiveSmallIntegerField("vecka")
+    jour_1 = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="jour 1",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+    jour_2 = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="jour 2",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+    jour_3 = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="jour 3",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
+    class Meta:
+        verbose_name = "jourvecka"
+        verbose_name_plural = "jourveckor"
+        ordering = ("-year", "-week")
+        constraints = [
+            models.UniqueConstraint(fields=("year", "week"), name="unique_oncallweek")
+        ]
+
+    def jour(self):
+        return [getattr(self, f) for f in self.JOUR_FIELDS]
+
+    def is_empty(self):
+        return not any(self.jour())
+
+    def __str__(self):
+        return "Vecka %d %d" % (self.week, self.year)
+
+
 def oncallduty_post_bulk_save(users):
     for user, shifts in users.items():
         notifications.send(
