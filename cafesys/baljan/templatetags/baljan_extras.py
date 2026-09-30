@@ -278,6 +278,7 @@ CATERING_STATUS_STYLES = {
     "denied": "danger",
     "cancelled": "secondary",
     "delivered": "info text-dark",
+    "returned": "primary",
     "invoiced": "dark",
 }
 

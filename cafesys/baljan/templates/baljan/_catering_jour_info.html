@@ -1,6 +1,6 @@
 {% comment %}
 What the person on jour needs at the counter. Expects `order`, and `next`
-for where the Utlämnad button returns to.
+for where the handout page returns to.
 {% endcomment %}
 <p>
   Hämtas idag <strong>{{ order.get_pickup_display }}</strong> av
@@ -23,51 +23,28 @@ for where the Utlämnad button returns to.
       {% endfor %}
     </ul>
     {% if order.oatly_cartons %}
-      <p>Till kaffet: muggar och {{ order.oatly_cartons }} Oatly.</p>
+      <p>
+        Till kaffet: muggar och {{ order.oatly_cartons }} Oatly. Socker och
+        skedar om de ber om det &mdash; det ingår.
+      </p>
     {% endif %}
-  {% endif %}
-
-  {% if extras %}
-    <h4 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Jochen och sallad</h4>
-    <ul>
-      <li>
-        Ligger i kläggkylen i kläggförrådet, inte i jochenkylen &mdash;
-        de är inte till försäljning.
-      </li>
-      <li>Gråback ska med.</li>
-    </ul>
   {% endif %}
 
   {% if plans or extras %}
     <h4 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Säg till beställaren</h4>
-    <ul class="mb-0">
-      {% if plans %}
-        <li>Termosar sköljs ur med <strong>enbart varmvatten</strong> före återlämning.</li>
-      {% endif %}
-      <li>
-        {% if plans %}Termosar{% else %}Gråback{% endif %}
-        tillbaka senast ett dygn efter utlämning, till styrelsen i
-        Nollberga under jourtid: 07:30&ndash;08:00, 12:15&ndash;13:00,
-        16:15&ndash;17:00.
-      </li>
-    </ul>
+    <p class="mb-0">{% include "baljan/_catering_return_rule.html" %}</p>
   {% endif %}
 {% endwith %}
 
 {% if order.status == "approved" %}
-  <form method="POST" action="{% url 'catering_order' order.pk %}"
-        class="d-flex flex-wrap gap-2 align-items-end mt-3 pt-3 border-top">
-    {% csrf_token %}
-    <input type="hidden" name="task" value="status">
-    <input type="hidden" name="status" value="delivered">
-    <input type="hidden" name="next" value="{{ next }}">
-    <div class="flex-grow-1">
-      <label for="deliver-name-{{ order.pk }}" class="form-label mb-1">Ditt namn</label>
-      <input type="text" name="handled_by_name" id="deliver-name-{{ order.pk }}"
-             class="form-control" maxlength="100" autocomplete="off" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Markera som utlämnad</button>
-  </form>
-{% elif order.status == "delivered" or order.status == "invoiced" %}
-  <p class="mt-3 pt-3 border-top mb-0 text-muted">Utlämnad.</p>
+  <div class="mt-3 pt-3 border-top">
+    <a href="{% url 'catering_handout' order.pk %}?next={{ next|urlencode }}" class="btn btn-primary w-100">
+      Fyll i fakturaunderlag och lämna ut &raquo;
+    </a>
+  </div>
+{% elif order.status == "delivered" or order.status == "returned" or order.status == "invoiced" %}
+  <p class="mt-3 pt-3 border-top mb-0 text-muted">
+    Utlämnad{% if order.handout %} av {{ order.handout.handed_out_by }}.
+    <a href="{% url 'catering_invoice_basis' order.pk %}">Fakturaunderlag</a>{% else %}.{% endif %}
+  </p>
 {% endif %}

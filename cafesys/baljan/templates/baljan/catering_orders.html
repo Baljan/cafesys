@@ -9,7 +9,10 @@
 {% block staff_info %}
 <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2 mb-3">
   <h2 class="mb-0">Beställningar</h2>
-  <a href="{% url 'catering_extra_order' %}" class="btn btn-sm btn-outline-primary">Extrabeställning</a>
+  <span class="d-flex align-items-baseline gap-3">
+    <a href="{% url 'catering_invoicing' %}" class="small text-muted">Fakturering</a>
+    <a href="{% url 'catering_extra_order' %}" class="btn btn-sm btn-outline-primary">Extrabeställning</a>
+  </span>
 </div>
 
 <div class="row g-4 mb-5">
@@ -77,7 +80,22 @@
   </div>
 </div>
 
-<h3 class="h5 mb-3">Alla beställningar</h3>
+<div class="card mb-5">
+  <div class="card-header bg-transparent">
+    <h3 class="h5 mb-0">
+      Inväntar återlämning
+      {% if to_return %}<span class="badge bg-info text-dark ms-1">{{ to_return|length }}</span>{% endif %}
+    </h3>
+  </div>
+  <ul class="list-group list-group-flush">
+    {% include "baljan/_catering_to_return.html" %}
+    {% if not to_return %}
+      <li class="list-group-item text-muted">Inget väntar på återlämning.</li>
+    {% endif %}
+  </ul>
+</div>
+
+<h3 class="h5 mb-3" id="alla" style="scroll-margin-top:6rem">Alla beställningar</h3>
 
 {% comment %}
 The tabs overlap on purpose: an undecided order due this week is in both
@@ -89,7 +107,7 @@ the three work tabs and is only offered on Historik.
   <div class="nav nav-tabs mb-3" role="tablist">
     {% for t in tabs %}
       <a class="nav-item nav-link {% if t.active %}active{% endif %}"
-         href="{% querystring tab=t.key page=None status=None %}"
+         href="{% querystring tab=t.key page=None status=None %}#alla"
          role="tab" aria-selected="{% if t.active %}true{% else %}false{% endif %}">
         {{ t.label }}
         <span class="badge {% if t.active %}bg-dark{% else %}bg-secondary{% endif %} ms-1">{{ t.count }}</span>
@@ -98,7 +116,7 @@ the three work tabs and is only offered on Historik.
   </div>
 </nav>
 
-<form method="get" class="row g-3 align-items-end mb-4">
+<form method="get" action="#alla" class="row g-3 align-items-end mb-4">
   <input type="hidden" name="tab" value="{{ tab }}">
   {% if tab == "historik" %}
     <div class="col-12 col-sm-6 col-lg-2">
@@ -120,7 +138,7 @@ the three work tabs and is only offered on Historik.
   </div>
   <div class="col-12 col-sm-6 col-lg-3 d-flex gap-2">
     <button type="submit" class="btn btn-primary flex-grow-1">Filtrera</button>
-    <a href="{% url 'catering_orders' %}?tab={{ tab }}" class="btn btn-outline-secondary">Rensa</a>
+    <a href="{% url 'catering_orders' %}?tab={{ tab }}#alla" class="btn btn-outline-secondary">Rensa</a>
   </div>
 </form>
 

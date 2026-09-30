@@ -415,6 +415,7 @@ def orderFromUs(request):
         {
             "form": form,
             "thermos_sizes": models.THERMOS_SIZES,
+            "prices": models.CATERING_PRICES,
         },
     )
 
@@ -656,6 +657,7 @@ def catering_today_orders(today):
     return (
         models.CateringOrder.objects.filter(date=today)
         .exclude(status__in=CATERING_DEAD_STATUSES)
+        .select_related("handout")
         .order_by("pickup", "made")
     )
 
@@ -799,6 +801,7 @@ class CateringOrderListView(PermissionRequiredMixin, ListView):
         tpl["pending_count"] = counts[_catering_count_key(CATERING_TAB_TODO)]
         tpl["today"] = self.today
         tpl["today_orders"] = catering_today_orders(self.today)
+        tpl["to_return"] = catering_orders_to_return()
         tpl["new_orders"] = models.CateringOrder.objects.filter(
             status=models.CateringOrder.Status.PENDING
         ).order_by("-made")[:CATERING_NEW_SHOWN]
@@ -991,6 +994,266 @@ def catering_today(request):
             "windows": windows,
             "pending": pending,
             "has_orders": any(w["orders"] for w in windows),
+            "to_return": catering_orders_to_return(),
+        },
+    )
+
+
+def catering_orders_to_return():
+    """Handed-out orders waiting for thermoses and jochen boxes to come back."""
+    return (
+        models.CateringOrder.objects.filter(
+            status=models.CateringOrder.Status.DELIVERED
+        )
+        .select_related("handout")
+        .order_by("date", "pickup")
+    )
+
+
+def _mark_returned_if_done(order, handout, user, name):
+    """Move a delivered order on once nothing lent is still out."""
+    if order.status == models.CateringOrder.Status.DELIVERED and handout.is_returned:
+        order.set_status(
+            models.CateringOrder.Status.RETURNED, user=user, handled_by_name=name
+        )
+
+
+def _handout_initial(order):
+    """A new invoice basis, filled in from what was ordered."""
+    lines = [
+        {"label": label, "count": order.item_count(field), "unit_price": price}
+        for field, label, price in models.CATERING_PRODUCTS
+    ]
+    thermoses = [
+        {
+            "size": "large" if size >= models.LARGE_THERMOS_CUPS else "small",
+            "name": "",
+        }
+        for plan in order.thermos_plan()
+        for size, count in plan["thermoses"]
+        for _ in range(count)
+    ]
+    handout = models.CateringHandout(
+        order=order,
+        picked_up_by=order.pickup_name or order.orderer,
+        picked_up_phone=order.pickup_phone or order.orderer_phone,
+        return_by=order.return_by,
+        # Blank rather than 0, so a forgotten count is caught, not recorded.
+        jochen_boxes_out=None,
+    )
+    return handout, lines, thermoses
+
+
+def _formset_rows(formset, keep):
+    """Cleaned rows of a valid formset, skipping blanks and rows `keep` drops."""
+    return [row for row in formset.cleaned_data if row and keep(row)]
+
+
+def _can_hand_out(order):
+    return order.status in (
+        models.CateringOrder.Status.APPROVED,
+        models.CateringOrder.Status.DELIVERED,
+    )
+
+
+def _refuse_handout(request, order):
+    messages.add_message(
+        request,
+        messages.ERROR,
+        "Beställningen är %s och kan inte lämnas ut."
+        % order.get_status_display().lower(),
+    )
+    return HttpResponseRedirect(order.get_absolute_url())
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_handout(request, pk):
+    """Write the invoice basis and hand the order out."""
+    order = get_object_or_404(models.CateringOrder, pk=pk)
+    if not _can_hand_out(order):
+        return _refuse_handout(request, order)
+
+    handout = getattr(order, "handout", None)
+    if handout is None:
+        handout, lines, thermoses = _handout_initial(order)
+    else:
+        lines, thermoses = handout.lines, handout.thermoses
+
+    data = request.POST if request.method == "POST" else None
+    form = forms.CateringHandoutForm(
+        data, instance=handout, boxes_required=bool(order.extra_order_items())
+    )
+    line_formset = forms.CateringLineFormSet(data, initial=lines, prefix="lines")
+    thermos_formset = forms.CateringThermosFormSet(
+        data, initial=thermoses, prefix="thermoses"
+    )
+
+    if data is not None:
+        if form.is_valid() and line_formset.is_valid() and thermos_formset.is_valid():
+            with transaction.atomic():
+                order = models.CateringOrder.objects.select_for_update().get(pk=pk)
+                if not _can_hand_out(order):
+                    return _refuse_handout(request, order)
+                # Two people on the same order: the second must not insert a
+                # second basis and trip the unique constraint.
+                if handout.pk is None and hasattr(order, "handout"):
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        "Någon annan fyllde nyss i underlaget. Kontrollera det här.",
+                    )
+                    return HttpResponseRedirect(request.path)
+                handout = form.save(commit=False)
+                handout.order = order
+                handout.lines = _formset_rows(line_formset, lambda r: r["count"])
+                handout.thermoses = _formset_rows(thermos_formset, lambda r: r["size"])
+                handout.save()
+                if order.status == models.CateringOrder.Status.APPROVED:
+                    order.set_status(
+                        models.CateringOrder.Status.DELIVERED,
+                        user=request.user,
+                        handled_by_name=handout.handed_out_by,
+                    )
+                # Nothing lent means nothing to wait for.
+                _mark_returned_if_done(
+                    order, handout, request.user, handout.handed_out_by
+                )
+            messages.add_message(
+                request, messages.SUCCESS, "Fakturaunderlaget sparades."
+            )
+            return _catering_redirect(request, order)
+        messages.add_message(
+            request, messages.ERROR, "Underlaget kunde inte sparas. Se felen nedan."
+        )
+
+    return render(
+        request,
+        "baljan/catering_handout.html",
+        {
+            "order": order,
+            "form": form,
+            "line_formset": line_formset,
+            "thermos_formset": thermos_formset,
+            "next": request.GET.get("next") or request.POST.get("next", ""),
+        },
+    )
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_return(request, pk):
+    """Record thermoses and jochen boxes coming back."""
+    handout = get_object_or_404(
+        models.CateringHandout.objects.select_related("order"), order__pk=pk
+    )
+    data = request.POST if request.method == "POST" else None
+    form = forms.CateringReturnForm(data, instance=handout)
+    thermos_formset = forms.CateringThermosReturnFormSet(
+        data, initial=handout.thermoses, prefix="thermoses"
+    )
+
+    if data is not None:
+        if form.is_valid() and thermos_formset.is_valid():
+            with transaction.atomic():
+                order = models.CateringOrder.objects.select_for_update().get(pk=pk)
+                handout = form.save(commit=False)
+                handout.thermoses = _formset_rows(thermos_formset, lambda r: r["size"])
+                handout.save()
+                _mark_returned_if_done(
+                    order, handout, request.user, form.cleaned_data["handled_by_name"]
+                )
+            messages.add_message(request, messages.SUCCESS, "Återlämningen sparades.")
+            return _catering_redirect(request, handout.order)
+        messages.add_message(
+            request, messages.ERROR, "Återlämningen kunde inte sparas. Se felen nedan."
+        )
+
+    return render(
+        request,
+        "baljan/catering_return.html",
+        {
+            "order": handout.order,
+            "form": form,
+            "thermos_formset": thermos_formset,
+            "next": request.GET.get("next") or request.POST.get("next", ""),
+        },
+    )
+
+
+@require_POST
+@permission_required("baljan.manage_catering_orders")
+def catering_return_all(request, pk):
+    """Everything back in one click, from the lists of what is still out."""
+    order = get_object_or_404(models.CateringOrder, pk=pk)
+    form = forms.CateringStatusForm(request.POST)
+    if not form.is_valid():
+        messages.add_message(
+            request, messages.ERROR, "Skriv ditt namn innan du registrerar."
+        )
+        return _catering_redirect(request, order)
+
+    name = form.cleaned_data["handled_by_name"]
+    with transaction.atomic():
+        order = models.CateringOrder.objects.select_for_update().get(pk=pk)
+        done = order.status == models.CateringOrder.Status.DELIVERED
+        if done:
+            handout = getattr(order, "handout", None)
+            if handout is not None:
+                handout.return_everything(name, timezone.localdate())
+            order.set_status(
+                models.CateringOrder.Status.RETURNED,
+                user=request.user,
+                handled_by_name=name,
+            )
+    if done:
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "Beställning #%s från %s är återlämnad." % (order.pk, order.association),
+        )
+    else:
+        # A stale page: someone else got there first.
+        messages.add_message(
+            request,
+            messages.INFO,
+            "Beställning #%s är redan %s."
+            % (order.pk, order.get_status_display().lower()),
+        )
+    return _catering_redirect(request, order)
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_invoicing(request):
+    """Handed-out orders still to invoice, for the vice chair."""
+    today = timezone.localdate()
+    status = models.CateringOrder.Status
+    orders = (
+        models.CateringOrder.objects.filter(
+            Q(status__in=(status.DELIVERED, status.RETURNED))
+            | Q(status=status.APPROVED, date__lt=today)
+        )
+        .select_related("handout")
+        .order_by("date", "pickup")
+    )
+    return render(
+        request,
+        "baljan/catering_invoicing.html",
+        {"orders": orders},
+    )
+
+
+@permission_required("baljan.manage_catering_orders")
+def catering_invoice_basis(request, pk):
+    """The invoice basis laid out like the paper form, for reading and printing."""
+    handout = get_object_or_404(
+        models.CateringHandout.objects.select_related("order"), order__pk=pk
+    )
+    return render(
+        request,
+        "baljan/catering_invoice_basis.html",
+        {
+            "order": handout.order,
+            "handout": handout,
+            "lines": handout.line_rows(),
         },
     )
 

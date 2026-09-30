@@ -34,14 +34,14 @@
 
                 <div>   
                     <h2> Beställning </h2>
-                    {% order_item form 'coffee' 9 %}
-                    {% order_item form 'tea' 9 %}
-                    {% order_item form 'soda' 10 %}
-                    {% order_item form 'klagg' 9 %}
+                    {% order_item form 'coffee' prices.numberOfCoffee %}
+                    {% order_item form 'tea' prices.numberOfTea %}
+                    {% order_item form 'soda' prices.numberOfSoda %}
+                    {% order_item form 'klagg' prices.numberOfKlagg %}
 
-                    {% order_group form 'Jochen' 'Antal jochen' form.JOCHEN_TYPES 39 %}
-                    {% order_group form 'Minijochen' 'Antal mini jochen' form.MINI_JOCHEN_TYPES 18 %}
-                    {% order_group form 'Pastasalad' 'Antal pastasallad' form.PASTA_SALAD_TYPES 53 %}
+                    {% order_group form 'Jochen' 'Antal jochen' form.JOCHEN_TYPES prices.numberOfJochen %}
+                    {% order_group form 'Minijochen' 'Antal mini jochen' form.MINI_JOCHEN_TYPES prices.numberOfMinijochen %}
+                    {% order_group form 'Pastasalad' 'Antal pastasallad' form.PASTA_SALAD_TYPES prices.numberOfPastasalad %}
                     <div id="food_note" class="alert alert-warning small py-2 my-2" hidden>
                         <i class="fa fa-info-circle" aria-hidden="true"></i> <span></span>
                     </div>
@@ -62,10 +62,11 @@
                 </div>
 
                 <div class="wrapper">
-                    <h2> Kontaktuppgifter </h2>
+                    <h2> Kontaktuppgifter och fakturering </h2>
 
                     {% field form.orderer %}
                     {% field form.ordererEmail %}
+                    <small class="form-text text-muted d-block mb-2">{{ form.ordererEmail.help_text }}</small>
                     {% field form.phoneNumber %}
                     {% field form.association %}
                     {% field form.org%}
@@ -105,7 +106,7 @@
                     <div class="form-check">
                         <label class="form-check-label" for="form-confirmation2">
                             <input type="checkbox" class="form-check-input" id="form-confirmation2">
-                            <span>Jag godkänner härmed Sektionscafé Baljan  <a href="{% static 'laneregler.pdf' %}" target="_blank">låneregeler</a> och accepterar bli fakturerad därefter om de inte skulle efterföljas.</span>
+                            <span>Jag godkänner härmed Sektionscafé Baljan  <a href="{% static 'laneregler.pdf' %}" target="_blank">låneregler</a> och accepterar att bli fakturerad därefter om de inte skulle efterföljas.</span>
                         </label>
                     </div>
 
@@ -130,12 +131,12 @@
                 <li>Eftermiddag: 16.15 - 17.00
             </ul>
 
-            Baljan fakturerar endast studentföreningar samt sektioner vid Linköpings Universitet. Notera även att Baljan inte har möjlighet att fakturera via E-faktura.
+            Baljan fakturerar endast studentföreningar samt sektioner vid Linköpings universitet. Notera även att Baljan inte har möjlighet att fakturera via E-faktura.
         </div>
 
         <div>
             <h2> Hur mycket kan man beställa?</h2>
-            På grund av begränsningar i hur mycket kaffe vi kan koka samt hur mycket vi kan förvara har vi följade gränser:
+            På grund av begränsningar i hur mycket kaffe vi kan koka samt hur mycket vi kan förvara har vi följande gränser:
             <ul>
                 <li><b>Kaffe (antal koppar):</b> minst 5, Morgon max 45, Lunch max 90, Eftermiddag max 135</li>
                 <li><b>Te (antal koppar):</b> minst 5, max 45</li>
@@ -145,12 +146,12 @@
                 <li><b>Klägg:</b> minst 5, max 300</li>
             </ul>
 
-            Beställer ni någon pastasallad och/eller över 100 stycken Jochen måste ni hämta ut beställningen på morgonen (07.30 - 08.00) då vi inte möjlighet att förvara dessa i våra kylar.
+            Beställer ni någon pastasallad och/eller över 100 stycken Jochen måste ni hämta ut beställningen på morgonen (07.30 - 08.00) då vi inte har möjlighet att förvara dessa i våra kylar.
         </div>
 
         <div class="wrapper">
             <h2> Vad gäller? </h2>
-            Följade gäller vid beställningar:
+            Följande gäller vid beställningar:
 
             <h3> Jochen/Pastasallad </h3>
             <ul>

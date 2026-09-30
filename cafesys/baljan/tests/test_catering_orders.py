@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django.urls import resolve, reverse
 from django.utils import timezone
+from django.utils.formats import date_format
 
 from cafesys.baljan.actions import categories_and_actions
 from cafesys.celery import app as celery_app
@@ -17,6 +18,8 @@ from cafesys.baljan.models import (
     THERMOS_SIZES,
     earliest_supplier_order_date,
     plan_thermoses,
+    CATERING_PRODUCTS,
+    CateringHandout,
     CateringOrder,
     CateringOrderEmail,
     CateringOrderStatusChange,
@@ -125,7 +128,15 @@ class CateringOrderModelTestCase(TestCase):
     def test_every_status_is_labelled_in_swedish(self):
         self.assertEqual(
             [label for _value, label in CateringOrder.Status.choices],
-            ["Väntar", "Godkänd", "Nekad", "Avbeställd", "Levererad", "Fakturerad"],
+            [
+                "Väntar",
+                "Godkänd",
+                "Nekad",
+                "Avbeställd",
+                "Utlämnad",
+                "Återlämnad",
+                "Fakturerad",
+            ],
         )
 
     def test_pickup_window_follows_the_chosen_slot(self):
@@ -183,6 +194,24 @@ class CateringOrderEmailTestCase(TestCase):
 
         kinds = [content_type for _name, _c, content_type in message.attachments]
         self.assertIn("text/calendar", kinds)
+
+    def test_approval_email_says_where_the_invoice_goes_and_when_to_return(self):
+        order = make_order(status=CateringOrder.Status.APPROVED)
+        send_catering_order_decision_email(order.pk)
+        html = mail.outbox[0].alternatives[0][0]
+        self.assertIn("Fakturan skickas till anna@example.com", html)
+        self.assertIn("Termosar och Gråback lämnas tillbaka senast", html)
+        self.assertIn(date_format(order.return_by, "l j F"), html)
+
+    def test_nothing_lent_means_no_return_rule(self):
+        order = make_order(
+            status=CateringOrder.Status.APPROVED,
+            items=[
+                {"field": "numberOfSoda", "label": "läsk", "count": 10, "group": None}
+            ],
+        )
+        send_catering_order_decision_email(order.pk)
+        self.assertNotIn("lämnas tillbaka", mail.outbox[0].alternatives[0][0])
 
     def test_html_body_is_text_so_django_can_encode_it(self):
         """Django 5 rejects a bytes alternative, which silently broke sending."""
@@ -285,6 +314,12 @@ class OrderFormTestCase(TestCase):
         }
         data.update(overrides)
         return data
+
+    def test_the_form_shows_prices_and_where_the_invoice_goes(self):
+        response = self.client.get(reverse("order_from_us"))
+        self.assertContains(response, 'class="cost">39<')
+        self.assertContains(response, "fakturan skickas hit")
+        self.assertContains(response, "låneregler</a> och accepterar att bli")
 
     def test_submitting_stores_the_order(self):
         response = self.client.post(reverse("order_from_us"), self.payload())
@@ -775,6 +810,22 @@ class CateringOrderPublicPageTestCase(TestCase):
             reverse("catering_order_status", kwargs={"token": "nonsense"})
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_each_later_status_tells_the_orderer_what_it_means(self):
+        order = make_order(status=CateringOrder.Status.DELIVERED)
+        response = self.client.get(order.get_public_url())
+        self.assertContains(response, "lämnas tillbaka senast")
+        self.assertNotContains(response, "Behöver något ändras")
+
+        order.status = CateringOrder.Status.RETURNED
+        order.save()
+        response = self.client.get(order.get_public_url())
+        self.assertContains(response, "allt är återlämnat")
+
+        order.status = CateringOrder.Status.INVOICED
+        order.save()
+        response = self.client.get(order.get_public_url())
+        self.assertContains(response, "Fakturan skickas till anna@example.com")
 
     def test_the_page_shows_the_order(self):
         order = make_order(
@@ -2050,12 +2101,13 @@ class JourInfoTestCase(TestCase):
         self.assertNotContains(response, "varmvatten")
 
     def test_it_carries_the_loan_rules(self):
-        response = self.page(self.today_order())
+        order = self.today_order()
+        response = self.page(order)
         self.assertContains(response, "enbart varmvatten")
-        self.assertContains(response, "ett dygn")
+        self.assertContains(response, date_format(order.return_by, "l j F"))
         self.assertContains(response, "16:15")
 
-    def test_jochen_is_placed_for_jour(self):
+    def test_jochen_means_a_gray_box_to_return(self):
         order = self.today_order(
             items=[
                 {
@@ -2067,7 +2119,7 @@ class JourInfoTestCase(TestCase):
             ]
         )
         response = self.page(order)
-        self.assertContains(response, "kläggkylen")
+        self.assertNotContains(response, "kläggkylen")
         self.assertContains(response, "Gråback")
 
     def test_an_order_without_jochen_says_nothing_about_it(self):
@@ -2529,7 +2581,7 @@ class CateringTodayTestCase(BoardClientMixin, TestCase):
         response = self.page()
         self.assertContains(response, "Idagsektionen")
         self.assertContains(response, "Info för Jour", count=0)
-        self.assertContains(response, "Markera som utlämnad")
+        self.assertContains(response, "Fyll i fakturaunderlag och lämna ut")
         self.assertNotContains(response, "Imorgonsektionen")
         self.assertNotContains(response, "Avbokadsektionen")
 
@@ -2548,7 +2600,7 @@ class CateringTodayTestCase(BoardClientMixin, TestCase):
         response = self.page()
         self.assertContains(response, "Obesvarade beställningar för idag")
         self.assertEqual(response.context["pending"], [order])
-        self.assertNotContains(response, "Markera som utlämnad")
+        self.assertNotContains(response, "Fyll i fakturaunderlag och lämna ut")
 
     def test_the_button_marks_it_delivered(self):
         order = make_order(
@@ -2561,6 +2613,406 @@ class CateringTodayTestCase(BoardClientMixin, TestCase):
         self.assertEqual(order.status, CateringOrder.Status.DELIVERED)
         self.assertEqual(order.handled_by_name, "Kalle Karlsson")
         self.assertContains(self.page(), "Utlämnad.")
+
+
+def handout_payload(lines=(), thermoses=(), **overrides):
+    """A handout submission: `lines` as (count, label, price), `thermoses` as sizes."""
+    data = {
+        "handed_out_by": "Jour Jansson",
+        "picked_up_by": "Anna Andersson",
+        "picked_up_phone": "0700000000",
+        "reference": "Sexmästeriet",
+        "jochen_boxes_out": "2",
+        "return_by": "",
+        "other_info": "",
+        "lines-TOTAL_FORMS": str(len(lines)),
+        "lines-INITIAL_FORMS": str(len(lines)),
+        "lines-MIN_NUM_FORMS": "0",
+        "lines-MAX_NUM_FORMS": "30",
+        "thermoses-TOTAL_FORMS": str(len(thermoses)),
+        "thermoses-INITIAL_FORMS": str(len(thermoses)),
+        "thermoses-MIN_NUM_FORMS": "0",
+        "thermoses-MAX_NUM_FORMS": "30",
+    }
+    for i, (count, label, price) in enumerate(lines):
+        data.update(
+            {
+                "lines-%d-count" % i: str(count),
+                "lines-%d-label" % i: label,
+                "lines-%d-unit_price" % i: str(price),
+            }
+        )
+    for i, size in enumerate(thermoses):
+        data.update({"thermoses-%d-size" % i: size, "thermoses-%d-name" % i: ""})
+    data.update(overrides)
+    return data
+
+
+class CateringHandoutTestCase(BoardClientMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.order = make_order(
+            date=timezone.localdate(), status=CateringOrder.Status.APPROVED
+        )
+
+    def url(self, order=None):
+        return reverse("catering_handout", args=[(order or self.order).pk])
+
+    def submit(self, **data):
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url(), data)
+        self.order.refresh_from_db()
+        return response
+
+    def test_it_is_closed_to_outsiders(self):
+        self.client.force_login(User.objects.create(username="utomstaende"))
+        self.assertIn(self.client.get(self.url()).status_code, (302, 403))
+
+    def test_the_form_is_prefilled_from_the_order(self):
+        response = self.client.get(self.url())
+        lines = response.context["line_formset"].initial
+        self.assertIn({"label": "Kaffe", "count": 20, "unit_price": 9}, lines)
+        self.assertIn({"label": "Jochen", "count": 3, "unit_price": 39}, lines)
+        # 20 cups of coffee is 15 + 5, both small.
+        self.assertEqual(
+            response.context["thermos_formset"].initial,
+            [{"size": "small", "name": ""}] * 2,
+        )
+        self.assertEqual(
+            response.context["form"].initial["return_by"], self.order.return_by
+        )
+        self.assertIsNone(response.context["form"].initial["jochen_boxes_out"])
+
+    def test_big_thermoses_are_large(self):
+        order = make_order(
+            date=timezone.localdate(),
+            status=CateringOrder.Status.APPROVED,
+            items=[
+                {
+                    "field": "numberOfCoffee",
+                    "label": "kaffe",
+                    "count": 67,
+                    "group": None,
+                }
+            ],
+        )
+        response = self.client.get(self.url(order))
+        self.assertEqual(
+            response.context["thermos_formset"].initial,
+            [{"size": "large", "name": ""}] * 2,
+        )
+
+    def test_saving_hands_the_order_out(self):
+        response = self.submit(
+            **handout_payload(
+                lines=[(20, "Kaffe", 9), (0, "Te", 9), (1, "Extra", 5)],
+                thermoses=["large"],
+                next=reverse("catering_today"),
+            )
+        )
+        self.assertRedirects(response, reverse("catering_today"))
+        self.assertEqual(self.order.status, CateringOrder.Status.DELIVERED)
+        self.assertEqual(self.order.handled_by_name, "Jour Jansson")
+        handout = self.order.handout
+        self.assertEqual(
+            handout.lines,
+            [
+                {"label": "Kaffe", "count": 20, "unit_price": 9},
+                {"label": "Extra", "count": 1, "unit_price": 5},
+            ],
+        )
+        self.assertEqual(handout.total(), 185)
+        self.assertEqual(len(handout.thermoses), 1)
+
+    def test_the_boxes_must_be_counted_when_jochen_goes_out(self):
+        response = self.submit(**handout_payload(jochen_boxes_out=""))
+        self.assertContains(response, "Fyll i hur många jochenlådor som lämnas ut")
+        self.assertEqual(self.order.status, CateringOrder.Status.APPROVED)
+
+    def test_the_name_is_required(self):
+        self.submit(**handout_payload(handed_out_by=""))
+        self.assertEqual(self.order.status, CateringOrder.Status.APPROVED)
+        self.assertFalse(CateringHandout.objects.exists())
+
+    def test_a_count_without_a_product_is_refused(self):
+        response = self.submit(**handout_payload(lines=[(3, "", 9)]))
+        self.assertContains(response, "Ange vilken produkt raden gäller.")
+        self.assertFalse(CateringHandout.objects.exists())
+
+    def test_an_undecided_order_cannot_be_handed_out(self):
+        order = make_order(date=timezone.localdate())
+        response = self.client.get(self.url(order))
+        self.assertRedirects(response, order.get_absolute_url())
+
+    def test_nothing_lent_means_nothing_to_wait_for(self):
+        self.submit(**handout_payload(jochen_boxes_out="0"))
+        self.assertEqual(self.order.status, CateringOrder.Status.RETURNED)
+        self.assertEqual(
+            list(
+                self.order.status_changes.order_by("id").values_list(
+                    "status", flat=True
+                )
+            ),
+            ["delivered", "returned"],
+        )
+
+    def test_editing_keeps_the_status_and_the_returns(self):
+        self.submit(**handout_payload(thermoses=["small"]))
+        handout = self.order.handout
+        handout.thermoses[0].update(returned_on="2026-01-02", received_by="Mottagare")
+        handout.save()
+        data = handout_payload(
+            thermoses=["small"],
+            **{
+                "thermoses-0-returned_on": "2026-01-02",
+                "thermoses-0-received_by": "Mottagare",
+            },
+        )
+        self.submit(**data)
+        self.assertEqual(CateringHandout.objects.count(), 1)
+        self.assertEqual(self.order.status, CateringOrder.Status.DELIVERED)
+        self.assertEqual(
+            CateringHandout.objects.get().thermoses[0]["received_by"], "Mottagare"
+        )
+
+
+class CateringReturnByTestCase(TestCase):
+    def test_it_is_the_next_weekday(self):
+        friday = next_weekday()
+        while friday.weekday() != 4:
+            friday += timedelta(days=1)
+        self.assertEqual(make_order(date=friday).return_by, friday + timedelta(days=3))
+        thursday = friday - timedelta(days=1)
+        self.assertEqual(make_order(date=thursday).return_by, friday)
+
+    def test_the_agreed_date_wins(self):
+        order = make_order()
+        agreed = order.date + timedelta(days=5)
+        CateringHandout.objects.create(
+            order=order, picked_up_by="A B", handed_out_by="C D", return_by=agreed
+        )
+        order.refresh_from_db()
+        self.assertEqual(order.return_by, agreed)
+
+
+class CateringHandoutTotalsTestCase(TestCase):
+    def handout(self, thermoses, date_=None):
+        order = make_order(date=date_ or timezone.localdate())
+        return CateringHandout(
+            order=order,
+            lines=[{"label": "Kaffe", "count": 10, "unit_price": 9}],
+            thermoses=thermoses,
+        )
+
+    def test_thermoses_lent_with_coffee_cost_nothing(self):
+        handout = self.handout([{"size": "large", "returned_on": None}])
+        self.assertEqual(handout.total(), 90)
+
+    def test_rent_is_offered_as_lines(self):
+        response_lines = [label for _f, label, _p in CATERING_PRODUCTS]
+        self.assertIn("Stor termoshyra/dygn", response_lines)
+        self.assertIn("Liten termoshyra/dygn", response_lines)
+
+    def test_it_is_returned_once_everything_is_back(self):
+        handout = self.handout([{"size": "small", "returned_on": None}])
+        handout.jochen_boxes_out = 2
+        self.assertFalse(handout.is_returned)
+        handout.thermoses[0]["returned_on"] = "2026-01-01"
+        self.assertFalse(handout.is_returned)
+        handout.jochen_boxes_returned = 2
+        self.assertTrue(handout.is_returned)
+
+
+class CateringReturnTestCase(BoardClientMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.order = make_order(
+            date=timezone.localdate(), status=CateringOrder.Status.DELIVERED
+        )
+        self.handout = CateringHandout.objects.create(
+            order=self.order,
+            picked_up_by="Anna Andersson",
+            handed_out_by="Jour Jansson",
+            jochen_boxes_out=2,
+            thermoses=[{"size": "large", "name": "Stora blå"}],
+        )
+
+    def submit(self, **data):
+        payload = {
+            "jochen_boxes_returned": "2",
+            "return_note": "",
+            "thermoses-TOTAL_FORMS": "1",
+            "thermoses-INITIAL_FORMS": "1",
+            "thermoses-MIN_NUM_FORMS": "0",
+            "thermoses-MAX_NUM_FORMS": "30",
+            "thermoses-0-size": "large",
+            "thermoses-0-name": "Stora blå",
+            "thermoses-0-returned_on": timezone.localdate().isoformat(),
+            "thermoses-0-received_by": "Mottagare",
+            "handled_by_name": "Jour Jansson",
+        }
+        payload.update(data)
+        response = self.client.post(
+            reverse("catering_return", args=[self.order.pk]), payload
+        )
+        self.handout.refresh_from_db()
+        self.order.refresh_from_db()
+        return response
+
+    def test_it_is_listed_on_todays_page_until_returned(self):
+        today = reverse("catering_today")
+        self.assertContains(self.client.get(today), "Inväntar återlämning")
+        self.submit()
+        self.assertNotContains(self.client.get(today), "Inväntar återlämning")
+
+    def test_the_return_is_recorded(self):
+        self.submit(return_note="En termos var smutsig")
+        self.assertTrue(self.handout.is_returned)
+        self.assertEqual(self.handout.thermoses[0]["received_by"], "Mottagare")
+        self.assertEqual(self.handout.return_note, "En termos var smutsig")
+        self.assertEqual(self.order.status, CateringOrder.Status.RETURNED)
+        self.assertEqual(self.order.handled_by_name, "Jour Jansson")
+
+    def test_a_partial_return_keeps_it_waiting(self):
+        self.submit(jochen_boxes_returned="")
+        self.assertEqual(self.order.status, CateringOrder.Status.DELIVERED)
+
+    def return_all(self, name="Mottagare"):
+        response = self.client.post(
+            reverse("catering_return_all", args=[self.order.pk]),
+            {"handled_by_name": name, "next": reverse("catering_today")},
+        )
+        self.handout.refresh_from_db()
+        self.order.refresh_from_db()
+        return response
+
+    def test_everything_back_in_one_click(self):
+        response = self.return_all()
+        self.assertRedirects(response, reverse("catering_today"))
+        self.assertTrue(self.handout.is_returned)
+        self.assertEqual(self.handout.jochen_boxes_returned, 2)
+        self.assertEqual(self.handout.thermoses[0]["received_by"], "Mottagare")
+        self.assertEqual(self.order.status, CateringOrder.Status.RETURNED)
+        self.assertNotContains(
+            self.client.get(reverse("catering_today")), "Inväntar återlämning"
+        )
+
+    def test_one_click_keeps_earlier_partial_returns(self):
+        self.handout.thermoses[0].update(returned_on="2026-01-02", received_by="Förra")
+        self.handout.jochen_boxes_returned = 1
+        self.handout.save()
+        self.return_all()
+        self.assertEqual(self.handout.thermoses[0]["received_by"], "Förra")
+        self.assertEqual(self.handout.jochen_boxes_returned, 1)
+
+    def test_one_click_needs_a_name(self):
+        self.return_all(name="")
+        self.assertFalse(self.handout.is_returned)
+        self.assertEqual(self.order.status, CateringOrder.Status.DELIVERED)
+
+    def test_one_click_on_a_stale_page_says_so(self):
+        self.return_all()
+        response = self.client.post(
+            reverse("catering_return_all", args=[self.order.pk]),
+            {"handled_by_name": "Någon annan"},
+            follow=True,
+        )
+        self.assertContains(response, "är redan återlämnad")
+
+    def test_one_click_names_the_order(self):
+        response = self.client.post(
+            reverse("catering_return_all", args=[self.order.pk]),
+            {"handled_by_name": "Mottagare"},
+            follow=True,
+        )
+        self.assertContains(
+            response, "Beställning #%s från Testsektionen är återlämnad" % self.order.pk
+        )
+
+    def test_one_click_works_without_a_basis(self):
+        order = make_order(status=CateringOrder.Status.DELIVERED)
+        self.client.post(
+            reverse("catering_return_all", args=[order.pk]),
+            {"handled_by_name": "Mottagare"},
+        )
+        order.refresh_from_db()
+        self.assertEqual(order.status, CateringOrder.Status.RETURNED)
+
+    def test_the_dashboard_lists_it(self):
+        response = self.client.get(reverse("catering_orders"))
+        self.assertEqual(list(response.context["to_return"]), [self.order])
+        self.return_all()
+        response = self.client.get(reverse("catering_orders"))
+        self.assertEqual(list(response.context["to_return"]), [])
+        self.assertContains(response, "Inget väntar på återlämning.")
+
+    def test_a_return_needs_whoever_received_it(self):
+        response = self.submit(**{"thermoses-0-received_by": ""})
+        self.assertContains(response, "Skriv vem som tog emot termosen.")
+        self.assertFalse(self.handout.is_returned)
+
+
+class CateringInvoicingTestCase(BoardClientMixin, TestCase):
+    def page(self):
+        return self.client.get(reverse("catering_invoicing"))
+
+    def test_it_is_closed_to_outsiders(self):
+        self.client.force_login(User.objects.create(username="utomstaende"))
+        self.assertIn(self.page().status_code, (302, 403))
+
+    def test_it_lists_what_is_left_to_invoice(self):
+        today = timezone.localdate()
+        past = today - timedelta(days=3)
+        make_order(status=CateringOrder.Status.DELIVERED, association="Levererad")
+        make_order(status=CateringOrder.Status.RETURNED, association="Tillbaka")
+        make_order(status=CateringOrder.Status.APPROVED, date=past, association="Glömd")
+        make_order(status=CateringOrder.Status.APPROVED, date=today, association="Idag")
+        make_order(status=CateringOrder.Status.INVOICED, association="Fakturerad")
+        make_order(
+            status=CateringOrder.Status.CANCELLED, date=past, association="Avbokad"
+        )
+        response = self.page()
+        self.assertContains(response, "Levererad")
+        self.assertContains(response, "Tillbaka")
+        self.assertContains(response, "Glömd")
+        self.assertContains(response, "Inget fakturaunderlag är ifyllt")
+        for name in ("Idag", "Fakturerad", "Avbokad"):
+            self.assertNotContains(response, "<strong>%s</strong>" % name)
+
+    def test_marking_it_invoiced_takes_it_off_the_list(self):
+        order = make_order(status=CateringOrder.Status.DELIVERED, association="Klar")
+        CateringHandout.objects.create(
+            order=order,
+            picked_up_by="Anna Andersson",
+            handed_out_by="Jour Jansson",
+            lines=[{"label": "Kaffe", "count": 10, "unit_price": 9}],
+        )
+        response = self.page()
+        self.assertContains(response, "90 kr")
+        self.assertContains(response, "Fakturan skickas till")
+        response = self.post(
+            order, task="status", status="invoiced", next=reverse("catering_invoicing")
+        )
+        self.assertRedirects(response, reverse("catering_invoicing"))
+        self.assertEqual(order.status, CateringOrder.Status.INVOICED)
+        self.assertNotContains(self.page(), "<strong>Klar</strong>")
+
+    def test_the_invoice_basis_shows_the_sum(self):
+        order = make_order(status=CateringOrder.Status.DELIVERED)
+        CateringHandout.objects.create(
+            order=order,
+            picked_up_by="Anna Andersson",
+            handed_out_by="Jour Jansson",
+            lines=[{"label": "Kaffe", "count": 10, "unit_price": 9}],
+            thermoses=[{"size": "small", "name": "Lilla röda"}],
+        )
+        response = self.client.get(reverse("catering_invoice_basis", args=[order.pk]))
+        self.assertContains(response, "Lilla röda")
+        self.assertContains(response, "90 kr")
+
+    def test_the_dashboard_links_here(self):
+        response = self.client.get(reverse("catering_orders"))
+        self.assertContains(response, reverse("catering_invoicing"))
 
 
 class CateringExtraOrderTestCase(BoardClientMixin, TestCase):

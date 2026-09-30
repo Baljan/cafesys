@@ -40,6 +40,16 @@
   </div>
 {% endif %}
 
+{% if order.handout %}
+  <div class="alert alert-light border d-flex flex-wrap gap-3 align-items-center mb-4">
+    <span>Fakturaunderlag ifyllt, totalt <strong>{{ order.handout.total }} kr</strong>.</span>
+    <a href="{% url 'catering_invoice_basis' order.pk %}">Visa</a>
+    {% if not order.handout.is_returned %}
+      <a href="{% url 'catering_return' order.pk %}">Registrera återlämning</a>
+    {% endif %}
+  </div>
+{% endif %}
+
 <div class="row g-4">
   <div class="col-12 col-lg-7">
     <div class="card mb-4">

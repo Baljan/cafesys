@@ -765,3 +765,13 @@ class CateringOrderStatusChangeAdmin(admin.ModelAdmin):
 custom_admin_site.register(
     models.CateringOrderStatusChange, CateringOrderStatusChangeAdmin
 )
+
+
+class CateringHandoutAdmin(admin.ModelAdmin):
+    list_display = ("order", "picked_up_by", "handed_out_by", "made")
+    search_fields = ("order__association", "picked_up_by", "reference")
+    readonly_fields = ("made", "updated_at")
+    raw_id_fields = ("order",)
+
+
+custom_admin_site.register(models.CateringHandout, CateringHandoutAdmin)

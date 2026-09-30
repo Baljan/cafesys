@@ -83,7 +83,32 @@ urlpatterns = (
         views.catering_extra_order,
         name="catering_extra_order",
     ),
+    path(
+        "bestallningar/fakturering",
+        views.catering_invoicing,
+        name="catering_invoicing",
+    ),
     path("bestallningar/<int:pk>", views.catering_order, name="catering_order"),
+    path(
+        "bestallningar/<int:pk>/utlamning",
+        views.catering_handout,
+        name="catering_handout",
+    ),
+    path(
+        "bestallningar/<int:pk>/aterlamning",
+        views.catering_return,
+        name="catering_return",
+    ),
+    path(
+        "bestallningar/<int:pk>/aterlamning/allt",
+        views.catering_return_all,
+        name="catering_return_all",
+    ),
+    path(
+        "bestallningar/<int:pk>/fakturaunderlag",
+        views.catering_invoice_basis,
+        name="catering_invoice_basis",
+    ),
     path(
         "trade/take/<int:signup_pk>/<path:redir>", views.trade_take, name="take_signup"
     ),

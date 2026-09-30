@@ -104,6 +104,131 @@ class CateringStatusForm(forms.Form):
     )
 
 
+def _text(max_length, required=False, **attrs):
+    return forms.CharField(
+        max_length=max_length,
+        required=required,
+        validators=[no_control_characters],
+        widget=forms.TextInput(attrs={"class": "form-control", **attrs}),
+    )
+
+
+def _count(max_value, **attrs):
+    return forms.IntegerField(
+        min_value=0,
+        max_value=max_value,
+        required=False,
+        widget=forms.NumberInput(attrs={"class": "form-control", **attrs}),
+    )
+
+
+def _date(required=False):
+    return forms.DateField(
+        required=required,
+        widget=forms.DateInput(
+            attrs={"class": "form-control", "type": "date"}, format="%Y-%m-%d"
+        ),
+    )
+
+
+class CateringHandoutForm(forms.ModelForm):
+    """What the person on jour writes down at the counter."""
+
+    handed_out_by = _text(100, required=True, autocomplete="off")
+    picked_up_by = _text(100, required=True)
+    picked_up_phone = _text(20)
+    reference = _text(100)
+    jochen_boxes_out = _count(999)
+    return_by = _date()
+
+    class Meta:
+        model = models.CateringHandout
+        fields = (
+            "handed_out_by",
+            "picked_up_by",
+            "picked_up_phone",
+            "reference",
+            "jochen_boxes_out",
+            "return_by",
+            "other_info",
+        )
+        widgets = {
+            "other_info": forms.Textarea(attrs={"class": "form-control", "rows": 3})
+        }
+
+    def __init__(self, *args, boxes_required=False, **kwargs):
+        """`boxes_required` when jochen or salad goes out, so the count is not forgotten."""
+        super().__init__(*args, **kwargs)
+        self.boxes_required = boxes_required
+        if boxes_required:
+            self.fields["jochen_boxes_out"].widget.attrs["required"] = True
+
+    def clean_jochen_boxes_out(self):
+        boxes = self.cleaned_data["jochen_boxes_out"]
+        if boxes is None and self.boxes_required:
+            raise forms.ValidationError(
+                "Fyll i hur många jochenlådor som lämnas ut, 0 om inga."
+            )
+        return boxes or 0
+
+
+class CateringReturnForm(forms.ModelForm):
+    jochen_boxes_returned = _count(999)
+    handled_by_name = _text(100, required=True, autocomplete="off")
+
+    class Meta:
+        model = models.CateringHandout
+        fields = ("jochen_boxes_returned", "return_note")
+        widgets = {
+            "return_note": forms.Textarea(attrs={"class": "form-control", "rows": 3})
+        }
+
+
+class CateringLineForm(forms.Form):
+    label = _text(100)
+    count = _count(9999, **{"data-count": ""})
+    unit_price = _count(99999, **{"data-price": ""})
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("count") and not cleaned.get("label"):
+            raise forms.ValidationError("Ange vilken produkt raden gäller.")
+        cleaned["unit_price"] = cleaned.get("unit_price") or 0
+        return cleaned
+
+
+class CateringThermosForm(forms.Form):
+    SIZE_CHOICES = (("", "—"), ("large", "Stor"), ("small", "Liten"))
+
+    size = forms.ChoiceField(
+        choices=SIZE_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+    name = _text(50, placeholder="Termosnamn")
+    returned_on = _date()
+    received_by = _text(100, placeholder="Mottagande jour")
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("name") and not cleaned.get("size"):
+            raise forms.ValidationError("Välj storlek på termosen.")
+        if cleaned.get("returned_on") and not cleaned.get("received_by"):
+            raise forms.ValidationError("Skriv vem som tog emot termosen.")
+        return cleaned
+
+
+CateringLineFormSet = forms.formset_factory(
+    CateringLineForm, extra=2, max_num=30, validate_max=True
+)
+CateringThermosFormSet = forms.formset_factory(
+    CateringThermosForm, extra=2, max_num=30, validate_max=True
+)
+CateringThermosReturnFormSet = forms.formset_factory(
+    CateringThermosForm, extra=0, max_num=30, validate_max=True
+)
+
+
 class OrderForm(forms.Form):
     # [(field name, jochen name), ... ]
 
@@ -223,7 +348,12 @@ class OrderForm(forms.Form):
     )
     # max_length matches CateringOrder.orderer_email; EmailField would
     # otherwise allow 320 and fail on insert instead of in validation.
-    ordererEmail = forms.EmailField(max_length=254, required=True, label="Email:")
+    ordererEmail = forms.EmailField(
+        max_length=254,
+        required=True,
+        label="E-post (fakturan skickas hit):",
+        help_text="Fakturan för beställningen skickas till den här adressen.",
+    )
     phoneNumber = forms.RegexField(
         max_length=11, required=True, label="Telefon:", regex=r"[0-9]{6,11}"
     )

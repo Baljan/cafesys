@@ -37,6 +37,24 @@ THERMOS_SIZES = {
     "numberOfTea": (15, 10, 6, 5),
 }
 
+#: Rows of the invoice basis, in the order of the paper form, with price in kr.
+CATERING_PRODUCTS = (
+    ("numberOfCoffee", "Kaffe", 9),
+    ("numberOfTea", "Te", 9),
+    ("numberOfSoda", "Läsk (inkl. pant)", 10),
+    ("numberOfKlagg", "Klägg", 9),
+    ("numberOfMinijochen", "MiniJochen", 18),
+    ("numberOfJochen", "Jochen", 39),
+    ("numberOfPastasalad", "Pastasallad", 53),
+    # Rent is only charged for thermoses borrowed without coffee or tea.
+    ("", "Stor termoshyra/dygn", 50),
+    ("", "Liten termoshyra/dygn", 10),
+)
+CATERING_PRICES = {field: price for field, _label, price in CATERING_PRODUCTS if field}
+
+#: Thermoses of at least this many cups are large.
+LARGE_THERMOS_CUPS = 22
+
 #: Coffee up to this many cups gets one carton of Oatly, more gets two.
 OATLY_THRESHOLD = 45
 
@@ -1587,7 +1605,8 @@ class CateringOrder(Made):
         APPROVED = "approved", "Godkänd"
         DENIED = "denied", "Nekad"
         CANCELLED = "cancelled", "Avbeställd"
-        DELIVERED = "delivered", "Levererad"
+        DELIVERED = "delivered", "Utlämnad"
+        RETURNED = "returned", "Återlämnad"
         INVOICED = "invoiced", "Fakturerad"
 
     MORNING = 1
@@ -1614,8 +1633,10 @@ class CateringOrder(Made):
         Status.APPROVED: (Status.DELIVERED, Status.CANCELLED),
         Status.DENIED: (Status.PENDING,),
         Status.CANCELLED: (Status.PENDING,),
-        Status.DELIVERED: (Status.INVOICED,),
-        Status.INVOICED: (Status.DELIVERED,),
+        # Invoicing before the return is allowed: a thermos may never come back.
+        Status.DELIVERED: (Status.RETURNED, Status.INVOICED),
+        Status.RETURNED: (Status.DELIVERED, Status.INVOICED),
+        Status.INVOICED: (Status.DELIVERED, Status.RETURNED),
     }
 
     #: Statuses a new decision may replace. Re-deciding resends the mail.
@@ -1798,11 +1819,23 @@ class CateringOrder(Made):
         return decision.by_label if decision else ""
 
     @property
+    def return_by(self):
+        """When lent thermoses and boxes are due: as agreed, else next weekday."""
+        handout = getattr(self, "handout", None)
+        if handout is not None and handout.return_by:
+            return handout.return_by
+        day = self.date + timedelta(days=1)
+        while day.weekday() >= 5:
+            day += timedelta(days=1)
+        return day
+
+    @property
     def is_being_handed_out(self):
         """Approved and picked up today."""
         return self.days_until_pickup == 0 and self.status in (
             self.Status.APPROVED,
             self.Status.DELIVERED,
+            self.Status.RETURNED,
             self.Status.INVOICED,
         )
 
@@ -1920,6 +1953,7 @@ class CateringOrder(Made):
         return self.status in (
             self.Status.APPROVED,
             self.Status.DELIVERED,
+            self.Status.RETURNED,
             self.Status.INVOICED,
         )
 
@@ -2172,3 +2206,76 @@ class CateringOrderEmail(Made):
             "kind": self.get_kind_display(),
             "to": self.to_email,
         }
+
+
+class CateringHandout(Made):
+    """The invoice basis ("fakturaunderlag") written when an order is handed out.
+
+    The lines are a snapshot, like `CateringOrder.items`: prices change between
+    semesters and an old basis must keep the sum it was invoiced for. The
+    thermoses are only tracked so they come back; any rent is a line.
+    """
+
+    order = models.OneToOneField(
+        CateringOrder,
+        verbose_name=_("catering order"),
+        related_name="handout",
+        on_delete=models.CASCADE,
+    )
+    #: [{"label", "count", "unit_price"}, ...]
+    lines = models.JSONField(_("lines"), encoder=DjangoJSONEncoder, default=list)
+    #: [{"name", "size", "returned_on", "received_by"}, ...]
+    thermoses = models.JSONField(
+        _("thermoses"), encoder=DjangoJSONEncoder, default=list
+    )
+    reference = models.CharField(
+        _("committee or other reference"), max_length=100, blank=True, default=""
+    )
+    picked_up_by = models.CharField(
+        _("picked up by"), max_length=100, validators=[validate_no_control_characters]
+    )
+    picked_up_phone = models.CharField(
+        _("phone number"), max_length=20, blank=True, default=""
+    )
+    jochen_boxes_out = models.PositiveSmallIntegerField(
+        _("jochen boxes handed out"), default=0
+    )
+    jochen_boxes_returned = models.PositiveSmallIntegerField(
+        _("jochen boxes returned"), null=True, blank=True
+    )
+    return_by = models.DateField(_("return by"), null=True, blank=True)
+    handed_out_by = models.CharField(
+        _("handed out by"), max_length=100, validators=[validate_no_control_characters]
+    )
+    other_info = models.TextField(_("other information"), blank=True, default="")
+    return_note = models.TextField(_("note on return"), blank=True, default="")
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("catering handout")
+        verbose_name_plural = _("catering handouts")
+
+    def __str__(self):
+        return "Fakturaunderlag för %s" % self.order
+
+    def line_rows(self):
+        return [
+            {**line, "sum": line["count"] * line["unit_price"]} for line in self.lines
+        ]
+
+    def total(self):
+        return sum(row["sum"] for row in self.line_rows())
+
+    @property
+    def is_returned(self):
+        boxes_back = not self.jochen_boxes_out or self.jochen_boxes_returned is not None
+        return boxes_back and all(t.get("returned_on") for t in self.thermoses)
+
+    def return_everything(self, received_by, on):
+        """Mark whatever is still out as back, keeping earlier partial returns."""
+        for thermos in self.thermoses:
+            if not thermos.get("returned_on"):
+                thermos.update(returned_on=on, received_by=received_by)
+        if self.jochen_boxes_returned is None:
+            self.jochen_boxes_returned = self.jochen_boxes_out
+        self.save()
