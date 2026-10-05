@@ -21,15 +21,16 @@
     .jour-slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; }
     .jour-slot { min-width: 0; min-height: 1.6rem; border-radius: .25rem; border: 1px dashed transparent; }
     .jour-slot .jour-chip { display: flex; max-width: 100%; }
-    .jour-slot .jour-chip .name { overflow: hidden; text-overflow: ellipsis; }
+    .jour-slot .jour-chip .name, .jour-slot .jour-chip .short-name { overflow: hidden; text-overflow: ellipsis; }
+    .jour-slot .jour-chip .short-name { display: none; }
     .jour-slot.empty { border-color: rgba(0, 0, 0, .12); }
     .jour-slot.drop-active { border-color: rgba(13, 110, 253, .5); }
     .jour-slot.drop-hover { background-color: rgba(13, 110, 253, .15); }
     .jour-chip { display: inline-block; padding: .05rem .3rem; white-space: nowrap; cursor: grab; border-radius: .25rem; }
     .jour-chip:hover { background-color: rgba(0, 0, 0, .06); }
     .jour-chip.highlight { background-color: rgba(255, 193, 7, .5); }
-    .jour-chip .remove { visibility: hidden; margin-left: .15rem; color: #888; cursor: pointer; }
-    .jour-chip:hover .remove { visibility: visible; }
+    .jour-chip .remove { display: none; margin-left: .15rem; color: #888; cursor: pointer; }
+    .jour-chip:hover .remove { display: inline; }
     .jour-chip.dragging { display: inline-block !important; width: auto !important; background-color: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); z-index: 1000; }
     .jour-slot.saved .jour-chip { background-color: rgba(25, 135, 84, .2); }
 
@@ -44,18 +45,26 @@
     }
     .board-palette.drop-hover { background-color: rgba(220, 53, 69, .1); }
 
+    .locked .board-palette { display: none; }
+    .locked .jour-chip { cursor: default; }
+    .locked .jour-chip .remove { display: none; }
+    .locked .jour-slot.empty { border-color: transparent; }
+
     @media (max-width: 767.98px) {
         .call-duty-weeks, .call-duty-weeks tbody { display: block; }
         .call-duty-weeks thead { display: none; }
         .call-duty-weeks tr.week-row { display: grid; grid-template-columns: auto 1fr auto; border-bottom: 1px solid rgba(0, 0, 0, .1); }
         .call-duty-weeks tr.week-row > td { border: 0; }
         .call-duty-weeks tr.week-row > td.jour-col { grid-column: 1 / -1; order: 1; padding-top: 0; }
+        .jour-slot .jour-chip .name { display: none; }
+        .jour-slot .jour-chip .short-name { display: inline; }
     }
 </style>
 
 <div class="d-flex justify-content-between align-items-center">
     <h2>Veckoplanering</h2>
-    <div class="form-group">
+    <div class="form-group d-flex gap-2">
+        {% if selected_semester %}<button class="btn btn-outline-primary" id="toggle-edit">Redigera</button>{% endif %}
         <select id="sem" class="form-control">
             {% for sem in semesters %}
             <option value="{% url 'call_duty_overview' %}?semester={{ sem.name|urlencode }}" {% if sem == selected_semester %}selected="selected"{% endif %}>{{ sem.name }}</option>
@@ -71,7 +80,7 @@
 {% if not selected_semester %}
 <p>Det finns inga terminer.</p>
 {% else %}
-<div class="row">
+<div class="row" id="call-duty-board">
 <div class="col-lg-3 order-lg-2">
 <div class="board-palette">
     <strong class="d-block">Styrelsen</strong>
@@ -140,6 +149,7 @@
     });
 
     var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+    var editing = !window.matchMedia('(pointer: coarse)').matches;
 
     $(document).on('mouseenter', '.jour-chip', function() {
         $('.jour-chip[data-user="' + $(this).data('user') + '"]').addClass('highlight');
@@ -192,7 +202,33 @@
         setTimeout(function() { $(slot).removeClass('saved'); }, 800);
     }
 
+    var fullNames = [];
+    $('.board-palette .jour-chip, .jour-chip .name').each(function() {
+        var name = $(this).text().trim();
+        if (fullNames.indexOf(name) === -1) fullNames.push(name);
+    });
+
+    function shortName(name) {
+        var parts = name.trim().split(/\s+/);
+        if (parts.length < 2) return name;
+        var first = parts[0], last = parts[parts.length - 1];
+        var clashing = fullNames
+            .map(n => n.split(/\s+/))
+            .filter(p => p.length > 1 && p[0] === first && p.join(' ') !== parts.join(' '))
+            .map(p => p[p.length - 1]);
+        if (!clashing.length) return first;
+        for (var len = 1; len < last.length; ++len) {
+            var prefix = last.substr(0, len);
+            if (!clashing.some(l => l.substr(0, len) === prefix)) return first + ' ' + prefix;
+        }
+        return name;
+    }
+
     function initChip(chip) {
+        var name = chip.children('.name');
+        if (name.length && !chip.children('.short-name').length) {
+            name.after($('<span class="short-name"></span>').text(shortName(name.text())));
+        }
         chip.draggable({
             helper: 'clone',
             appendTo: 'body',
@@ -202,6 +238,7 @@
             start: function(ev, ui) { ui.helper.addClass('dragging'); },
             stop: function() { $('.jour-chip.highlight').removeClass('highlight'); }
         });
+        if (!editing) chip.draggable('disable');
     }
 
     $('.call-duty-weeks').on('click', '.jour-chip .remove', function() {
@@ -245,6 +282,24 @@
             update({action: 'set', year: spot.year, week: spot.week, slot: spot.slot, user: ''});
         }
     });
+
+    function setEditing(value) {
+        editing = value;
+        var state = editing ? 'enable' : 'disable';
+        $('.jour-chip').draggable(state);
+        $('.jour-slot, .board-palette').droppable(state);
+        $('#call-duty-board').toggleClass('locked', !editing);
+        $('#toggle-edit')
+            .text(editing ? 'Klar' : 'Redigera')
+            .toggleClass('btn-primary', editing)
+            .toggleClass('btn-outline-primary', !editing);
+    }
+
+    $('#toggle-edit').click(function() {
+        setEditing(!editing);
+    });
+
+    setEditing(editing);
 
     var current = $('.call-duty-weeks tr.current');
     if (current.length) current[0].scrollIntoView({block: 'center'});
