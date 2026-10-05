@@ -27,7 +27,9 @@
     .jour-slot.drop-active { border-color: rgba(13, 110, 253, .5); }
     .jour-slot.drop-hover { background-color: rgba(13, 110, 253, .15); }
     .jour-chip { display: inline-block; padding: .05rem .3rem; white-space: nowrap; cursor: grab; border-radius: .25rem; }
-    .jour-chip:hover { background-color: rgba(0, 0, 0, .06); }
+    @media (hover: hover) {
+        .jour-chip:hover { background-color: rgba(0, 0, 0, .06); }
+    }
     .jour-chip.highlight { background-color: rgba(255, 193, 7, .5); }
     .jour-chip .remove { display: none; margin-left: .15rem; color: #888; cursor: pointer; }
     .jour-chip:hover .remove { display: inline; }
@@ -152,12 +154,22 @@
     var csrfToken = $('[name=csrfmiddlewaretoken]').val();
     var editing = false;
 
-    $(document).on('mouseenter', '.jour-chip', function() {
-        $('.jour-chip[data-user="' + $(this).data('user') + '"]').addClass('highlight');
-    });
-    $(document).on('mouseleave', '.jour-chip', function() {
-        $('.jour-chip.highlight').removeClass('highlight');
-    });
+    if (window.matchMedia('(hover: hover)').matches) {
+        $(document).on('mouseenter', '.jour-chip', function() {
+            $('.jour-chip[data-user="' + $(this).data('user') + '"]').addClass('highlight');
+        });
+        $(document).on('mouseleave', '.jour-chip', function() {
+            $('.jour-chip.highlight').removeClass('highlight');
+        });
+    } else {
+        $(document).on('click', '.jour-chip', function() {
+            var wasHighlighted = $(this).hasClass('highlight');
+            $('.jour-chip.highlight').removeClass('highlight');
+            if (!wasHighlighted) {
+                $('.jour-chip[data-user="' + $(this).data('user') + '"]').addClass('highlight');
+            }
+        });
+    }
 
     function spotOf(slot) {
         var row = $(slot).closest('tr');
