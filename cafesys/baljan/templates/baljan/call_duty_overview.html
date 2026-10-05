@@ -45,7 +45,8 @@
     }
     .board-palette.drop-hover { background-color: rgba(220, 53, 69, .1); }
 
-    .locked .board-palette { display: none; }
+    .locked .palette-col { display: none; }
+    .locked .weeks-col { width: 100%; }
     .locked .jour-chip { cursor: default; }
     .locked .jour-chip .remove { display: none; }
     .locked .jour-slot.empty { border-color: transparent; }
@@ -80,8 +81,8 @@
 {% if not selected_semester %}
 <p>Det finns inga terminer.</p>
 {% else %}
-<div class="row" id="call-duty-board">
-<div class="col-lg-3 order-lg-2">
+<div class="row locked" id="call-duty-board">
+<div class="col-lg-3 order-lg-2 palette-col">
 <div class="board-palette">
     <strong class="d-block">Styrelsen</strong>
     <small class="text-muted d-block mb-2">
@@ -90,7 +91,7 @@
     {% for u in board %}<span class="jour-chip from-board" data-user="{{ u.pk }}">{{ u|display_name }}</span>{% endfor %}
 </div>
 </div>
-<div class="col-lg-9 order-lg-1">
+<div class="col-lg-9 order-lg-1 weeks-col">
 
 {% csrf_token %}
 <table class="table table-baljan call-duty-weeks align-middle">
@@ -149,7 +150,7 @@
     });
 
     var csrfToken = $('[name=csrfmiddlewaretoken]').val();
-    var editing = !window.matchMedia('(pointer: coarse)').matches;
+    var editing = false;
 
     $(document).on('mouseenter', '.jour-chip', function() {
         $('.jour-chip[data-user="' + $(this).data('user') + '"]').addClass('highlight');
