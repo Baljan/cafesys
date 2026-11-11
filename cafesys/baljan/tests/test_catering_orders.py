@@ -16,7 +16,11 @@ from cafesys.celery import app as celery_app
 from dateutil.relativedelta import relativedelta
 from cafesys.baljan.models import (
     THERMOS_SIZES,
+    earliest_order_date,
+    order_in_time,
     earliest_supplier_order_date,
+    extra_order_deadline,
+    next_extra_order_week,
     plan_thermoses,
     CATERING_PRODUCTS,
     CateringHandout,
@@ -26,7 +30,8 @@ from cafesys.baljan.models import (
     Semester,
 )
 from cafesys.baljan import google
-from cafesys.baljan.views import CATERING_TABS as TAB_KEYS
+from cafesys.baljan.pdf import extra_order_sheet, extra_order_week
+from cafesys.baljan.views import CATERING_TABS as TAB_KEYS, extra_order_reminder
 from cafesys.baljan.tasks import (
     remove_old_catering_orders,
     send_catering_order_board_decision_email,
@@ -2299,6 +2304,55 @@ class OrderFormSubTypeTestCase(TestCase):
         )
 
 
+class OrderCutoffTestCase(TestCase):
+    """Morning and lunch close 16:00 the weekday before, afternoon 12:00 the same day."""
+
+    def at(self, when):
+        stockholm = ZoneInfo(settings.TIME_ZONE)
+        return datetime.strptime(when, "%Y-%m-%d %H:%M").replace(tzinfo=stockholm)
+
+    def test_each_slot_has_its_own_deadline(self):
+        tuesday = date(2026, 9, 29)
+        cases = [
+            ("2026-09-28 16:00", CateringOrder.MORNING, True),
+            ("2026-09-28 16:01", CateringOrder.MORNING, False),
+            ("2026-09-28 23:00", CateringOrder.MORNING, False),
+            ("2026-09-28 16:00", CateringOrder.LUNCH, True),
+            ("2026-09-29 08:00", CateringOrder.LUNCH, False),
+            ("2026-09-29 08:00", CateringOrder.AFTERNOON, True),
+            ("2026-09-29 12:00", CateringOrder.AFTERNOON, True),
+            ("2026-09-29 12:01", CateringOrder.AFTERNOON, False),
+        ]
+        for when, pickup, expected in cases:
+            with self.subTest(when=when, pickup=pickup):
+                self.assertEqual(
+                    order_in_time(tuesday, pickup, self.at(when)), expected
+                )
+
+    def test_monday_morning_closes_on_friday(self):
+        monday = date(2026, 10, 5)
+        cases = [
+            ("2026-10-02 16:00", True),
+            ("2026-10-02 16:01", False),
+            ("2026-10-03 23:49", False),
+            ("2026-10-04 10:00", False),
+        ]
+        for when, expected in cases:
+            with self.subTest(when=when):
+                self.assertEqual(
+                    order_in_time(monday, CateringOrder.MORNING, self.at(when)),
+                    expected,
+                )
+
+    def test_the_date_picker_opens_on_the_first_slot_still_open(self):
+        self.assertEqual(
+            earliest_order_date(self.at("2026-09-29 11:00")), date(2026, 9, 29)
+        )
+        self.assertEqual(
+            earliest_order_date(self.at("2026-09-29 13:00")), date(2026, 9, 30)
+        )
+
+
 class SupplierLeadTimeTestCase(TestCase):
     """Deadline for the Smorgasfiket order."""
 
@@ -2345,6 +2399,22 @@ class SupplierLeadTimeTestCase(TestCase):
                 self.assertEqual(earliest.weekday(), 0)
                 self.assertIn((earliest - day).days, range(1, 21))
 
+    def test_the_board_sends_its_order_thursday_at_four(self):
+        deadline = timezone.localtime(extra_order_deadline(date(2026, 10, 12)))
+        self.assertEqual(deadline.date(), date(2026, 10, 8))
+        self.assertEqual(deadline.time(), time(16, 0))
+
+    def test_the_next_week_to_send_waits_for_the_boards_deadline(self):
+        cases = {
+            "2026-09-30 17:00": date(2026, 10, 5),  # customers closed, board not
+            "2026-10-01 16:00": date(2026, 10, 5),  # Thursday, on the dot
+            "2026-10-01 16:01": date(2026, 10, 12),  # a minute late
+            "2026-10-04 23:00": date(2026, 10, 12),  # Sunday
+        }
+        for when, expected in cases.items():
+            with self.subTest(when=when):
+                self.assertEqual(next_extra_order_week(self.at(when)), expected)
+
 
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
 class OrderLeadTimeTestCase(TestCase):
@@ -2385,8 +2455,39 @@ class OrderLeadTimeTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_coffee_at_short_notice_is_fine(self):
-        response = self.post(date=next_weekday(1).isoformat(), numberOfCoffee=20)
+        response = self.post(date=next_weekday(2).isoformat(), numberOfCoffee=20)
         self.assertEqual(response.status_code, 302)
+
+    def next_tuesday_at(self, hour):
+        tuesday = next_weekday(1)
+        while tuesday.weekday() != 1:
+            tuesday += timedelta(days=1)
+        return tuesday, datetime.combine(
+            tuesday, time(hour, 0), ZoneInfo(settings.TIME_ZONE)
+        )
+
+    def test_coffee_in_the_morning_for_the_afternoon_is_fine(self):
+        tuesday, morning = self.next_tuesday_at(8)
+        with mock.patch("django.utils.timezone.now", return_value=morning):
+            response = self.post(
+                date=tuesday.isoformat(),
+                pickup=str(CateringOrder.AFTERNOON),
+                numberOfCoffee=45,
+            )
+        self.assertEqual(response.status_code, 302)
+
+    def test_an_order_past_the_cutoff_is_refused(self):
+        tuesday, evening = self.next_tuesday_at(23)
+        with mock.patch("django.utils.timezone.now", return_value=evening):
+            response = self.post(
+                date=(tuesday + timedelta(days=1)).isoformat(),
+                pickup=str(CateringOrder.MORNING),
+                numberOfCoffee=20,
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="form_errors"')
+        self.assertIn("16:00 vardagen innan", str(response.context["form"].errors))
+        self.assertFalse(CateringOrder.objects.exists())
 
     def test_the_board_can_still_edit_an_old_order(self):
         # clean_date refuses weekends.
@@ -2432,7 +2533,7 @@ class OrderLeadTimeTestCase(TestCase):
 
     def test_the_date_picker_is_not_frozen_at_import_time(self):
         response = self.client.get(reverse("order_from_us"))
-        self.assertContains(response, 'min="%s"' % timezone.localdate().isoformat())
+        self.assertContains(response, 'min="%s"' % earliest_order_date().isoformat())
 
 
 class BoardClientMixin:
@@ -3094,19 +3195,184 @@ class CateringExtraOrderTestCase(BoardClientMixin, TestCase):
         response = self.page(monday + timedelta(days=3))
         self.assertEqual(response.context["start"], monday)
 
-    def test_the_deadline_is_the_wednesday_before(self):
+    def test_the_deadline_is_the_thursday_before(self):
         monday = self.monday()
         deadline = timezone.localtime(self.page(monday).context["deadline"])
-        self.assertEqual(deadline.date(), monday - timedelta(days=5))
-        self.assertEqual(deadline.time(), time(16, 15))
+        self.assertEqual(deadline.date(), monday - timedelta(days=4))
+        self.assertEqual(deadline.time(), time(16, 0))
 
     def test_it_defaults_to_the_next_week_to_order(self):
         response = self.page()
-        self.assertEqual(response.context["start"], earliest_supplier_order_date())
+        self.assertEqual(response.context["start"], next_extra_order_week())
 
     def test_a_bad_week_falls_back_to_the_default(self):
         response = self.client.get(reverse("catering_extra_order"), {"vecka": "nej"})
-        self.assertEqual(response.context["start"], earliest_supplier_order_date())
+        self.assertEqual(response.context["start"], next_extra_order_week())
+
+    def send_day(self):
+        """Next Thursday with the Monday whose extra order is due then."""
+        today = timezone.localdate()
+        thursday = today + timedelta(days=(3 - today.weekday()) % 7 or 7)
+        return thursday, thursday + timedelta(days=4)
+
+    def at(self, day, hour):
+        return datetime.combine(day, time(hour, 0), ZoneInfo(settings.TIME_ZONE))
+
+    def test_the_reminder_shows_on_the_day_the_order_is_due(self):
+        thursday, monday = self.send_day()
+        make_order(
+            date=monday, status=CateringOrder.Status.APPROVED, items=self.jochen(5)
+        )
+        make_order(date=monday, items=self.jochen(5))
+        reminder = extra_order_reminder(self.at(thursday, 10))
+        self.assertEqual(reminder["start"], monday)
+        self.assertEqual((reminder["approved"], reminder["pending"]), (1, 1))
+
+    def test_no_reminder_on_other_days_after_the_deadline_or_without_orders(self):
+        thursday, monday = self.send_day()
+        self.assertIsNone(extra_order_reminder(self.at(thursday, 10)))
+        make_order(
+            date=monday, status=CateringOrder.Status.APPROVED, items=self.jochen(5)
+        )
+        self.assertIsNone(
+            extra_order_reminder(self.at(thursday - timedelta(days=1), 10))
+        )
+        self.assertIsNone(extra_order_reminder(self.at(thursday, 17)))
+
+    def test_the_overview_shows_the_reminder(self):
+        thursday, monday = self.send_day()
+        make_order(
+            date=monday, status=CateringOrder.Status.APPROVED, items=self.jochen(5)
+        )
+        with mock.patch(
+            "django.utils.timezone.now", return_value=self.at(thursday, 10)
+        ):
+            response = self.client.get(reverse("catering_orders"))
+        self.assertContains(response, "ska skickas till Smörgåsfiket idag senast 16:00")
+        self.assertContains(response, f"?vecka={monday:%Y-%m-%d}")
+
+    def download(self, week, **allergies):
+        data = {"vecka": week.isoformat(), **allergies}
+        return self.client.post(reverse("catering_extra_order_pdf"), data)
+
+    def test_the_sheet_puts_counts_in_their_rows_and_sums(self):
+        monday = self.monday()
+        items = self.jochen(4, pasta=2) + [
+            {
+                "field": "numberOfOstochskinkajochen",
+                "label": "ost & skinka (mörkt bröd)",
+                "count": 1,
+                "group": "Jochen",
+            },
+            {
+                "field": "numberOfGrekisksallad",
+                "label": "grekisk",
+                "count": 2,
+                "group": "Pastasallad",
+            },
+        ]
+        first = make_order(
+            date=monday, status=CateringOrder.Status.APPROVED, items=items
+        )
+        second = make_order(
+            date=monday + timedelta(days=1),
+            status=CateringOrder.Status.APPROVED,
+            items=self.jochen(3),
+        )
+        sheet = extra_order_sheet([first, second])
+
+        rows = {
+            (section["title"], row["label"]): row
+            for section in sheet["sections"]
+            for row in section["rows"]
+        }
+        self.assertEqual(rows[("Baguetter", "Kebab (ljus)")]["counts"], [4, 3])
+        self.assertEqual(rows[("Baguetter", "Ost & Skinka (mörk)")]["counts"], [1, 0])
+        self.assertEqual(rows[("Pastasallad", "Grekisk")]["total"], 2)
+        sums = {row["label"]: row["counts"] for row in sheet["sums"]}
+        self.assertEqual(sums["Sum Baguetter"], [5, 3])
+        self.assertEqual(sums["Sum Pastasallad"], [2, 0])
+        bread = {row["label"]: row["total"] for row in sheet["bread"]}
+        self.assertEqual(bread, {"Ljus baguette": 7, "Mörk baguette": 1, "Fralla": 0})
+        self.assertIn(f"{monday:%d/%m} Testsektionen", sheet["columns"][0])
+
+    def test_the_allergy_box_is_prefilled_with_the_other_text_only(self):
+        monday = self.monday()
+        items = self.jochen(2) + [
+            {
+                "field": "numberOfOvrigjochen",
+                "label": "övriga",
+                "count": 1,
+                "group": "Jochen",
+            }
+        ]
+        make_order(
+            date=monday,
+            status=CateringOrder.Status.APPROVED,
+            association="Partygänget",
+            other="1 laktosfri",
+            items=items,
+        )
+        make_order(
+            date=monday,
+            status=CateringOrder.Status.APPROVED,
+            other="",
+            items=self.jochen(1),
+        )
+        response = self.page(monday)
+        [entry] = response.context["allergies"]
+        self.assertEqual(entry["text"], f"Partygänget {monday:%d/%m}: 1 laktosfri")
+        self.assertEqual(entry["others"], [{"label": "Jochen (övriga)", "count": 1}])
+        self.assertContains(response, "Övrigt beställt:")
+        self.assertContains(response, "Ladda ner PDF")
+
+    def test_the_pdf_carries_the_written_allergies(self):
+        monday = self.monday()
+        order = make_order(
+            date=monday, status=CateringOrder.Status.APPROVED, items=self.jochen(2)
+        )
+        with mock.patch("cafesys.baljan.pdf.extra_order_week") as draw:
+            response = self.download(
+                monday, **{f"allergy_{order.pk}": "1 glutenfri", "allergy_999": "x"}
+            )
+        _file, week, orders, allergies, _entered_by = draw.call_args.args
+        self.assertEqual(week, monday.isocalendar()[1])
+        self.assertEqual(orders, [order])
+        self.assertEqual(allergies, {order.pk: "1 glutenfri"})
+        self.assertEqual(response["Content-Type"], "application/pdf")
+
+    def test_the_pdf_leaves_out_pending_orders_and_is_a_real_pdf(self):
+        monday = self.monday()
+        approved = make_order(
+            date=monday, status=CateringOrder.Status.APPROVED, items=self.jochen(2)
+        )
+        make_order(date=monday, items=self.jochen(4))
+        with mock.patch(
+            "cafesys.baljan.pdf.extra_order_week", wraps=extra_order_week
+        ) as draw:
+            response = self.download(monday)
+        self.assertEqual(draw.call_args.args[2], [approved])
+        self.assertTrue(response.content.startswith(b"%PDF"))
+        self.assertIn(
+            f"v.{monday.isocalendar()[1]}.pdf", response["Content-Disposition"]
+        )
+
+    def test_the_pdf_fits_more_customers_than_one_page(self):
+        monday = self.monday()
+        for _ in range(12):
+            make_order(
+                date=monday, status=CateringOrder.Status.APPROVED, items=self.jochen(1)
+            )
+        self.assertTrue(self.download(monday).content.startswith(b"%PDF"))
+
+    def test_the_pdf_must_be_posted(self):
+        response = self.client.get(reverse("catering_extra_order_pdf"))
+        self.assertEqual(response.status_code, 405)
+
+    def test_the_pdf_is_closed_to_users_without_the_permission(self):
+        self.client.force_login(User.objects.create(username="utomstaende"))
+        response = self.download(self.monday())
+        self.assertNotEqual(response.status_code, 200)
 
 
 class CateringOverviewTestCase(BoardClientMixin, TestCase):

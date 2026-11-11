@@ -65,6 +65,72 @@ CATERING_EXTRA_ORDER_FIELDS = (
     "numberOfPastasalad",
 )
 
+#: Rows of Smorgasfiket's order sheet as (section, [(item field, label, bread), ...]).
+EXTRA_ORDER_SHEET = (
+    (
+        "Pastasallad",
+        [
+            ("numberOfKycklingsallad", "Kyckling", None),
+            ("numberOfOstochskinkasallad", "Ost & Skinka", None),
+            ("numberOfRakorsallad", "Räkor", None),
+            ("numberOfGrekisksallad", "Grekisk", None),
+            ("numberOfTonfisksallad", "Tonfisk", None),
+            ("numberOfFalafelsallad", "Falafel", None),
+        ],
+    ),
+    (
+        "Fralla",
+        [
+            ("numberOfOstfralla", "Ost", "fralla"),
+            ("numberOfOstochskinkfralla", "Ost & skinka", "fralla"),
+        ],
+    ),
+    (
+        "Baguetter",
+        [
+            ("numberOfOstochbrieostjochen", "Ost & Brieost (ljus)", "ljus"),
+            ("numberOfOstochskinkajochen", "Ost & Skinka (mörk)", "mörk"),
+            ("numberOfKottbullarjochen", "Köttbullar (ljus)", "ljus"),
+            ("numberOfFalafeljochen", "Falafel (mörk)", "mörk"),
+            ("numberOfKebabjochen", "Kebab (ljus)", "ljus"),
+            ("numberOfKycklingcurryjochen", "Kyckling Curry (ljus)", "ljus"),
+            ("numberOfKycklingbaconjochen", "Kyckling Bacon (ljus)", "ljus"),
+            ("numberOfSkagenrorajochen", "Skagenröra (ljus)", "ljus"),
+            ("numberOfTonfiskjochen", "Tonfisk (mörk)", "mörk"),
+        ],
+    ),
+)
+
+#: Sub-types with no row on the sheet; the jour writes them in the allergy box.
+EXTRA_ORDER_OTHER_FIELDS = (
+    "numberOfOvrigjochen",
+    "numberOfOvrigmini",
+    "numberOfOvrigsallad",
+)
+
+
+def order_deadline(pickup_date, pickup):
+    """Last (date, time) an order for this pickup slot can be placed."""
+    if int(pickup) == CateringOrder.AFTERNOON:
+        return pickup_date, time(12, 0)
+    weekday_before = pickup_date - timedelta(days=1)
+    while weekday_before.weekday() >= 5:
+        weekday_before -= timedelta(days=1)
+    return weekday_before, time(16, 0)
+
+
+def order_in_time(pickup_date, pickup, now=None):
+    local = timezone.localtime(now)
+    return (local.date(), local.time()) <= order_deadline(pickup_date, pickup)
+
+
+def earliest_order_date(now=None):
+    """First pickup date any slot can still be ordered for."""
+    today = timezone.localtime(now).date()
+    if order_in_time(today, CateringOrder.AFTERNOON, now):
+        return today
+    return today + timedelta(days=1)
+
 
 #: Smorgasfiket is ordered Wednesday 16:15 the week before pickup.
 SUPPLIER_ORDER_WEEKDAY = 2
@@ -82,6 +148,26 @@ def earliest_supplier_order_date(now=None):
 
     target = today + relativedelta(weeks=1 if in_time else 2)
     return week_dates(*year_and_week(target))[0]
+
+
+#: The board sends the extra order to Smorgasfiket Thursday 16:00 the week before.
+EXTRA_ORDER_SEND_WEEKDAY = 3
+EXTRA_ORDER_SEND_TIME = time(16, 0)
+
+
+def extra_order_deadline(week_start):
+    """When the extra order for the pickup week from Monday `week_start` is due."""
+    day = week_start - timedelta(days=7 - EXTRA_ORDER_SEND_WEEKDAY)
+    return timezone.make_aware(datetime.combine(day, EXTRA_ORDER_SEND_TIME))
+
+
+def next_extra_order_week(now=None):
+    """Monday of the first pickup week whose extra order is not yet due."""
+    local = timezone.localtime(now)
+    week_start = local.date() + timedelta(days=7 - local.weekday())
+    if local > extra_order_deadline(week_start):
+        week_start += timedelta(weeks=1)
+    return week_start
 
 
 def plan_thermoses(cups, sizes):

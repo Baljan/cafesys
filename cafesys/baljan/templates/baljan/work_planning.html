@@ -72,7 +72,7 @@
                 </thead>
                 <tbody>
                     {% for sh in shifts %}
-                    <tr class="{%if sh.upcoming%}upcoming{%endif%}">
+                    <tr class="{%if sh.upcoming%}upcoming{%endif%}"{% if selected_semester.upcoming and not sh.upcoming %} style="display:none"{% endif %}>
                         {% with sh.when|week as week %}
                             <td>
                                 {% if perms.baljan.change_oncallduty %}
