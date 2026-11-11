@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 import json
-import time
+import time as timer
 
 # from django.contrib.auth.models import User
 from django.conf import settings
@@ -15,10 +15,108 @@ from django.db.models import (
     OuterRef,
     Window,
 )
-from django.db.models.functions import Lag, TruncDate
+from django.db.models.functions import ExtractHour, ExtractIsoWeekDay, Lag, TruncDate
+from django.utils import timezone
 
 from cafesys.baljan import stats
-from cafesys.baljan.models import Order, Semester, User, Wrapped
+from cafesys.baljan.models import (
+    OnCallDuty,
+    Order,
+    Purchase,
+    Semester,
+    ShiftSignup,
+    User,
+    Wrapped,
+)
+
+
+def semester_bounds(semester):
+    """Half-open datetime bounds [start, end + 1 day) covering the semester,
+    in local time."""
+    tz = timezone.get_current_timezone()
+    return (
+        datetime.combine(semester.start, time.min, tzinfo=tz),
+        datetime.combine(semester.end + timedelta(1), time.min, tzinfo=tz),
+    )
+
+
+def online_cards(user, semester):
+    """Coffee cards bought online (Stripe) during the semester. Only counts,
+    never amounts."""
+    start, end = semester_bounds(semester)
+    purchases = Purchase.objects.filter(user=user, made__gte=start, made__lt=end)
+    by_product = {
+        row["product__name"]: row["count"]
+        for row in purchases.values("product__name").annotate(count=Count("id"))
+    }
+    return dict(count=sum(by_product.values()), by_product=by_product)
+
+
+def previous_semester(user, semester):
+    """Blipps during the same kind of semester the year before, e.g. HT2025 for
+    HT2026. None if that semester doesn't exist."""
+    prev_name = "%s%d" % (semester.name[:2], int(semester.name[2:]) - 1)
+    try:
+        prev = Semester.objects.get(name=prev_name)
+    except Semester.DoesNotExist:
+        return None
+
+    start, end = semester_bounds(prev)
+    n_orders = Order.objects.filter(
+        user=user, put_at__gte=start, put_at__lt=end
+    ).count()
+    return dict(semester=prev.name, n_orders=n_orders)
+
+
+def time_of_day(user_orders):
+    """Blipps per hour of the day (local time) and per weekday (0 = Monday)."""
+    hours = [0] * 24
+    for row in (
+        user_orders.annotate(hour=ExtractHour("put_at"))
+        .values("hour")
+        .annotate(count=Count("id"))
+    ):
+        hours[row["hour"]] = row["count"]
+
+    weekdays = [0] * 7
+    for row in (
+        user_orders.annotate(weekday=ExtractIsoWeekDay("put_at"))
+        .values("weekday")
+        .annotate(count=Count("id"))
+    ):
+        weekdays[row["weekday"] - 1] = row["count"]
+
+    return dict(
+        hours=hours,
+        weekdays=weekdays,
+        fav_hour=hours.index(max(hours)),
+        fav_weekday=weekdays.index(max(weekdays)),
+    )
+
+
+def shifts(user, semester, until):
+    """Worked shifts (up to and including `until`) during the semester."""
+    signups = ShiftSignup.objects.filter(
+        user=user,
+        shift__semester=semester,
+        shift__enabled=True,
+        shift__when__lte=until,
+    )
+    by_span = dict(morning=0, lunch=0, afternoon=0)
+    span_keys = {0: "morning", 1: "lunch", 2: "afternoon"}
+    for row in signups.values("shift__span").annotate(count=Count("id")):
+        by_span[span_keys[row["shift__span"]]] = row["count"]
+
+    on_call = OnCallDuty.objects.filter(
+        user=user, shift__semester=semester, shift__when__lte=until
+    ).count()
+
+    return dict(
+        count=sum(by_span.values()),
+        by_span=by_span,
+        exam_period=signups.filter(shift__exam_period=True).count(),
+        on_call=on_call,
+    )
 
 
 class Command(BaseCommand):
@@ -38,7 +136,7 @@ class Command(BaseCommand):
         parser.add_argument("--dry-run", action="store_true")
 
     def handle(self, *args, **options):
-        start_time = time.time()
+        start_time = timer.time()
         semester_name = options["semester"]
         dry_run = (
             "dry_run" in options
@@ -81,9 +179,11 @@ class Command(BaseCommand):
             ]
         ).distinct()
 
+        sem_start, sem_end = semester_bounds(semester)
         all_orders_of_sem = Order.objects.filter(
-            put_at__gte=semester.start, put_at__lte=semester.end
+            put_at__gte=sem_start, put_at__lt=sem_end
         )
+        today = timezone.localdate()
 
         stats_by_date = dict()
         scoreboard_data = (
@@ -291,6 +391,13 @@ class Command(BaseCommand):
             # Average blipp per vecka
             wrapped_data["week_avg"] = round(5 * len(user_orders) / semester_length, 1)
 
+            wrapped_data["online_cards"] = online_cards(user, semester)
+            wrapped_data["previous"] = previous_semester(user, semester)
+            wrapped_data["time_of_day"] = time_of_day(user_orders)
+            wrapped_data["shifts"] = (
+                shifts(user, semester, until=today) if is_staff else None
+            )
+
             kwargs = dict(user=user, data=wrapped_data, semester=semester)
 
             if not dry_run:
@@ -302,4 +409,4 @@ class Command(BaseCommand):
             else:
                 print(json.dumps(kwargs, indent=4, default=str))
 
-        print("Finished processing in %f secs" % (time.time() - start_time))
+        print("Finished processing in %f secs" % (timer.time() - start_time))
