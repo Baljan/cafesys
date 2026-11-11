@@ -484,7 +484,8 @@ def delete_callduty(request, pk, redir):
     return redirect_prepend_root(redir)
 
 
-@login_required
+@require_POST
+@permission_required("baljan.self_and_friend_signup")
 def toggle_tradable(request, pk, redir):
     su = models.ShiftSignup.objects.get(pk=int(pk))
     assert (
@@ -2328,7 +2329,7 @@ def _json_error(status_code, message, **kwargs):
     return JsonResponse({**kwargs, "message": message}, status=status_code)
 
 
-@login_required
+@permission_required("baljan.self_and_friend_signup")
 def semester_shifts(request, sem_name):
     # Get all shifts for the semester
     sem = get_object_or_404(models.Semester, name__exact=sem_name)

@@ -12,6 +12,7 @@ from django.conf import settings
 from django.db import migrations
 
 STAFF_ACCESS = "staff_access"
+SUBSTITUTE_GROUP = "inhoppare"
 VIEW_SHIFTSIGNUP = "view_shiftsignup"
 
 
@@ -53,7 +54,7 @@ def forwards(apps, schema_editor):
     for group_name in (
         settings.BOARD_GROUP,
         settings.WORKER_GROUP,
-        settings.SUBSTITUTE_GROUP,
+        SUBSTITUTE_GROUP,
     ):
         group, _ = Group.objects.get_or_create(name=group_name)
         group.permissions.add(staff_access)
@@ -61,7 +62,7 @@ def forwards(apps, schema_editor):
     # Without this, Semester.objects.visible_to_user() narrows the work planning
     # page down to semesters the user has shifts in, which is none of them for a
     # substitute.
-    substitutes, _ = Group.objects.get_or_create(name=settings.SUBSTITUTE_GROUP)
+    substitutes, _ = Group.objects.get_or_create(name=SUBSTITUTE_GROUP)
     substitutes.permissions.add(view_shiftsignup)
 
 
@@ -73,12 +74,12 @@ def backwards(apps, schema_editor):
         name__in=(
             settings.BOARD_GROUP,
             settings.WORKER_GROUP,
-            settings.SUBSTITUTE_GROUP,
+            SUBSTITUTE_GROUP,
         )
     ):
         group.permissions.remove(staff_access)
 
-    for group in Group.objects.filter(name=settings.SUBSTITUTE_GROUP):
+    for group in Group.objects.filter(name=SUBSTITUTE_GROUP):
         group.permissions.remove(view_shiftsignup)
 
 

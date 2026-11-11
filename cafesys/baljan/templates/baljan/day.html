@@ -78,6 +78,7 @@
                                 <a class="delete" title="Ta bort från det här passet." href="{% url 'delete_signup' signup.id request.path %}">&#x2715;</a>
                             {% endif %}
                             <br/>
+                            {% if perms.baljan.self_and_friend_signup %}
                             {% if signup.can_trade %}
                                 {% if user.shiftsignup_set.all.count == 0 %}
                                     <span>
@@ -85,15 +86,22 @@
                                     </span>
                                 {% else %}
                                     {% if signup.user == user %}
-                                        <a class="btn btn-primary btn-sm" href="{% url 'toggle_tradable' signup.id request.path %}">Ångra bytbar</a>
+                                        <form method="post" action="{% url 'toggle_tradable' signup.id request.path %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-primary btn-sm">Ångra bytbar</button>
+                                        </form>
                                     {% else %}
                                         <a class="btn btn-primary btn-sm" href="{% url 'take_signup' signup.pk request.path%}"><i class="fa fa-random"></i> Erbjud dig att ta passet</a>
                                     {% endif %}
                                 {% endif %}
                             {% else %}{# the sh.upcoming check is needed for this case #}
                                 {% if sh.upcoming and signup.user == user %}
-                                    <a class="btn btn-primary btn-sm" href="{% url 'toggle_tradable' signup.id request.path %}">Gör bytbar</a>
+                                    <form method="post" action="{% url 'toggle_tradable' signup.id request.path %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary btn-sm">Gör bytbar</button>
+                                    </form>
                                 {% endif %}
+                            {% endif %}
                             {% endif %}
                         </div>
                     {% empty %}
