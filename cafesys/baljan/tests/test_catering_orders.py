@@ -19,6 +19,8 @@ from cafesys.baljan.models import (
     earliest_order_date,
     order_in_time,
     earliest_supplier_order_date,
+    extra_order_deadline,
+    next_extra_order_week,
     plan_thermoses,
     CATERING_PRODUCTS,
     CateringHandout,
@@ -29,7 +31,7 @@ from cafesys.baljan.models import (
 )
 from cafesys.baljan import google
 from cafesys.baljan.pdf import extra_order_sheet, extra_order_week
-from cafesys.baljan.views import CATERING_TABS as TAB_KEYS
+from cafesys.baljan.views import CATERING_TABS as TAB_KEYS, extra_order_reminder
 from cafesys.baljan.tasks import (
     remove_old_catering_orders,
     send_catering_order_board_decision_email,
@@ -2397,6 +2399,22 @@ class SupplierLeadTimeTestCase(TestCase):
                 self.assertEqual(earliest.weekday(), 0)
                 self.assertIn((earliest - day).days, range(1, 21))
 
+    def test_the_board_sends_its_order_thursday_at_four(self):
+        deadline = timezone.localtime(extra_order_deadline(date(2026, 10, 12)))
+        self.assertEqual(deadline.date(), date(2026, 10, 8))
+        self.assertEqual(deadline.time(), time(16, 0))
+
+    def test_the_next_week_to_send_waits_for_the_boards_deadline(self):
+        cases = {
+            "2026-09-30 17:00": date(2026, 10, 5),  # customers closed, board not
+            "2026-10-01 16:00": date(2026, 10, 5),  # Thursday, on the dot
+            "2026-10-01 16:01": date(2026, 10, 12),  # a minute late
+            "2026-10-04 23:00": date(2026, 10, 12),  # Sunday
+        }
+        for when, expected in cases.items():
+            with self.subTest(when=when):
+                self.assertEqual(next_extra_order_week(self.at(when)), expected)
+
 
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
 class OrderLeadTimeTestCase(TestCase):
@@ -3177,19 +3195,61 @@ class CateringExtraOrderTestCase(BoardClientMixin, TestCase):
         response = self.page(monday + timedelta(days=3))
         self.assertEqual(response.context["start"], monday)
 
-    def test_the_deadline_is_the_wednesday_before(self):
+    def test_the_deadline_is_the_thursday_before(self):
         monday = self.monday()
         deadline = timezone.localtime(self.page(monday).context["deadline"])
-        self.assertEqual(deadline.date(), monday - timedelta(days=5))
-        self.assertEqual(deadline.time(), time(16, 15))
+        self.assertEqual(deadline.date(), monday - timedelta(days=4))
+        self.assertEqual(deadline.time(), time(16, 0))
 
     def test_it_defaults_to_the_next_week_to_order(self):
         response = self.page()
-        self.assertEqual(response.context["start"], earliest_supplier_order_date())
+        self.assertEqual(response.context["start"], next_extra_order_week())
 
     def test_a_bad_week_falls_back_to_the_default(self):
         response = self.client.get(reverse("catering_extra_order"), {"vecka": "nej"})
-        self.assertEqual(response.context["start"], earliest_supplier_order_date())
+        self.assertEqual(response.context["start"], next_extra_order_week())
+
+    def send_day(self):
+        """Next Thursday with the Monday whose extra order is due then."""
+        today = timezone.localdate()
+        thursday = today + timedelta(days=(3 - today.weekday()) % 7 or 7)
+        return thursday, thursday + timedelta(days=4)
+
+    def at(self, day, hour):
+        return datetime.combine(day, time(hour, 0), ZoneInfo(settings.TIME_ZONE))
+
+    def test_the_reminder_shows_on_the_day_the_order_is_due(self):
+        thursday, monday = self.send_day()
+        make_order(
+            date=monday, status=CateringOrder.Status.APPROVED, items=self.jochen(5)
+        )
+        make_order(date=monday, items=self.jochen(5))
+        reminder = extra_order_reminder(self.at(thursday, 10))
+        self.assertEqual(reminder["start"], monday)
+        self.assertEqual((reminder["approved"], reminder["pending"]), (1, 1))
+
+    def test_no_reminder_on_other_days_after_the_deadline_or_without_orders(self):
+        thursday, monday = self.send_day()
+        self.assertIsNone(extra_order_reminder(self.at(thursday, 10)))
+        make_order(
+            date=monday, status=CateringOrder.Status.APPROVED, items=self.jochen(5)
+        )
+        self.assertIsNone(
+            extra_order_reminder(self.at(thursday - timedelta(days=1), 10))
+        )
+        self.assertIsNone(extra_order_reminder(self.at(thursday, 17)))
+
+    def test_the_overview_shows_the_reminder(self):
+        thursday, monday = self.send_day()
+        make_order(
+            date=monday, status=CateringOrder.Status.APPROVED, items=self.jochen(5)
+        )
+        with mock.patch(
+            "django.utils.timezone.now", return_value=self.at(thursday, 10)
+        ):
+            response = self.client.get(reverse("catering_orders"))
+        self.assertContains(response, "ska skickas till Smörgåsfiket idag senast 16:00")
+        self.assertContains(response, f"?vecka={monday:%Y-%m-%d}")
 
     def download(self, week, **allergies):
         data = {"vecka": week.isoformat(), **allergies}

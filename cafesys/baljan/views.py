@@ -803,6 +803,7 @@ class CateringOrderListView(PermissionRequiredMixin, ListView):
         tpl["today"] = self.today
         tpl["today_orders"] = catering_today_orders(self.today)
         tpl["to_return"] = catering_orders_to_return()
+        tpl["extra_order_reminder"] = extra_order_reminder()
         tpl["new_orders"] = models.CateringOrder.objects.filter(
             status=models.CateringOrder.Status.PENDING
         ).order_by("-made")[:CATERING_NEW_SHOWN]
@@ -1286,13 +1287,17 @@ def _extra_totals_list(totals):
     ]
 
 
-def _extra_order_week(week):
-    """Approved and pending orders with extra goods for the pickup week of `week`."""
+def _extra_order_week_start(week):
+    """Monday of the week the ISO date `week` falls in, else the next one to send."""
     try:
-        start = date.fromisoformat(week or "")
+        day = date.fromisoformat(week or "")
     except ValueError:
-        start = models.earliest_supplier_order_date()
-    start -= timedelta(days=start.weekday())
+        return models.next_extra_order_week()
+    return day - timedelta(days=day.weekday())
+
+
+def _extra_order_week(start):
+    """Approved and pending orders with extra goods for the week from Monday `start`."""
     end = start + timedelta(days=7)
 
     orders = (
@@ -1307,7 +1312,25 @@ def _extra_order_week(week):
         if lines:
             entry = {"order": order, "lines": lines}
             (pending if order.is_pending else approved).append(entry)
-    return start, end, approved, pending
+    return end, approved, pending
+
+
+def extra_order_reminder(now=None):
+    """The extra order due today, if it has any orders, else None."""
+    start = models.next_extra_order_week(now)
+    deadline = models.extra_order_deadline(start)
+    if deadline.date() != timezone.localdate(now):
+        return None
+    _end, approved, pending = _extra_order_week(start)
+    if not approved and not pending:
+        return None
+    return {
+        "start": start,
+        "week": year_and_week(start)[1],
+        "deadline": deadline,
+        "approved": len(approved),
+        "pending": len(pending),
+    }
 
 
 def _allergy_prefill(order):
@@ -1328,12 +1351,9 @@ def _allergy_prefill(order):
 @permission_required("baljan.manage_catering_orders")
 def catering_extra_order(request):
     """What to put in the Smörgåsfiket order for one pickup week."""
-    start, end, approved, pending = _extra_order_week(request.GET.get("vecka"))
-
-    deadline_day = start - timedelta(days=7 - models.SUPPLIER_ORDER_WEEKDAY)
-    deadline = timezone.make_aware(
-        datetime.combine(deadline_day, models.SUPPLIER_ORDER_TIME)
-    )
+    start = _extra_order_week_start(request.GET.get("vecka"))
+    end, approved, pending = _extra_order_week(start)
+    deadline = models.extra_order_deadline(start)
 
     days = {}
     week_totals = {}
@@ -1376,7 +1396,8 @@ def catering_extra_order(request):
 @permission_required("baljan.manage_catering_orders")
 def catering_extra_order_pdf(request):
     """The week's extra order as the PDF mailed to Smörgåsfiket."""
-    start, _end, approved, _pending = _extra_order_week(request.POST.get("vecka"))
+    start = _extra_order_week_start(request.POST.get("vecka"))
+    _end, approved, _pending = _extra_order_week(start)
     orders = [entry["order"] for entry in approved]
     allergies = {
         order.pk: request.POST.get(f"allergy_{order.pk}", "") for order in orders

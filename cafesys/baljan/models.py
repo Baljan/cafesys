@@ -150,6 +150,26 @@ def earliest_supplier_order_date(now=None):
     return week_dates(*year_and_week(target))[0]
 
 
+#: The board sends the extra order to Smorgasfiket Thursday 16:00 the week before.
+EXTRA_ORDER_SEND_WEEKDAY = 3
+EXTRA_ORDER_SEND_TIME = time(16, 0)
+
+
+def extra_order_deadline(week_start):
+    """When the extra order for the pickup week from Monday `week_start` is due."""
+    day = week_start - timedelta(days=7 - EXTRA_ORDER_SEND_WEEKDAY)
+    return timezone.make_aware(datetime.combine(day, EXTRA_ORDER_SEND_TIME))
+
+
+def next_extra_order_week(now=None):
+    """Monday of the first pickup week whose extra order is not yet due."""
+    local = timezone.localtime(now)
+    week_start = local.date() + timedelta(days=7 - local.weekday())
+    if local > extra_order_deadline(week_start):
+        week_start += timedelta(weeks=1)
+    return week_start
+
+
 def plan_thermoses(cups, sizes):
     """Thermoses for `cups` as [(size, count), ...]: least overshoot, then fewest."""
     if cups <= 0 or not sizes:

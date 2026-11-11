@@ -42,13 +42,14 @@
 {% endif %}
 
 {% if days %}
-  <div class="card mb-4">
+  <div class="card mb-5 border-primary border-2">
     <div class="card-body">
       <h3 class="h5 card-title">Totalt för veckan</h3>
       {% include "baljan/_catering_extra_lines.html" with lines=week_totals %}
     </div>
   </div>
 
+  <h3 class="h5 mb-3 pb-2 border-bottom">Per dag</h3>
   {% for day in days %}
     <div class="card mb-3">
       <div class="card-header"><strong>{{ day.date|date:"l j F" }}</strong></div>
