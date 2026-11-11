@@ -10,6 +10,7 @@ def actions(request):
     view_names = [
         "admin_semester",
         "bookkeep",
+        "call_duty_overview",
         "call_duty_week",
         "catering_extra_order",
         "catering_handout",
