@@ -2631,12 +2631,23 @@ def wrapped_data(request: HttpRequest):
     if request.user is None or request.user.is_anonymous:
         return HttpResponse(status=401)
 
-    wrapped = models.Wrapped.objects.filter(user=request.user).first()
+    # Only show the most recently generated semester. Users without data for
+    # that semester should get "no data", not an old semester's Wrapped.
+    latest = (
+        models.Wrapped.objects.order_by("-semester__start")
+        .values_list("semester_id", flat=True)
+        .first()
+    )
+    wrapped = (
+        models.Wrapped.objects.filter(user=request.user, semester_id=latest)
+        .select_related("semester")
+        .first()
+    )
 
     if wrapped is None:
         raise BadRequest(_("Found no Wrapped data for user"))
 
-    return JsonResponse(wrapped.data)
+    return JsonResponse({**wrapped.data, "semester": wrapped.semester.name})
 
 
 class Stripe:
