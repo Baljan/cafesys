@@ -219,6 +219,8 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_LIU_KEY = env.str("AUTH_LIU_CLIENT_ID", default="")
 SOCIAL_AUTH_LIU_SECRET = env.str("AUTH_LIU_CLIENT_SECRET", default="")
 SOCIAL_AUTH_LIU_SCOPE = env.list("AUTH_LIU_RESOURCE", default=[])
+# Tolerate clock skew between LiU ADFS and our server when validating token times.
+SOCIAL_AUTH_LIU_LEEWAY = 15
 # Remove "email" from protected fields on a User.
 SOCIAL_AUTH_NO_DEFAULT_PROTECTED_USER_FIELDS = True
 SOCIAL_AUTH_PROTECTED_USER_FIELDS = (
