@@ -1,0 +1,52 @@
+{% extends "baljan/baljan.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}Kaffeutmaningen{% endblock %}
+
+{% block body_class %}coffee-challenge{% endblock %}
+{% block body %}
+    <h1>☕ Kaffeutmaningen</h1>
+
+    <div class="row">
+        <div class="col-md">
+            <p>
+                Klarar du att dricka en kopp kaffe på <b>varje rast</b> under en hel dag?
+                Den första rasten är klockan 08:00 och sedan är det en rast i timmen
+                fram till och med 16:00.
+            </p>
+            <ul>
+                {% for start, end in slots %}
+                    <li>{{ start|time:"H:i" }}–{{ end|time:"H:i" }}{% if start.hour == 12 %} (lunch){% endif %}</li>
+                {% endfor %}
+            </ul>
+            <p>
+                Blippa ditt kort under rasten så bockas koppen av automatiskt. En blipp
+                räknas som en kopp, och den måste ske inom rastens tid. Klarar du alla
+                {{ slots|length }} raster blir du utnämnd till <b>{{ title }}</b> på din profil.
+            </p>
+            <p class="text-muted">
+                Tänk på att det är mycket koffein. Lyssna på kroppen och avbryt om du mår dåligt.
+            </p>
+        </div>
+
+        <div class="col-md">
+            <h2>Anta utmaningen</h2>
+            <form method="post" class="mb-4">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-primary">Jag antar utmaningen!</button>
+            </form>
+
+            {% if challenges %}
+                <h2>Dina utmaningar</h2>
+                <ul class="list-group">
+                    {% for challenge in challenges %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{% url 'coffee_challenge_day' challenge.date|date:'Y-m-d' %}">{{ challenge.date }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

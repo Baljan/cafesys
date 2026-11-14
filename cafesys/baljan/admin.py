@@ -733,6 +733,15 @@ class Wrapped(admin.ModelAdmin):
 custom_admin_site.register(models.Wrapped, Wrapped)
 
 
+class CoffeeChallenge(admin.ModelAdmin):
+    list_display = ["user", "date", "made"]
+    date_hierarchy = "date"
+    search_fields = ["user__username", "user__first_name", "user__last_name"]
+
+
+custom_admin_site.register(models.CoffeeChallenge, CoffeeChallenge)
+
+
 class CateringOrderAdmin(admin.ModelAdmin):
     list_display = (
         "pk",

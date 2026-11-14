@@ -1513,6 +1513,8 @@ def see_user(request, who):
 
     tpl["watched"] = watched
     tpl["watching_self"] = watching_self
+    tpl["challenge_wins"] = models.CoffeeChallenge.times_completed(watched)
+    tpl["challenge_title"] = models.CoffeeChallenge.TITLE
     tpl["watched_groups"] = (
         pseudogroups.real_only().filter(user=watched).order_by("name")
     )
@@ -2290,6 +2292,8 @@ def do_blipp(request):
         user_balance = user.profile.balance
         message = "Du har <b>%s kr</b> kvar att blippa för" % user_balance
 
+    message += _coffee_challenge_blipp_message(user, order.put_at)
+
     return JsonResponse(
         {
             "message": message,
@@ -2298,6 +2302,29 @@ def do_blipp(request):
             "theme_override": config.theme_override,
         }
     )
+
+
+def _coffee_challenge_blipp_message(user, put_at):
+    # A bonus line on the blipp screen; it must never cost anyone their coffee.
+    # The savepoint keeps a failing query from poisoning do_blipp's transaction.
+    try:
+        with transaction.atomic():
+            challenge = models.CoffeeChallenge.objects.filter(
+                user=user, date=timezone.localtime(put_at).date()
+            ).first()
+            if challenge is None:
+                return ""
+            slots = challenge.slots()
+        if any(s["missed"] for s in slots):
+            return "<br>☕ Utmaning misslyckad – Du tar den nästa gång!"
+        cups = sum(s["done"] for s in slots)
+        total = len(slots)
+        if cups == total:
+            return "<br>☕ %d/%d – du är en <b>%s</b>!" % (cups, total, challenge.TITLE)
+        return "<br>☕ Kaffeutmaningen: %d/%d – %d kvar!" % (cups, total, total - cups)
+    except Exception:
+        logger.exception("Could not build coffee challenge blipp message")
+        return ""
 
 
 def integrity(request):
@@ -2648,6 +2675,81 @@ def wrapped_data(request: HttpRequest):
         raise BadRequest(_("Found no Wrapped data for user"))
 
     return JsonResponse({**wrapped.data, "semester": wrapped.semester.name})
+
+
+@login_required
+def coffee_challenge(request):
+    user = request.user
+    form = forms.CoffeeChallengeForm(request.POST or None, user=user)
+
+    if request.method == "POST" and form.is_valid():
+        challenge = models.CoffeeChallenge.objects.create(
+            user=user, date=form.cleaned_data["date"]
+        )
+        return redirect("coffee_challenge_day", day=challenge.date.isoformat())
+
+    return render(
+        request,
+        "baljan/coffee_challenge.html",
+        {
+            "form": form,
+            "challenges": models.CoffeeChallenge.objects.filter(user=user),
+            "slots": models.CoffeeChallenge.SLOTS,
+            "title": models.CoffeeChallenge.TITLE,
+        },
+    )
+
+
+def _challenge_for(request, day):
+    try:
+        day = date.fromisoformat(day)
+    except ValueError:
+        raise Http404
+    return get_object_or_404(models.CoffeeChallenge, user=request.user, date=day)
+
+
+@login_required
+def coffee_challenge_day(request, day):
+    challenge = _challenge_for(request, day)
+    slots = challenge.slots()
+    today = timezone.localdate()
+    return render(
+        request,
+        "baljan/coffee_challenge_day.html",
+        {
+            "challenge": challenge,
+            "slots": slots,
+            "cups": sum(s["done"] for s in slots),
+            "failed": any(s["missed"] for s in slots),
+            "today": today,
+            "is_today": challenge.date == today,
+            "title": models.CoffeeChallenge.TITLE,
+        },
+    )
+
+
+@login_required
+@require_GET
+def coffee_challenge_status(request, day):
+    challenge = _challenge_for(request, day)
+    slots = challenge.slots()
+    return JsonResponse(
+        {
+            "cups": sum(s["done"] for s in slots),
+            "total": len(slots),
+            "done": [s["done"] for s in slots],
+            "missed": [s["missed"] for s in slots],
+        }
+    )
+
+
+@login_required
+@require_POST
+def coffee_challenge_delete(request, day):
+    challenge = _challenge_for(request, day)
+    if challenge.date > timezone.localdate():
+        challenge.delete()
+    return redirect("coffee_challenge")
 
 
 class Stripe:

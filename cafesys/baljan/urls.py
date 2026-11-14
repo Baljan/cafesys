@@ -42,6 +42,18 @@ urlpatterns = (
     path("credits/<slug:code>", views.credits, name="credits"),
     path("orders", views.OrderListView.as_view(), name="orders"),
     path("user/<int:who>", views.see_user),
+    path("utmaning", views.coffee_challenge, name="coffee_challenge"),
+    path("utmaning/<str:day>", views.coffee_challenge_day, name="coffee_challenge_day"),
+    path(
+        "utmaning/<str:day>/status",
+        views.coffee_challenge_status,
+        name="coffee_challenge_status",
+    ),
+    path(
+        "utmaning/<str:day>/ta-bort",
+        views.coffee_challenge_delete,
+        name="coffee_challenge_delete",
+    ),
     path("group/<str:group_name>", views.see_group, name="group"),
     path("search-person", views.search_person, name="search_person"),
     path(

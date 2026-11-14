@@ -1739,6 +1739,88 @@ class Wrapped(Made):
         }
 
 
+class CoffeeChallenge(Made):
+    """A user's pledge to drink one cup of coffee on every break of a day.
+
+    The cups are not stored: they are the user's accepted orders that day,
+    matched against ``SLOTS``.
+    """
+
+    #: (start, end) of each break. Lunch is the whole hour, the other breaks
+    #: are the quarter before lectures start.
+    SLOTS = tuple(
+        (time(hour), time(13) if hour == 12 else time(hour, 15))
+        for hour in range(8, 17)
+    )
+    TITLE = "Coffee Gladiator"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("user"),
+        on_delete=models.CASCADE,
+    )
+    date = models.DateField("datum")
+
+    class Meta:
+        verbose_name = "kaffeutmaning"
+        verbose_name_plural = "kaffeutmaningar"
+        ordering = ["-date"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "date"], name="unique_coffee_challenge_per_day"
+            )
+        ]
+
+    def __str__(self):
+        return "Kaffeutmaning för %s den %s" % (self.user, self.date)
+
+    def slots(self):
+        """One dict per break, saying whether a blipp landed inside it, or
+        whether the break is over without one."""
+        now = timezone.now()
+        tz = timezone.get_current_timezone()
+        bounds = [
+            (
+                timezone.make_aware(datetime.combine(self.date, start), tz),
+                timezone.make_aware(datetime.combine(self.date, end), tz),
+            )
+            for start, end in self.SLOTS
+        ]
+        put_ats = list(
+            Order.objects.filter(
+                user=self.user,
+                accepted=True,
+                put_at__gte=bounds[0][0],
+                put_at__lt=bounds[-1][1],
+            ).values_list("put_at", flat=True)
+        )
+        slots = []
+        for start, end in bounds:
+            done = any(start <= p < end for p in put_ats)
+            slots.append(
+                {
+                    "start": start.time(),
+                    "end": end.time(),
+                    "done": done,
+                    "missed": not done and end <= now,
+                }
+            )
+        return slots
+
+    def cups(self):
+        return sum(slot["done"] for slot in self.slots())
+
+    def is_completed(self):
+        return self.cups() == len(self.SLOTS)
+
+    def is_failed(self):
+        return any(slot["missed"] for slot in self.slots())
+
+    @classmethod
+    def times_completed(cls, user):
+        return sum(c.is_completed() for c in cls.objects.filter(user=user))
+
+
 class CateringOrder(Made):
     """An order placed through the public order form ("beställning").
 
