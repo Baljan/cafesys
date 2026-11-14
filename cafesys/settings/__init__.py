@@ -244,6 +244,8 @@ CONTACT_EMAIL = "styrelsen@baljan.org"
 # Where catering orders land, and where the decision answers in the same thread.
 CATERING_EMAIL = "bestallning@baljan.org"
 ADMIN_EMAIL = "1337@baljan.org"
+# List-ID of the Google group whose mail is posted to Slack.
+SUPPORT_LIST_ID = "1337.baljan.org"
 CONTACT_PHONE = "0766860043"
 USER_EMAIL_DOMAIN = "student.liu.se"
 SITE_NAME = "Sektionscafé Baljan"

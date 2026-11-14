@@ -164,6 +164,9 @@ def get_new_messages(new_history_id):
         for message in messagesAdded:
             message_id = message["message"]["id"]
             details = get_email_details(service, message_id)
+            # Only mail sent to the support group, not the rest of the inbox.
+            if details is None or settings.SUPPORT_LIST_ID not in details["list_id"]:
+                continue
 
             # This can be done by using aggregate and a PostgreSQLs POSITION function
             # to get check if a subject / sender can contain filter values.
@@ -182,7 +185,7 @@ def get_new_messages(new_history_id):
                 ]
             )
 
-            if should_keep and details is not None:
+            if should_keep:
                 messages.append(details)
 
         config["history_id"] = new_history_id
@@ -225,6 +228,9 @@ def get_email_details(service, message_id):
     )
     data["sender"] = next(
         (h["value"] for h in headers if h["name"] == "From"), "Unknown Sender"
+    )
+    data["list_id"] = next(
+        (h["value"] for h in headers if h["name"].lower() == "list-id"), ""
     )
 
     if "internalDate" in message and message["internalDate"].isdigit():
