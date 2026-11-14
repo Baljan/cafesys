@@ -3,7 +3,6 @@ import re
 from datetime import date
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.cache import cache
 from cafesys.baljan import inhopp
 from cafesys.baljan.models import Located, PhoneLabel, Shift
@@ -14,7 +13,6 @@ from cafesys.baljan.phone import (
 )
 from slack_bolt.adapter.django import SlackRequestHandler
 from slack_bolt import App
-from slack_sdk.errors import SlackApiError
 from logging import getLogger
 import requests
 
@@ -23,34 +21,10 @@ logger = getLogger(__name__)
 INHOPP_MESSAGE_RE = re.compile(r"^\W*inhopp\b", re.IGNORECASE)
 
 
-def django_user_for_slack(client, slack_user_id):
-    """The cafesys user behind a Slack user, matched on email address."""
-    try:
-        profile = client.users_info(user=slack_user_id)["user"]["profile"]
-    except SlackApiError:
-        logger.exception("could not look up Slack user %s", slack_user_id)
-        return None
-
-    email = (profile.get("email") or "").lower()
-    if not email:
-        return None
-    try:
-        return User.objects.get(email__iexact=email)
-    except (User.DoesNotExist, User.MultipleObjectsReturned):
-        pass
-
-    local, _at, domain = email.partition("@")
-    if domain != settings.USER_EMAIL_DOMAIN:
-        return None
-    return User.objects.filter(username__iexact=local).first()
-
-
-def can_manage_shifts(user):
-    return (
-        user is not None
-        and user.has_perm("baljan.add_shiftsignup")
-        and user.has_perm("baljan.delete_shiftsignup")
-    )
+def in_inhopp_channel(channel_id):
+    # Everyone in the inhopp channel may use the bot; no channel set means off.
+    channel = settings.SLACK_INHOPP_CHANNEL_ID
+    return bool(channel) and channel_id == channel
 
 
 def inhopp_proposal_blocks(shift, request):
@@ -112,15 +86,12 @@ if settings.SLACK_BOT_TOKEN is not None:
         respond(delete_original=True)
 
     @app.message(INHOPP_MESSAGE_RE)
-    def propose_inhopp(body, message, client, request, say):
+    def propose_inhopp(body, message, request, say):
         if request.headers.get("x-slack-retry-num"):
             return
+        if not in_inhopp_channel(message.get("channel")):
+            return
         if not cache.add(f"slack-inhopp:{body.get('event_id')}", 1, 60 * 60):
-            return
-        channel = settings.SLACK_INHOPP_CHANNEL_ID
-        if channel and message.get("channel") != channel:
-            return
-        if not can_manage_shifts(django_user_for_slack(client, message.get("user"))):
             return
 
         thread_ts = message.get("thread_ts") or message["ts"]
@@ -148,17 +119,11 @@ if settings.SLACK_BOT_TOKEN is not None:
         )
 
     @app.action("inhopp_confirm")
-    def confirm_inhopp(ack, body, client, respond):
+    def confirm_inhopp(ack, body, respond):
         ack()
-        slack_user = body["user"]["id"]
-        user = django_user_for_slack(client, slack_user)
-        if not can_manage_shifts(user):
-            respond(
-                replace_original=False,
-                response_type="ephemeral",
-                text="Du har inte behörighet att ändra pass i cafesys.",
-            )
+        if not in_inhopp_channel(body["channel"]["id"]):
             return
+        slack_user = body["user"]["id"]
 
         data = json.loads(body["actions"][0]["value"])
         shift = Shift.objects.filter(pk=data["shift"]).first()
@@ -171,7 +136,6 @@ if settings.SLACK_BOT_TOKEN is not None:
             shift,
             data["in"],
             data["out"],
-            requested_by=user,
             slack_channel=body["channel"]["id"],
             slack_thread_ts=message.get("thread_ts") or message["ts"],
         )
@@ -184,16 +148,11 @@ if settings.SLACK_BOT_TOKEN is not None:
         )
 
     @app.action("inhopp_cancel")
-    def cancel_inhopp(ack, body, client, respond):
+    def cancel_inhopp(ack, body, respond):
         ack()
-        slack_user = body["user"]["id"]
-        if not can_manage_shifts(django_user_for_slack(client, slack_user)):
-            respond(
-                replace_original=False,
-                response_type="ephemeral",
-                text="Du har inte behörighet att ändra pass i cafesys.",
-            )
+        if not in_inhopp_channel(body["channel"]["id"]):
             return
+        slack_user = body["user"]["id"]
         respond(replace_original=True, text=f"Inhoppet avbröts av <@{slack_user}>.")
 
 
