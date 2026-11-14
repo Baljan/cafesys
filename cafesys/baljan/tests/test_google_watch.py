@@ -3,9 +3,10 @@ from unittest import mock
 
 from django.conf import settings
 from django.core.cache import cache
-from django.test import SimpleTestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 
 from cafesys.baljan import google
+from cafesys.baljan.models import SupportFilter
 
 DAY_MS = 24 * 60 * 60 * 1000
 LOCMEM = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
@@ -73,3 +74,56 @@ class EnsureGmailWatchTestCase(SimpleTestCase):
 
         timeout = cache_set.call_args.args[2]
         self.assertAlmostEqual(timeout, 7 * 24 * 60 * 60, delta=60)
+
+
+@override_settings(CACHES=LOCMEM, SUPPORT_LIST_ID="1337.baljan.org")
+class GetNewMessagesTestCase(TestCase):
+    MAILS = {
+        "group": {"Subject": "Kortet funkar inte", "List-ID": "<1337.baljan.org>"},
+        "personal": {"Subject": "Middag ikväll?"},
+        "other-group": {"Subject": "Styrelsemöte", "List-ID": "<styrelsen.baljan.org>"},
+    }
+
+    def setUp(self):
+        cache.clear()
+        cache.set(
+            settings.GOOGLE_CACHE_KEY,
+            {"expiration_time": int(time.time() * 1000) + DAY_MS, "history_id": 1},
+            None,
+        )
+        service = mock.Mock()
+        service.users().history().list().execute.return_value = {
+            "history": [
+                {
+                    "messagesAdded": [
+                        {"message": {"id": mail_id}} for mail_id in self.MAILS
+                    ]
+                }
+            ]
+        }
+        service.users().messages().get.side_effect = lambda **kw: mock.Mock(
+            execute=mock.Mock(return_value=self.message(kw["id"]))
+        )
+        patcher = mock.patch.object(google, "setup_service", return_value=service)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def message(self, mail_id):
+        headers = {"From": "someone@example.com", **self.MAILS[mail_id]}
+        return {
+            "payload": {
+                "headers": [{"name": k, "value": v} for k, v in headers.items()]
+            },
+            "internalDate": "1700000000000",
+            "snippet": "Hej",
+        }
+
+    def test_only_mail_to_the_support_group(self):
+        messages = google.get_new_messages(2)
+
+        self.assertEqual([m["id"] for m in messages], ["group"])
+
+    def test_support_filters_still_apply(self):
+        SupportFilter.objects.create(type=SupportFilter.Type.SUBJECT, value="Kortet")
+
+        self.assertEqual(google.get_new_messages(2), [])
