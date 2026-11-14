@@ -79,6 +79,15 @@ def delete_event(calendar_id, event_id):
         logger.info("calendar event %s was already gone", event_id)
 
 
+RENEW_MARGIN_MS = 24 * 60 * 60 * 1000
+
+
+def _store_watch_config(config):
+    # Kept until the watch expires, so an expired watch is renewed.
+    timeout = config["expiration_time"] / 1000 - time.time()
+    cache.set(settings.GOOGLE_CACHE_KEY, config, max(int(timeout), 1))
+
+
 @signals.worker_ready.connect
 def ensure_gmail_watch(**kwargs):
     service = setup_service()
@@ -86,9 +95,8 @@ def ensure_gmail_watch(**kwargs):
         settings.GOOGLE_CACHE_KEY, {"expiration_time": 0, "history_id": None}
     )
 
-    current_time = time.time()
-
-    if current_time - config["expiration_time"] > 0:
+    # Gmail gives the expiration in milliseconds; renew a day before it.
+    if config["expiration_time"] - time.time() * 1000 < RENEW_MARGIN_MS:
         logger.debug("Ensuring Gmail watch...")
         try:
             response = (
@@ -113,11 +121,7 @@ def ensure_gmail_watch(**kwargs):
                 % (datetime.fromtimestamp(config["expiration_time"] / 1e3))
             )
 
-            cache.set(
-                settings.GOOGLE_CACHE_KEY,
-                config,
-                config["expiration_time"] - current_time,
-            )
+            _store_watch_config(config)
         except HttpError as e:
             logger.error(
                 "Could not renew Gmail notification watch. Status code : {0}, reason : {1}".format(
@@ -182,9 +186,7 @@ def get_new_messages(new_history_id):
                 messages.append(details)
 
         config["history_id"] = new_history_id
-        cache.set(
-            settings.GOOGLE_CACHE_KEY, config, config["expiration_time"] - time.time()
-        )
+        _store_watch_config(config)
     except HttpError as e:
         logger.error(
             "Could not get new message history. Status code: {0}, reason : {1}".format(
