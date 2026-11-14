@@ -1,0 +1,64 @@
+{% extends "baljan/baljan.html" %}
+
+{% block page_title %}Kaffeutmaningen {{ challenge.date }}{% endblock %}
+
+{% block body_class %}coffee-challenge{% endblock %}
+{% block body %}
+    <h1>☕ Kaffeutmaningen {{ challenge.date }}</h1>
+
+    <p class="fs-4">
+        <span id="challenge-cups">{{ cups }}</span> av {{ slots|length }} koppar
+    </p>
+
+    <div id="challenge-failed" class="alert alert-danger{% if not failed %} d-none{% endif %}">
+        Utmaning misslyckad – Du tar den nästa gång!
+    </div>
+
+    <div id="challenge-won" class="alert alert-success{% if cups != slots|length %} d-none{% endif %}">
+        Grattis! Du är nu en <b>{{ title }}</b>.
+    </div>
+
+    <ul class="list-group mb-4" style="max-width: 24rem;">
+        {% for slot in slots %}
+            <li class="list-group-item d-flex justify-content-between">
+                <span>{{ slot.start|time:"H:i" }}–{{ slot.end|time:"H:i" }}{% if slot.start.hour == 12 %} (lunch){% endif %}</span>
+                <span class="challenge-slot">{% if slot.done %}✅{% elif slot.missed %}❌{% else %}⬜{% endif %}</span>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'coffee_challenge' %}" class="btn btn-secondary">Tillbaka</a>
+
+    {% if challenge.date > today %}
+        <form method="post" action="{% url 'coffee_challenge_delete' challenge.date|date:'Y-m-d' %}" class="d-inline"
+              onsubmit="return confirm('Är du säker på att du vill radera denna utmaning?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger">Radera utmaning</button>
+        </form>
+    {% endif %}
+
+    {% if is_today %}
+        <script>
+            (function () {
+                const url = "{% url 'coffee_challenge_status' challenge.date|date:'Y-m-d' %}";
+                const slots = document.querySelectorAll(".challenge-slot");
+                setInterval(function () {
+                    fetch(url, {credentials: "same-origin"})
+                        .then(function (resp) { return resp.ok ? resp.json() : null; })
+                        .then(function (data) {
+                            if (!data) return;
+                            document.getElementById("challenge-cups").textContent = data.cups;
+                            data.done.forEach(function (done, i) {
+                                slots[i].textContent = done ? "✅" : data.missed[i] ? "❌" : "⬜";
+                            });
+                            document.getElementById("challenge-won")
+                                .classList.toggle("d-none", data.cups !== data.total);
+                            document.getElementById("challenge-failed")
+                                .classList.toggle("d-none", !data.missed.includes(true));
+                        })
+                        .catch(function () {});
+                }, 30000);
+            })();
+        </script>
+    {% endif %}
+{% endblock %}

@@ -497,3 +497,26 @@ class WorkableShiftsForm(forms.Form):
             for sh in workable_shifts:
                 self.fields["workable-" + sh.combination].initial = True
                 self.fields["priority-" + sh.combination].initial = sh.priority
+
+
+class CoffeeChallengeForm(forms.Form):
+    date = forms.DateField(
+        label="Datum",
+        widget=forms.DateInput(
+            attrs={"class": "form-control", "type": "date"}, format="%Y-%m-%d"
+        ),
+    )
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_date(self):
+        day = self.cleaned_data["date"]
+        if day < timezone.localdate():
+            raise forms.ValidationError("Du kan inte anta en utmaning bakåt i tiden.")
+        if day.weekday() >= 5:
+            raise forms.ValidationError("Baljan har bara öppet på vardagar.")
+        if models.CoffeeChallenge.objects.filter(user=self.user, date=day).exists():
+            raise forms.ValidationError("Du har redan antagit utmaningen den dagen.")
+        return day
