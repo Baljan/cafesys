@@ -78,6 +78,8 @@ urlpatterns = (
     ),
     path("high-score/<int:location>", views.high_score, name="high_score"),
     path("high-score", views.high_score, name="high_score"),
+    path("skarm", views.skarm, name="skarm"),
+    path("skarm/data", views.skarm_data, name="skarm_data"),
     path("bestallning", views.orderFromUs, name="order_from_us"),
     path(
         "bestallning/<str:token>",

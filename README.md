@@ -110,6 +110,19 @@ This command will spit out a signing secret which you will need to paste into yo
 Go to the Stripe Dashboard, and select the sandbox instance, not the production instance.
 From there you need to get the sandbox private API-key which you also need to add to the environment file.
 
+## Wall screen (/skarm)
+
+`/skarm` is a statistics screen meant to run unattended on an iPad. It needs iPadOS 15 or newer.
+
+1. Open `https://www.baljan.org/skarm` in Safari. Add `?topplista=0` to hide the top-3 slide on a screen customers can see.
+2. Share → Add to Home Screen, then open it from the home screen so it runs full screen.
+3. Settings → Display & Brightness → Auto-Lock → Never.
+4. Settings → Accessibility → Guided Access on, open the screen and triple-click to lock it to the app.
+
+The page refreshes its data every 15 seconds and reloads itself every six hours to pick up deploys. All numbers are cached on the server, so more screens do not mean more database load.
+
+Locally (with `DJANGO_DEBUG=True`) you can preview another moment against old data, e.g. `/skarm?nu=2025-11-13T10:07`.
+
 ## Creating translations
 
 Every text element should have a translation.

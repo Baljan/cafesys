@@ -81,6 +81,7 @@ from . import (
     stats,
     trades,
     bookkeep,
+    dashboard,
 )
 from .forms import OrderForm
 from .util import (
@@ -2080,6 +2081,34 @@ def high_score(request, location=None):
     tpl["locations"] = ((None, "Alla"),) + models.Located.LOCATION_CHOICES
     tpl["selected_location"] = location
     return render(request, "baljan/high_score.html", tpl)
+
+
+def _skarm_payload(request):
+    # ?nu=2025-11-13T10:07 previews another moment against old local data.
+    now = request.GET.get("nu") if settings.DEBUG else None
+    if now:
+        return dashboard.payload(
+            timezone.make_aware(datetime.fromisoformat(now)), use_cache=False
+        )
+    return dashboard.payload()
+
+
+@require_GET
+def skarm(request):
+    return render(
+        request,
+        "baljan/skarm.html",
+        {
+            "payload": _skarm_payload(request),
+            "show_top": request.GET.get("topplista") != "0",
+        },
+    )
+
+
+@never_cache
+@require_GET
+def skarm_data(request):
+    return JsonResponse(_skarm_payload(request))
 
 
 @csrf_exempt
