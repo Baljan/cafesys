@@ -855,7 +855,8 @@ def signup_post(sender, instance=None, **kwargs):
 
 
 def signup_notice_save(signup):
-    if signup.shift.when < date.today():
+    # Users who have not consented to storing LiU details have no email.
+    if signup.shift.when < date.today() or not signup.user.email:
         return
 
     def send_notification():
@@ -867,7 +868,7 @@ def signup_notice_save(signup):
 
 
 def signup_notice_delete(signup):
-    if signup.shift.when < date.today():
+    if signup.shift.when < date.today() or not signup.user.email:
         return
     notifications.send("removed_from_shift", signup.user, shift=signup.shift.name())
 
@@ -918,6 +919,27 @@ def signup_pre_delete(sender, instance=None, **kwargs):
 
 
 signals.pre_delete.connect(signup_pre_delete, sender=ShiftSignup)
+
+
+class PendingShiftSignup(Made):
+    """A Slack inhopp for a liu-id with no account, claimed on first login."""
+
+    shift = models.ForeignKey(Shift, verbose_name=_("shift"), on_delete=models.CASCADE)
+    liu_id = models.CharField("LiU-ID", max_length=16)
+    slack_channel = models.CharField(max_length=32, blank=True)
+    slack_thread_ts = models.CharField(max_length=32, blank=True)
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL
+    )
+
+    class Meta:
+        verbose_name = "väntande inhopp"
+        verbose_name_plural = "väntande inhopp"
+        unique_together = ("shift", "liu_id")
+        ordering = ("shift__when", "shift__span")
+
+    def __str__(self):
+        return "%s on %s (pending)" % (self.liu_id, self.shift)
 
 
 class OnCallDuty(Made):

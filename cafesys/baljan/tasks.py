@@ -16,6 +16,16 @@ def send_mail_task(title, body, from_email, to_emails, **kwargs):
     EmailMessage(title, body, from_email, to_emails, **kwargs).send()
 
 
+@app.task
+def post_slack_thread_message(channel, thread_ts, text):
+    from . import slack
+
+    slack_app = getattr(slack, "app", None)
+    if slack_app is None:
+        return
+    slack_app.client.chat_postMessage(channel=channel, thread_ts=thread_ts, text=text)
+
+
 @shared_task
 def update_stats():
     from . import stats

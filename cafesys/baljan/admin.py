@@ -255,6 +255,14 @@ class ShiftSignupAdmin(admin.ModelAdmin):
 custom_admin_site.register(models.ShiftSignup, ShiftSignupAdmin)
 
 
+class PendingShiftSignupAdmin(admin.ModelAdmin):
+    search_fields = ("liu_id",)
+    list_display = ("liu_id", "shift", "requested_by", "made")
+
+
+custom_admin_site.register(models.PendingShiftSignup, PendingShiftSignupAdmin)
+
+
 class OnCallDutyAdmin(admin.ModelAdmin):
     search_fields = signup_oncall_fields
     list_display = signup_oncall_display
