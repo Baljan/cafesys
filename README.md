@@ -69,8 +69,9 @@ To start the project, run:
 make start
 # or 
 docker compose up --build -d web worker
-```  
-
+# or
+python3 manage.py runserver (if you want to do live changes)
+```
 ## Building for production locally
 
 > This part requires [Buildpacks](https://buildpacks.io/docs/for-platform-operators/how-to/integrate-ci/pack/) to be installed
