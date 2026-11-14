@@ -2,8 +2,8 @@ from datetime import date, timedelta
 from unittest import mock
 
 from django.conf import settings
-from django.contrib.auth.models import Group, Permission, User
-from django.test import SimpleTestCase, TestCase
+from django.contrib.auth.models import Group, User
+from django.test import SimpleTestCase, TestCase, override_settings
 
 from cafesys.baljan import inhopp, slack
 from cafesys.baljan.models import (
@@ -217,44 +217,13 @@ class ClaimPendingSignupsTestCase(TestCase):
             inhopp.claim_pending_signups(backend, response={}, user=mock.Mock())
 
 
-class SlackPermissionTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.manager = User.objects.create(
-            username="kenny123", email="kenny@example.com"
-        )
-        cls.manager.user_permissions.add(
-            *Permission.objects.filter(
-                codename__in=("add_shiftsignup", "delete_shiftsignup")
-            )
-        )
-        cls.worker = User.objects.create(username="worker1")
+class InhoppChannelTestCase(SimpleTestCase):
+    @override_settings(SLACK_INHOPP_CHANNEL_ID="C1")
+    def test_only_the_inhopp_channel(self):
+        self.assertTrue(slack.in_inhopp_channel("C1"))
+        self.assertFalse(slack.in_inhopp_channel("C2"))
 
-    def client_with_email(self, email):
-        client = mock.Mock()
-        client.users_info.return_value = {"user": {"profile": {"email": email}}}
-        return client
-
-    def test_matches_on_email(self):
-        user = slack.django_user_for_slack(
-            self.client_with_email("Kenny@example.com"), "U1"
-        )
-
-        self.assertEqual(user, self.manager)
-        self.assertTrue(slack.can_manage_shifts(user))
-
-    def test_falls_back_to_liu_id_for_student_email(self):
-        email = f"worker1@{settings.USER_EMAIL_DOMAIN}"
-
-        user = slack.django_user_for_slack(self.client_with_email(email), "U1")
-
-        self.assertEqual(user, self.worker)
-        self.assertFalse(slack.can_manage_shifts(user))
-
-    def test_unknown_email_has_no_permission(self):
-        user = slack.django_user_for_slack(
-            self.client_with_email("x@example.com"), "U1"
-        )
-
-        self.assertIsNone(user)
-        self.assertFalse(slack.can_manage_shifts(user))
+    @override_settings(SLACK_INHOPP_CHANNEL_ID=None)
+    def test_off_without_channel(self):
+        self.assertFalse(slack.in_inhopp_channel(None))
+        self.assertFalse(slack.in_inhopp_channel("C1"))
