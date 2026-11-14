@@ -214,6 +214,8 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.load_extra_data",
     # Update the user record with any changed info from the auth service.
     "social_core.pipeline.user.user_details",
+    # Turn inhopp booked from Slack before the account existed into sign-ups.
+    "cafesys.baljan.inhopp.claim_pending_signups",
 )
 
 SOCIAL_AUTH_LIU_KEY = env.str("AUTH_LIU_CLIENT_ID", default="")
@@ -300,6 +302,7 @@ SLACK_BOT_TOKEN = env.str("SLACK_BOT_TOKEN", default=None)
 SLACK_SIGNING_SECRET = env.str("SLACK_SIGNING_SECRET", default=None)
 SLACK_PHONE_WEBHOOK_URL = env.str("SLACK_PHONE_WEBHOOK_URL", default=None)
 SLACK_SUPPORT_WEBHOOK_URL = env.str("SLACK_SUPPORT_WEBHOOK_URL", default=None)
+SLACK_INHOPP_CHANNEL_ID = env.str("SLACK_INHOPP_CHANNEL_ID", default=None)
 
 
 VERIFY_46ELKS_IP = True

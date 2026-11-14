@@ -1,5 +1,12 @@
+import json
+import re
+from datetime import date
+
 from django.conf import settings
-from cafesys.baljan.models import Located, PhoneLabel
+from django.contrib.auth.models import User
+from django.core.cache import cache
+from cafesys.baljan import inhopp
+from cafesys.baljan.models import Located, PhoneLabel, Shift
 from cafesys.baljan.phone import (
     is_valid_phone_number,
     get_user_by_number,
@@ -7,10 +14,76 @@ from cafesys.baljan.phone import (
 )
 from slack_bolt.adapter.django import SlackRequestHandler
 from slack_bolt import App
+from slack_sdk.errors import SlackApiError
 from logging import getLogger
 import requests
 
 logger = getLogger(__name__)
+
+INHOPP_MESSAGE_RE = re.compile(r"^\W*inhopp\b", re.IGNORECASE)
+
+
+def django_user_for_slack(client, slack_user_id):
+    """The cafesys user behind a Slack user, matched on email address."""
+    try:
+        profile = client.users_info(user=slack_user_id)["user"]["profile"]
+    except SlackApiError:
+        logger.exception("could not look up Slack user %s", slack_user_id)
+        return None
+
+    email = (profile.get("email") or "").lower()
+    if not email:
+        return None
+    try:
+        return User.objects.get(email__iexact=email)
+    except (User.DoesNotExist, User.MultipleObjectsReturned):
+        pass
+
+    local, _at, domain = email.partition("@")
+    if domain != settings.USER_EMAIL_DOMAIN:
+        return None
+    return User.objects.filter(username__iexact=local).first()
+
+
+def can_manage_shifts(user):
+    return (
+        user is not None
+        and user.has_perm("baljan.add_shiftsignup")
+        and user.has_perm("baljan.delete_shiftsignup")
+    )
+
+
+def inhopp_proposal_blocks(shift, request):
+    lines = [f"*Inhopp {shift.name()}*"]
+    if request.in_ids:
+        lines.append(f"In: {', '.join(request.in_ids)}")
+    if request.out_ids:
+        lines.append(f"Ut: {', '.join(request.out_ids)}")
+    lines += [f"⚠️ {warning}" for warning in request.warnings]
+    value = json.dumps(
+        {"shift": shift.pk, "in": request.in_ids, "out": request.out_ids}
+    )
+    return [
+        {"type": "section", "text": {"type": "mrkdwn", "text": "\n".join(lines)}},
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Genomför"},
+                    "style": "primary",
+                    "action_id": "inhopp_confirm",
+                    "value": value,
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Avbryt"},
+                    "action_id": "inhopp_cancel",
+                },
+            ],
+        },
+    ]
+
 
 if settings.SLACK_BOT_TOKEN is not None:
     app = App(
@@ -37,6 +110,91 @@ if settings.SLACK_BOT_TOKEN is not None:
     def remove_support_ticket(ack, body, respond):
         ack()
         respond(delete_original=True)
+
+    @app.message(INHOPP_MESSAGE_RE)
+    def propose_inhopp(body, message, client, request, say):
+        if request.headers.get("x-slack-retry-num"):
+            return
+        if not cache.add(f"slack-inhopp:{body.get('event_id')}", 1, 60 * 60):
+            return
+        channel = settings.SLACK_INHOPP_CHANNEL_ID
+        if channel and message.get("channel") != channel:
+            return
+        if not can_manage_shifts(django_user_for_slack(client, message.get("user"))):
+            return
+
+        thread_ts = message.get("thread_ts") or message["ts"]
+        try:
+            parsed = inhopp.parse_inhopp(message.get("text", ""), date.today())
+        except inhopp.InhoppParseError as e:
+            say(thread_ts=thread_ts, text=f"Kunde inte tolka inhoppet: {e}")
+            return
+
+        shift = inhopp.find_shift(parsed)
+        if shift is None:
+            say(
+                thread_ts=thread_ts,
+                text=f"Hittade inget pass {parsed.when:%Y-%m-%d} som går att boka.",
+            )
+            return
+        if shift.past():
+            say(thread_ts=thread_ts, text=f"{shift.name()} har redan varit.")
+            return
+
+        say(
+            thread_ts=thread_ts,
+            text=f"Inhopp {shift.name()}",
+            blocks=inhopp_proposal_blocks(shift, parsed),
+        )
+
+    @app.action("inhopp_confirm")
+    def confirm_inhopp(ack, body, client, respond):
+        ack()
+        slack_user = body["user"]["id"]
+        user = django_user_for_slack(client, slack_user)
+        if not can_manage_shifts(user):
+            respond(
+                replace_original=False,
+                response_type="ephemeral",
+                text="Du har inte behörighet att ändra pass i cafesys.",
+            )
+            return
+
+        data = json.loads(body["actions"][0]["value"])
+        shift = Shift.objects.filter(pk=data["shift"]).first()
+        if shift is None:
+            respond(replace_original=True, text="Passet finns inte längre.")
+            return
+
+        message = body["message"]
+        result = inhopp.apply_inhopp(
+            shift,
+            data["in"],
+            data["out"],
+            requested_by=user,
+            slack_channel=body["channel"]["id"],
+            slack_thread_ts=message.get("thread_ts") or message["ts"],
+        )
+        respond(
+            replace_original=True,
+            text=(
+                f"*Inhopp {shift.name()}* genomfört av <@{slack_user}>\n"
+                f"{inhopp.format_result(result)}"
+            ),
+        )
+
+    @app.action("inhopp_cancel")
+    def cancel_inhopp(ack, body, client, respond):
+        ack()
+        slack_user = body["user"]["id"]
+        if not can_manage_shifts(django_user_for_slack(client, slack_user)):
+            respond(
+                replace_original=False,
+                response_type="ephemeral",
+                text="Du har inte behörighet att ändra pass i cafesys.",
+            )
+            return
+        respond(replace_original=True, text=f"Inhoppet avbröts av <@{slack_user}>.")
 
 
 def send_message(data, url, type="unknown message type"):
