@@ -1,0 +1,41 @@
+{% load static %}{% load sass_tags %}<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Baljan" />
+    <meta name="theme-color" content="#fffcf8" />
+    <title>Skärm — Sektionscafé Baljan</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/logo/favicon.ico' %}" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Lobster&display=swap"
+      rel="stylesheet"
+    />
+    <link href="{% sass_src 'sass/skarm.scss' %}" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body class="skarm">
+    <div class="pattern"></div>
+    <header class="skarm-head">
+      <img src="{% static 'img/svg/logo.svg' %}" alt="Sektionscafé Baljan" />
+      <span class="skarm-offline" hidden>Ingen kontakt med baljan.org</span>
+      <time class="skarm-clock"></time>
+    </header>
+
+    <main class="skarm-stage"></main>
+    <div class="pattern"></div>
+
+    {{ payload|json_script:"skarm-data" }}
+    <script>
+      window.SKARM = {
+        dataUrl: "{% url 'skarm_data' %}" + window.location.search,
+        kleggbert: "{% static 'img/svg/kleggbert.svg' %}",
+        showTop: {{ show_top|yesno:"true,false" }},
+      };
+    </script>
+    <script src="{% static 'js/skarm.js' %}"></script>
+  </body>
+</html>

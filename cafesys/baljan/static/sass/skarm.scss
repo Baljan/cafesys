@@ -1,0 +1,424 @@
+@charset 'utf-8';
+@import "baljan_colors";
+
+$text: $baljan-dark-blue;
+$text-soft: rgba($baljan-dark-blue, 0.7);
+$line: rgba($baljan-dark-blue, 0.14);
+
+html,
+body.skarm {
+  height: 100%;
+  margin: 0;
+}
+
+body.skarm {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: $baljan-white;
+  color: $text;
+  font-family: Archivo, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: none;
+}
+
+.pattern {
+  height: 3.6vmin;
+  background: url("../img/svg/pattern.svg") center / auto 100% repeat-x;
+}
+
+.skarm-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  padding: 2vmin 4vmin 0;
+
+  img {
+    height: 8vmin;
+  }
+}
+
+.skarm-offline {
+  text-align: center;
+  font-size: 2.6vmin;
+  color: $text-soft;
+}
+
+.skarm-clock {
+  grid-column: 3;
+  font-size: 4.6vmin;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+// Slides
+
+.skarm-stage {
+  position: relative;
+  min-height: 0;
+}
+
+.slide {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0 6vmin;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+
+  // Centred vertically, but long content overflows downwards, not over the header.
+  > :first-child {
+    margin-top: auto;
+  }
+  > :last-child {
+    margin-bottom: auto;
+  }
+
+  &.is-active {
+    opacity: 1;
+  }
+}
+
+.slide h1 {
+  margin-bottom: 0;
+  font-family: Lobster, cursive;
+  font-size: 9vmin;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.sub {
+  margin: 1vmin 0 4.5vmin;
+  font-size: 4vmin;
+  font-weight: 600;
+  color: $baljan-pink;
+}
+
+.num {
+  font-weight: 800;
+  font-stretch: 87%;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.cafe {
+  font-family: Lobster, cursive;
+  color: var(--cafe);
+}
+
+.baljan {
+  --cafe: #{$baljan-pink};
+}
+.byttan {
+  --cafe: #{$baljan-blue};
+}
+
+.is-closed {
+  color: $text-soft;
+}
+
+// The latest break
+
+.duel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-column-gap: 6vmin;
+
+  .cafe {
+    font-size: 7vmin;
+  }
+
+  .num {
+    display: block;
+    margin-top: 1vmin;
+    font-size: 27vmin;
+  }
+
+  .is-closed {
+    display: block;
+    margin-top: 1vmin;
+    font-size: 10vmin;
+    line-height: 27vmin;
+  }
+}
+
+// Baljan against Byttan today
+
+.score {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto 1fr;
+  grid-column-gap: 2.6vmin;
+  align-items: baseline;
+
+  .cafe {
+    font-size: 6vmin;
+  }
+
+  .baljan.cafe {
+    text-align: right;
+  }
+
+  .byttan.cafe {
+    text-align: left;
+  }
+
+  .num {
+    font-size: 16vmin;
+  }
+
+  .dash {
+    font-size: 10vmin;
+    color: $text-soft;
+  }
+}
+
+.split {
+  display: flex;
+  height: 1.8vmin;
+  margin: 2.6vmin 0 4.6vmin;
+  background: $line;
+
+  span {
+    background: var(--cafe);
+  }
+}
+
+.hours {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-column-gap: 2vmin;
+  height: 22vmin;
+}
+
+.hour {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  grid-row-gap: 1vmin;
+
+  .bars {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 0.5vmin;
+    align-items: end;
+  }
+
+  .bar {
+    min-height: 0.4vmin;
+    background: var(--cafe);
+  }
+
+  .label {
+    font-size: 2.6vmin;
+    font-variant-numeric: tabular-nums;
+    color: $text-soft;
+  }
+
+  &.is-now .label {
+    color: $text;
+    font-weight: 800;
+  }
+
+  &.is-future .bars {
+    opacity: 0.3;
+  }
+}
+
+// Podium
+
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-column-gap: 3vmin;
+  align-items: end;
+  width: 100%;
+  max-width: 150vmin;
+  margin: 0 auto;
+}
+
+.step {
+  .name {
+    display: block;
+    margin-bottom: 1.6vmin;
+    font-size: 4.8vmin;
+    font-weight: 700;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  .block {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.8vmin 1vmin 2.4vmin;
+    background: $baljan-dark-blue;
+    color: $baljan-white;
+  }
+
+  .rank {
+    font-family: Lobster, cursive;
+    font-size: 7vmin;
+    line-height: 1;
+  }
+
+  .count {
+    font-size: 3.2vmin;
+    font-weight: 500;
+    line-height: 1;
+
+    .num {
+      margin-right: 0.8vmin;
+      font-size: 5.6vmin;
+    }
+  }
+
+  &.place-1 .block {
+    height: 27vmin;
+    background: $baljan-pink;
+  }
+  &.place-2 .block {
+    height: 22vmin;
+  }
+  &.place-3 .block {
+    height: 18vmin;
+    background: $baljan-blue;
+  }
+}
+
+.podium-note {
+  margin: 3vmin 0 0;
+  font-size: 3.2vmin;
+  color: $text-soft;
+}
+
+// One big number
+
+.hero {
+  .num {
+    display: block;
+    font-size: 30vmin;
+    color: var(--cafe, #{$baljan-pink});
+  }
+
+  .note {
+    display: block;
+    margin-top: 2vmin;
+    font-size: 4.4vmin;
+    font-weight: 600;
+  }
+}
+
+.tally {
+  margin-top: 3vmin;
+  font-size: 5.4vmin;
+
+  > span {
+    margin: 0 3vmin;
+  }
+
+  .cafe {
+    margin-right: 1.4vmin;
+  }
+}
+
+// Breaks over the semester
+
+.rhythm {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-column-gap: 2.4vmin;
+  height: 32vmin;
+}
+
+.beat {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-row-gap: 1vmin;
+
+  .avg {
+    font-size: 3.4vmin;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: $text-soft;
+  }
+
+  .bars {
+    display: grid;
+    align-items: end;
+  }
+
+  .bar {
+    min-height: 0.4vmin;
+    background: rgba($baljan-dark-blue, 0.2);
+  }
+
+  .label {
+    font-size: 2.8vmin;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &.is-calm .bar {
+    background: $baljan-blue;
+  }
+  &.is-calm .avg {
+    color: $baljan-blue;
+  }
+
+  &.is-busy .bar {
+    background: $baljan-pink;
+  }
+  &.is-busy .avg {
+    color: $baljan-pink;
+  }
+}
+
+.verdict {
+  margin: 3.4vmin 0 0;
+  font-size: 4.4vmin;
+  font-weight: 600;
+
+  .calm {
+    color: $baljan-blue;
+  }
+  .busy {
+    color: $baljan-pink;
+  }
+}
+
+// Nothing to show
+
+.slide-fallback img {
+  height: 42vmin;
+  margin-top: 4vmin;
+}
+
+@media (orientation: portrait) {
+  .slide h1 {
+    font-size: 8vmin;
+  }
+
+  .duel .num {
+    font-size: 22vmin;
+  }
+
+  .score .num {
+    font-size: 13vmin;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide {
+    transition: none;
+  }
+}
