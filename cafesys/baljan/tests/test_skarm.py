@@ -158,6 +158,13 @@ class SkarmTestCase(TestCase):
         data = self.client.get(reverse("skarm_data")).json()
         self.assertEqual([c["key"] for c in data["cafes"]], ["baljan", "byttan"])
 
+    @override_settings(DEBUG=True)
+    def test_preview_time(self):
+        url = reverse("skarm_data") + "?nu="
+        data = self.client.get(url + "2098-03-10T10:07%2B01:00").json()
+        self.assertEqual(data["generated"], "2098-03-10T10:07:00+01:00")
+        self.assertEqual(self.client.get(url + "igår").status_code, 400)
+
     def test_preview_time_is_ignored_in_production(self):
         data = self.client.get(reverse("skarm_data") + "?nu=2000-01-01T10:00").json()
         self.assertNotIn("2000", data["generated"])
@@ -203,6 +210,12 @@ class SkarmTopTestCase(TestCase):
             sorted((p["rank"], p["name"], p["count"]) for p in top["people"]),
             [(1, "Anna L.", 9), (1, "Bo", 9), (2, "Cia E.", 4)],
         )
+
+    def test_opting_out_hides_you_before_the_next_stats_run(self):
+        tasks.update_stats()
+        models.Profile.objects.filter(user__username="anna").update(show_profile=False)
+        names = [p["name"] for p in dashboard.payload()["top"]["people"]]
+        self.assertNotIn("Anna L.", names)
 
     def test_no_top_list_before_stats_are_computed(self):
         self.assertIsNone(dashboard.payload()["top"])

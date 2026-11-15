@@ -76,7 +76,7 @@
       );
     });
 
-    return slide("rush", title, r.start + "–" + r.end, '<div class="duel">' + sides.join("") + "</div>");
+    return slide("rush", title, "Blipp " + r.start + "–" + r.end, '<div class="duel">' + sides.join("") + "</div>");
   }
 
   function todaySlide() {

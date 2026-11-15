@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.utils.formats import date_format
 
 from . import stats
-from .models import CoffeeChallenge, Located, Order, Semester, Shift
+from .models import CoffeeChallenge, Located, Order, Profile, Semester, Shift
 
 LIVE_TTL = 15
 SEMESTER_TTL = 30 * 60
@@ -43,10 +43,16 @@ def _zero():
     return {key: 0 for _, key, _ in CAFES}
 
 
+def _in_slot(start, end):
+    if end.hour > start.hour:
+        return Q(hour__gte=start.hour, hour__lt=end.hour)
+    return Q(hour=start.hour, minute__gte=start.minute, minute__lt=end.minute)
+
+
 def _counts(start_day, end_day, *fields):
     """Accepted blipps from start_day up to and including end_day, counted
-    per `fields`. `slot` is the start hour of the break (see
-    CoffeeChallenge.SLOTS) or -1 outside the breaks."""
+    per `fields`. `slot` is the start hour of the break in
+    CoffeeChallenge.SLOTS, or -1 outside the breaks."""
     return (
         Order.objects.filter(
             accepted=True,
@@ -60,8 +66,10 @@ def _counts(start_day, end_day, *fields):
         )
         .annotate(
             slot=Case(
-                When(hour=LUNCH, then="hour"),
-                When(Q(hour__gte=8, hour__lt=17, minute__lt=15), then="hour"),
+                *(
+                    When(_in_slot(start, end), then=Value(start.hour))
+                    for start, end in CoffeeChallenge.SLOTS
+                ),
                 default=Value(-1),
                 output_field=IntegerField(),
             )
@@ -119,9 +127,7 @@ def _live(now):
 
 def _semester_for(today):
     return (
-        Semester.objects.filter(start__lte=today, end__gte=today)
-        .order_by("-start")
-        .first()
+        Semester.objects.for_date(today)
         or Semester.objects.filter(end__lt=today).order_by("-start").first()
     )
 
@@ -169,9 +175,12 @@ def _semester(today):
                     "start": f"{row['slot']:02d}:00",
                 }
         rhythm = [
-            {"hour": h, "avg": round(slot_sums.get(h, 0) / len(full_days))}
-            for h in range(8, 17)
-            if h != LUNCH
+            {
+                "hour": start.hour,
+                "avg": round(slot_sums.get(start.hour, 0) / len(full_days)),
+            }
+            for start, _ in CoffeeChallenge.SLOTS
+            if start.hour != LUNCH
         ]
 
     return {
@@ -206,10 +215,18 @@ def _top():
     if semester is None:
         return None
 
+    candidates = semester["groups"][0]["top_users"]
+    # The high score cache can be hours old, so re-check who still wants to be shown.
+    visible = set(
+        Profile.objects.filter(
+            user_id__in=[u.id for u in candidates], show_profile=True
+        ).values_list("user_id", flat=True)
+    )
+
     people = []
-    for user in semester["groups"][0]["top_users"]:
+    for user in candidates:
         name = _short_name(user)
-        if not name:
+        if not name or user.id not in visible:
             continue
         # Rank among the people shown, so skipped users leave no gaps.
         rank = 1

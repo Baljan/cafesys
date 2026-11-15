@@ -2086,11 +2086,15 @@ def high_score(request, location=None):
 def _skarm_payload(request):
     # ?nu=2025-11-13T10:07 previews another moment against old local data.
     now = request.GET.get("nu") if settings.DEBUG else None
-    if now:
-        return dashboard.payload(
-            timezone.make_aware(datetime.fromisoformat(now)), use_cache=False
-        )
-    return dashboard.payload()
+    if not now:
+        return dashboard.payload()
+    try:
+        now = datetime.fromisoformat(now)
+    except ValueError:
+        raise BadRequest("nu ska vara en tidpunkt som 2025-11-13T10:07")
+    if timezone.is_naive(now):
+        now = timezone.make_aware(now)
+    return dashboard.payload(now, use_cache=False)
 
 
 @require_GET
