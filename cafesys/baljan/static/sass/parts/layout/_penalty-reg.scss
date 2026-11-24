@@ -26,6 +26,10 @@ $vt23-blue2: #bbeefe;
     &:hover ~ .main-image {
       opacity: 0.6;
     }
+
+    &.locked {
+      cursor: not-allowed;
+    }
   }
 
   .card {
@@ -108,7 +112,13 @@ $vt23-blue2: #bbeefe;
         margin-bottom: 1rem;
       }
     }
+    &.locked {
+      border: 7px solid #ffc300;
+      border-radius: 30px;
+    }
   }
+
+  
 
   .main-image {
     opacity: 1;
