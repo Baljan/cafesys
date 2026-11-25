@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import json
+
 from dateutil.relativedelta import relativedelta
 from django import forms
 from .models import Semester
@@ -283,11 +285,25 @@ class OrderForm(forms.Form):
         (3, "Eftermiddag 16:15-17:00"),
     )
 
-    def __init__(self, *args, enforce_lead_time=True, **kwargs):
-        """`enforce_lead_time=False` lets the board edit orders past the deadline."""
+    #: Modal on the order page -> (noun in the allergy text, sub-types, group total).
+    FOOD_GROUPS = {
+        "JochenModal": ("jochen", "JOCHEN_TYPES", "numberOfJochen"),
+        "MinijochenModal": ("mini jochen", "MINI_JOCHEN_TYPES", "numberOfMinijochen"),
+        "PastasaladModal": ("pastasallad", "PASTA_SALAD_TYPES", "numberOfPastasalad"),
+    }
+    MAX_ALLERGY_ROWS = 30
+    MAX_SUB_COUNT = 1000
+
+    def __init__(self, *args, enforce_lead_time=True, allergy_rows=True, **kwargs):
+        """`enforce_lead_time=False` lets the board edit orders past the deadline.
+
+        `allergy_rows=False` takes the allergy text as typed, for the board,
+        instead of building it from the order page's rows.
+        """
         super(OrderForm, self).__init__(*args, **kwargs)
 
         self.enforce_lead_time = enforce_lead_time
+        self.allergy_rows = allergy_rows
 
         # Set per instance so the dates don't freeze at import time.
         today = timezone.localdate()
@@ -310,7 +326,10 @@ class OrderForm(forms.Form):
             for field_name, label in sub_form_data:
                 # The page sends 0 for a cleared sub-type.
                 self.fields["numberOf%s" % field_name.title()] = forms.IntegerField(
-                    min_value=0, required=False, label="Antal %s:" % label
+                    min_value=0,
+                    max_value=self.MAX_SUB_COUNT,
+                    required=False,
+                    label="Antal %s:" % label,
                 )
 
     def clean_date(self):
@@ -331,11 +350,13 @@ class OrderForm(forms.Form):
     def clean(self):
         """Refuse orders placed too late for the chosen date."""
         cleaned = super().clean()
-        wants_allergy_food = any(
-            cleaned.get(field) for field in models.EXTRA_ORDER_OTHER_FIELDS
-        )
-        if wants_allergy_food and not cleaned.get("allergies", "").strip():
-            self.add_error("allergies", "Skriv vilka allergier det gäller.")
+        if self.allergy_rows:
+            error = self._apply_allergy_rows(cleaned)
+            if error:
+                self.add_error("allergies", error)
+        elif any(cleaned.get(field) for field in models.EXTRA_ORDER_OTHER_FIELDS):
+            if not cleaned.get("allergies", "").strip():
+                self.add_error("allergies", "Skriv vilka allergier det gäller.")
 
         date = cleaned.get("date")
         if not self.enforce_lead_time or date is None:
@@ -359,6 +380,81 @@ class OrderForm(forms.Form):
                 % self.earliest_food_date.isoformat()
             )
         return cleaned
+
+    def _apply_allergy_rows(self, cleaned):
+        """Build the "med allergi" counts, group totals and allergy text from the rows.
+
+        Done here rather than trusted from the page, so the stored text can only
+        ever be rows of a known sort, a short allergy and a count. Returns an
+        error message instead when the rows cannot be used.
+        """
+        try:
+            rows = json.loads(cleaned.get("allergyRows") or "[]")
+        except (ValueError, RecursionError):
+            rows = None
+        if not isinstance(rows, list):
+            return "Raderna med allergi kunde inte läsas."
+        rows = [
+            row
+            for row in rows
+            if not isinstance(row, dict)
+            or row.get("sort")
+            or row.get("allergy")
+            or row.get("count")
+        ]
+        if len(rows) > self.MAX_ALLERGY_ROWS:
+            return "Högst %d rader med allergi." % self.MAX_ALLERGY_ROWS
+
+        counts = dict.fromkeys(self.FOOD_GROUPS, 0)
+        lines = []
+        for row in rows:
+            if not self._valid_allergy_row(row):
+                return "Fyll i sort, allergi och antal på varje rad med allergi."
+            counts[row["modal"]] += row["count"]
+            noun = self.FOOD_GROUPS[row["modal"]][0]
+            lines.append(
+                f"{row['count']} {noun} {row['sort']}: {row['allergy'].strip()}"
+            )
+        if any(count > self.MAX_SUB_COUNT for count in counts.values()):
+            return "Högst %d st med allergi per vara." % self.MAX_SUB_COUNT
+
+        # A page from before the rows posts its counts and text without them.
+        posted_by_hand = self.data.get("allergies", "").strip() or any(
+            cleaned.get(field) for field in models.EXTRA_ORDER_OTHER_FIELDS
+        )
+        if posted_by_hand and not lines:
+            return "Sidan har uppdaterats. Lägg till det som ska vara med allergi igen."
+
+        for modal, (_noun, types_attr, total_field) in self.FOOD_GROUPS.items():
+            fields = [
+                "numberOf%s" % field.title() for field, _ in getattr(self, types_attr)
+            ]
+            other = next(f for f in fields if f.startswith("numberOfOvrig"))
+            cleaned[other] = counts[modal] or None
+            total = sum(cleaned.get(field) or 0 for field in fields)
+            cleaned[total_field] = total or None
+        cleaned["allergies"] = "\n".join(lines)
+        return None
+
+    def _valid_allergy_row(self, row):
+        modal = row.get("modal") if isinstance(row, dict) else None
+        group = isinstance(modal, str) and self.FOOD_GROUPS.get(modal)
+        if not group:
+            return False
+        sorts = [
+            label
+            for field, label in getattr(self, group[1])
+            if not field.startswith("ovrig")
+        ]
+        allergy, count = row.get("allergy"), row.get("count")
+        return (
+            row.get("sort") in sorts
+            and isinstance(allergy, str)
+            and 0 < len(allergy.strip()) <= 100
+            and not any(ord(ch) < 32 for ch in allergy)
+            and type(count) is int
+            and 0 < count <= self.MAX_SUB_COUNT
+        )
 
     def clean_pickup(self):
         pickup = self.cleaned_data["pickup"]
@@ -439,14 +535,20 @@ class OrderForm(forms.Form):
     other = forms.CharField(
         widget=forms.Textarea(attrs={"cols": 33, "rows": 5}),
         required=False,
+        max_length=2000,
         label="Övrig info",
     )
     allergies = forms.CharField(
         widget=forms.Textarea(attrs={"cols": 33, "rows": 3}),
         required=False,
+        max_length=5000,
         label="Allergier",
         help_text="Skriv vad som ska vara fritt från vad, t.ex. "
         "”2 laktosfria grekisk sallad”.",
+    )
+    # The order page's allergy rows as JSON; the allergy text is built from them.
+    allergyRows = forms.CharField(
+        widget=forms.HiddenInput, required=False, max_length=10000
     )
 
     pickup = forms.ChoiceField(
