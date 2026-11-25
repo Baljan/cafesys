@@ -137,6 +137,16 @@ function updateFoodAvailability(droppedJochen){
         ? "<p class='text-danger mb-0'>Fler än 100 jochen måste hämtas på morgonen (07:30-08:00). Stänger du rutan tas jochen bort.</p>" : "");
 }
 
+// Allergies are asked for only when something is ordered "med allergi".
+function updateAllergies(){
+    var count = 0;
+    $('#id_numberOfOvrigjochen, #id_numberOfOvrigmini, #id_numberOfOvrigsallad').each(function() {
+        count += parseInt($(this).val()) || 0;
+    });
+    $('#allergies_wrapper').prop('hidden', count === 0);
+    $('#id_allergies').prop('required', count > 0);
+}
+
 function clearWindowField(name){
     $('#' + name + 'Modal :input').each(function() {
         $(this).val('');
@@ -144,6 +154,7 @@ function clearWindowField(name){
     $('#id_numberOf'+ name).val('');  
     $('#'+ name+ 'Sum').html(''); 
     calcSum();
+    updateAllergies();
 }
 
 function setErrorMsg(text, field){
@@ -201,6 +212,7 @@ $(function () {
             let groupAmnt = calcGroupAmnt(groupId);
             groupSumElem.text(groupAmnt*groupCost);
             updateFoodAvailability();
+            updateAllergies();
         });
     });
 
@@ -246,6 +258,7 @@ $(function () {
         updateFoodAvailability();
     });
     updateFoodAvailability();
+    updateAllergies();
 
     $("form").on("submit", function() {
         window.onbeforeunload = null;

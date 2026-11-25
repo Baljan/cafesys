@@ -72,7 +72,7 @@
     {% csrf_token %}
     <input type="hidden" name="vecka" value="{{ start|date:'Y-m-d' }}">
     <div class="card-body">
-      <h3 class="h5 card-title">Allergier och övrigt till Smörgåsfiket</h3>
+      <h3 class="h5 card-title">Allergier till Smörgåsfiket</h3>
       {% if allergies %}
         <p class="small text-muted">
           Skriv exakt vad Smörgåsfiket ska göra, t.ex. &rdquo;1 laktosfri grekisk sallad&rdquo;.
@@ -91,10 +91,16 @@
               </div>
             {% endif %}
             <textarea id="allergy_{{ entry.order.pk }}" name="allergy_{{ entry.order.pk }}" rows="2" class="form-control">{{ entry.text }}</textarea>
+            <div class="form-check mt-1">
+              <input type="checkbox" class="form-check-input" id="checked_{{ entry.order.pk }}" required>
+              <label class="form-check-label small" for="checked_{{ entry.order.pk }}">
+                Jag har kontrollerat vad som skickas till Smörgåsfiket
+              </label>
+            </div>
           </div>
         {% endfor %}
       {% else %}
-        <p class="small text-muted">Inga allergier eller övriga varor den här veckan.</p>
+        <p class="small text-muted">Inga allergier den här veckan.</p>
       {% endif %}
       <button type="submit" class="btn btn-primary">Ladda ner PDF</button>
     </div>

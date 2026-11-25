@@ -106,9 +106,15 @@
         <strong class="ms-3">{{ order.displayed_sum|default:"—" }}{% if order.displayed_sum %} SEK{% endif %}</strong>
       </div>
 
+      {% if order.allergies %}
+        <div class="card-body border-top">
+          <h4 class="h6">Allergier</h4>
+          <p class="mb-0">{{ order.allergies|linebreaksbr }}</p>
+        </div>
+      {% endif %}
       {% if order.other %}
         <div class="card-body border-top">
-          <h4 class="h6">Övrigt och allergier</h4>
+          <h4 class="h6">Övrig info</h4>
           <p class="mb-0">{{ order.other|linebreaksbr }}</p>
         </div>
       {% endif %}

@@ -126,7 +126,7 @@ def catering_order_description(order):
             f"  - {child['label']}: {child['count']}" for child in group["children"]
         ]
 
-    lines += ["", f"Övrigt info och allergier: {order.other}"]
+    lines += ["", f"Allergier: {order.allergies}", f"Övrig info: {order.other}"]
 
     # Which account was logged in says nothing: the board shares one. Left out
     # entirely when nobody has decided yet, which is the case for the invite

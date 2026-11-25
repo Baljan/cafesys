@@ -183,6 +183,21 @@ class CateringReturnForm(forms.ModelForm):
             "return_note": forms.Textarea(attrs={"class": "form-control", "rows": 3})
         }
 
+    def __init__(self, *args, boxes_required=False, **kwargs):
+        """`boxes_required` when jochen boxes went out, so the count is not forgotten."""
+        super().__init__(*args, **kwargs)
+        self.boxes_required = boxes_required
+        if boxes_required:
+            self.fields["jochen_boxes_returned"].widget.attrs["required"] = True
+
+    def clean_jochen_boxes_returned(self):
+        boxes = self.cleaned_data["jochen_boxes_returned"]
+        if boxes is None and self.boxes_required:
+            raise forms.ValidationError(
+                "Fyll i hur många jochenlådor som kom tillbaka, 0 om inga."
+            )
+        return boxes
+
 
 class CateringLineForm(forms.Form):
     label = _text(100)
@@ -242,13 +257,13 @@ class OrderForm(forms.Form):
         ("kycklingBaconJochen", "kyckling bacon (ljust bröd)"),
         ("skagenroraJochen", "skagenröra (ljust bröd)"),
         ("tonfiskJochen", "tonfisk (mörkt bröd)"),
-        ("ovrigJochen", "övriga"),
+        ("ovrigJochen", "med allergi"),
     ]
 
     MINI_JOCHEN_TYPES = [
         ("ostFralla", "ostfralla"),
         ("ostOchSkinkFralla", "ost- & skinkfralla"),
-        ("ovrigMini", "övriga"),
+        ("ovrigMini", "med allergi"),
     ]
 
     PASTA_SALAD_TYPES = [
@@ -258,7 +273,7 @@ class OrderForm(forms.Form):
         ("grekiskSallad", "grekisk"),
         ("tonfiskSallad", "tonfisk"),
         ("falafelSallad", "falafel"),
-        ("ovrigSallad", "övriga"),
+        ("ovrigSallad", "med allergi"),
     ]
 
     PICKUP_CHOICES = (
@@ -316,6 +331,12 @@ class OrderForm(forms.Form):
     def clean(self):
         """Refuse orders placed too late for the chosen date."""
         cleaned = super().clean()
+        wants_allergy_food = any(
+            cleaned.get(field) for field in models.EXTRA_ORDER_OTHER_FIELDS
+        )
+        if wants_allergy_food and not cleaned.get("allergies", "").strip():
+            self.add_error("allergies", "Skriv vilka allergier det gäller.")
+
         date = cleaned.get("date")
         if not self.enforce_lead_time or date is None:
             return cleaned
@@ -418,7 +439,14 @@ class OrderForm(forms.Form):
     other = forms.CharField(
         widget=forms.Textarea(attrs={"cols": 33, "rows": 5}),
         required=False,
-        label="Övrig info och allergier",
+        label="Övrig info",
+    )
+    allergies = forms.CharField(
+        widget=forms.Textarea(attrs={"cols": 33, "rows": 3}),
+        required=False,
+        label="Allergier",
+        help_text="Skriv vad som ska vara fritt från vad, t.ex. "
+        "”2 laktosfria grekisk sallad”.",
     )
 
     pickup = forms.ChoiceField(

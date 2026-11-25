@@ -586,6 +586,7 @@ class CateringCentralTestCase(TestCase):
             "pickup": "1",
             "date": next_weekday(14).isoformat(),
             "other": "Ändrad text",
+            "allergies": "1 glutenfri",
             "orderSum": "900",
         }
         with self.captureOnCommitCallbacks(execute=True):
@@ -596,6 +597,7 @@ class CateringCentralTestCase(TestCase):
         self.assertEqual(order.association, "Nya sektionen")
         self.assertEqual(order.pickup, CateringOrder.MORNING)
         self.assertEqual(order.other, "Ändrad text")
+        self.assertEqual(order.allergies, "1 glutenfri")
         counts = {item["field"]: item["count"] for item in order.items}
         self.assertEqual(counts["numberOfCoffee"], 50)
         self.assertEqual(mail.outbox, [])
@@ -2303,6 +2305,27 @@ class OrderFormSubTypeTestCase(TestCase):
             [("kyckling", 10), ("grekisk", 5)],
         )
 
+    def test_food_with_allergy_needs_the_allergies(self):
+        response = self.client.post(
+            reverse("order_from_us"),
+            order_payload(numberOfPastasalad=5, numberOfOvrigsallad=5),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("allergies", response.context["form"].errors)
+
+    def test_the_allergies_are_stored_apart_from_the_other_info(self):
+        self.client.post(
+            reverse("order_from_us"),
+            order_payload(
+                numberOfPastasalad=5,
+                numberOfOvrigsallad=5,
+                allergies="5 laktosfria",
+            ),
+        )
+        order = CateringOrder.objects.get()
+        self.assertEqual(order.allergies, "5 laktosfria")
+        self.assertEqual(order.other, "Ingen laktos tack")
+
 
 class OrderCutoffTestCase(TestCase):
     """Morning and lunch close 16:00 the weekday before, afternoon 12:00 the same day."""
@@ -2404,12 +2427,13 @@ class SupplierLeadTimeTestCase(TestCase):
         self.assertEqual(deadline.date(), date(2026, 10, 8))
         self.assertEqual(deadline.time(), time(16, 0))
 
-    def test_the_next_week_to_send_waits_for_the_boards_deadline(self):
+    def test_the_next_week_to_send_turns_after_friday(self):
         cases = {
-            "2026-09-30 17:00": date(2026, 10, 5),  # customers closed, board not
-            "2026-10-01 16:00": date(2026, 10, 5),  # Thursday, on the dot
-            "2026-10-01 16:01": date(2026, 10, 12),  # a minute late
-            "2026-10-04 23:00": date(2026, 10, 12),  # Sunday
+            "2026-09-30 17:00": date(2026, 10, 5),
+            "2026-10-01 16:01": date(2026, 10, 5),  # past the deadline, still shown
+            "2026-10-02 23:59": date(2026, 10, 5),  # Friday
+            "2026-10-03 00:00": date(2026, 10, 12),  # Saturday
+            "2026-10-04 23:00": date(2026, 10, 12),
         }
         for when, expected in cases.items():
             with self.subTest(when=when):
@@ -2975,8 +2999,19 @@ class CateringReturnTestCase(BoardClientMixin, TestCase):
         self.assertEqual(self.order.handled_by_name, "Jour Jansson")
 
     def test_a_partial_return_keeps_it_waiting(self):
-        self.submit(jochen_boxes_returned="")
+        self.submit(**{"thermoses-0-returned_on": "", "thermoses-0-received_by": ""})
         self.assertEqual(self.order.status, CateringOrder.Status.DELIVERED)
+
+    def test_the_returned_boxes_must_be_counted(self):
+        response = self.submit(jochen_boxes_returned="")
+        self.assertIn("jochen_boxes_returned", response.context["form"].errors)
+        self.assertEqual(self.order.status, CateringOrder.Status.DELIVERED)
+
+    def test_no_boxes_out_needs_no_count(self):
+        self.handout.jochen_boxes_out = 0
+        self.handout.save()
+        self.submit(jochen_boxes_returned="")
+        self.assertEqual(self.order.status, CateringOrder.Status.RETURNED)
 
     def return_all(self, name="Mottagare"):
         response = self.client.post(
@@ -3296,12 +3331,12 @@ class CateringExtraOrderTestCase(BoardClientMixin, TestCase):
         self.assertEqual(bread, {"Ljus baguette": 7, "Mörk baguette": 1, "Fralla": 0})
         self.assertIn(f"{monday:%d/%m} Testsektionen", sheet["columns"][0])
 
-    def test_the_allergy_box_is_prefilled_with_the_other_text_only(self):
+    def test_the_allergy_box_is_prefilled_with_the_allergies_only(self):
         monday = self.monday()
         items = self.jochen(2) + [
             {
                 "field": "numberOfOvrigjochen",
-                "label": "övriga",
+                "label": "med allergi",
                 "count": 1,
                 "group": "Jochen",
             }
@@ -3310,19 +3345,23 @@ class CateringExtraOrderTestCase(BoardClientMixin, TestCase):
             date=monday,
             status=CateringOrder.Status.APPROVED,
             association="Partygänget",
-            other="1 laktosfri",
+            other="Hämtas av Bo",
+            allergies="1 laktosfri",
             items=items,
         )
         make_order(
             date=monday,
             status=CateringOrder.Status.APPROVED,
-            other="",
+            other="Ingen laktos",
             items=self.jochen(1),
         )
         response = self.page(monday)
         [entry] = response.context["allergies"]
         self.assertEqual(entry["text"], f"Partygänget {monday:%d/%m}: 1 laktosfri")
-        self.assertEqual(entry["others"], [{"label": "Jochen (övriga)", "count": 1}])
+        self.assertEqual(
+            entry["others"], [{"label": "Jochen (med allergi)", "count": 1}]
+        )
+        self.assertContains(response, f'id="checked_{entry["order"].pk}" required')
         self.assertContains(response, "Övrigt beställt:")
         self.assertContains(response, "Ladda ner PDF")
 
