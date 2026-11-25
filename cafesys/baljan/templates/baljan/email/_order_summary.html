@@ -27,8 +27,13 @@ Expects `order` in the context.
   {% endfor %}
 </table>
 
+{% if order.allergies %}
+  <h2>Allergier</h2>
+  {{ order.allergies|linebreaks }}
+{% endif %}
+
 {% if order.other %}
-  <h2>Övrigt och allergier</h2>
+  <h2>Övrig info</h2>
   {{ order.other|linebreaks }}
 {% endif %}
 

@@ -18,7 +18,7 @@
     <div class="col-md order-2 order-md-1">
         <div>
             <div>
-                Här kan ni skicka beställningar till Baljan! <br><br>Saknar ni något fält eller har någon fundering kring er beställning kan ni lägga till det under ”Övrig info & allergier” 
+                Här kan ni skicka beställningar till Baljan! <br><br>Saknar ni något fält eller har någon fundering kring er beställning kan ni lägga till det under ”Övrig info” 
                 eller kontakta styrelsen via mail: <a href="mailto:bestallning@baljan.org">bestallning@baljan.org</a>.
             </div>
         </div>
@@ -63,6 +63,10 @@
                     <div class="row" id="order_error"></div>
 
                     {{ form.orderSum.as_hidden }}
+                    <div id="allergies_wrapper" hidden>
+                        {% field form.allergies %}
+                        <small class="form-text text-muted d-block mb-2">{{ form.allergies.help_text }}</small>
+                    </div>
                     {% field form.other %}
                 </div>
 
@@ -168,7 +172,7 @@
                 </li>
                 <li>
                     Önskar ni beställa Jochen/pastasallad fria från vissa allergener, fyll i dessa under 
-                    ”Antal övriga” och ange allergierna under ”Övrig info & allergier”. Vid allergi kan 
+                    ”Antal med allergi” och ange allergierna under ”Allergier”. Vid allergi kan 
                     samtliga pastasallader beställas utan pasta. OBS: Jochen går ej att få glutenfria.
                 </li>
             </ul>
@@ -184,7 +188,7 @@
             <h3> Läsk/vatten </h3>
             <ul>
                 <li>Vid beställningar på över 100 stycken av samma sort är det bra att kontakta Baljan i god tid.</li>
-                <li>Har ni speciella önskemål på vilka sorter av läsk eller vatten ni vill ha kan ni specificera detta under ”Övrig info & allergier”.</li>
+                <li>Har ni speciella önskemål på vilka sorter av läsk eller vatten ni vill ha kan ni specificera detta under ”Övrig info”.</li>
                 <li>Priset per burk är 10 kr inklusive pant, som vi inte kräver att få tillbaka.</li>
             </ul>
 

@@ -82,7 +82,12 @@
     </u>
   </p>
 
-  <h2>Övrigt:</h2>
+  {% if data.allergies %}
+    <h2>Allergier:</h2>
+    {{ data.allergies|linebreaks }}
+  {% endif %}
+
+  <h2>Övrig info:</h2>
   {{ data.other|default:"Ingen övrig information lämnades"|linebreaks }}
 
   {% for name, count, tableData in order_fields %}

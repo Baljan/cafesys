@@ -47,9 +47,11 @@
                 <li class="text-muted">Inga varor angivna.</li>
               {% endfor %}
             </ul>
-            {% if order.other %}
+            {% if order.allergies or order.other %}
               <div class="alert alert-warning mt-3 mb-0 small">
-                <strong>Övrigt och allergier:</strong><br>{{ order.other|linebreaksbr }}
+                {% if order.allergies %}<strong>Allergier:</strong><br>{{ order.allergies|linebreaksbr }}{% endif %}
+                {% if order.allergies and order.other %}<br>{% endif %}
+                {% if order.other %}<strong>Övrig info:</strong><br>{{ order.other|linebreaksbr }}{% endif %}
               </div>
             {% endif %}
             {% if order.staff_note %}

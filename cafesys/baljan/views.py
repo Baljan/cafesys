@@ -273,6 +273,7 @@ def _apply_order_form(order, form):
     order.date = data["date"]
     order.pickup = int(data["pickup"])
     order.other = data.get("other") or ""
+    order.allergies = data.get("allergies") or ""
     order.displayed_sum = data.get("orderSum") or ""
     order.items = _catering_items(form)
     order.save()
@@ -296,6 +297,7 @@ def _order_form_initial(order):
         "date": order.date,
         "pickup": str(order.pickup),
         "other": order.other,
+        "allergies": order.allergies,
         "orderSum": order.displayed_sum,
     }
     for item in order.items:
@@ -1150,7 +1152,9 @@ def catering_return(request, pk):
         models.CateringHandout.objects.select_related("order"), order__pk=pk
     )
     data = request.POST if request.method == "POST" else None
-    form = forms.CateringReturnForm(data, instance=handout)
+    form = forms.CateringReturnForm(
+        data, instance=handout, boxes_required=bool(handout.jochen_boxes_out)
+    )
     thermos_formset = forms.CateringThermosReturnFormSet(
         data, initial=handout.thermoses, prefix="thermoses"
     )
@@ -1321,7 +1325,8 @@ def extra_order_reminder(now=None):
     """The extra order due today, if it has any orders, else None."""
     start = models.next_extra_order_week(now)
     deadline = models.extra_order_deadline(start)
-    if deadline.date() != timezone.localdate(now):
+    passed = (now or timezone.now()) > deadline
+    if deadline.date() != timezone.localdate(now) or passed:
         return None
     _end, approved, pending = _extra_order_week(start)
     if not approved and not pending:
@@ -1342,10 +1347,11 @@ def _allergy_prefill(order):
         for item in order.items
         if item.get("field") in models.EXTRA_ORDER_OTHER_FIELDS and item.get("count")
     ]
-    if not others and not order.other.strip():
+    allergies = order.allergies.strip()
+    if not others and not allergies:
         return None
     return {
-        "text": f"{order.association} {order.date:%d/%m}: {order.other.strip()}".strip(),
+        "text": f"{order.association} {order.date:%d/%m}: {allergies}".strip(),
         "others": others,
     }
 

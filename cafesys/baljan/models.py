@@ -162,10 +162,13 @@ def extra_order_deadline(week_start):
 
 
 def next_extra_order_week(now=None):
-    """Monday of the first pickup week whose extra order is not yet due."""
+    """Monday of the pickup week whose extra order the board works on now.
+
+    Stays on that week until Friday is over, so a late order can still be sent.
+    """
     local = timezone.localtime(now)
     week_start = local.date() + timedelta(days=7 - local.weekday())
-    if local > extra_order_deadline(week_start):
+    if local.weekday() >= 5:
         week_start += timedelta(weeks=1)
     return week_start
 
@@ -1903,9 +1906,8 @@ class CateringOrder(Made):
 
     date = models.DateField(_("date"))
     pickup = models.PositiveSmallIntegerField(_("pickup time"), choices=PICKUP_CHOICES)
-    other = models.TextField(
-        _("other information and allergies"), blank=True, default=""
-    )
+    other = models.TextField(_("other information"), blank=True, default="")
+    allergies = models.TextField(_("allergies"), blank=True, default="")
 
     #: The sum shown in the browser when the order was placed. Computed by
     #: JavaScript and therefore not to be trusted; kept only for reference.
@@ -1966,7 +1968,7 @@ class CateringOrder(Made):
 
     #: Stands in for a login on the public status page. The primary key cannot
     #: do that job: it runs 1, 2, 3, and the page carries a name, an email
-    #: address, a phone number and the allergies written into `other`.
+    #: address, a phone number and the allergies.
     access_token = models.CharField(
         _("access token"),
         max_length=64,

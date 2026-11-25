@@ -93,9 +93,15 @@ history are internal and must stay out of it.
         {% endfor %}
       </ul>
 
+      {% if order.allergies %}
+        <div class="card-body border-top">
+          <h4 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Allergier</h4>
+          <div class="mb-0">{{ order.allergies|linebreaks }}</div>
+        </div>
+      {% endif %}
       {% if order.other %}
         <div class="card-body border-top">
-          <h4 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Övrigt och allergier</h4>
+          <h4 class="h6 text-uppercase dark-blue" style="letter-spacing:.06em">Övrig info</h4>
           <div class="mb-0">{{ order.other|linebreaks }}</div>
         </div>
       {% endif %}
