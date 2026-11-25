@@ -1,3 +1,4 @@
+import json
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 from unittest import mock
@@ -2305,26 +2306,107 @@ class OrderFormSubTypeTestCase(TestCase):
             [("kyckling", 10), ("grekisk", 5)],
         )
 
-    def test_food_with_allergy_needs_the_allergies(self):
-        response = self.client.post(
-            reverse("order_from_us"),
-            order_payload(numberOfPastasalad=5, numberOfOvrigsallad=5),
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("allergies", response.context["form"].errors)
+    def allergy_row(self, **over):
+        row = {
+            "modal": "PastasaladModal",
+            "sort": "grekisk",
+            "allergy": "laktosfri",
+            "count": 5,
+        }
+        row.update(over)
+        return row
 
-    def test_the_allergies_are_stored_apart_from_the_other_info(self):
-        self.client.post(
+    def post_rows(self, *rows, **over):
+        return self.client.post(
             reverse("order_from_us"),
-            order_payload(
-                numberOfPastasalad=5,
-                numberOfOvrigsallad=5,
-                allergies="5 laktosfria",
-            ),
+            order_payload(allergyRows=json.dumps(list(rows)), **over),
+        )
+
+    def test_allergies_are_entered_as_rows(self):
+        response = self.client.get(reverse("order_from_us"))
+        self.assertContains(response, 'class="allergy-rows', count=3)
+        self.assertContains(response, "<option>grekisk</option>", html=True)
+        self.assertContains(response, 'name="allergyRows"')
+        self.assertNotContains(response, 'name="allergies"')
+
+    def test_the_rows_make_the_counts_and_the_text(self):
+        self.post_rows(
+            self.allergy_row(),
+            self.allergy_row(modal="JochenModal", sort="kebab (ljust bröd)", count=1),
+            {"modal": "PastasaladModal", "sort": "", "allergy": "", "count": 0},
+            numberOfKycklingsallad=2,
         )
         order = CateringOrder.objects.get()
-        self.assertEqual(order.allergies, "5 laktosfria")
+        self.assertEqual(
+            order.allergies,
+            "5 pastasallad grekisk: laktosfri\n1 jochen kebab (ljust bröd): laktosfri",
+        )
         self.assertEqual(order.other, "Ingen laktos tack")
+        counts = {item["field"]: item["count"] for item in order.items}
+        self.assertEqual(counts["numberOfOvrigsallad"], 5)
+        self.assertEqual(counts["numberOfPastasalad"], 7)
+        self.assertEqual(counts["numberOfOvrigjochen"], 1)
+        self.assertEqual(counts["numberOfJochen"], 1)
+
+    def test_posted_counts_and_text_are_not_trusted(self):
+        self.post_rows(
+            self.allergy_row(),
+            numberOfPastasalad=999,
+            numberOfOvrigsallad=999,
+            allergies="<script>alert(1)</script>",
+        )
+        order = CateringOrder.objects.get()
+        self.assertEqual(order.allergies, "5 pastasallad grekisk: laktosfri")
+        counts = {item["field"]: item["count"] for item in order.items}
+        self.assertEqual(counts["numberOfOvrigsallad"], 5)
+        self.assertEqual(counts["numberOfPastasalad"], 5)
+
+    def test_a_page_from_before_the_rows_is_not_saved_without_them(self):
+        for posted in (
+            {"numberOfPastasalad": 5, "numberOfOvrigsallad": 5},
+            {"allergies": "5 laktosfria"},
+        ):
+            with self.subTest(posted=posted):
+                response = self.client.post(
+                    reverse("order_from_us"), order_payload(**posted)
+                )
+                self.assertIn("allergies", response.context["form"].errors)
+        self.assertFalse(CateringOrder.objects.exists())
+
+    def test_bad_rows_are_refused(self):
+        bad = {
+            "unknown sort": [self.allergy_row(sort="<b>egen</b>")],
+            "unknown modal": [self.allergy_row(modal="x")],
+            "no allergy": [self.allergy_row(allergy=" ")],
+            "long allergy": [self.allergy_row(allergy="x" * 101)],
+            "line break": [self.allergy_row(allergy="laktos\nfalsk rad")],
+            "text count": [self.allergy_row(count="5")],
+            "too many": [self.allergy_row(count=1001)],
+            "not a row": ["5 grekisk"],
+            "too many rows": [self.allergy_row(count=1)] * 31,
+            "modal not a string": [self.allergy_row(modal=["PastasaladModal"])],
+            "over the cap together": [self.allergy_row(count=600)] * 2,
+        }
+        for case, rows in bad.items():
+            with self.subTest(case):
+                response = self.post_rows(*rows)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("allergies", response.context["form"].errors)
+        for raw in ("{nope", "[" * 5000):
+            response = self.client.post(
+                reverse("order_from_us"), order_payload(allergyRows=raw)
+            )
+            self.assertIn("allergies", response.context["form"].errors)
+        self.assertFalse(CateringOrder.objects.exists())
+
+    def test_long_texts_are_refused(self):
+        response = self.client.post(
+            reverse("order_from_us"),
+            order_payload(other="x" * 2001, allergyRows="[" + " " * 10000 + "]"),
+        )
+        self.assertIn("other", response.context["form"].errors)
+        self.assertIn("allergyRows", response.context["form"].errors)
+        self.assertFalse(CateringOrder.objects.exists())
 
 
 class OrderCutoffTestCase(TestCase):

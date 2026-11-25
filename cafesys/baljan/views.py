@@ -840,7 +840,9 @@ def catering_order(request, pk):
         task = request.POST.get("task", "")
 
         if task == "save":
-            form = forms.OrderForm(request.POST, enforce_lead_time=False)
+            form = forms.OrderForm(
+                request.POST, enforce_lead_time=False, allergy_rows=False
+            )
             if form.is_valid():
                 _apply_order_form(order, form)
                 messages.add_message(

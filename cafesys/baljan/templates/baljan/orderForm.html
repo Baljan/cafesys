@@ -63,10 +63,14 @@
                     <div class="row" id="order_error"></div>
 
                     {{ form.orderSum.as_hidden }}
-                    <div id="allergies_wrapper" hidden>
-                        {% field form.allergies %}
-                        <small class="form-text text-muted d-block mb-2">{{ form.allergies.help_text }}</small>
+                    {{ form.allergyRows }}
+                    <div id="allergy_summary" class="alert alert-light small py-2" hidden>
+                        <b>Med allergi:</b>
+                        <div class="lines" style="white-space: pre-line"></div>
                     </div>
+                    {% for error in form.allergies.errors|add:form.allergyRows.errors %}
+                        <p class="text-danger small">{{ error }}</p>
+                    {% endfor %}
                     {% field form.other %}
                 </div>
 
@@ -171,8 +175,8 @@
                     För information angående allergener och näringsinnehåll se följande <a href="{% static 'foodcon.pdf' %}" target="_blank">innehållsförteckning för Jochen och sallad</a>.
                 </li>
                 <li>
-                    Önskar ni beställa Jochen/pastasallad fria från vissa allergener, fyll i dessa under 
-                    ”Antal med allergi” och ange allergierna under ”Allergier”. Vid allergi kan 
+                    Önskar ni beställa Jochen/pastasallad fria från vissa allergener, lägg till dem med
+                    ”+ Lägg till med allergi” i rutan för jochen, mini jochen eller pastasallad. Vid allergi kan 
                     samtliga pastasallader beställas utan pasta. OBS: Jochen går ej att få glutenfria.
                 </li>
             </ul>

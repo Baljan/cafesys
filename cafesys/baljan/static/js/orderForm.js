@@ -137,17 +137,77 @@ function updateFoodAvailability(droppedJochen){
         ? "<p class='text-danger mb-0'>Fler än 100 jochen måste hämtas på morgonen (07:30-08:00). Stänger du rutan tas jochen bort.</p>" : "");
 }
 
-// Allergies are asked for only when something is ordered "med allergi".
+var MAX_ALLERGY_ROWS = 30;
+var MAX_ALLERGY_COUNT = 1000;
+
+// Each modal's allergy rows fill its "med allergi" count; the server builds the text.
 function updateAllergies(){
-    var count = 0;
-    $('#id_numberOfOvrigjochen, #id_numberOfOvrigmini, #id_numberOfOvrigsallad').each(function() {
-        count += parseInt($(this).val()) || 0;
+    var lines = [];
+    var rows = [];
+    $('.allergy-rows').each(function() {
+        var section = $(this);
+        var count = 0;
+        section.find('.allergy-row').each(function() {
+            var row = {
+                modal: section.closest('.modal').attr('id'),
+                sort: $(this).find('.allergy-sort').val(),
+                allergy: $(this).find('.allergy-text').val().trim(),
+                count: parseInt($(this).find('.allergy-count').val()) || 0
+            };
+            if (row.sort || row.allergy || row.count) {
+                rows.push(row);
+            }
+            count += row.count;
+            if (row.count) {
+                lines.push(row.count + ' ' + section.data('noun') + ' ' + row.sort + ': ' + row.allergy);
+            }
+        });
+        section.find('.allergy-count').each(function() {
+            this.setCustomValidity(count > MAX_ALLERGY_COUNT
+                ? 'Högst ' + MAX_ALLERGY_COUNT + ' st med allergi per vara.' : '');
+        });
+        var other = section.closest('.modal').find('input[id^=id_numberOfOvrig]');
+        if ((parseInt(other.val()) || 0) !== count) {
+            other.val(count || '').trigger('input');
+        }
     });
-    $('#allergies_wrapper').prop('hidden', count === 0);
-    $('#id_allergies').prop('required', count > 0);
+    $('.add-allergy-row').prop('disabled', $('.allergy-row').length >= MAX_ALLERGY_ROWS);
+    $('#id_allergyRows').val(rows.length ? JSON.stringify(rows) : '');
+    $('#allergy_summary').prop('hidden', !lines.length).find('.lines').text(lines.join('\n'));
+}
+
+function addAllergyRow(section, row){
+    var element = $(section.find('template').html());
+    if (row) {
+        element.find('.allergy-sort').val(row.sort);
+        element.find('.allergy-text').val(row.allergy);
+        element.find('.allergy-count').val(row.count || '');
+    }
+    section.find('.allergy-row-list').append(element);
+    return element;
+}
+
+// The browser cannot point at a field in a closed modal, so rows are checked here.
+function firstIncompleteAllergyRow(){
+    var incomplete = null;
+    $('.allergy-row').each(function() {
+        var fields = $(this).find('.allergy-sort, .allergy-text, .allergy-count');
+        var empty = fields.filter(function() { return !$(this).val().trim(); });
+        var partly = empty.length > 0 && empty.length < fields.length;
+        var bad = fields.filter(function() {
+            return !this.checkValidity() || (partly && !$(this).val().trim());
+        });
+        fields.removeClass('is-invalid');
+        bad.addClass('is-invalid');
+        if (bad.length && !incomplete) {
+            incomplete = $(this);
+        }
+    });
+    return incomplete;
 }
 
 function clearWindowField(name){
+    $('#' + name + 'Modal .allergy-row').remove();
     $('#' + name + 'Modal :input').each(function() {
         $(this).val('');
     });
@@ -257,8 +317,48 @@ $(function () {
         $("#order_error").html("");
         updateFoodAvailability();
     });
-    updateFoodAvailability();
+    $('.add-allergy-row').on('click', function() {
+        addAllergyRow($(this).closest('.allergy-rows')).find('.allergy-sort').focus();
+        updateAllergies();
+    });
+    $(document).on('click', '.remove-allergy-row', function() {
+        $(this).closest('.allergy-row').remove();
+        updateAllergies();
+    });
+    $(document).on('input change', '.allergy-row :input', function() {
+        $(this).removeClass('is-invalid');
+        updateAllergies();
+    });
+
+    try {
+        JSON.parse($('#id_allergyRows').val() || '[]').forEach(function(row) {
+            var section = $('.allergy-rows').filter(function() {
+                return $(this).closest('.modal').attr('id') === row.modal;
+            });
+            if (section.length) {
+                addAllergyRow(section, row);
+            }
+        });
+    } catch (e) {}
+
     updateAllergies();
+    updateFoodAvailability();
+
+    // On click, as the browser's own checks run before the submit event.
+    $('#submit-button').on('click', function(event) {
+        var incomplete = firstIncompleteAllergyRow();
+        if (!incomplete) {
+            return;
+        }
+        event.preventDefault();
+        var modal = incomplete.closest('.modal');
+        modal.one('shown.bs.modal', function() {
+            var field = incomplete.find('.is-invalid')[0];
+            field.focus();
+            field.reportValidity();
+        });
+        bootstrap.Modal.getOrCreateInstance(modal[0]).show();
+    });
 
     $("form").on("submit", function() {
         window.onbeforeunload = null;

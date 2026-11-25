@@ -177,6 +177,7 @@ def order_group(form, group_field_name, label, sub_fields, cost):
         "label": label,
         "sub_fields": sub_fields,
         "cost": cost,
+        "noun": form.FOOD_GROUPS[group_field_name + "Modal"][0],
     }
 
 
